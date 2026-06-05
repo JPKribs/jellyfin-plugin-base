@@ -51,3 +51,14 @@
     opacity: 0.7;
     padding: 1em 0;
 }
+
+/* Bordered fallback box with centered muted text for an empty region */
+/* Example: <div class="jpk-empty-section">Queue is empty. Add a URL above to get started.</div> */
+.jpk-empty-section {
+    text-align: center;
+    padding: 40px 24px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.1em;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}

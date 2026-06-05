@@ -97,6 +97,10 @@ export function createShared(view, pluginId, apiPrefix) {
             return '<span class="jpk-badge ' + cls + '">' + this.escapeHtml(label) + '</span>';
         },
 
+        emptySection: function (message) {
+            return '<div class="jpk-empty-section">' + this.escapeHtml(message) + '</div>';
+        },
+
         formatSize: function (bytes) {
             if (!bytes) return '0 B';
             var units = ['B', 'KB', 'MB', 'GB', 'TB'];

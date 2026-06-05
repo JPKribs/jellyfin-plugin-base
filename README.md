@@ -5,6 +5,8 @@ Shared configuration UI assets and C# helpers used in my Jellyfin plugins, deliv
 ## Components
 
 * `jpkribs_shared.css` and `jpkribs_shared.js` embedded into the plugin assembly under its own namespace.
+* `setTabs` and `initCollapsibles`: tab bar wiring over the native Jellyfin pages and collapsible section toggling.
+* `jpk-empty-section` and `createShared(...).emptySection(text)`: a bordered, centered fallback box for an empty region, for consistent empty states across plugins.
 * `PluginBase<TPlugin, TConfiguration>`: singleton accessor, lock guarded config read and mutate, and `GetSharedPages()` to register the shared assets.
 * `PluginScheduledTask`: scheduled task base with the configurable task defaults and an `EveryInterval` trigger helper.
 * `PagedResult<T>`, `PagedQuery`, and `ToPagedResult`: the page and count contract the shared paginated table reads.
@@ -17,7 +19,7 @@ Shared configuration UI assets and C# helpers used in my Jellyfin plugins, deliv
 Add the package:
 
 ```xml
-<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.6.1" />
+<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.6.2" />
 ```
 
 Extend the base and yield the shared pages:
@@ -48,5 +50,15 @@ Reference the assets from a config page:
 ```
 
 ```js
-import { createShared, getTabs, initCollapsibles } from '/web/configurationpage?name=jpkribs_shared.js';
+import { createShared, setTabs, initCollapsibles } from '/web/configurationpage?name=jpkribs_shared.js';
+```
+
+For a multi tab plugin, register one native page per tab and call `setTabs` on `viewshow`:
+
+```js
+var TABS = [
+    { href: 'configurationpage?name=myplugin_overview', name: 'Overview' },
+    { href: 'configurationpage?name=myplugin_settings', name: 'Settings' }
+];
+setTabs('myplugin', 0, TABS);
 ```
