@@ -1,6 +1,6 @@
 # ![Jellyfin Plugin Base](Assets/Logo.png)
 
-Shared configuration UI assets and C# helpers used by all my Jellyfin plugins, delivered as a NuGet package. The source and assets are compiled into the consuming plugin at build time, so each plugin stays a single DLL with nothing extra to ship.
+Shared configuration UI assets and C# helpers used in my Jellyfin plugins, delivered as a NuGet package. The source and assets are compiled into the consuming plugin at build time, so each plugin stays a single DLL with nothing extra to ship.
 
 ## Components
 
