@@ -1,0 +1,27 @@
+<Project>
+
+  <!--
+    Injected into every consuming plugin at build time:
+      * the shared C# helpers are compiled into the plugin assembly, and
+      * the shared CSS/JS are embedded with the plugin's own namespace, so Jellyfin serves them
+        via configurationpage?name=jpkribs_shared.{css,js} with no extra runtime assembly.
+    $(RootNamespace) is the consuming plugin's namespace (e.g. Jellyfin.Plugin.DynamicDns).
+  -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)..\src\PluginBase.cs">
+      <Link>JPKribs.Base\PluginBase.cs</Link>
+      <Visible>false</Visible>
+    </Compile>
+
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)..\assets\jpkribs_shared.css">
+      <LogicalName>$(RootNamespace).Configuration.jpkribs_shared.css</LogicalName>
+      <Visible>false</Visible>
+    </EmbeddedResource>
+
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)..\assets\jpkribs_shared.js">
+      <LogicalName>$(RootNamespace).Configuration.jpkribs_shared.js</LogicalName>
+      <Visible>false</Visible>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

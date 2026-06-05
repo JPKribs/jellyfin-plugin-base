@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <!-- This package ships source + assets + an import targets file; it has no runtime assembly. -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>NU5100;NU5128</NoWarn>
+
+    <PackageId>JPKribs.Jellyfin.Base</PackageId>
+    <Version>2026.06.1</Version>
+    <Authors>JPKribs</Authors>
+    <Description>Shared configuration-UI assets (CSS/JS) and C# helpers for JPKribs Jellyfin plugins. Compiled into the consuming plugin at build time, so plugins stay a single DLL.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>jellyfin;plugin</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="src/PluginBase.cs" Pack="true" PackagePath="src/" />
+    <None Include="jpkribs_shared.css" Pack="true" PackagePath="assets/" />
+    <None Include="jpkribs_shared.js" Pack="true" PackagePath="assets/" />
+    <None Include="build/JPKribs.Jellyfin.Base.targets" Pack="true" PackagePath="build/" />
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>
