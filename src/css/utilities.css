@@ -9,3 +9,11 @@
 /* Mono, dimmed text for read only values */
 /* Example: <span class="jpk-readonly">read only</span> */
 .jpk-readonly { font-family: var(--jpk-mono); opacity: 0.9; }
+
+/* Success colored text */
+/* Example: <span class="jpk-ok">OK</span> */
+.jpk-ok { color: var(--jpk-success); }
+
+/* Error colored text */
+/* Example: <span class="jpk-bad">Failed</span> */
+.jpk-bad { color: var(--jpk-error); }

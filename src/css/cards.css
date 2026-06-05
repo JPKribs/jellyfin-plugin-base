@@ -3,7 +3,6 @@
 .jpk-cards {
     display: flex;
     gap: 12px;
-    margin-bottom: 16px;
     flex-wrap: wrap;
 }
 
@@ -40,4 +39,25 @@
 @media (max-width: 768px) {
     .jpk-cards { gap: 6px; }
     .jpk-card { min-width: 60px; padding: 8px 6px; }
+}
+
+/* Detail card showing label and value rows for a single item */
+/* Example: <div class="jpk-record-card"><div class="jpk-record-row"><span class="jpk-record-label">Last result</span><span>OK</span></div></div> */
+.jpk-record-card {
+    background: #181818;
+    border: 1px solid var(--jpk-border);
+    border-radius: 8px;
+    padding: 0.9em 1em;
+}
+.jpk-record-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75em;
+    font-size: 0.9em;
+}
+.jpk-record-row + .jpk-record-row {
+    margin-top: 0.35em;
+}
+.jpk-record-label {
+    opacity: 0.7;
 }
