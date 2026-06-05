@@ -1,0 +1,53 @@
+/* Centered placeholder shown when a list has no items */
+/* Example: <div class="jpk-empty-state"><div class="jpk-empty-state-card"></div></div> */
+.jpk-empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 16px;
+}
+
+/* Card holding the empty state icon, title, subtitle, and button */
+/* Example: <div class="jpk-empty-state-card"></div> */
+.jpk-empty-state-card {
+    text-align: center;
+    padding: 40px 48px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    max-width: 420px;
+    width: 100%;
+}
+.jpk-empty-state-icon {
+    font-size: 56px;
+    color: var(--jpk-accent);
+    opacity: 0.6;
+    margin-bottom: 16px;
+    display: block;
+}
+.jpk-empty-state-title {
+    font-size: 1.3em;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.85);
+}
+.jpk-empty-state-subtitle {
+    font-size: 0.95em;
+    color: rgba(255, 255, 255, 0.45);
+    line-height: 1.5;
+    margin-bottom: 28px;
+}
+.jpk-empty-state-button {
+    display: inline-flex !important;
+    align-items: center;
+    padding: 10px 28px !important;
+    font-size: 0.95em;
+    border-radius: 4px;
+}
+
+/* Compact inline empty message */
+/* Example: <div class="jpk-empty">No records yet</div> */
+.jpk-empty {
+    opacity: 0.7;
+    padding: 1em 0;
+}

@@ -1,0 +1,31 @@
+/* Text input wrapper with a floating results dropdown */
+/* Example: <div class="jpk-combo"><input class="jpk-edit-input" /><div class="jpk-combo-dropdown"></div></div> */
+.jpk-combo {
+    position: relative;
+    width: 100%;
+}
+
+/* Floating list of options shown under the input */
+/* Example: <div class="jpk-combo-dropdown"><div class="jpk-combo-option">value</div></div> */
+.jpk-combo-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #1c1c1e;
+    border: 1px solid var(--jpk-border);
+    border-radius: 4px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.jpk-combo-option {
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+.jpk-combo-option:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--jpk-accent);
+}

@@ -1,0 +1,32 @@
+/* Stacked dropdown and action row for picking a record */
+/* Example: <div class="jpk-selector"><select class="jpk-selector-dropdown"></select><div class="jpk-selector-actions"></div></div> */
+.jpk-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 1.5em;
+}
+
+/* Full width dropdown with a chevron affordance */
+/* Example: <select class="jpk-selector-dropdown"></select> */
+.jpk-selector-dropdown {
+    width: 100%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.7)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+
+/* Row of equal width action buttons under the dropdown */
+/* Example: <div class="jpk-selector-actions"><button class="jpk-icon-btn"></button></div> */
+.jpk-selector-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.jpk-selector-actions .jpk-icon-btn {
+    flex: 1;
+}

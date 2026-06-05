@@ -1,0 +1,19 @@
+/* Borderless input that reveals a border on hover and focus */
+/* Example: <input class="jpk-edit-input" value="name" /> */
+.jpk-edit-input {
+    width: 100%;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    padding: 0.3em 0.4em;
+    color: inherit;
+    font-size: 0.9em;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+.jpk-edit-input:hover { border-color: rgba(255, 255, 255, 0.2); }
+.jpk-edit-input:focus {
+    border-color: var(--jpk-accent);
+    outline: none;
+    background: rgba(255, 255, 255, 0.05);
+}

@@ -8,8 +8,8 @@
     $(RootNamespace) is the consuming plugin's namespace (e.g. Jellyfin.Plugin.DynamicDns).
   -->
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)..\src\PluginBase.cs">
-      <Link>JPKribs.Base\PluginBase.cs</Link>
+    <Compile Include="$(MSBuildThisFileDirectory)..\src\*.cs">
+      <Link>JPKribs.Base\%(Filename)%(Extension)</Link>
       <Visible>false</Visible>
     </Compile>
 
@@ -20,6 +20,11 @@
 
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)..\assets\jpkribs_shared.js">
       <LogicalName>$(RootNamespace).Configuration.jpkribs_shared.js</LogicalName>
+      <Visible>false</Visible>
+    </EmbeddedResource>
+
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)..\templates\*.html">
+      <LogicalName>$(RootNamespace).Templates.%(Filename).html</LogicalName>
       <Visible>false</Visible>
     </EmbeddedResource>
   </ItemGroup>

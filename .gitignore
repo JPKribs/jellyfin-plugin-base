@@ -1,4 +1,5 @@
 bin/
 obj/
 nupkg/
+dist/
 .DS_Store

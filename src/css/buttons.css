@@ -1,0 +1,42 @@
+/* Accent filled primary action button */
+/* Example: <button class="raised jpk-button-submit">Save</button> */
+.jpk-button-submit,
+.jpk-button-primary {
+    background-color: var(--jpk-accent) !important;
+    color: #fff !important;
+}
+.jpk-button-submit:hover,
+.jpk-button-primary:hover {
+    background-color: var(--jpk-accent-hover) !important;
+}
+
+/* Red filled destructive action button */
+/* Example: <button class="raised jpk-button-destructive">Delete</button> */
+.jpk-button-destructive {
+    background-color: var(--jpk-error) !important;
+    color: #fff !important;
+}
+.jpk-button-destructive:hover {
+    background-color: var(--jpk-error-hover) !important;
+}
+
+/* Smaller, lower emphasis button */
+/* Example: <button class="raised jpk-button-small">Edit</button> */
+.jpk-button-small {
+    padding: 4px 16px !important;
+    min-width: auto !important;
+    font-size: 0.9em !important;
+}
+
+/* Compact button with a leading icon and a label */
+/* Example: <button class="jpk-icon-btn"><span class="material-icons">add</span><span>New</span></button> */
+.jpk-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px !important;
+    min-width: auto !important;
+}
+.jpk-icon-btn .material-icons {
+    font-size: 18px;
+}

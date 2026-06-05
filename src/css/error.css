@@ -1,0 +1,11 @@
+/* Red, mono error block for surfacing failures */
+/* Example: <div class="jpk-error-message">Request failed</div> */
+.jpk-error-message {
+    background: var(--jpk-red-bg);
+    color: var(--jpk-red-fg);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: var(--jpk-mono);
+    font-size: 0.9em;
+    word-break: break-all;
+}

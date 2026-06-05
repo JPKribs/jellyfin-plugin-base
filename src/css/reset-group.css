@@ -1,0 +1,27 @@
+/* Container for a stack of reset or action rows */
+/* Example: <div class="jpk-reset-group"></div> */
+.jpk-reset-group { margin-bottom: 16px; }
+
+/* Row pairing an action description with its button */
+/* Example: <div class="jpk-reset-row"><div class="jpk-reset-info"></div><button></button></div> */
+.jpk-reset-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.jpk-reset-row:last-child { border-bottom: none; }
+.jpk-reset-row-nuclear {
+    background: rgba(217, 83, 79, 0.08);
+    border-radius: 4px;
+    border-bottom: none;
+}
+.jpk-reset-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    margin-right: 16px;
+}
+.jpk-reset-info .fieldDescription { margin-top: 2px; }

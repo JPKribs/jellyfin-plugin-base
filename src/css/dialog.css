@@ -1,0 +1,61 @@
+/* Full screen dimmed overlay that centers its panel */
+/* Example: <div class="jpk-dialog"><div class="jpk-dialog-content"></div></div> */
+.jpk-dialog {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 16px;
+}
+
+/* Centered, scrollable modal panel */
+/* Example: <div class="jpk-dialog-content"></div> */
+.jpk-dialog-content {
+    background: var(--theme-background-primary, #1c1c1c);
+    border: 1px solid var(--jpk-border);
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+.jpk-dialog-content-narrow { max-width: 420px; }
+
+/* Close button pinned to the panel corner */
+/* Example: <button class="jpk-dialog-close">x</button> */
+.jpk-dialog-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    opacity: 0.7;
+    padding: 4px 8px;
+    line-height: 1;
+}
+.jpk-dialog-close:hover { opacity: 1; }
+
+/* Modal heading */
+/* Example: <h2 class="jpk-modal-title">Title</h2> */
+.jpk-modal-title { margin-top: 0; padding-right: 32px; }
+
+/* Modal body region between header and footer */
+/* Example: <div class="jpk-modal-body"></div> */
+.jpk-modal-body { margin: 16px 0; }
+
+/* Labelled field block inside a modal */
+/* Example: <div class="jpk-modal-field"><div class="jpk-modal-field-label">Name</div></div> */
+.jpk-modal-field { margin-bottom: 12px; }
+.jpk-modal-field-label { opacity: 0.7; margin-bottom: 4px; }
+
+/* Footer row of equal width modal buttons */
+/* Example: <div class="jpk-modal-button-row"><button class="jpk-modal-button"></button></div> */
+.jpk-modal-button-row { display: flex; gap: 8px; margin-top: 8px; }
+.jpk-modal-button { flex: 1; text-align: center; justify-content: center; }

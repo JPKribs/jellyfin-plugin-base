@@ -1,0 +1,18 @@
+/* Low emphasis icon button for table and list rows */
+/* Example: <button class="jpk-row-btn"><span class="material-icons">edit</span></button> */
+.jpk-row-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    color: inherit;
+    opacity: 0.6;
+    transition: opacity 0.2s, background 0.2s;
+}
+.jpk-row-btn:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
+}
+.jpk-row-btn .material-icons { font-size: 20px; }
+.jpk-row-btn.save:hover { color: var(--jpk-accent); }

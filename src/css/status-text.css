@@ -1,0 +1,8 @@
+/* Small status line that fades out after a save */
+/* Example: <span class="jpk-status-text">Saved</span> */
+.jpk-status-text {
+    font-size: 0.9em;
+    transition: opacity 0.3s;
+    display: block;
+    margin-top: 4px;
+}

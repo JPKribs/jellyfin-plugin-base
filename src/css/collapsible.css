@@ -1,0 +1,54 @@
+/* Bordered, rounded wrapper for a collapsible section */
+/* Example: <div class="jpk-collapsible-section"></div> */
+.jpk-collapsible-section {
+    margin-bottom: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* Clickable header bar that toggles the section open and closed */
+/* Example: <button class="jpk-collapsible-header" data-target="body"><span class="jpk-collapsible-title">Title</span><span class="jpk-collapsible-icon">&#9660;</span></button> */
+.jpk-collapsible-header {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: inherit;
+    font-size: 1.1em;
+    font-weight: 500;
+    text-align: left;
+}
+.jpk-collapsible-header:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+.jpk-collapsible-title { flex: 1; }
+.jpk-collapsible-icon {
+    font-size: 0.8em;
+    transition: transform 0.2s;
+}
+.jpk-collapsible-header.collapsed .jpk-collapsible-icon {
+    transform: rotate(-90deg);
+}
+
+/* Section body that hides when collapsed */
+/* Example: <div id="body" class="jpk-collapsible-content"></div> */
+.jpk-collapsible-content {
+    padding: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.jpk-collapsible-content.collapsed { display: none; }
+
+/* Footer action row inside a section */
+/* Example: <div class="jpk-collapsible-actions"></div> */
+.jpk-collapsible-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}

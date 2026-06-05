@@ -1,0 +1,22 @@
+/* Inline indicator that fades in to flag unsaved changes */
+/* Example: <span class="jpk-unsaved visible"><span class="jpk-unsaved-dot"></span>Unsaved</span> */
+.jpk-unsaved {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 12px;
+    font-size: 0.9em;
+    color: var(--jpk-warning);
+    vertical-align: middle;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.jpk-unsaved.visible { opacity: 1; }
+.jpk-unsaved.save-success { color: var(--jpk-success); }
+.jpk-unsaved-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    display: inline-block;
+}

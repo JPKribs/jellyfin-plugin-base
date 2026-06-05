@@ -1,0 +1,100 @@
+name: '📝 Create/Update Release Draft'
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**/*.md'
+      - JPKribs.Jellyfin.Base.csproj
+  workflow_dispatch:
+  repository_dispatch:
+    types:
+      - update-prep-command
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Resolve version and release action
+        id: rel
+        run: |
+          RAW=$(grep -oP '(?<=<Version>)[^<]+' JPKribs.Jellyfin.Base.csproj | head -1)
+          # NuGet normalizes numeric segments (strips leading zeros), e.g. 2026.06.1 -> 2026.6.1.
+          NORM=$(echo "$RAW" | awk -F. '{out=""; for(i=1;i<=NF;i++){seg=$i; if(seg ~ /^[0-9]+$/) seg=seg+0; out=(i==1?seg:out"."seg)} print out}')
+          TAG="v${NORM}"
+          echo "Raw: ${RAW}  Normalized: ${NORM}  Tag: ${TAG}"
+
+          INFO=$(gh release view "${TAG}" --json isDraft 2>/dev/null || echo "not_found")
+          if [ "${INFO}" = "not_found" ]; then
+            echo "action=create" >> "$GITHUB_OUTPUT"
+            echo "final=${NORM}" >> "$GITHUB_OUTPUT"
+          elif [ "$(echo "${INFO}" | jq -r '.isDraft')" = "true" ]; then
+            echo "action=update" >> "$GITHUB_OUTPUT"
+            echo "final=${NORM}" >> "$GITHUB_OUTPUT"
+          else
+            MAJ=$(echo "${NORM}" | cut -d. -f1)
+            MIN=$(echo "${NORM}" | cut -d. -f2)
+            PAT=$(echo "${NORM}" | cut -d. -f3)
+            NEW="${MAJ}.${MIN}.$((PAT + 1))"
+            echo "Published ${TAG} exists - incrementing to v${NEW}"
+            echo "action=increment" >> "$GITHUB_OUTPUT"
+            echo "final=${NEW}" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump version (if incrementing)
+        if: steps.rel.outputs.action == 'increment'
+        run: |
+          NEW="${{ steps.rel.outputs.final }}"
+          sed -i "s#<Version>[^<]*</Version>#<Version>${NEW}</Version>#" JPKribs.Jellyfin.Base.csproj
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add JPKribs.Jellyfin.Base.csproj
+          git commit -m "Auto-increment version to ${NEW}"
+          git push
+
+      - name: Bundle and pack
+        run: |
+          bash scripts/bundle.sh
+          dotnet pack JPKribs.Jellyfin.Base.csproj -c Release -o dist
+
+      - name: Create or update draft release
+        run: |
+          FINAL="${{ steps.rel.outputs.final }}"
+          TAG="v${FINAL}"
+          ACTION="${{ steps.rel.outputs.action }}"
+
+          if [ "${ACTION}" = "update" ]; then
+            gh release view "${TAG}" --json assets --jq '.assets[].name' | while read -r asset; do
+              if [[ "${asset}" == *.nupkg ]]; then
+                gh release delete-asset "${TAG}" "${asset}" -y || true
+              fi
+            done
+          else
+            gh release create "${TAG}" --draft --title "${TAG}" --generate-notes || true
+          fi
+
+          gh release upload "${TAG}" dist/*.nupkg --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

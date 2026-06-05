@@ -1,0 +1,27 @@
+/* Row of removable tag chips that wraps */
+/* Example: <div class="jpk-tags"><span class="jpk-tag">name<span class="jpk-tag-remove">x</span></span></div> */
+.jpk-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+/* Single rounded tag chip with a remove control */
+/* Example: <span class="jpk-tag">name<span class="jpk-tag-remove">x</span></span> */
+.jpk-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.9em;
+}
+.jpk-tag-remove {
+    cursor: pointer;
+    opacity: 0.6;
+    font-size: 1.1em;
+    line-height: 1;
+}
+.jpk-tag-remove:hover { opacity: 1; color: var(--jpk-error); }

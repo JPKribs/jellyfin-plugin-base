@@ -6,6 +6,11 @@ Shared configuration UI assets and C# helpers used in my Jellyfin plugins, deliv
 
 * `jpkribs_shared.css` and `jpkribs_shared.js` embedded into the plugin assembly under its own namespace.
 * `PluginBase<TPlugin, TConfiguration>`: singleton accessor, lock guarded config read and mutate, and `GetSharedPages()` to register the shared assets.
+* `PluginScheduledTask`: scheduled task base with the configurable task defaults and an `EveryInterval` trigger helper.
+* `PagedResult<T>`, `PagedQuery`, and `ToPagedResult`: the page and count contract the shared paginated table reads.
+* `JpkHttp` and `HttpResult`: outbound HTTP over Jellyfin's default client that returns a status and body and never throws on network failure.
+* `StatusPage`: renders the themed status page from the `status` template.
+* `TemplateLoader`: loads and fills HTML templates embedded from `templates/`.
 
 ## Usage
 

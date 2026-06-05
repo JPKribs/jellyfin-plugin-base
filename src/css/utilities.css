@@ -1,0 +1,11 @@
+/* Hides an element outright */
+/* Example: <div class="hidden"></div> */
+.hidden { display: none !important; }
+
+/* Applies the mono font stack */
+/* Example: <span class="jpk-mono">10.0.0.1</span> */
+.jpk-mono { font-family: var(--jpk-mono); }
+
+/* Mono, dimmed text for read only values */
+/* Example: <span class="jpk-readonly">read only</span> */
+.jpk-readonly { font-family: var(--jpk-mono); opacity: 0.9; }

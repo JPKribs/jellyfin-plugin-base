@@ -1,0 +1,8 @@
+/* Indented, left bordered group for sub fields under a toggle */
+/* Example: <div class="jpk-indent"></div> */
+.jpk-indent {
+    margin-left: 1.85em;
+    padding-left: 1em;
+    margin-top: 4px;
+    border-left: 2px solid rgba(255, 255, 255, 0.12);
+}

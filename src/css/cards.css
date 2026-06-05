@@ -1,0 +1,43 @@
+/* Row of count cards that wraps to fit */
+/* Example: <div class="jpk-cards"></div> */
+.jpk-cards {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+/* Rounded card showing a large count over a label, tinted by status */
+/* Example: <div class="jpk-card blue"><span class="jpk-card-count">5</span><span class="jpk-card-label">Users</span></div> */
+.jpk-card {
+    flex: 1;
+    min-width: 90px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid var(--jpk-border);
+    background: rgba(255, 255, 255, 0.03);
+}
+.jpk-card-count {
+    display: block;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+.jpk-card-label {
+    display: block;
+    font-size: 0.85em;
+    opacity: 0.9;
+}
+.jpk-card.green { background: var(--jpk-green-bg); color: var(--jpk-green-fg); border-color: var(--jpk-green-fg); }
+.jpk-card.red { background: var(--jpk-red-bg); color: var(--jpk-red-fg); border-color: var(--jpk-red-fg); }
+.jpk-card.orange { background: var(--jpk-orange-bg); color: var(--jpk-orange-fg); border-color: var(--jpk-orange-fg); }
+.jpk-card.purple { background: var(--jpk-purple-bg); color: var(--jpk-purple-fg); border-color: var(--jpk-purple-fg); }
+.jpk-card.blue { background: var(--jpk-blue-bg); color: var(--jpk-blue-fg); border-color: var(--jpk-blue-fg); }
+.jpk-card.gray { background: var(--jpk-gray-bg); color: var(--jpk-gray-fg); border-color: var(--jpk-gray-fg); }
+.jpk-card.yellow { background: rgba(224, 200, 78, 0.18); color: #e0c84e; border-color: #e0c84e; }
+
+@media (max-width: 768px) {
+    .jpk-cards { gap: 6px; }
+    .jpk-card { min-width: 60px; padding: 8px 6px; }
+}

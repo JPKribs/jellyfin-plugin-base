@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <!-- This package ships source + assets + an import targets file; it has no runtime assembly. -->
+    <!-- This package ships source + bundled assets + an import targets file; it has no runtime assembly. -->
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <NoWarn>NU5100;NU5128</NoWarn>
@@ -10,15 +10,22 @@
     <PackageId>JPKribs.Jellyfin.Base</PackageId>
     <Version>2026.06.1</Version>
     <Authors>JPKribs</Authors>
-    <Description>Shared configuration-UI assets (CSS/JS) and C# helpers for JPKribs Jellyfin plugins. Compiled into the consuming plugin at build time, so plugins stay a single DLL.</Description>
+    <Description>Shared configuration-UI assets (CSS/JS) and C# helpers for JPKribs Jellyfin plugins. Authored as per-component sources, bundled at build time, and compiled into the consuming plugin so plugins stay a single DLL.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>jellyfin;plugin</PackageTags>
   </PropertyGroup>
 
+  <!-- The CSS/JS are bundled from src/ by scripts/bundle.sh (run in CI and locally before packing). -->
+  <Target Name="EnsureBundledAssets" BeforeTargets="Build;Pack">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)/dist/jpkribs_shared.css') Or !Exists('$(MSBuildProjectDirectory)/dist/jpkribs_shared.js')"
+           Text="Bundled assets are missing. Run scripts/bundle.sh before building or packing." />
+  </Target>
+
   <ItemGroup>
-    <None Include="src/PluginBase.cs" Pack="true" PackagePath="src/" />
-    <None Include="jpkribs_shared.css" Pack="true" PackagePath="assets/" />
-    <None Include="jpkribs_shared.js" Pack="true" PackagePath="assets/" />
+    <None Include="src/*.cs" Pack="true" PackagePath="src/" />
+    <None Include="dist/jpkribs_shared.css" Pack="true" PackagePath="assets/" />
+    <None Include="dist/jpkribs_shared.js" Pack="true" PackagePath="assets/" />
+    <None Include="src/templates/*.html" Pack="true" PackagePath="templates/" />
     <None Include="build/JPKribs.Jellyfin.Base.targets" Pack="true" PackagePath="build/" />
     <None Include="README.md" Pack="true" PackagePath="" />
   </ItemGroup>

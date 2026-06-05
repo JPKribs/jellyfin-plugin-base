@@ -1,0 +1,21 @@
+/* Pill that shows a short status label in a status color */
+/* Example: <span class="jpk-badge green">Active</span> */
+.jpk-badge,
+.jpk-table-status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    white-space: nowrap;
+    border: none;
+}
+.jpk-badge.green, .jpk-table-status-badge.Active, .jpk-table-status-badge.Synced, .jpk-table-status-badge.Downloaded { background: var(--jpk-green-bg); color: var(--jpk-green-fg); }
+.jpk-badge.red, .jpk-table-status-badge.Disabled, .jpk-table-status-badge.Errored, .jpk-table-status-badge.Error, .jpk-table-status-badge.Deleting, .jpk-table-status-badge.Pending-Deletion { background: var(--jpk-red-bg); color: var(--jpk-red-fg); }
+.jpk-badge.orange, .jpk-table-status-badge.Expired, .jpk-table-status-badge.Queued { background: var(--jpk-orange-bg); color: var(--jpk-orange-fg); }
+.jpk-badge.purple, .jpk-table-status-badge.Locked, .jpk-table-status-badge.Downloading, .jpk-table-status-badge.Pending, .jpk-table-status-badge.Pending-Download { background: var(--jpk-purple-bg); color: var(--jpk-purple-fg); }
+.jpk-badge.blue, .jpk-table-status-badge.Admin, .jpk-table-status-badge.Imported, .jpk-table-status-badge.Pending-Replacement { background: var(--jpk-blue-bg); color: var(--jpk-blue-fg); }
+.jpk-badge.gray, .jpk-table-status-badge.Ignored, .jpk-table-status-badge.Group { background: var(--jpk-gray-bg); color: var(--jpk-gray-fg); }
+
+@media (max-width: 768px) {
+    .jpk-table-status-badge, .jpk-badge { padding: 3px 8px; font-size: 0.8em; }
+}

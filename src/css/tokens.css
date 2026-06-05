@@ -1,0 +1,28 @@
+/* Design tokens: accent palette, status swatches, and the mono font stack */
+:root {
+    --jpk-accent: #00a4dc;
+    --jpk-accent-hover: #0088cc;
+    --jpk-border: #555;
+
+    --jpk-error: #d9534f;
+    --jpk-error-hover: #c9302c;
+    --jpk-success: #5cb85c;
+    --jpk-warning: #f0ad4e;
+    --jpk-info: #3498db;
+    --jpk-purple: #9b59b6;
+
+    --jpk-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+
+    --jpk-green-bg: rgba(92, 184, 92, 0.2);   --jpk-green-fg: #5cb85c;
+    --jpk-red-bg: rgba(217, 83, 79, 0.2);     --jpk-red-fg: #d9534f;
+    --jpk-orange-bg: rgba(240, 173, 78, 0.2); --jpk-orange-fg: #f0ad4e;
+    --jpk-purple-bg: rgba(155, 89, 182, 0.2); --jpk-purple-fg: #9b59b6;
+    --jpk-blue-bg: rgba(52, 152, 219, 0.2);   --jpk-blue-fg: #3498db;
+    --jpk-gray-bg: rgba(153, 153, 153, 0.2);  --jpk-gray-fg: #999;
+
+    --accent-color: var(--jpk-accent);
+    --accent-hover: var(--jpk-accent-hover);
+    --border-subtle: var(--jpk-border);
+    --error-color: var(--jpk-error);
+    --success-color: var(--jpk-success);
+}
