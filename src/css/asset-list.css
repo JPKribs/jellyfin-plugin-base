@@ -1,0 +1,77 @@
+/* Vertical list of uploaded asset rows */
+/* Example: <div class="jpk-asset-list"><div class="jpk-asset-item"></div></div> */
+.jpk-asset-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+}
+
+/* One asset row with thumbnail, info, and actions */
+/* Example: <div class="jpk-asset-item"><img class="jpk-asset-thumb"><div class="jpk-asset-info"></div></div> */
+.jpk-asset-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    column-gap: 0.9em;
+    padding: 0.7em 0.9em;
+    background: #181818;
+    border: 1px solid var(--jpk-border);
+    border-radius: 8px;
+}
+.jpk-asset-thumb {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    background:
+        linear-gradient(45deg, #2a2a2a 25%, transparent 25%, transparent 75%, #2a2a2a 75%) 0 0 / 12px 12px,
+        linear-gradient(45deg, #2a2a2a 25%, #222 25%, #222 75%, #2a2a2a 75%) 6px 6px / 12px 12px;
+    border-radius: 4px;
+}
+.jpk-asset-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15em;
+}
+.jpk-asset-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.jpk-asset-ref {
+    font-family: var(--jpk-mono);
+    font-size: 0.8rem;
+    opacity: 0.65;
+    word-break: break-all;
+}
+.jpk-asset-actions {
+    display: flex;
+    gap: 0.25em;
+}
+
+/* Square icon button for asset row actions */
+/* Example: <button class="jpk-asset-btn"><span class="material-icons">delete</span></button> */
+.jpk-asset-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--jpk-border);
+    color: inherit;
+    border-radius: 6px;
+    padding: 0.35em;
+    cursor: pointer;
+    line-height: 1;
+}
+.jpk-asset-btn .material-icons {
+    font-size: 1.15rem;
+}
+.jpk-asset-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+.jpk-asset-btn.danger:hover {
+    background: rgba(217, 83, 79, 0.25);
+    color: #ff8a85;
+}

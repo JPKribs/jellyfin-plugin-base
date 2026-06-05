@@ -1,0 +1,24 @@
+/* Full width monospace code editor textarea */
+/* Example: <textarea class="jpk-code"></textarea> */
+.jpk-code {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-height: 240px;
+    font-family: var(--jpk-mono);
+    font-size: 0.9em;
+    line-height: 1.45;
+    background: #181818;
+    color: #e8e8e8;
+    border: 1px solid var(--jpk-border);
+    border-radius: 4px;
+    padding: 10px 12px;
+    resize: vertical;
+    white-space: pre;
+    tab-size: 2;
+}
+.jpk-code:focus {
+    outline: none;
+    border-color: var(--jpk-accent);
+}

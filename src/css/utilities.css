@@ -17,3 +17,13 @@
 /* Error colored text */
 /* Example: <span class="jpk-bad">Failed</span> */
 .jpk-bad { color: var(--jpk-error); }
+
+/* Monospace, dimmed line for showing a URL or path with an accent link */
+/* Example: <div class="jpk-url">URL: <a href="#">/pages/home</a></div> */
+.jpk-url {
+    font-family: var(--jpk-mono);
+    opacity: 0.85;
+}
+.jpk-url a {
+    color: var(--jpk-accent);
+}
