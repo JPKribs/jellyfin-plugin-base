@@ -1,0 +1,42 @@
+/* Single spacing system for plugin config forms, scoped to the page and forced over the emby defaults */
+/* Example: <div class="inputContainer"><label for="x">Name</label><input is="emby-input" id="x"></div> */
+.pluginConfigurationPage .inputContainer,
+.pluginConfigurationPage .selectContainer,
+.pluginConfigurationPage .checkboxContainer,
+.pluginConfigurationPage .jpk-selector,
+.pluginConfigurationPage .jpk-collapsible-section {
+    margin: 0 0 var(--jpk-field-gap) 0 !important;
+}
+
+/* Containers add no padding so every field starts on the same left edge */
+.pluginConfigurationPage .inputContainer,
+.pluginConfigurationPage .selectContainer,
+.pluginConfigurationPage .checkboxContainer {
+    padding: 0 !important;
+}
+
+/* Reset the assorted inner emby margins so only the container controls spacing */
+.pluginConfigurationPage .inputContainer > *,
+.pluginConfigurationPage .selectContainer > *,
+.pluginConfigurationPage .checkboxContainer > * {
+    margin: 0 !important;
+}
+
+/* Helper and intro text keeps a small gap above and a full gap below */
+.pluginConfigurationPage .fieldDescription {
+    margin: 0.4em 0 var(--jpk-field-gap) 0 !important;
+}
+
+/* A field label sits a small uniform gap above its control */
+.pluginConfigurationPage .inputContainer > label,
+.pluginConfigurationPage .selectContainer > label {
+    display: block !important;
+    margin: 0 0 0.4em 0 !important;
+}
+
+/* Inputs and selects fill the row so every field shares one left and right edge */
+.pluginConfigurationPage .inputContainer input,
+.pluginConfigurationPage .selectContainer select {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}

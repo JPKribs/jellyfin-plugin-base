@@ -7,6 +7,7 @@ Shared configuration UI assets and C# helpers used in my Jellyfin plugins, deliv
 * `jpkribs_shared.css` and `jpkribs_shared.js` embedded into the plugin assembly under its own namespace.
 * `setTabs` and `initCollapsibles`: tab bar wiring over the native Jellyfin pages and collapsible section toggling.
 * `jpk-empty-section` and `createShared(...).emptySection(text)`: a bordered, centered fallback box for an empty region, for consistent empty states across plugins.
+* Form spacing system: one `--jpk-field-gap` token normalizes every config field row over the emby defaults, with flat collapsible sections that share the form left edge.
 * `PluginBase<TPlugin, TConfiguration>`: singleton accessor, lock guarded config read and mutate, and `GetSharedPages()` to register the shared assets.
 * `PluginScheduledTask`: scheduled task base with the configurable task defaults and an `EveryInterval` trigger helper.
 * `PagedResult<T>`, `PagedQuery`, and `ToPagedResult`: the page and count contract the shared paginated table reads.
@@ -19,7 +20,7 @@ Shared configuration UI assets and C# helpers used in my Jellyfin plugins, deliv
 Add the package:
 
 ```xml
-<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.6.2" />
+<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.6.3" />
 ```
 
 Extend the base and yield the shared pages:
