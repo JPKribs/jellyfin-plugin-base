@@ -1,0 +1,35 @@
+/* A compact label and control field for dense, multiple-per-line layouts */
+/* Example: <div class="jpk-field"><label for="year">Year</label><input is="emby-input" id="year"></div> */
+.jpk-field {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-width: 0;
+}
+.jpk-field > label {
+    display: block;
+    margin: 0 0 0.4em 0;
+}
+.jpk-field > input,
+.jpk-field > select,
+.jpk-field > .emby-input,
+.jpk-field > .emby-select {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+/* A field that keeps its natural width instead of growing to fill the row */
+/* Example: <div class="jpk-field jpk-field-fixed"></div> */
+.jpk-field-fixed {
+    flex: 0 0 auto;
+}
+
+/* A row that places fields side by side and wraps on narrow widths */
+/* Example: <div class="jpk-field-row"><div class="jpk-field"></div><div class="jpk-field"></div></div> */
+.jpk-field-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+}

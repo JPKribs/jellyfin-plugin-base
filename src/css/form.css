@@ -8,6 +8,7 @@
 .pluginConfigurationPage .jpk-warn,
 .pluginConfigurationPage .jpk-record-card,
 .pluginConfigurationPage .jpk-asset-list,
+.pluginConfigurationPage .jpk-field-row,
 .pluginConfigurationPage .jpk-collapsible-section {
     margin: 0 0 var(--jpk-field-gap) 0 !important;
 }
