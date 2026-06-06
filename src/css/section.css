@@ -1,0 +1,25 @@
+/* Static (non collapsible) section. Same look as jpk-collapsible-section but always open, with no toggle */
+/* and no chevron. Use it for content that should stay visible, e.g. a list, beside collapsible forms. */
+/* Example: <div class="jpk-section"><div class="jpk-section-title">Title</div><div class="jpk-section-content"></div></div> */
+.jpk-section {
+    overflow: visible;
+}
+
+/* Header row, matched to .jpk-collapsible-header but static (no button, no pointer, no chevron) */
+/* Example: <div class="jpk-section-title">Title</div> */
+.jpk-section-title {
+    width: 100%;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: inherit;
+    font-size: 1.1em;
+    font-weight: 500;
+    text-align: left;
+    text-transform: capitalize;
+}
+
+/* Section body, flush left, matched to .jpk-collapsible-content */
+/* Example: <div class="jpk-section-content"></div> */
+.jpk-section-content {
+    padding: 16px 0 0 0;
+}

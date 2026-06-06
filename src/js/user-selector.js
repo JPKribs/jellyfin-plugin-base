@@ -163,12 +163,16 @@ export function createUserSelector(options) {
 // Param: options | {
 //   adminFilter   : 'all' | 'exclude' | 'only'   (default 'all')
 //   value         : array of preselected user ids
+//   disabledIds   : array of user ids to render non-selectable (e.g. already assigned elsewhere)
+//   noteFor       : function(user) -> string, an optional pill rendered on the row (e.g. a group name)
 //   showSelectAll : add a "Select all" row (default false)
 //   showAvatars   : render user avatars when available (default true)
 //   emptyMessage  : message shown when no users match (default 'No users available.')
 //   fetchUsers    : override the ApiClient.getUsers() source
 //   onChange      : function(idsArray) called whenever the selection changes
 // }
+// The returned handle's setDisabled(ids) swaps the disabled set and re-renders, so a caller can keep the
+// list in sync as state changes (for example, disabling users that just became members of another group).
 export function createUserMultiSelector(options) {
     options = options || {};
 
@@ -201,6 +205,13 @@ export function createUserMultiSelector(options) {
     var selected = {};
     (options.value || []).forEach(function (id) { selected[idKey(id)] = true; });
 
+    // Non-selectable users, keyed by normalized id. Swappable later via setDisabled().
+    var disabled = {};
+    (options.disabledIds || []).forEach(function (id) { disabled[idKey(id)] = true; });
+
+    // The most recent rendered user list, so setDisabled() can re-render without refetching.
+    var currentUsers = [];
+
     var showAvatars = options.showAvatars !== false;
 
     function rowChecks() {
@@ -232,6 +243,7 @@ export function createUserMultiSelector(options) {
     }
 
     function render(users) {
+        currentUsers = users;
         listEl.innerHTML = '';
 
         if (!users.length) {
@@ -244,19 +256,24 @@ export function createUserMultiSelector(options) {
         }
 
         users.forEach(function (u) {
+            var isDisabled = !!disabled[idKey(u.id)];
+
             var row = document.createElement('label');
-            row.className = 'jpk-user-multi-option';
+            row.className = 'jpk-user-multi-option' + (isDisabled ? ' jpk-user-multi-disabled' : '');
 
             var cb = document.createElement('input');
             cb.type = 'checkbox';
             cb.className = 'jpk-user-multi-check';
             cb.setAttribute('data-id', u.id);
             cb.checked = !!selected[idKey(u.id)];
-            cb.addEventListener('change', function () {
-                selected[idKey(u.id)] = cb.checked;
-                syncSelectAll();
-                emitChange();
-            });
+            cb.disabled = isDisabled;
+            if (!isDisabled) {
+                cb.addEventListener('change', function () {
+                    selected[idKey(u.id)] = cb.checked;
+                    syncSelectAll();
+                    emitChange();
+                });
+            }
             row.appendChild(cb);
 
             if (showAvatars) {
@@ -282,6 +299,14 @@ export function createUserMultiSelector(options) {
                 row.appendChild(badge);
             }
 
+            var note = options.noteFor ? options.noteFor(u) : '';
+            if (note) {
+                var noteEl = document.createElement('span');
+                noteEl.className = 'jpk-user-multi-note';
+                noteEl.textContent = escapeText(note);
+                row.appendChild(noteEl);
+            }
+
             listEl.appendChild(row);
         });
 
@@ -293,6 +318,7 @@ export function createUserMultiSelector(options) {
         selectAllCheck.addEventListener('change', function () {
             var checked = selectAllCheck.checked;
             rowChecks().forEach(function (cb) {
+                if (cb.disabled) return;
                 cb.checked = checked;
                 selected[idKey(cb.getAttribute('data-id'))] = checked;
             });
@@ -312,6 +338,11 @@ export function createUserMultiSelector(options) {
             (ids || []).forEach(function (id) { selected[idKey(id)] = true; });
             rowChecks().forEach(function (cb) { cb.checked = !!selected[idKey(cb.getAttribute('data-id'))]; });
             syncSelectAll();
+        },
+        setDisabled: function (ids) {
+            disabled = {};
+            (ids || []).forEach(function (id) { disabled[idKey(id)] = true; });
+            if (currentUsers.length) render(currentUsers);
         },
         refresh: function () { return loadUsers(options).then(render); },
         destroy: function () { /* no document-level listeners */ }
