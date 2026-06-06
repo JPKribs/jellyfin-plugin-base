@@ -9,17 +9,13 @@ namespace JPKribs.Jellyfin.Base;
 /// <summary>
 /// Resolves the web client's favicon from disk so plugins can serve the server's real icon at a stable
 /// path. The favicon file name is content hashed and changes per build, so it is located by parsing the
-/// web client's <c>index.html</c>; the result is cached after the first resolution.
+/// web client's <c>index.html</c>. Each call resolves fresh — the favicon endpoint is browser cached, so
+/// it is hit rarely, and a process-wide cache would both go stale and break per-path isolation.
 /// </summary>
 public static partial class FaviconResolver
 {
-    private static readonly object Lock = new();
-    private static bool _resolved;
-    private static byte[]? _bytes;
-    private static string _contentType = "image/x-icon";
-
     /// <summary>
-    /// Resolves and caches the web client favicon bytes.
+    /// Resolves the web client favicon bytes.
     /// </summary>
     /// <param name="paths">The server application paths, used to locate the web client.</param>
     /// <returns>The favicon bytes and content type, or <c>null</c> when none could be located.</returns>
@@ -27,26 +23,12 @@ public static partial class FaviconResolver
     {
         ArgumentNullException.ThrowIfNull(paths);
 
-        lock (Lock)
-        {
-            if (!_resolved)
-            {
-                ResolveCore(paths);
-                _resolved = true;
-            }
-        }
-
-        return _bytes is null ? null : (_bytes, _contentType);
-    }
-
-    private static void ResolveCore(IServerApplicationPaths paths)
-    {
         try
         {
             var web = paths.WebPath;
             if (string.IsNullOrEmpty(web) || !Directory.Exists(web))
             {
-                return;
+                return null;
             }
 
             var root = Path.GetFullPath(web);
@@ -71,19 +53,20 @@ public static partial class FaviconResolver
             file ??= Directory.EnumerateFiles(root, "favicon*.ico").FirstOrDefault();
             if (file is null)
             {
-                return;
+                return null;
             }
 
-            _bytes = File.ReadAllBytes(file);
-            _contentType = file.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ? "image/png" : "image/x-icon";
+            var bytes = File.ReadAllBytes(file);
+            var contentType = file.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ? "image/png" : "image/x-icon";
+            return (bytes, contentType);
         }
         catch (IOException)
         {
-            // Leave the favicon unresolved; callers return 404 and the browser falls back.
+            return null;
         }
         catch (UnauthorizedAccessException)
         {
-            // Leave the favicon unresolved; callers return 404 and the browser falls back.
+            return null;
         }
     }
 
