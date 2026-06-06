@@ -9,7 +9,7 @@
     font-family: var(--jpk-mono);
     font-size: 0.9em;
     line-height: 1.45;
-    background: #181818;
+    background: var(--jpk-surface);
     color: #e8e8e8;
     border: 1px solid var(--jpk-border);
     border-radius: 4px;

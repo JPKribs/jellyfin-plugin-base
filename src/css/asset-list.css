@@ -14,7 +14,7 @@
     align-items: center;
     column-gap: 0.9em;
     padding: 0.7em 0.9em;
-    background: #181818;
+    background: var(--jpk-surface);
     border: 1px solid var(--jpk-border);
     border-radius: 8px;
 }

@@ -44,7 +44,7 @@
 /* Detail card showing label and value rows for a single item */
 /* Example: <div class="jpk-record-card"><div class="jpk-record-row"><span class="jpk-record-label">Last result</span><span>OK</span></div></div> */
 .jpk-record-card {
-    background: #181818;
+    background: var(--jpk-surface);
     border: 1px solid var(--jpk-border);
     border-radius: 8px;
     padding: 0.9em 1em;
