@@ -13,7 +13,7 @@ public class StatusPageTests
 
         Assert.Contains("Sign in required", html, System.StringComparison.Ordinal);
         Assert.Contains("Please sign in.", html, System.StringComparison.Ordinal);
-        Assert.Contains("jpk-card", html, System.StringComparison.Ordinal);
+        Assert.Contains("jpk-status-card", html, System.StringComparison.Ordinal);
         // CONTENT defaults to empty, so the slot must not leak as a literal token.
         Assert.DoesNotContain("{{", html, System.StringComparison.Ordinal);
     }
@@ -57,5 +57,19 @@ public class StatusPageTests
     public void StatusTemplate_ContainsRequiredMarkup(string needle)
     {
         Assert.Contains(needle, TemplateLoader.Load("status"), System.StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// The modal card must use <c>.jpk-status-card</c>, not <c>.jpk-card</c> — the latter is the kit's stat
+    /// card (cards.css), and a page that links the kit CSS alongside this self-contained card would have
+    /// the stat-card rules clobber the modal. (This collision shipped once and broke the YouTube modal.)
+    /// </summary>
+    [Fact]
+    public void StatusTemplate_UsesUncollidingCardClass()
+    {
+        var html = TemplateLoader.Load("status");
+        Assert.Contains("jpk-status-card", html, System.StringComparison.Ordinal);
+        Assert.DoesNotContain("class=\"jpk-card\"", html, System.StringComparison.Ordinal);
+        Assert.DoesNotContain(".jpk-card{", html, System.StringComparison.Ordinal);
     }
 }

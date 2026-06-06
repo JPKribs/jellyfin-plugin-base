@@ -28,4 +28,11 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <!-- Embed the per-component CSS sources so the collision test can compare class names. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\src\css\*.css">
+      <LogicalName>JPKribs.Jellyfin.Base.Tests.Css.%(Filename).css</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>
