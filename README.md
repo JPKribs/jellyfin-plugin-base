@@ -9,7 +9,7 @@ Shared configuration UI assets and C# helpers used in my Jellyfin plugins, deliv
 * `jpk-empty-section` and `createShared(...).emptySection(text)`: a bordered, centered fallback box for an empty region, for consistent empty states across plugins.
 * `jpk-field` and `jpk-field-row`: a compact label and control field plus a row that places several side by side, for dense multi field layouts.
 * Form spacing system: one `--jpk-field-gap` token normalizes every config field row over the emby defaults, with flat collapsible sections that share the form left edge.
-* `PluginBase<TPlugin, TConfiguration>`: singleton accessor, lock guarded config read and mutate, and `GetSharedPages()` to register the shared assets.
+* `PluginBase<TPlugin, TConfiguration>`: singleton accessor, lock guarded config read and mutate, and `GetSharedPages(prefix)` to register the shared assets under a per plugin name.
 * `PluginScheduledTask`: scheduled task base with the configurable task defaults and an `EveryInterval` trigger helper.
 * `PagedResult<T>`, `PagedQuery`, and `ToPagedResult`: the page and count contract the shared paginated table reads.
 * `JpkHttp` and `HttpResult`: outbound HTTP over Jellyfin's default client that returns a status and body and never throws on network failure.
@@ -37,7 +37,7 @@ public class Plugin : PluginBase<Plugin, PluginConfiguration>
     public override IEnumerable<PluginPageInfo> GetPages()
     {
         yield return new PluginPageInfo { Name = "myplugin", EmbeddedResourcePath = "..." };
-        foreach (var page in GetSharedPages())
+        foreach (var page in GetSharedPages("myplugin"))
         {
             yield return page;
         }
@@ -48,11 +48,11 @@ public class Plugin : PluginBase<Plugin, PluginConfiguration>
 Reference the assets from a config page:
 
 ```html
-<link rel="stylesheet" href="configurationpage?name=jpkribs_shared.css">
+<link rel="stylesheet" href="configurationpage?name=myplugin_jpkribs_shared.css">
 ```
 
 ```js
-import { createShared, setTabs, initCollapsibles } from '/web/configurationpage?name=jpkribs_shared.js';
+import { createShared, setTabs, initCollapsibles } from '/web/configurationpage?name=myplugin_jpkribs_shared.js';
 ```
 
 For a multi tab plugin, register one native page per tab and call `setTabs` on `viewshow`:

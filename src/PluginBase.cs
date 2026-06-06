@@ -72,21 +72,23 @@ public abstract class PluginBase<TPlugin, TConfiguration> : BasePlugin<TConfigur
 
     /// <summary>
     /// Page registrations for the shared <c>jpkribs_shared.css</c>/<c>jpkribs_shared.js</c> assets that
-    /// this package embeds into the plugin assembly. Yield these from the plugin's <see cref="GetPages"/>.
+    /// this package embeds into the plugin assembly. The page name is prefixed per plugin so the
+    /// configurationpage registry, which is server wide, never collides across installed plugins.
     /// </summary>
+    /// <param name="prefix">A per plugin prefix; reference the same name from the page markup, for example <c>configurationpage?name=PREFIX_jpkribs_shared.css</c>.</param>
     /// <returns>The shared asset page registrations.</returns>
-    protected IEnumerable<PluginPageInfo> GetSharedPages()
+    protected IEnumerable<PluginPageInfo> GetSharedPages(string prefix)
     {
         var ns = GetType().Namespace;
         yield return new PluginPageInfo
         {
-            Name = "jpkribs_shared.css",
+            Name = prefix + "_jpkribs_shared.css",
             EmbeddedResourcePath = ns + ".Configuration.jpkribs_shared.css"
         };
 
         yield return new PluginPageInfo
         {
-            Name = "jpkribs_shared.js",
+            Name = prefix + "_jpkribs_shared.js",
             EmbeddedResourcePath = ns + ".Configuration.jpkribs_shared.js"
         };
     }

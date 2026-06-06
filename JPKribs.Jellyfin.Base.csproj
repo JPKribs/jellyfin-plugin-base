@@ -8,7 +8,7 @@
     <NoWarn>NU5100;NU5128</NoWarn>
 
     <PackageId>JPKribs.Jellyfin.Base</PackageId>
-    <Version>2026.06.7</Version>
+    <Version>2026.06.8</Version>
     <Authors>JPKribs</Authors>
     <Description>Shared configuration-UI assets (CSS/JS) and C# helpers for JPKribs Jellyfin plugins. Authored as per-component sources, bundled at build time, and compiled into the consuming plugin so plugins stay a single DLL.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
