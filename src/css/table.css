@@ -154,6 +154,17 @@
     text-overflow: ellipsis;
 }
 
+/* Truncated error subline shown under a row item when it failed */
+/* Example: <div class="jpk-table-item-error">download failed</div> */
+.jpk-table-item-error {
+    font-size: 0.75em;
+    color: var(--jpk-error);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+}
+
 /* Centered message shown when the table has no rows */
 /* Example: <div class="jpk-table-empty">No items found</div> */
 .jpk-table-empty { padding: 32px 16px; text-align: center; opacity: 0.7; }

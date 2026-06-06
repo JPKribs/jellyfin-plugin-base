@@ -43,7 +43,8 @@ public static class StatusPage
             ["HEADING"] = WebUtility.HtmlEncode(heading),
             ["MESSAGE"] = WebUtility.HtmlEncode(message),
             ["SPINNER"] = spinner,
-            ["BUTTON"] = button
+            ["BUTTON"] = button,
+            ["CONTENT"] = string.Empty
         });
     }
 }

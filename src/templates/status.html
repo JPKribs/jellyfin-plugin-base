@@ -17,6 +17,18 @@ h1{font-size:1.4rem;font-weight:600;margin:0 0 8px}
 p{margin:0;color:rgba(255,255,255,0.55);font-size:0.95rem;line-height:1.5}
 .jpk-btn{display:inline-block;margin-top:22px;padding:0.7em 1.6em;border-radius:8px;background:#00a4dc;color:#fff;font-size:0.95rem;font-weight:600;text-decoration:none}
 .jpk-btn:hover{background:#0095c8}
+.jpk-fields{text-align:left;margin-top:4px}
+.jpk-fields label{display:block;font-size:0.82rem;color:rgba(255,255,255,0.55);margin:14px 0 4px}
+.jpk-fields label .jpk-hint{opacity:0.7}
+.jpk-fields input,.jpk-fields .jpk-edit-input{width:100%;padding:10px 12px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#f2f2f2;font-size:0.95rem}
+.jpk-fields input:focus,.jpk-fields .jpk-edit-input:focus{outline:none;border-color:#00a4dc}
+.jpk-field-pair{display:flex;gap:12px}
+.jpk-field-pair>div{flex:1}
+.jpk-submit{width:100%;margin-top:22px;padding:0.8em;border:none;border-radius:8px;background:#00a4dc;color:#fff;font-size:0.95rem;font-weight:600;cursor:pointer}
+.jpk-submit:hover{background:#0095c8}
+.jpk-submit:disabled{opacity:0.5;cursor:not-allowed}
+.jpk-note{margin-top:18px;font-size:0.8rem;color:rgba(255,255,255,0.55);line-height:1.4}
+.hidden{display:none}
 </style>
 </head>
 <body>
@@ -27,6 +39,7 @@ p{margin:0;color:rgba(255,255,255,0.55);font-size:0.95rem;line-height:1.5}
 <p>{{MESSAGE}}</p>
 {{SPINNER}}
 {{BUTTON}}
+{{CONTENT}}
 </div>
 </body>
 </html>

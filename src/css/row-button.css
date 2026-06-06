@@ -16,3 +16,12 @@
 }
 .jpk-row-btn .material-icons { font-size: 20px; }
 .jpk-row-btn.save:hover { color: var(--jpk-accent); }
+.jpk-row-btn.success {
+    color: var(--jpk-success) !important;
+    opacity: 1 !important;
+}
+/* Dirty state: an unsaved change is pending on the row */
+.jpk-row-btn.dirty {
+    color: var(--jpk-warning) !important;
+    opacity: 1 !important;
+}

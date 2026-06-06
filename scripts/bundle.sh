@@ -11,13 +11,15 @@ cd "$(dirname "$0")/.."
 
 mkdir -p dist
 
-# CSS: tokens first (readability), then every other component alphabetically.
+# CSS: tokens first (readability), then every other component alphabetically, then minify.
 {
   cat src/css/tokens.css
   find src/css -name '*.css' ! -name 'tokens.css' | sort | xargs cat
-} > dist/jpkribs_shared.css
+} > dist/_bundle.css
+npx --yes esbuild dist/_bundle.css --minify --outfile=dist/jpkribs_shared.css --allow-overwrite
+rm -f dist/_bundle.css
 
-# JS: bundle the ES module components into one ESM file.
-npx --yes esbuild src/js/index.js --bundle --format=esm --legal-comments=none --outfile=dist/jpkribs_shared.js
+# JS: bundle and minify the ES module components into one ESM file. Exported names are preserved.
+npx --yes esbuild src/js/index.js --bundle --minify --format=esm --legal-comments=none --outfile=dist/jpkribs_shared.js
 
 echo "Bundled -> dist/jpkribs_shared.css, dist/jpkribs_shared.js"
