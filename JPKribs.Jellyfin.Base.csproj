@@ -8,15 +8,18 @@
     <NoWarn>NU5100;NU5128</NoWarn>
 
     <PackageId>JPKribs.Jellyfin.Base</PackageId>
-    <Version>2026.06.10</Version>
+    <Version>2026.06.11</Version>
     <Authors>JPKribs</Authors>
     <Description>Shared configuration-UI assets (CSS/JS) and C# helpers for JPKribs Jellyfin plugins. Authored as per-component sources, bundled at build time, and compiled into the consuming plugin so plugins stay a single DLL.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>jellyfin;plugin</PackageTags>
   </PropertyGroup>
 
-  <!-- The CSS/JS are bundled from src/ by scripts/bundle.sh (run in CI and locally before packing). -->
+  <!-- Bundle the CSS/JS from src/ before building or packing. Runs the bundler on Unix; the Error below
+       is the cross-platform safety net (e.g. a Windows pack must run scripts/bundle.sh manually first). -->
   <Target Name="EnsureBundledAssets" BeforeTargets="Build;Pack">
+    <Exec Condition="'$(OS)' != 'Windows_NT'"
+          Command="bash &quot;$(MSBuildProjectDirectory)/scripts/bundle.sh&quot;" />
     <Error Condition="!Exists('$(MSBuildProjectDirectory)/dist/jpkribs_shared.css') Or !Exists('$(MSBuildProjectDirectory)/dist/jpkribs_shared.js')"
            Text="Bundled assets are missing. Run scripts/bundle.sh before building or packing." />
   </Target>
