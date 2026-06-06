@@ -8,7 +8,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   publish:
@@ -32,15 +31,9 @@ jobs:
           bash scripts/bundle.sh
           dotnet pack JPKribs.Jellyfin.Base.csproj -c Release -o nupkg
 
-      - name: Push to GitHub Packages
+      - name: Push to nuget.org
         run: |
-          dotnet nuget add source \
-            --username JPKribs \
-            --password "${{ secrets.GITHUB_TOKEN }}" \
-            --store-password-in-clear-text \
-            --name github \
-            "https://nuget.pkg.github.com/JPKribs/index.json"
           dotnet nuget push "nupkg/*.nupkg" \
-            --source github \
-            --api-key "${{ secrets.GITHUB_TOKEN }}" \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key "${{ secrets.NUGET_API_KEY }}" \
             --skip-duplicate
