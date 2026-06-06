@@ -9,9 +9,11 @@ CSS and JS are authored as per component sources under `src/` and bundled, minif
 ### Styles and client helpers
 
 * `setTabs` and `initCollapsibles`: tab bar wiring over the native Jellyfin pages and collapsible section toggling.
-* `createShared(view, pluginId, apiPrefix)`: a per view helper bag — `escapeHtml`, `setStatus`, `getConfig`/`saveConfig`/`apiRequest`, `formatSize`/`formatDuration`/`formatDate`, `badge`, `emptySection`, `createSearchableComboBox`, `createDebouncedSearch`, and `pollTaskProgress`.
+* `createShared(view, pluginId, apiPrefix)`: a per view helper bag — `escapeHtml`, `setStatus`, `getConfig`/`saveConfig`/`apiRequest`, `formatSize`/`formatDuration`/`formatDate`, `badge`, `statusBadge`, `emptySection`, `createSearchableComboBox`, `createDebouncedSearch`, `createUserSelector`/`createUserMultiSelector`, and `pollTaskProgress`.
 * `createPaginatedTable(view, shared, options)`: the searchable, filterable, infinite scrolling table that reads the `PagedResult` shape.
+* `createUserSelector(options)` and `createUserMultiSelector(options)` (also on the `createShared(...)` bag): a single-user dropdown and a checkbox list of users, both fed by `ApiClient.getUsers()`. An `adminFilter` of `'all'`/`'exclude'`/`'only'` drops or keeps administrators (e.g. `'exclude'` for an approved non-admin list). Each returns `{ element, ready, getValue, setValue, refresh, destroy }`.
 * `jpk-field` and `jpk-field-row`: a compact label and control field plus a row that places several side by side, for dense multi field layouts.
+* Inline-edit primitives (`jpk-bulk-edit-bar`/`jpk-bulk-edit-title`, `jpk-edit-row`, `jpk-edit-line`/`jpk-edit-line-spacer`, `jpk-edit-secondary`): a bulk-edit toolbar above a table plus table rows that expand into stacked lines of fields, for tag/metadata editors.
 * `jpk-empty-section` (and `createShared(...).emptySection(text)`): a bordered, centered fallback box for an empty region.
 * Form spacing system: one `--jpk-field-gap` token normalizes every config field row over the emby defaults, with flat collapsible sections that share the form left edge.
 

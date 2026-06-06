@@ -1,3 +1,5 @@
+import { createUserSelector, createUserMultiSelector } from './user-selector.js';
+
 // setTabs
 // Wires the dashboard tab bar for a config page. Call it inside viewshow with the active tab index.
 //
@@ -95,6 +97,13 @@ export function createShared(view, pluginId, apiPrefix) {
 
         badge: function (cls, label) {
             return '<span class="jpk-badge ' + cls + '">' + this.escapeHtml(label) + '</span>';
+        },
+
+        // Renders a table status badge. stateClass is one of the badge states styled in badges.css
+        // (e.g. Queued, Downloading, Downloaded, Imported, Error, Active, Disabled). A plugin maps its
+        // own status codes to one of those state names and passes the display text.
+        statusBadge: function (text, stateClass) {
+            return '<span class="jpk-table-status-badge ' + (stateClass || '') + '">' + this.escapeHtml(text) + '</span>';
         },
 
         emptySection: function (message) {
@@ -197,6 +206,14 @@ export function createShared(view, pluginId, apiPrefix) {
                         .catch(function () { callback([]); });
                 }, delay || 300);
             };
+        },
+
+        createUserSelector: function (options) {
+            return createUserSelector(options);
+        },
+
+        createUserMultiSelector: function (options) {
+            return createUserMultiSelector(options);
         },
 
         createSearchableComboBox: function (options) {

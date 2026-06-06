@@ -1,0 +1,74 @@
+/* Checkbox list for picking many users (createUserMultiSelector). */
+/* Example: <div class="jpk-user-multi"><div class="jpk-user-multi-list"><label class="jpk-user-multi-option"></label></div></div> */
+.jpk-user-multi {
+    display: flex;
+    flex-direction: column;
+}
+
+.jpk-user-multi-list {
+    display: flex;
+    flex-direction: column;
+}
+
+/* One selectable user row: checkbox, optional avatar, name, optional admin badge */
+/* Example: <label class="jpk-user-multi-option"><input class="jpk-user-multi-check" /><span class="jpk-user-multi-name"></span></label> */
+.jpk-user-multi-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.jpk-user-multi-option:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.jpk-user-multi-check {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+/* Small round avatar shown before the name when the user has an image */
+/* Example: <img class="jpk-user-multi-avatar" /> */
+.jpk-user-multi-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex: 0 0 auto;
+}
+
+.jpk-user-multi-name {
+    flex: 1 1 auto;
+}
+
+/* Faint pill flagging an administrator */
+/* Example: <span class="jpk-user-multi-admin">admin</span> */
+.jpk-user-multi-admin {
+    flex: 0 0 auto;
+    font-size: 0.72em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.6;
+    border: 1px solid var(--jpk-border);
+    border-radius: 4px;
+    padding: 1px 6px;
+}
+
+/* "Select all" row sits above the list with a divider */
+/* Example: <label class="jpk-user-multi-option jpk-user-multi-selectall"></label> */
+.jpk-user-multi-selectall {
+    font-weight: 600;
+    border-bottom: 1px solid var(--jpk-border);
+    border-radius: 0;
+    margin-bottom: 4px;
+}
+
+/* Placeholder shown when no users match the filter */
+/* Example: <div class="jpk-user-multi-empty">No users available.</div> */
+.jpk-user-multi-empty {
+    opacity: 0.6;
+    font-size: 0.9em;
+    padding: 6px 8px;
+}

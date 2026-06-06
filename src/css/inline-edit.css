@@ -1,0 +1,59 @@
+/* Inline editing primitives: a bulk-edit bar over a table, and table rows that expand into
+   stacked lines of fields. Pair with the table and field components. */
+
+/* Bulk-edit toolbar above a table: a vertical stack of field lines divided from the list below */
+/* Example: <div class="jpk-bulk-edit-bar"><div class="jpk-bulk-edit-title">Bulk Edit</div><div class="jpk-edit-line"></div></div> */
+.jpk-bulk-edit-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--jpk-border);
+}
+.jpk-bulk-edit-bar > button {
+    align-self: flex-start;
+    margin-top: 4px;
+}
+
+/* Heading that labels the bulk-edit region */
+/* Example: <div class="jpk-bulk-edit-title">Bulk Edit</div> */
+.jpk-bulk-edit-title {
+    font-size: 1em;
+    font-weight: 600;
+    opacity: 0.9;
+    margin-bottom: 2px;
+}
+
+/* A table row that expands into a stacked, multi-line field editor (overrides the flat .jpk-table-row) */
+/* Example: <div class="jpk-table-row jpk-edit-row"><div class="jpk-edit-line"></div></div> */
+.jpk-edit-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 12px;
+}
+
+/* One line of fields placed side by side inside an editor */
+/* Example: <div class="jpk-edit-line"><div class="jpk-field"></div></div> */
+.jpk-edit-line {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    width: 100%;
+}
+
+/* Flexible gap that pushes trailing controls (e.g. a save button) to the end of a line */
+/* Example: <span class="jpk-edit-line-spacer"></span> */
+.jpk-edit-line-spacer {
+    flex: 1;
+}
+
+/* Muted, non-wrapping secondary text within an editor line (e.g. a file size) */
+/* Example: <span class="jpk-edit-secondary">2.34 MB</span> */
+.jpk-edit-secondary {
+    font-size: 0.85em;
+    opacity: 0.5;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
