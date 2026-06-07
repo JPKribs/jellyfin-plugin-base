@@ -26,6 +26,7 @@ CSS and JS are authored as per component sources under `src/` and bundled, minif
 * `TemplateLoader`: loads and fills `{{KEY}}` placeholders in HTML templates embedded from `templates/`.
 * `StatusPage`: renders the themed, self contained status card (logo, heading, message, optional spinner and button) from the `status` template. The template also exposes a raw `{{CONTENT}}` slot, so a plugin can render its own markup — a form or a multi state auth shell — inside the same card.
 * `FaviconResolver`: resolves and caches the web client's favicon from disk so a plugin serving standalone pages can reuse the server's real icon. The status card links a relative `favicon.ico`, so a consumer that wants the tab icon exposes a sibling `favicon.ico` endpoint backed by this resolver.
+* `SecretProtector`: encrypts plugin credentials at rest with ASP.NET Core Data Protection. Construct one per plugin with a stable, unique `purpose` (e.g. the plugin namespace) so keys are isolated; `Protect`/`Unprotect` tag values with an `enc:v1:` prefix and read pre-migration plaintext back unchanged. The `IDataProtectionProvider` is optional — when the host supplies none it degrades to a logged warning (plaintext) rather than failing to load. Defense in depth: the key lives in the Jellyfin data directory, so it guards leaked or synced config files and backups, not a fully compromised host.
 
 ## Usage
 
