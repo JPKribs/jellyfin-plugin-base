@@ -18,19 +18,19 @@
 
   <!-- Compile the shipped source under test, exactly as a consuming plugin does via the targets file. -->
   <ItemGroup>
-    <Compile Include="..\..\src\*.cs" />
+    <Compile Include="..\src\*.cs" />
   </ItemGroup>
 
   <!-- Embed the templates so TemplateLoader/StatusPage resolve them from this test assembly. -->
   <ItemGroup>
-    <EmbeddedResource Include="..\..\src\templates\*.html">
+    <EmbeddedResource Include="..\src\templates\*.html">
       <LogicalName>JPKribs.Jellyfin.Base.Tests.Templates.%(Filename).html</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
 
   <!-- Embed the per-component CSS sources so the collision test can compare class names. -->
   <ItemGroup>
-    <EmbeddedResource Include="..\..\src\css\*.css">
+    <EmbeddedResource Include="..\src\css\*.css">
       <LogicalName>JPKribs.Jellyfin.Base.Tests.Css.%(Filename).css</LogicalName>
     </EmbeddedResource>
   </ItemGroup>

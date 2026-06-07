@@ -27,7 +27,7 @@ jobs:
           dotnet-version: 9.0.x
 
       - name: Test
-        run: dotnet test tests/JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Release
+        run: dotnet test JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Release
 
       - name: Bundle and pack
         run: |

@@ -34,7 +34,7 @@ jobs:
         run: bash scripts/bundle.sh
 
       - name: Test
-        run: dotnet test tests/JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Release
+        run: dotnet test JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Release
 
       - name: Pack
         run: dotnet pack JPKribs.Jellyfin.Base.csproj -c Release -o nupkg
