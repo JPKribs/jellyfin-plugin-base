@@ -358,6 +358,28 @@ export function createPaginatedTable(view, shared, options) {
         getBulkActionsContainer: function () { return table.elements.bulkActions; },
         disconnectObserver: function () {
             if (table._scrollObserver) { table._scrollObserver.disconnect(); table._scrollObserver = null; }
+        },
+        reconnectObserver: function () {
+            if (table._scrollObserver || !table.elements.scrollSentinel) return;
+            table._scrollObserver = new IntersectionObserver(function (entries) {
+                if (entries[0].isIntersecting && !table.state.isLoading && table.state.hasMore) _loadMore();
+            }, { rootMargin: '200px' });
+            table._scrollObserver.observe(table.elements.scrollSentinel);
+        },
+        refresh: function () {
+            table.state.items = [];
+            table.state.currentPage = 1;
+            table.state.hasMore = true;
+            return this.load();
+        },
+        setFilterValue: function (value) {
+            table.state.filterValue = value;
+            if (table.elements.filter) table.elements.filter.value = value;
+        },
+        setFilterOptionVisible: function (optionId, visible) {
+            if (!table.elements.filter) return;
+            var option = table.elements.filter.querySelector('#' + optionId);
+            if (option) option.style.display = visible ? 'block' : 'none';
         }
     };
 
