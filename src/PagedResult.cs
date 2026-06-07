@@ -11,14 +11,33 @@ namespace JPKribs.Jellyfin.Base;
 public sealed class PagedResult<T>
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="PagedResult{T}"/> class.
+    /// Initializes a new instance of the <see cref="PagedResult{T}"/> class for a non-paged full result.
     /// </summary>
     /// <param name="items">The items on this page.</param>
     /// <param name="totalCount">The total number of items across all pages.</param>
     public PagedResult(IReadOnlyList<T> items, int totalCount)
+        : this(items, totalCount, 0, items?.Count ?? 0)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PagedResult{T}"/> class, computing the page metadata
+    /// from the skip/take window the page was drawn with.
+    /// </summary>
+    /// <param name="items">The items on this page.</param>
+    /// <param name="totalCount">The total number of items across all pages.</param>
+    /// <param name="skip">The number of items skipped before this page.</param>
+    /// <param name="take">The page size requested; values of zero or less mean "all".</param>
+    public PagedResult(IReadOnlyList<T> items, int totalCount, int skip, int take)
     {
         Items = items;
         TotalCount = totalCount;
+
+        var pageSize = take <= 0 ? totalCount : take;
+        PageSize = pageSize;
+        Page = pageSize > 0 ? (skip / pageSize) + 1 : 1;
+        TotalPages = pageSize > 0 ? (totalCount + pageSize - 1) / pageSize : 0;
+        HasMore = skip + (items?.Count ?? 0) < totalCount;
     }
 
     /// <summary>Gets the items on this page.</summary>
@@ -26,6 +45,18 @@ public sealed class PagedResult<T>
 
     /// <summary>Gets the total number of items across all pages.</summary>
     public int TotalCount { get; }
+
+    /// <summary>Gets the 1-based page number this result represents.</summary>
+    public int Page { get; }
+
+    /// <summary>Gets the page size used for this result.</summary>
+    public int PageSize { get; }
+
+    /// <summary>Gets the total number of pages across <see cref="TotalCount"/> at <see cref="PageSize"/>.</summary>
+    public int TotalPages { get; }
+
+    /// <summary>Gets a value indicating whether more items exist beyond this page.</summary>
+    public bool HasMore { get; }
 }
 
 /// <summary>
@@ -65,6 +96,6 @@ public static class PagedResultExtensions
 
         var take = query.Take <= 0 ? 50 : query.Take;
         var page = source.Skip(query.Skip).Take(take).ToList();
-        return new PagedResult<T>(page, source.Count);
+        return new PagedResult<T>(page, source.Count, query.Skip, take);
     }
 }

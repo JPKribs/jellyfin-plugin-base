@@ -21,12 +21,19 @@ CSS and JS are authored as per component sources under `src/` and bundled, minif
 
 * `PluginBase<TPlugin, TConfiguration>`: singleton accessor, lock guarded config read and mutate, and `GetSharedPages(prefix)` to register the shared assets under a per plugin name.
 * `PluginScheduledTask`: scheduled task base with the configurable task defaults and an `EveryInterval` trigger helper.
-* `PagedResult<T>`, `PagedQuery`, and `ToPagedResult`: the page and count contract the shared paginated table reads.
+* `PagedResult<T>`, `PagedQuery`, and `ToPagedResult`: the page and count contract the shared paginated table reads. `PagedResult` also exposes `Page`, `PageSize`, `TotalPages`, and `HasMore` (computed from the skip/take window) for page-based callers.
 * `JpkHttp` and `HttpResult`: outbound HTTP over Jellyfin's default client that returns a status and body and never throws on network failure.
 * `TemplateLoader`: loads and fills `{{KEY}}` placeholders in HTML templates embedded from `templates/`.
 * `StatusPage`: renders the themed, self contained status card (logo, heading, message, optional spinner and button) from the `status` template. The template also exposes a raw `{{CONTENT}}` slot, so a plugin can render its own markup — a form or a multi state auth shell — inside the same card.
 * `FaviconResolver`: resolves and caches the web client's favicon from disk so a plugin serving standalone pages can reuse the server's real icon. The status card links a relative `favicon.ico`, so a consumer that wants the tab icon exposes a sibling `favicon.ico` endpoint backed by this resolver.
 * `SecretProtector`: encrypts plugin credentials at rest with ASP.NET Core Data Protection. Construct one per plugin with a stable, unique `purpose` (e.g. the plugin namespace) so keys are isolated; `Protect`/`Unprotect` tag values with an `enc:v1:` prefix and read pre-migration plaintext back unchanged. The `IDataProtectionProvider` is optional — when the host supplies none it degrades to a logged warning (plaintext) rather than failing to load. Defense in depth: the key lives in the Jellyfin data directory, so it guards leaked or synced config files and backups, not a fully compromised host.
+* `CircuitBreaker`: trips open after a configurable number of consecutive failures for a named service and stays open for a cooldown, so a plugin can stop hammering an unreachable endpoint. `RecordSuccess`/`RecordFailure` drive it; `AllowOperation(out reason)` gates the next call.
+* `RetryPolicy.ExecuteWithRetryAsync`: retries an operation with exponential backoff and jitter, but only for transient faults (timeouts, socket errors, 5xx/429, generic IO) — permanent errors throw immediately.
+* `FileNameSanitizer`: turns an arbitrary string into a safe cross-platform file name (strips invalid/control chars, collapses runs, handles reserved names and length), with a `SanitizeTempFileName` helper for cache files.
+* `HashUtilities`: 32-char lowercase SHA-256 fingerprints of a string or stream (content identity, not a security primitive).
+* `FormatUtilities`: `FormatBytes` (human-readable sizes) and `TruncateForLog` for tidy log lines.
+* `StreamUtilities.CopyWithSpeedLimitAsync`: copies a stream with an optional bytes-per-second cap (download throttling).
+* `StringNormalizationUtility.NormalizeStringArray`: trims, whitespace-filters, and case-insensitively sorts a string list into a canonical form (or null when empty).
 
 ## Usage
 
