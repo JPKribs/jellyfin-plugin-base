@@ -172,7 +172,26 @@
 
 /* Footer line showing the loaded and total counts */
 /* Example: <div class="jpk-table-footer"><span class="jpk-table-item-count"></span></div> */
-.jpk-table-footer { padding: 8px 12px; font-size: 0.9em; opacity: 0.7; }
+.jpk-table-footer { display: flex; align-items: center; gap: 12px; padding: 8px 12px; font-size: 0.9em; }
+.jpk-table-item-count { opacity: 0.7; }
+
+/* Manual pagination controls (pagination.loadMore) shown in the footer when more items remain */
+/* Example: <span class="jpk-table-footer-actions"><button class="jpk-table-load-more">Load More</button></span> */
+.jpk-table-footer-actions { display: flex; gap: 8px; }
+.jpk-table-load-more,
+.jpk-table-load-all {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: inherit;
+    border-radius: 4px;
+    padding: 3px 10px;
+    cursor: pointer;
+    font-size: 0.95em;
+}
+.jpk-table-load-more:hover,
+.jpk-table-load-all:hover { background: rgba(255, 255, 255, 0.12); }
+.jpk-table-load-more:disabled,
+.jpk-table-load-all:disabled { opacity: 0.5; cursor: default; }
 
 /* Thumbnail image for a row, portrait by default */
 /* Example: <img class="jpk-table-row-thumb jpk-table-row-thumb-portrait" /> */

@@ -61,7 +61,10 @@ export function createPaginatedTable(view, shared, options) {
             body: container.querySelector('.jpk-table-body'),
             loadingMore: container.querySelector('.jpk-table-loading-more'),
             scrollSentinel: container.querySelector('.jpk-table-scroll-sentinel'),
-            itemCount: container.querySelector('.jpk-table-item-count')
+            itemCount: container.querySelector('.jpk-table-item-count'),
+            footerActions: container.querySelector('.jpk-table-footer-actions'),
+            loadMoreBtn: container.querySelector('.jpk-table-load-more'),
+            loadAllBtn: container.querySelector('.jpk-table-load-all')
         };
     }
 
@@ -94,10 +97,17 @@ export function createPaginatedTable(view, shared, options) {
                 '</div>';
         }
 
+        var loadMore = opts.pagination && opts.pagination.loadMore;
         html += '<div class="jpk-table-body"></div>' +
             '<div class="jpk-table-loading-more" style="display:none;">Loading more...</div>' +
             '<div class="jpk-table-scroll-sentinel" style="height:1px;"></div>' +
-            '<div class="jpk-table-footer"><span class="jpk-table-item-count"></span></div></div>';
+            '<div class="jpk-table-footer"><span class="jpk-table-item-count"></span>' +
+            (loadMore ?
+                '<span class="jpk-table-footer-actions" style="display:none;">' +
+                    '<button type="button" class="jpk-table-load-more">Load More</button>' +
+                    '<button type="button" class="jpk-table-load-all">Load All</button>' +
+                '</span>' : '') +
+            '</div></div>';
         return html;
     }
 
@@ -119,12 +129,34 @@ export function createPaginatedTable(view, shared, options) {
         if (table.elements.reloadBtn) {
             table.elements.reloadBtn.addEventListener('click', _handleReload);
         }
-        if (table.elements.scrollSentinel) {
+        var loadMore = table.options.pagination && table.options.pagination.loadMore;
+        if (loadMore) {
+            // Manual pagination: Load More fetches the next page, Load All fetches the rest.
+            if (table.elements.loadMoreBtn) table.elements.loadMoreBtn.addEventListener('click', _loadMore);
+            if (table.elements.loadAllBtn) table.elements.loadAllBtn.addEventListener('click', _loadAll);
+        } else if (table.elements.scrollSentinel) {
             table._scrollObserver = new IntersectionObserver(function (entries) {
                 if (entries[0].isIntersecting && !table.state.isLoading && table.state.hasMore) _loadMore();
             }, { rootMargin: '200px' });
             table._scrollObserver.observe(table.elements.scrollSentinel);
         }
+    }
+
+    function _setFooterLoading(loading) {
+        if (table.elements.loadingMore) table.elements.loadingMore.style.display = loading ? 'block' : 'none';
+        if (table.elements.loadMoreBtn) table.elements.loadMoreBtn.disabled = loading;
+        if (table.elements.loadAllBtn) table.elements.loadAllBtn.disabled = loading;
+    }
+
+    function _loadAll() {
+        if (table.state.isLoading || !table.state.hasMore) return;
+        _setFooterLoading(true);
+        function step() {
+            if (!table.state.hasMore) { _setFooterLoading(false); return; }
+            table.state.currentPage++;
+            publicAPI.load().then(step).catch(function () { _setFooterLoading(false); });
+        }
+        step();
     }
 
     function _handleReload() {
@@ -246,9 +278,15 @@ export function createPaginatedTable(view, shared, options) {
     function _updateItemCount() {
         if (!table.elements.itemCount) return;
         var loaded = table.state.items.length, total = table.state.totalCount;
+        var loadMore = table.options.pagination && table.options.pagination.loadMore;
         if (total === 0) table.elements.itemCount.textContent = '';
         else if (loaded >= total) table.elements.itemCount.textContent = total + ' items';
-        else table.elements.itemCount.textContent = 'Showing ' + loaded + ' of ' + total + ' items';
+        else table.elements.itemCount.textContent = loadMore
+            ? (loaded + '/' + total + ' items')
+            : ('Showing ' + loaded + ' of ' + total + ' items');
+        if (table.elements.footerActions) {
+            table.elements.footerActions.style.display = (total > 0 && loaded < total) ? '' : 'none';
+        }
     }
 
     function _updateSelectionUI() {
@@ -361,6 +399,7 @@ export function createPaginatedTable(view, shared, options) {
         },
         reconnectObserver: function () {
             if (table._scrollObserver || !table.elements.scrollSentinel) return;
+            if (table.options.pagination && table.options.pagination.loadMore) return;
             table._scrollObserver = new IntersectionObserver(function (entries) {
                 if (entries[0].isIntersecting && !table.state.isLoading && table.state.hasMore) _loadMore();
             }, { rootMargin: '200px' });

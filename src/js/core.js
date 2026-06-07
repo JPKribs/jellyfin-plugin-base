@@ -84,6 +84,32 @@ export function createShared(view, pluginId, apiPrefix) {
             return this.bindEvent(id, 'click', handler);
         },
 
+        setChecked: function (id, checked) {
+            var el = this.getEl(id);
+            if (el) el.checked = !!checked;
+        },
+
+        getChecked: function (id) {
+            var el = this.getEl(id);
+            return el ? el.checked : false;
+        },
+
+        // Show/hide a target element based on a checkbox, and bind it so the target
+        // follows the checkbox. Binds once (guarded), and applies the current state
+        // on every call — so call it after loading config to set the initial state.
+        // Pass invert=true to show the target when the checkbox is UNchecked.
+        bindReveal: function (checkboxId, targetId, invert) {
+            var self = this;
+            var cb = this.getEl(checkboxId);
+            if (!cb) return;
+            var apply = function () { self.setVisible(targetId, invert ? !cb.checked : cb.checked); };
+            if (!cb.dataset.jpkRevealBound) {
+                cb.dataset.jpkRevealBound = '1';
+                cb.addEventListener('change', apply);
+            }
+            apply();
+        },
+
         initCollapsibles: function () {
             initCollapsibles(view);
         },

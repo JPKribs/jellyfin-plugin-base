@@ -23,3 +23,17 @@
 .jpk-section-content {
     padding: 16px 0 0 0;
 }
+
+/* Smaller, muted, uppercase header for a subsection grouped inside a section or form. */
+/* Example: <h3 class="jpk-subsection-title">Authentication</h3> */
+.jpk-subsection-title {
+    font-size: 0.95em;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 16px 0 12px 0;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.jpk-subsection-title:first-child { margin-top: 0; }
