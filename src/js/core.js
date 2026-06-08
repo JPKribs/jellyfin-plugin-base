@@ -96,7 +96,7 @@ export function createShared(view, pluginId, apiPrefix) {
 
         // Show/hide a target element based on a checkbox, and bind it so the target
         // follows the checkbox. Binds once (guarded), and applies the current state
-        // on every call — so call it after loading config to set the initial state.
+        // on every call, so call it after loading config to set the initial state.
         // Pass invert=true to show the target when the checkbox is UNchecked.
         bindReveal: function (checkboxId, targetId, invert) {
             var self = this;

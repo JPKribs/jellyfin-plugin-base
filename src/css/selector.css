@@ -7,11 +7,15 @@
     margin-bottom: 1.5em;
 }
 
-/* Full width dropdown. The chevron affordance comes from the shared
-   `.pluginConfigurationPage select` rule in form.css, so every dropdown on the
-   page (styled selector or plain field) carries the same native chevron. */
+/* Full width dropdown for the picker. The fill, border, chevron, and option colors come from the shared
+   field rules in form.css, which style inputs, textareas, and selects alike so every field matches. */
+/* Example: <select class="jpk-selector-dropdown"><option>One</option></select> */
 .jpk-selector-dropdown {
     width: 100%;
+    box-sizing: border-box;
+    font: inherit;
+    height: auto;
+    line-height: 1.4;
 }
 
 /* Row of equal width action buttons under the dropdown */

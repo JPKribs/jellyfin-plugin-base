@@ -60,3 +60,38 @@
     background-position: right 6px center !important;
     padding-right: 34px !important;
 }
+
+/* One field look for the whole page. Text inputs, multi line text areas, and selects share the same
+   dark surface, border, and focus ring over the emby defaults, so every field matches the selectors. */
+/* Example: <input is="emby-input" type="text"> and <select class="jpk-selector-dropdown"> render alike. */
+.pluginConfigurationPage input[type="text"],
+.pluginConfigurationPage input[type="number"],
+.pluginConfigurationPage input[type="password"],
+.pluginConfigurationPage input[type="search"],
+.pluginConfigurationPage input[type="url"],
+.pluginConfigurationPage input[type="email"],
+.pluginConfigurationPage textarea,
+.pluginConfigurationPage select {
+    background-color: var(--jpk-surface) !important;
+    color: inherit !important;
+    border: 1px solid var(--jpk-border) !important;
+    border-radius: 4px !important;
+    padding: 0.55em 0.7em;
+}
+
+.pluginConfigurationPage input[type="text"]:focus,
+.pluginConfigurationPage input[type="number"]:focus,
+.pluginConfigurationPage input[type="password"]:focus,
+.pluginConfigurationPage input[type="search"]:focus,
+.pluginConfigurationPage input[type="url"]:focus,
+.pluginConfigurationPage input[type="email"]:focus,
+.pluginConfigurationPage textarea:focus,
+.pluginConfigurationPage select:focus {
+    outline: none !important;
+    border-color: var(--jpk-accent) !important;
+}
+
+.pluginConfigurationPage select option {
+    background-color: var(--jpk-surface);
+    color: #fff;
+}

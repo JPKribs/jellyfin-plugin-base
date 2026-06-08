@@ -43,7 +43,7 @@ function applyAdminFilter(users, mode) {
 }
 
 // Fetch the raw user list. Prefer the web client's helper, which tracks whatever endpoint the running
-// server expects — the user-list pull was reworked server-side in the 10.11.x EFCore refactor and the
+// server expects. The user-list pull was reworked server-side in the 10.11.x EFCore refactor and the
 // /Users privilege scope is being tightened, so we lean on ApiClient rather than a hard-coded route.
 // Falls back to a direct /Users GET, then to an empty list, and degrades instead of throwing.
 function fetchRawUsers(options) {
@@ -73,7 +73,7 @@ function loadUsers(options) {
     }).catch(function () { return []; });
 }
 
-// Best-effort avatar URL; returns null when the user has no image or ApiClient can't build one.
+// Best-effort avatar URL that returns null when the user has no image or ApiClient can't build one.
 function avatarUrl(user) {
     if (!user.imageTag || typeof ApiClient === 'undefined' || !ApiClient.getUserImageUrl) return null;
     try {
@@ -111,7 +111,7 @@ export function createUserSelector(options) {
     var showAdminBadge = options.showAdminBadge !== false;
     var pending = options.value || '';
 
-    // Select the option whose id matches (format-insensitively); fall back to the first option.
+    // Select the option whose id matches (format-insensitively), falling back to the first option.
     function selectByValue(value) {
         var want = idKey(value);
         for (var i = 0; i < select.options.length; i++) {
