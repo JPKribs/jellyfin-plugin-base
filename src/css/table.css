@@ -18,14 +18,14 @@
     flex: 1;
     min-width: 200px;
     padding: 10px 14px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--jpk-surface);
+    border: 1px solid var(--jpk-border);
     border-radius: 4px;
     color: inherit;
     font-size: 1em;
     outline: none;
 }
-.jpk-table-search:focus { border-color: rgba(255, 255, 255, 0.3); background: rgba(0, 0, 0, 0.4); }
+.jpk-table-search:focus { border-color: var(--jpk-accent); }
 .jpk-table-search::placeholder { color: rgba(255, 255, 255, 0.5); }
 .jpk-table-filter-wrapper { position: relative; flex-shrink: 0; min-width: 140px; }
 
@@ -34,8 +34,8 @@
 .jpk-table-filter {
     width: 100%;
     padding: 10px 36px 10px 14px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--jpk-surface);
+    border: 1px solid var(--jpk-border);
     border-radius: 4px;
     color: inherit;
     font-size: 1em;
@@ -45,8 +45,8 @@
     -moz-appearance: none;
     outline: none;
 }
-.jpk-table-filter:focus { border-color: rgba(255, 255, 255, 0.3); background: rgba(0, 0, 0, 0.4); }
-.jpk-table-filter option { background: var(--theme-background-primary, #1c1c1c); color: #fff; }
+.jpk-table-filter:focus { border-color: var(--jpk-accent); }
+.jpk-table-filter option { background: var(--jpk-surface); color: #fff; }
 .jpk-table-filter-arrow {
     position: absolute;
     right: 12px;

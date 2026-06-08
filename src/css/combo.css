@@ -14,7 +14,7 @@
     right: 0;
     max-height: 200px;
     overflow-y: auto;
-    background: #1c1c1e;
+    background: var(--jpk-surface);
     border: 1px solid var(--jpk-border);
     border-radius: 4px;
     z-index: 1000;
