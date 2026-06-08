@@ -15,6 +15,7 @@ CSS and JS are authored as per component sources under `src/` and bundled, minif
 * `jpk-field` and `jpk-field-row`: a compact label and control field plus a row that places several side by side, for dense multi field layouts.
 * Inline-edit primitives (`jpk-bulk-edit-bar`/`jpk-bulk-edit-title`, `jpk-edit-row`, `jpk-edit-line`/`jpk-edit-line-spacer`, `jpk-edit-secondary`): a bulk-edit toolbar above a table plus table rows that expand into stacked lines of fields, for tag/metadata editors.
 * `jpk-empty-section` (and `createShared(...).emptySection(text)`): a bordered, centered fallback box for an empty region.
+* Status callouts: `jpk-info` (blue), `jpk-success` (green), `jpk-warn` (amber), `jpk-error` (red), and `jpk-neutral` (gray) are soft inline notices that share one shape, plus `jpk-error-message` for a mono block of raw failure text.
 * Form spacing and field system: one `--jpk-field-gap` token normalizes every config field row over the emby defaults, and text inputs, text areas, and selects share one dark surface, border, and chevron so every field matches. Collapsible sections stay flat and share the form left edge.
 
 ### C# helpers
