@@ -45,3 +45,18 @@
     width: 100% !important;
     box-sizing: border-box !important;
 }
+
+/* Every config-page dropdown shows the chevron Jellyfin uses natively. emby-select
+   suppresses the browser's own arrow and repaints a solid background over any plain
+   background-image, so the glyph is forced back over it with !important. This is the
+   filled Material keyboard_arrow_down (solid, near-full opacity) so the dropdowns read
+   identically to every other select on the dashboard rather than a dim thin outline. */
+.pluginConfigurationPage select {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='rgba(255,255,255,0.9)'><path d='M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z'/></svg>") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 6px center !important;
+    padding-right: 34px !important;
+}
