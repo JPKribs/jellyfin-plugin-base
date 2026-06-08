@@ -1,0 +1,57 @@
+/* Status blocks and callouts. One shared shape with one color per status, so every notice across the
+   plugins reads consistently. Colors come from the status swatches in tokens.css. */
+
+/* Red, mono block for surfacing raw failure text such as an error body or a stack line */
+/* Example: <div class="jpk-error-message">Request failed</div> */
+.jpk-error-message {
+    background: var(--jpk-red-bg);
+    color: var(--jpk-red-fg);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: var(--jpk-mono);
+    font-size: 0.9em;
+    word-break: break-all;
+}
+
+/* Soft inline callouts. Pick the class that matches the meaning of the notice. */
+/* Example: <div class="jpk-info">Password is your API key.</div> */
+.jpk-info,
+.jpk-success,
+.jpk-warn,
+.jpk-error,
+.jpk-neutral {
+    border: 1px solid;
+    border-radius: 6px;
+    padding: 0.6em 0.8em;
+    font-size: 0.9em;
+}
+
+/* Blue, neutral guidance and hints */
+.jpk-info {
+    background: rgba(52, 152, 219, 0.12);
+    border-color: rgba(52, 152, 219, 0.4);
+}
+
+/* Green, a successful or healthy state */
+.jpk-success {
+    background: rgba(92, 184, 92, 0.12);
+    border-color: rgba(92, 184, 92, 0.4);
+}
+
+/* Amber, a caution the user should heed */
+.jpk-warn {
+    background: rgba(240, 173, 78, 0.12);
+    border-color: rgba(240, 173, 78, 0.4);
+}
+
+/* Red, a failure or blocking problem */
+.jpk-error {
+    background: rgba(217, 83, 79, 0.12);
+    border-color: rgba(217, 83, 79, 0.4);
+}
+
+/* Gray, a muted or inactive note */
+.jpk-neutral {
+    background: rgba(153, 153, 153, 0.12);
+    border-color: rgba(153, 153, 153, 0.4);
+}

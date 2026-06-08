@@ -40,7 +40,7 @@ CSS and JS are authored as per component sources under `src/` and bundled, minif
 Add the package:
 
 ```xml
-<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.6.21" />
+<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.6.22" />
 ```
 
 Extend the base and yield the shared pages:
