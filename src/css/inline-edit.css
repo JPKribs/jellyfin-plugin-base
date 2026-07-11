@@ -1,15 +1,18 @@
 /* Inline editing primitives: a bulk-edit bar over a table, and table rows that expand into
    stacked lines of fields. Pair with the table and field components. */
 
-/* Bulk-edit toolbar above a table: a vertical stack of field lines divided from the list below */
+/* Bulk-edit toolbar above a table: a vertical stack of field lines set off as a bordered card so it reads as
+   a distinct region above the list rather than a bare divider. */
 /* Example: <div class="jpk-bulk-edit-bar"><div class="jpk-bulk-edit-title">Bulk Edit</div><div class="jpk-edit-line"></div></div> */
 .jpk-bulk-edit-bar {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding-bottom: 16px;
+    padding: 14px;
     margin-bottom: 16px;
-    border-bottom: 1px solid var(--jpk-border);
+    border: 1px solid var(--jpk-border);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.04);
 }
 .jpk-bulk-edit-bar > button {
     align-self: flex-start;

@@ -22,7 +22,15 @@
     --jpk-purple-bg: rgba(155, 89, 182, 0.2); --jpk-purple-fg: #9b59b6;
     --jpk-blue-bg: rgba(52, 152, 219, 0.2);   --jpk-blue-fg: #3498db;
     --jpk-gray-bg: rgba(153, 153, 153, 0.2);  --jpk-gray-fg: #999;
+}
 
+/* Generic-named convenience aliases for the accent/status swatches. These use un-namespaced names that could
+   collide with the host dashboard's own variables, so they are NOT defined on :root — they are scoped to the
+   plugin config page and to body-level kit surfaces (dialogs) where consuming plugins reference them, and so
+   never leak into the surrounding Jellyfin UI. The namespaced --jpk-* tokens above stay global (on :root) so
+   body-level components like jpk-dialog resolve them everywhere. */
+.pluginConfigurationPage,
+.jpk-dialog {
     --accent-color: var(--jpk-accent);
     --accent-hover: var(--jpk-accent-hover);
     --border-subtle: var(--jpk-border);

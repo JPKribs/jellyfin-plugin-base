@@ -1,0 +1,104 @@
+/* Searchable checkbox list (createCheckboxList): a search box over a scrollable list of checkbox rows, each
+   with an optional thumbnail, label, sublabel, and note pill. The generic sibling of the user multi-selector,
+   for picking many arbitrary items (series, libraries, files). */
+/* Example: <div class="jpk-check-list"><input class="jpk-check-list-search" /><div class="jpk-check-list-body"></div></div> */
+.jpk-check-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.jpk-check-list-search {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Scrollable region holding the rows */
+.jpk-check-list-body {
+    display: flex;
+    flex-direction: column;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+/* One selectable row: checkbox, optional thumb, text block, optional note */
+/* Example: <label class="jpk-check-row"><input class="jpk-check-row-input" /><span class="jpk-check-text"></span></label> */
+.jpk-check-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.jpk-check-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+.jpk-check-row-input {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+/* Thumbnail shown before the text when a row supplies an imageUrl */
+.jpk-check-thumb {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex: 0 0 auto;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Text block stacks a label over an optional sublabel */
+.jpk-check-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.jpk-check-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.jpk-check-sub {
+    font-size: 0.8em;
+    opacity: 0.6;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Faint pill noting context for a row (e.g. an owning group) */
+.jpk-check-note {
+    flex: 0 0 auto;
+    font-size: 0.72em;
+    opacity: 0.7;
+    border: 1px solid var(--jpk-border);
+    border-radius: 4px;
+    padding: 1px 6px;
+}
+
+/* "Select all" row sits above the list with a divider */
+.jpk-check-selectall {
+    font-weight: 600;
+    border-bottom: 1px solid var(--jpk-border);
+    border-radius: 0;
+    margin-bottom: 4px;
+}
+
+/* Non-selectable row */
+.jpk-check-row-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.jpk-check-row-disabled .jpk-check-row-input {
+    cursor: not-allowed;
+}
+
+/* Placeholder shown when no items match the search */
+.jpk-check-empty {
+    opacity: 0.6;
+    font-size: 0.9em;
+    padding: 6px 8px;
+}

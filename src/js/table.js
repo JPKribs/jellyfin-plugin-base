@@ -135,11 +135,27 @@ export function createPaginatedTable(view, shared, options) {
             if (table.elements.loadMoreBtn) table.elements.loadMoreBtn.addEventListener('click', _loadMore);
             if (table.elements.loadAllBtn) table.elements.loadAllBtn.addEventListener('click', _loadAll);
         } else if (table.elements.scrollSentinel) {
-            table._scrollObserver = new IntersectionObserver(function (entries) {
-                if (entries[0].isIntersecting && !table.state.isLoading && table.state.hasMore) _loadMore();
-            }, { rootMargin: '200px' });
-            table._scrollObserver.observe(table.elements.scrollSentinel);
+            _createScrollObserver();
         }
+    }
+
+    // Builds and attaches the infinite-scroll observer. Shared by initial binding and reconnectObserver so
+    // the construction lives in one place.
+    function _createScrollObserver() {
+        if (table._scrollObserver || !table.elements.scrollSentinel) return;
+        if (table.options.pagination && table.options.pagination.loadMore) return;
+        table._scrollObserver = new IntersectionObserver(function (entries) {
+            if (entries[0].isIntersecting && !table.state.isLoading && table.state.hasMore) _loadMore();
+        }, { rootMargin: '200px' });
+        table._scrollObserver.observe(table.elements.scrollSentinel);
+    }
+
+    // Resets paging state for a fresh load. Clears the selection unless keepSelection is true.
+    function _resetState(keepSelection) {
+        table.state.items = [];
+        table.state.currentPage = 1;
+        table.state.hasMore = true;
+        if (!keepSelection) table.state.selectedIds.clear();
     }
 
     function _setFooterLoading(loading) {
@@ -351,25 +367,18 @@ export function createPaginatedTable(view, shared, options) {
             });
         },
         reload: function () {
-            table.state.items = [];
-            table.state.currentPage = 1;
-            table.state.hasMore = true;
-            table.state.selectedIds.clear();
+            _resetState(false);
             return this.load();
         },
         setFilter: function (value) {
             table.state.filterValue = value;
-            table.state.items = [];
-            table.state.currentPage = 1;
-            table.state.hasMore = true;
+            _resetState(true);
             this.clearSelection();
             return this.load();
         },
         setSearch: function (query) {
             table.state.searchQuery = query;
-            table.state.items = [];
-            table.state.currentPage = 1;
-            table.state.hasMore = true;
+            _resetState(true);
             this.clearSelection();
             return this.load();
         },
@@ -398,18 +407,17 @@ export function createPaginatedTable(view, shared, options) {
             if (table._scrollObserver) { table._scrollObserver.disconnect(); table._scrollObserver = null; }
         },
         reconnectObserver: function () {
-            if (table._scrollObserver || !table.elements.scrollSentinel) return;
-            if (table.options.pagination && table.options.pagination.loadMore) return;
-            table._scrollObserver = new IntersectionObserver(function (entries) {
-                if (entries[0].isIntersecting && !table.state.isLoading && table.state.hasMore) _loadMore();
-            }, { rootMargin: '200px' });
-            table._scrollObserver.observe(table.elements.scrollSentinel);
+            _createScrollObserver();
         },
+        // Reloads keeping the current selection (unlike reload(), which clears it).
         refresh: function () {
-            table.state.items = [];
-            table.state.currentPage = 1;
-            table.state.hasMore = true;
+            _resetState(true);
             return this.load();
+        },
+        // Tears down the table's observer and pending search timer. Call on viewhide to avoid leaks.
+        destroy: function () {
+            this.disconnectObserver();
+            if (table.searchTimeout) { clearTimeout(table.searchTimeout); table.searchTimeout = null; }
         },
         setFilterValue: function (value) {
             table.state.filterValue = value;

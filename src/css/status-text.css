@@ -6,3 +6,8 @@
     display: block;
     margin-top: 4px;
 }
+
+/* Success/failure coloring applied by shared.setStatus via classes rather than inline styles, so a plugin
+   can theme or override the status text. */
+.jpk-status-ok { color: var(--jpk-success); }
+.jpk-status-bad { color: var(--jpk-error); }

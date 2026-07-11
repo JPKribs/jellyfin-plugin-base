@@ -25,7 +25,8 @@
     cursor: pointer;
     font-size: 0.9em;
 }
-.jpk-combo-option:hover {
+.jpk-combo-option:hover,
+.jpk-combo-option.active {
     background: rgba(255, 255, 255, 0.05);
     color: var(--jpk-accent);
 }

@@ -1,0 +1,17 @@
+/* Typeahead multi-select (createChipSelect): removable chips stacked above a search input with a results
+   dropdown. Composed from the jpk-tags (chips) and jpk-combo (input + dropdown) components. */
+/* Example: <div class="jpk-chip-select"><div class="jpk-tags"></div><div class="jpk-combo"></div></div> */
+.jpk-chip-select {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Collapse the chip row when nothing is selected so it adds no empty gap above the input */
+.jpk-chip-select .jpk-tags:empty {
+    display: none;
+}
+
+.jpk-chip-select .jpk-tags {
+    margin-top: 0;
+}

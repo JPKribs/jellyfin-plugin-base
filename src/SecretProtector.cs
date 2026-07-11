@@ -21,6 +21,14 @@ namespace JPKribs.Jellyfin.Base;
 /// </summary>
 public sealed class SecretProtector
 {
+    /// <summary>
+    /// Sentinel a config page posts back in a secret field to mean "keep the stored value unchanged", so a
+    /// plugin never has to round-trip the real secret to the browser. Pair it with the matching JS constant
+    /// (<c>SECRET_KEPT</c> in the shared bundle) and feed incoming values through
+    /// <see cref="ResolveIncoming(string?, string?)"/>.
+    /// </summary>
+    public const string KeptSentinel = "__JPK_SECRET_KEPT__";
+
     private const string Prefix = "enc:v1:";
     private readonly IDataProtector? _protector;
     private readonly ILogger _logger;
@@ -88,4 +96,28 @@ public sealed class SecretProtector
             return string.Empty;
         }
     }
+
+    /// <summary>
+    /// Resolves a secret submitted from a config page against what is already stored. The page shows a
+    /// placeholder rather than the real secret and posts back <see cref="KeptSentinel"/> when the admin left
+    /// the field untouched: in that case the stored (already-encrypted) value is kept as-is. Any other value
+    /// is a new secret and is encrypted; an empty string clears it. The result is always the value to persist.
+    /// </summary>
+    /// <param name="incoming">The value posted from the client (possibly the sentinel).</param>
+    /// <param name="storedProtected">The currently-stored value (encrypted or legacy plaintext).</param>
+    /// <returns>The value to store: unchanged when kept, freshly encrypted when replaced, empty when cleared.</returns>
+    public string ResolveIncoming(string? incoming, string? storedProtected)
+    {
+        if (string.Equals(incoming, KeptSentinel, StringComparison.Ordinal))
+        {
+            return storedProtected ?? string.Empty;
+        }
+
+        return Protect(incoming);
+    }
+
+    /// <summary>Returns true when a non-empty secret is stored (so a page can show its placeholder).</summary>
+    /// <param name="storedProtected">The stored value.</param>
+    /// <returns>Whether a secret is present.</returns>
+    public static bool HasSecret(string? storedProtected) => !string.IsNullOrEmpty(storedProtected);
 }

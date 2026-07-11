@@ -15,6 +15,7 @@
 .jpk-badge.purple, .jpk-table-status-badge.Locked, .jpk-table-status-badge.Downloading, .jpk-table-status-badge.Pending, .jpk-table-status-badge.Pending-Download { background: var(--jpk-purple-bg); color: var(--jpk-purple-fg); }
 .jpk-badge.blue, .jpk-table-status-badge.Admin, .jpk-table-status-badge.Imported, .jpk-table-status-badge.Pending-Replacement { background: var(--jpk-blue-bg); color: var(--jpk-blue-fg); }
 .jpk-badge.gray, .jpk-table-status-badge.Ignored, .jpk-table-status-badge.Group { background: var(--jpk-gray-bg); color: var(--jpk-gray-fg); }
+.jpk-badge.yellow { background: rgba(224, 200, 78, 0.2); color: #e0c84e; }
 
 @media (max-width: 768px) {
     .jpk-table-status-badge, .jpk-badge { padding: 3px 8px; font-size: 0.8em; }
