@@ -1,6 +1,16 @@
-/* Page section heading with an underline rule */
-/* Example: <div class="sectionTitleContainer"><h2 class="sectionTitle">Settings</h2></div> */
+/* Page section heading with an underline rule. Group several jpk-collapsible-section blocks under one of
+   these to form a titled section. Consecutive headings get top spacing so the groups read as distinct, and
+   the first heading sits flush with the top of the form. The heading fills the row (flex: 1) so its
+   underline spans the full width inside the flex container. */
+/* Example: <div class="sectionTitleContainer flex align-items-center"><h2 class="sectionTitle">Settings</h2></div> */
+.sectionTitleContainer {
+    margin-top: 1.5em;
+}
+.sectionTitleContainer:first-child {
+    margin-top: 0;
+}
 .sectionTitleContainer .sectionTitle {
+    flex: 1;
     width: 100%;
     border-bottom: 1px solid var(--jpk-border);
     padding-bottom: 0.5em;
