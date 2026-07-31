@@ -65,6 +65,19 @@
     padding-right: 34px !important;
 }
 
+/* ...and only that one. emby-select injects a second, separate chevron element, but only for
+   selects that carry emby-select-withcolor:
+       this.classList.contains("emby-select-withcolor") && this.parentNode.insertAdjacentHTML(
+           "beforeend", '<div class="selectArrowContainer">…keyboard_arrow_down…</div>')
+   The rule above already paints a chevron on every config-page select, so wherever a plugin
+   copies that class from the dashboard's own markup the field renders two overlapping arrows —
+   the injected one sits at right .3em, the painted one at right 6px. The kit has taken over
+   select styling here, so it stands the injected arrow down rather than every plugin having to
+   remember not to use the class. Absolutely positioned, so hiding it costs no layout. */
+.pluginConfigurationPage .selectArrowContainer {
+    display: none !important;
+}
+
 /* One field look for the whole page. Text inputs, multi line text areas, and selects share the same
    dark surface, border, and focus ring over the emby defaults, so every field matches the selectors. */
 /* Example: <input is="emby-input" type="text"> and <select class="jpk-selector-dropdown"> render alike. */
