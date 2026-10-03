@@ -56,6 +56,8 @@
     opacity: 0.7;
     font-size: 0.9em;
 }
+/* On a config page the shared select rule already paints a chevron, so the table's own would make two */
+.pluginConfigurationPage .jpk-table-filter-arrow { display: none; }
 
 /* Bulk selection bar above the table body */
 /* Example: <div class="jpk-table-selection-header"></div> */

@@ -20,6 +20,16 @@ namespace JPKribs.Jellyfin.Base.Tests;
 public class SelectChevronTests
 {
     [Fact]
+    public void TableFilterArrow_IsHiddenOnConfigPages()
+    {
+        var css = KitCss(".Css.table.css");
+
+        Assert.Matches(
+            new Regex(@"\.pluginConfigurationPage\s+\.jpk-table-filter-arrow\s*\{[^}]*display\s*:\s*none", RegexOptions.Singleline),
+            css);
+    }
+
+    [Fact]
     public void Kit_PaintsAChevronOnConfigPageSelects()
     {
         var css = FormCss();
@@ -55,11 +65,13 @@ public class SelectChevronTests
             css.Replace(".pluginConfigurationPage .selectArrowContainer", "SCOPED", StringComparison.Ordinal));
     }
 
-    private static string FormCss()
+    private static string FormCss() => KitCss(".Css.form.css");
+
+    private static string KitCss(string suffix)
     {
         var asm = typeof(SelectChevronTests).Assembly;
         var name = asm.GetManifestResourceNames()
-            .Single(n => n.EndsWith(".Css.form.css", StringComparison.Ordinal));
+            .Single(n => n.EndsWith(suffix, StringComparison.Ordinal));
 
         using var stream = asm.GetManifestResourceStream(name)!;
         using var reader = new StreamReader(stream);
