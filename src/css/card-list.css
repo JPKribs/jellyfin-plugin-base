@@ -1,0 +1,142 @@
+/* Vertical list of record cards in priority order, each with a head row and a body the open card shows */
+/* Example: <div class="jpk-card-list"><div class="jpk-card-item selected"><div class="jpk-card-item-head">...</div><div class="jpk-card-item-body">...</div></div></div> */
+.jpk-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* One record card. selected marks the open one, collapsed folds it, disabled dims its text, dragging fades it */
+/* Example: <div class="jpk-card-item selected"></div> */
+.jpk-card-item {
+    background: var(--jpk-surface);
+    border: 1px solid var(--jpk-border);
+    border-radius: 8px;
+    transition: border-color 0.15s, background 0.15s;
+}
+.jpk-card-item.selected { border-color: var(--jpk-accent); }
+.jpk-card-item.dragging { opacity: 0.4; }
+.jpk-card-item.drop-before { box-shadow: 0 -3px 0 0 var(--jpk-accent); }
+.jpk-card-item.drop-after { box-shadow: 0 3px 0 0 var(--jpk-accent); }
+.jpk-card-item.disabled .jpk-card-item-main { opacity: 0.55; }
+
+/* Clickable head row: grip, number, main text, arrows, chevron. Tinted when the card is open */
+/* Example: <div class="jpk-card-item-head" draggable="true" role="button" tabindex="0"></div> */
+.jpk-card-item-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    cursor: pointer;
+    user-select: none;
+    border-radius: 8px;
+}
+.jpk-card-item-head:hover { background: rgba(255, 255, 255, 0.05); }
+.jpk-card-item.selected > .jpk-card-item-head { background: rgba(0, 164, 220, 0.08); border-radius: 8px 8px 0 0; }
+.jpk-card-item.selected.collapsed > .jpk-card-item-head { border-radius: 8px; }
+
+/* Drag handle icon at the left of the head */
+/* Example: <span class="jpk-card-item-grip material-icons">drag_indicator</span> */
+.jpk-card-item-grip {
+    color: rgba(255, 255, 255, 0.35);
+    cursor: grab;
+    display: flex;
+}
+
+/* Round priority number, filled with the accent on the open card */
+/* Example: <span class="jpk-card-item-num">1</span> */
+.jpk-card-item-num {
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9em;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--jpk-border);
+}
+.jpk-card-item.selected .jpk-card-item-num {
+    background: var(--jpk-accent);
+    border-color: var(--jpk-accent);
+    color: #fff;
+}
+
+/* Title line and sub line that take the remaining width and clip */
+/* Example: <div class="jpk-card-item-main"><div class="jpk-card-item-title">Name</div><div class="jpk-card-item-sub">detail</div></div> */
+.jpk-card-item-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.jpk-card-item-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.jpk-card-item-sub {
+    font-family: var(--jpk-mono);
+    font-size: 0.8em;
+    opacity: 0.65;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Small status dot before the title: ok, bad, or checking; plain gray otherwise */
+/* Example: <span class="jpk-card-item-dot ok"></span> */
+.jpk-card-item-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex: 0 0 9px;
+    background: #999;
+}
+.jpk-card-item-dot.ok { background: var(--jpk-success); }
+.jpk-card-item-dot.bad { background: var(--jpk-error); }
+.jpk-card-item-dot.checking { background: var(--jpk-warning); }
+
+/* Stacked up and down row buttons at the right of the head */
+/* Example: <div class="jpk-card-item-arrows"><button class="jpk-row-btn" data-move="-1"></button><button class="jpk-row-btn" data-move="1"></button></div> */
+.jpk-card-item-arrows {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.jpk-card-item-arrows .jpk-row-btn { padding: 2px; }
+.jpk-card-item-arrows .jpk-row-btn .material-icons { font-size: 18px; }
+
+/* Chevron that turns when the card is open */
+/* Example: <span class="jpk-card-item-chevron material-icons">expand_more</span> */
+.jpk-card-item-chevron {
+    color: rgba(255, 255, 255, 0.5);
+    transition: transform 0.15s;
+}
+.jpk-card-item.selected:not(.collapsed) .jpk-card-item-chevron { transform: rotate(180deg); }
+
+/* Body shown only inside the open, unfolded card */
+/* Example: <div class="jpk-card-item-body"></div> */
+.jpk-card-item-body {
+    padding: 4px 16px 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.jpk-card-item.collapsed .jpk-card-item-body,
+.jpk-card-item:not(.selected) .jpk-card-item-body { display: none; }
+
+/* Action row under the list, for an Add button */
+/* Example: <div class="jpk-card-list-actions"><button class="jpk-icon-btn jpk-button-submit">Add</button></div> */
+.jpk-card-list-actions {
+    margin: 12px 0 1.5em;
+}
+
+@media (max-width: 768px) {
+    .jpk-card-item-sub { display: none; }
+}

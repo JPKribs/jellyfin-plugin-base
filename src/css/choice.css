@@ -1,0 +1,44 @@
+/* Grid of equal radio cards, three across and one per row on a phone */
+/* Example: <div class="jpk-choice-group" role="radiogroup"><label class="jpk-choice selected">...</label></div> */
+.jpk-choice-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+/* One radio card holding a hidden input, a name, and a sentence. selected outlines it with the accent */
+/* Example: <label class="jpk-choice"><input type="radio" name="mode" value="Scan"><span class="jpk-choice-name">Scan</span><span class="jpk-choice-text">Pull on a schedule.</span></label> */
+.jpk-choice {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    background: var(--jpk-surface);
+    border: 1px solid var(--jpk-border);
+    transition: border-color 0.15s, background 0.15s;
+}
+.jpk-choice:hover { background: rgba(255, 255, 255, 0.05); }
+.jpk-choice.selected,
+.jpk-choice:has(input:checked) {
+    border-color: var(--jpk-accent);
+    background: rgba(0, 164, 220, 0.08);
+}
+.jpk-choice input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.jpk-choice-name { font-weight: 600; }
+.jpk-choice-text {
+    font-size: 0.85em;
+    opacity: 0.75;
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .jpk-choice-group { grid-template-columns: 1fr; }
+}

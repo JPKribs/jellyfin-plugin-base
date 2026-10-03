@@ -288,6 +288,61 @@ function html(parent, markup) {
     shared.initCollapsibles();
 })();
 
+// ---- Sortable card list ----
+(function () {
+    const s = section('Sortable card list — createSortableCardList');
+    const list = document.createElement('div');
+    s.appendChild(list);
+    const editor = document.createElement('div');
+    editor.innerHTML = '<div class="inputContainer"><label>Name</label><input is="emby-input" type="text" value="Edited in place"></div>' +
+        '<div class="jpk-collapsible-actions"><button class="jpk-button-submit jpk-button-small">Save</button></div>';
+    const records = [
+        { name: 'Living room', url: 'http://living:8096', mode: 'Both', dot: 'ok' },
+        { name: 'Cabin', url: 'http://cabin:8096', mode: 'Scan', dot: 'bad' },
+        { name: 'Backup', url: 'http://backup:8096', mode: 'Send', dot: 'checking', disabled: true }
+    ];
+    const cards = JPK.createSortableCardList(list, {
+        items: records,
+        editor: editor,
+        render: (r) => ({ title: r.name, subtitle: r.url, dot: r.dot, disabled: r.disabled,
+            badges: [{ label: r.mode, cls: r.mode === 'Both' ? 'purple' : r.mode === 'Send' ? 'blue' : 'green' }].concat(r.disabled ? [{ label: 'Disabled', cls: 'gray' }] : []) }),
+        onMove: (from, to) => shared.setStatus('cardListStatus', 'Moved ' + (from + 1) + ' to ' + (to + 1), true)
+    });
+    cards.setSelected(0);
+    html(s, '<div class="jpk-card-list-actions"><button class="jpk-icon-btn jpk-button-submit"><span class="material-icons">add</span><span>Add</span></button></div>' +
+        '<span id="cardListStatus" class="jpk-status-text"></span>');
+})();
+
+// ---- Choice cards ----
+(function () {
+    const s = section('Choice cards — createChoiceGroup');
+    const group = html(s, '<div class="jpk-choice-group" role="radiogroup">' +
+        '<label class="jpk-choice"><input type="radio" name="g-mode" value="Scan" checked><span class="jpk-choice-name">Scan</span><span class="jpk-choice-text">Pull from this server on a schedule.</span></label>' +
+        '<label class="jpk-choice"><input type="radio" name="g-mode" value="Send"><span class="jpk-choice-name">Send</span><span class="jpk-choice-text">Tell this server about changes as they happen.</span></label>' +
+        '<label class="jpk-choice"><input type="radio" name="g-mode" value="Both"><span class="jpk-choice-name">Both</span><span class="jpk-choice-text">Scan and Send together.</span></label>' +
+        '</div><span id="choiceStatus" class="jpk-status-text"></span>').querySelector('.jpk-choice-group');
+    JPK.createChoiceGroup(group, { onChange: (v) => shared.setStatus('choiceStatus', 'Chose ' + v, true) });
+})();
+
+// ---- Step headers ----
+(function () {
+    const s = section('Step headers — jpk-step-title');
+    s.insertAdjacentHTML('beforeend',
+        '<div class="jpk-collapsible-section">' +
+          '<button type="button" class="jpk-collapsible-header" data-target="stepA">' +
+            '<span class="jpk-collapsible-title jpk-step-title"><span class="jpk-step-number">1</span> Connection</span>' +
+            '<span class="jpk-collapsible-icon">▼</span></button>' +
+          '<div id="stepA" class="jpk-collapsible-content"><p style="opacity:.7;margin:0">Fields for the first step.</p></div>' +
+        '</div>' +
+        '<div class="jpk-collapsible-section">' +
+          '<button type="button" class="jpk-collapsible-header collapsed" data-target="stepB">' +
+            '<span class="jpk-collapsible-title jpk-step-title"><span class="jpk-step-number">2</span> Libraries</span>' +
+            '<span class="jpk-collapsible-icon">▼</span></button>' +
+          '<div id="stepB" class="jpk-collapsible-content collapsed"><p style="opacity:.7;margin:0">Fields for the second step.</p></div>' +
+        '</div>');
+    shared.initCollapsibles();
+})();
+
 // ---- Combo box ----
 (function () {
     const s = section('Searchable combo box — shared.createSearchableComboBox');
