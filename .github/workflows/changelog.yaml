@@ -52,11 +52,16 @@ jobs:
             echo "action=update" >> "$GITHUB_OUTPUT"
             echo "final=${NORM}" >> "$GITHUB_OUTPUT"
           else
-            MAJ=$(echo "${NORM}" | cut -d. -f1)
-            MIN=$(echo "${NORM}" | cut -d. -f2)
-            PAT=$(echo "${NORM}" | cut -d. -f3)
-            NEW="${MAJ}.${MIN}.$((PAT + 1))"
-            echo "Published ${TAG} exists - incrementing to v${NEW}"
+            # Versions are dates. A release that already shipped means this is a new release, which is
+            # dated today. A second release on the same day gets a fourth segment: 2026.10.3.1, .2, and so on.
+            TODAY=$(date -u +%Y.%-m.%-d)
+            NEW="${TODAY}"
+            N=0
+            while gh release view "v${NEW}" --json isDraft --jq '.isDraft' 2>/dev/null | grep -q false; do
+              N=$((N + 1))
+              NEW="${TODAY}.${N}"
+            done
+            echo "Published ${TAG} exists - releasing as v${NEW}"
             echo "action=increment" >> "$GITHUB_OUTPUT"
             echo "final=${NEW}" >> "$GITHUB_OUTPUT"
           fi
@@ -71,7 +76,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add JPKribs.Jellyfin.Base.csproj
-          git commit -m "Auto-increment version to ${NEW}"
+          git commit -m "Version ${NEW}"
           git push
 
       - name: Bundle and pack
