@@ -15,6 +15,8 @@
 /* Search box that fills the toolbar */
 /* Example: <input class="jpk-table-search" placeholder="Search" /> */
 .jpk-table-search {
+    box-sizing: border-box;
+    line-height: 1.4;
     flex: 1;
     min-width: 200px;
     padding: 10px 14px;
@@ -33,6 +35,10 @@
 /* Example: <div class="jpk-table-filter-wrapper"><select class="jpk-table-filter"></select></div> */
 .jpk-table-filter {
     width: 100%;
+    box-sizing: border-box;
+    font: inherit;
+    line-height: 1.4;
+    height: auto;
     padding: 10px 36px 10px 14px;
     background: var(--jpk-surface);
     border: 1px solid var(--jpk-border);
