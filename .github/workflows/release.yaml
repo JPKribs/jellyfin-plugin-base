@@ -2,7 +2,7 @@ name: '🚀 Release'
 
 # One run does the whole release: test, bundle, pack, tag, GitHub release, NuGet push.
 #
-# The version is a date, computed here and never written into the repository. Today's UTC date is
+# The version is a date, computed here and never written into the repository. Today's date is
 # YYYY.M.D. A second release on the same day becomes YYYY.M.D.1, then .2, and so on. Before anything
 # is pushed the version is checked against both nuget.org and the repository's tags, so a version that
 # already exists is refused instead of silently skipped.
@@ -14,12 +14,17 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release. Blank means today''s date (YYYY.M.D, then .1, .2 for a second release that day).'
+        description: 'Version to release. Blank means today''s date in America/Denver (YYYY.M.D, then .1, .2 for a second release that day).'
         required: false
         default: ''
 
 permissions:
   contents: write
+
+# The date in the version is the calendar date where the releases are made, not UTC, so a release made in
+# the evening is not stamped with tomorrow.
+env:
+  RELEASE_TIMEZONE: America/Denver
 
 concurrency:
   group: release
@@ -66,7 +71,7 @@ jobs:
               exit 1
             fi
           else
-            TODAY=$(date -u +%Y.%-m.%-d)
+            TODAY=$(TZ="${RELEASE_TIMEZONE}" date +%Y.%-m.%-d)
             VERSION="${TODAY}"
             N=0
             while exists "${VERSION}"; do
