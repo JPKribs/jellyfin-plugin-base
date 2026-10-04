@@ -14,6 +14,9 @@ namespace JPKribs.Jellyfin.Base;
 /// </summary>
 public sealed class ActivityLogger
 {
+    /// <summary>The longest name or overview the activity log stores.</summary>
+    public const int MaxTextLength = 512;
+
     private readonly IActivityManager _activityManager;
     private readonly ILogger<ActivityLogger> _logger;
 
@@ -42,13 +45,38 @@ public sealed class ActivityLogger
     public void Log(string name, string type, string? overview = null, LogLevel severity = LogLevel.Information, Guid userId = default)
         => _ = WriteAsync(name, type, overview, severity, userId);
 
+    /// <summary>
+    /// Writes an entry to the activity log and completes once it is stored. It never throws, so a caller can
+    /// await it inside the flow it documents.
+    /// </summary>
+    /// <param name="name">The entry headline shown in the activity feed.</param>
+    /// <param name="type">The entry type, namespaced under the plugin, such as <c>MyPlugin.Something</c>.</param>
+    /// <param name="overview">Optional detail text.</param>
+    /// <param name="severity">The severity, informational by default.</param>
+    /// <param name="userId">Optional associated user, none by default.</param>
+    /// <returns>A task that completes when the entry is written or the write failed.</returns>
+    public Task LogAsync(string name, string type, string? overview = null, LogLevel severity = LogLevel.Information, Guid userId = default)
+        => WriteAsync(name, type, overview, severity, userId);
+
+    /// <summary>
+    /// Cuts text to the length the activity log stores. Jellyfin keeps at most 512 characters of an entry's
+    /// name and overview.
+    /// </summary>
+    /// <param name="text">The text.</param>
+    /// <returns>The text, at most <see cref="MaxTextLength"/> characters long.</returns>
+    public static string Trim(string text)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+        return text.Length > MaxTextLength ? text[..MaxTextLength] : text;
+    }
+
     private async Task WriteAsync(string name, string type, string? overview, LogLevel severity, Guid userId)
     {
         try
         {
-            await _activityManager.CreateAsync(new ActivityLog(name, type, userId)
+            await _activityManager.CreateAsync(new ActivityLog(Trim(name ?? string.Empty), type, userId)
             {
-                ShortOverview = overview ?? string.Empty,
+                ShortOverview = Trim(overview ?? string.Empty),
                 LogSeverity = severity
             }).ConfigureAwait(false);
         }

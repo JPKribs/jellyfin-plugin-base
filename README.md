@@ -40,7 +40,8 @@ CSS and JS are authored as per component sources under `src/` and bundled, minif
 * `BackoffPolicy`: a stateless companion to `CircuitBreaker` for per-entity backoff persisted on the entity itself. The caller passes in the current `BackoffState` (a consecutive-failure count and an optional pause deadline) and stores the one returned by `RecordFailure`/`RecordSuccess`, so a paused record survives restarts. The pause escalates exponentially from a base delay, capped at a maximum, and only engages past a failure threshold.
 * `ConcurrentTaskRunner.RunAsync`: runs a worker over a collection with a bounded degree of parallelism and reports 0-100 progress as items finish, wrapping the SemaphoreSlim-plus-Interlocked pattern a scheduled task otherwise reimplements. Pairs with `PluginScheduledTask`.
 * `JsonFileStore<T>`: a thread-safe JSON file store for the runtime state a plugin keeps beside its configuration (usage counters, lockouts, cursors). `Load` tolerates a missing or corrupt file by returning a fresh value; `Save` is atomic (temp file then swap); `Update(mutate)` does an atomic read-modify-write.
-* `ActivityLogger`: writes a plugin's events to Jellyfin's activity log where administrators already look. Entries are fire-and-forget and failures are swallowed. Namespace each entry `type` under the plugin.
+* `ActivityLogger`: writes a plugin's events to Jellyfin's activity log where administrators already look. `Log` is fire and forget, `LogAsync` completes once the entry is stored, and neither throws. Names and overviews are cut to the 512 characters the activity log keeps (`Trim` does the same for a caller). Namespace each entry `type` under the plugin.
+* `DatabaseSchema`: versions a SQLite database a plugin owns. `Open(connection, currentVersion, minReaderVersion, create, migrate)` creates an empty database, migrates an older one, and stamps the version in `PRAGMA user_version` with the oldest version that can still read the file in a `SchemaInfo` table. A newer database this build can read is used untouched (`UsedNewer`). One it cannot read (`TooNew`) or a failed migration (`MigrationFailed`) writes nothing, and the caller closes the connection, calls `SetAside(path, reason, keep, logger)` to move the file and its journal aside as a timestamped backup, and opens a fresh one. Raise the minimum reader only when a migration changes or removes something older builds rely on. Written against `DbConnection`, so plugins without SQLite take on no dependency.
 * `StringUtilities.EscapeJsString`: escapes a string for safe embedding inside a JavaScript string literal, neutralising quotes, line breaks, and the `</script>` / line-separator sequences that break out of an inline script block.
 * `RetryPolicy.ExecuteWithRetryAsync`: retries an operation with exponential backoff and jitter, but only for transient faults (timeouts, socket errors, 5xx/429, generic IO). Permanent errors throw immediately.
 * `FileNameSanitizer`: turns an arbitrary string into a safe cross-platform file name (strips invalid/control chars, collapses runs, handles reserved names and length), with a `SanitizeTempFileName` helper for cache files.
@@ -54,7 +55,7 @@ CSS and JS are authored as per component sources under `src/` and bundled, minif
 Add the package:
 
 ```xml
-<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.10.3" />
+<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.10.6" />
 ```
 
 Extend the base and yield the shared pages:
