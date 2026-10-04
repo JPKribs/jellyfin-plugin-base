@@ -13,7 +13,7 @@
 //   onBeforeLeave: function(index) called when the open card is left, to read the editor back [optional]
 //   onMove       : function(fromIndex, toIndex) called after a reorder; the caller saves [optional]
 //   reorder      : allow arrows and drag (default true)
-//   collapsible  : clicking the open head folds it (default true)
+//   collapsible  : clicking the open head folds it and a chevron shows the state (default true); false keeps the open card open
 //   escapeHtml   : function(str) -> safe string (default a built in escaper)
 // }
 // Returns { render, setItems, getSelected, setSelected, destroy }.
@@ -81,7 +81,7 @@ export function createSortableCardList(listEl, options) {
                         '<button type="button" class="jpk-row-btn" data-move="-1" title="Move up"' + (index === 0 ? ' disabled' : '') + '><span class="material-icons">keyboard_arrow_up</span></button>' +
                         '<button type="button" class="jpk-row-btn" data-move="1" title="Move down"' + (index === items.length - 1 ? ' disabled' : '') + '><span class="material-icons">keyboard_arrow_down</span></button>' +
                     '</div>' : '') +
-                    '<span class="jpk-card-item-chevron material-icons" aria-hidden="true">expand_more</span>' +
+                    (collapsible ? '<span class="jpk-card-item-chevron material-icons" aria-hidden="true">expand_more</span>' : '') +
                 '</div>' +
                 '<div class="jpk-card-item-body"></div>';
             listEl.appendChild(card);
