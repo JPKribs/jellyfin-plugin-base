@@ -1,0 +1,30 @@
+name: '🙈 Unlist Package Version'
+
+# Hides a version on nuget.org that should not have shipped. NuGet never deletes a version; unlisting
+# removes it from search and from being picked as the latest, while anyone pinned to it keeps working.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The exact nuget.org version to unlist, for example 2026.7.32'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  unlist:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Unlist
+        run: |
+          dotnet nuget delete JPKribs.Jellyfin.Base "${{ inputs.version }}" \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key "${{ secrets.NUGET_API_KEY }}" \
+            --non-interactive

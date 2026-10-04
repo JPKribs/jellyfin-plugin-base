@@ -1,0 +1,102 @@
+name: '🚀 Release'
+
+# One run does the whole release: test, bundle, pack, tag, GitHub release, NuGet push.
+#
+# The version is a date, computed here and never written into the repository. Today's UTC date is
+# YYYY.M.D. A second release on the same day becomes YYYY.M.D.1, then .2, and so on. Before anything
+# is pushed the version is checked against both nuget.org and the repository's tags, so a version that
+# already exists is refused instead of silently skipped.
+#
+# Start it from the Actions tab. Leave the version blank to release today's date, or type one to
+# override, for example to re-release a specific date.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release. Blank means today''s date (YYYY.M.D, then .1, .2 for a second release that day).'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Resolve version
+        id: ver
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REQUESTED: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          PACKAGE=jpkribs.jellyfin.base
+          # Versions already on nuget.org, normalized the way NuGet normalizes them.
+          PUBLISHED=$(curl -fsSL "https://api.nuget.org/v3-flatcontainer/${PACKAGE}/index.json" | jq -r '.versions[]' || true)
+          exists() {
+            echo "${PUBLISHED}" | grep -qx "$1" && return 0
+            git tag -l "v$1" | grep -q . && return 0
+            return 1
+          }
+          if [ -n "${REQUESTED}" ]; then
+            VERSION="${REQUESTED}"
+            if exists "${VERSION}"; then
+              echo "::error::Version ${VERSION} already exists on nuget.org or as a tag. Pick another."
+              exit 1
+            fi
+          else
+            TODAY=$(date -u +%Y.%-m.%-d)
+            VERSION="${TODAY}"
+            N=0
+            while exists "${VERSION}"; do
+              N=$((N + 1))
+              VERSION="${TODAY}.${N}"
+            done
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Releasing ${VERSION}"
+
+      - name: Test
+        run: dotnet test JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Release
+
+      - name: Bundle and pack
+        run: |
+          bash scripts/bundle.sh
+          dotnet pack JPKribs.Jellyfin.Base.csproj -c Release -o nupkg -p:Version=${{ steps.ver.outputs.version }}
+          ls -l nupkg
+
+      - name: Push to nuget.org
+        run: |
+          dotnet nuget push "nupkg/JPKribs.Jellyfin.Base.${{ steps.ver.outputs.version }}.nupkg" \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key "${{ secrets.NUGET_API_KEY }}"
+
+      - name: Tag and release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.ver.outputs.version }}"
+          git tag "v${VERSION}"
+          git push origin "v${VERSION}"
+          gh release create "v${VERSION}" nupkg/*.nupkg --title "v${VERSION}" --generate-notes

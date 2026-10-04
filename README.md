@@ -54,7 +54,7 @@ CSS and JS are authored as per component sources under `src/` and bundled, minif
 Add the package:
 
 ```xml
-<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.7.12" />
+<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.10.3" />
 ```
 
 Extend the base and yield the shared pages:
@@ -97,3 +97,7 @@ var TABS = [
 ];
 setTabs('myplugin', 0, TABS);
 ```
+
+## Releasing
+
+Versions are dates. Start the **Release** workflow from the Actions tab and leave the version blank: it tests, bundles, packs with today's UTC date as `YYYY.M.D`, pushes to nuget.org, tags `vYYYY.M.D`, and creates the GitHub release with generated notes, all in one run. A second release on the same day becomes `YYYY.M.D.1`. The version is never written into the repository, and a version that already exists on nuget.org or as a tag is refused rather than skipped. A version that should not have shipped is hidden with the **Unlist Package Version** workflow. `scripts/pack.sh` makes a local package dated the same way for testing a consumer before release.
