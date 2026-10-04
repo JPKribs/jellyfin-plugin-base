@@ -60,4 +60,12 @@
 }
 .jpk-record-label {
     opacity: 0.7;
+    flex: 0 0 auto;
+}
+/* The value may be a long id or path; it breaks anywhere rather than running past the card */
+/* Example: <div class="jpk-record-row"><span class="jpk-record-label">ID</span><span class="jpk-mono">2f40d5d8…</span></div> */
+.jpk-record-row > :last-child:not(.jpk-record-label) {
+    min-width: 0;
+    text-align: right;
+    overflow-wrap: anywhere;
 }
