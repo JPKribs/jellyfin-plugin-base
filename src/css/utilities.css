@@ -2,6 +2,10 @@
 /* Example: <div class="hidden"></div> */
 .hidden { display: none !important; }
 
+/* Makes the hidden attribute win over a component's own display rule (a flex row, a grid) */
+/* Example: <div class="jpk-field-row" hidden></div> */
+[hidden] { display: none !important; }
+
 /* Applies the mono font stack */
 /* Example: <span class="jpk-mono">10.0.0.1</span> */
 .jpk-mono { font-family: var(--jpk-mono); }

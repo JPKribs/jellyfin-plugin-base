@@ -47,6 +47,119 @@ export function generateGuid() {
 // value through SecretProtector.ResolveIncoming there.
 export var SECRET_KEPT = '__JPK_SECRET_KEPT__';
 
+// bindSecretField
+// Prepares a secret input so the stored secret never reaches the browser. When a secret is stored, the field is
+// left empty with a placeholder saying so; readSecretField then posts SECRET_KEPT for an untouched field. Call it
+// after every load, since a save may have changed whether a secret is stored.
+//
+// Param: input     | the input element
+// Param: hasStored | whether a secret is currently stored (the C# side's SecretProtector.HasSecret)
+// Param: opts      | { placeholder: shown when a secret is stored (default "Saved, leave blank to keep") }
+export function bindSecretField(input, hasStored, opts) {
+    if (!input) return;
+    opts = opts || {};
+    if (input.dataset.jpkSecretPlaceholder === undefined) {
+        input.dataset.jpkSecretPlaceholder = input.placeholder || '';
+    }
+    input.value = '';
+    delete input.dataset.jpkSecretCleared;
+    if (hasStored) {
+        input.dataset.jpkSecretStored = '1';
+        input.placeholder = opts.placeholder || 'Saved, leave blank to keep';
+    } else {
+        delete input.dataset.jpkSecretStored;
+        input.placeholder = input.dataset.jpkSecretPlaceholder;
+    }
+}
+
+// clearSecretField
+// Marks a bound secret field to clear the stored secret on the next save, since an empty field otherwise keeps it.
+//
+// Param: input | the input element
+export function clearSecretField(input) {
+    if (!input) return;
+    input.value = '';
+    input.dataset.jpkSecretCleared = '1';
+    input.placeholder = input.dataset.jpkSecretPlaceholder || '';
+}
+
+// readSecretField
+// Returns the value to post for a bound secret field: SECRET_KEPT when it is empty and a secret is stored, ''
+// when clearSecretField was called, and otherwise the typed value (a replacement secret).
+//
+// Param: input | the input element
+export function readSecretField(input) {
+    if (!input) return '';
+    if (input.value) return input.value;
+    if (input.dataset.jpkSecretCleared) return '';
+    return input.dataset.jpkSecretStored ? SECRET_KEPT : '';
+}
+
+// debounce
+// Returns a function that runs fn once calls have paused for ms milliseconds, with the latest arguments.
+// The returned function has cancel() to drop a pending call (for example on viewhide).
+//
+// Param: fn | the function to debounce
+// Param: ms | quiet period in milliseconds (default 300)
+export function debounce(fn, ms) {
+    var timer = null;
+    function debounced() {
+        var self = this;
+        var args = arguments;
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(function () { timer = null; fn.apply(self, args); }, ms == null ? 300 : ms);
+    }
+    debounced.cancel = function () { if (timer) { clearTimeout(timer); timer = null; } };
+    return debounced;
+}
+
+// downloadJson
+// Saves a value as a pretty-printed JSON file through the browser's download, for exporting configuration.
+//
+// Param: filename | the suggested file name, such as "channels.json"
+// Param: value    | the value to serialize
+export function downloadJson(filename, value) {
+    var blob = new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = filename || 'export.json';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+}
+
+// pickJsonFile
+// Opens a file picker for a JSON file and resolves to its parsed value, or null when the picker is cancelled.
+// Rejects when the file is not valid JSON, so a caller can report the error.
+//
+// No parameters
+export function pickJsonFile() {
+    return new Promise(function (resolve, reject) {
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json,application/json';
+        input.style.display = 'none';
+        document.body.appendChild(input);
+        function cleanup() { if (input.parentNode) input.parentNode.removeChild(input); }
+        input.addEventListener('cancel', function () { cleanup(); resolve(null); });
+        input.addEventListener('change', function () {
+            var file = input.files && input.files[0];
+            cleanup();
+            if (!file) { resolve(null); return; }
+            var reader = new FileReader();
+            reader.onload = function () {
+                try { resolve(JSON.parse(reader.result)); } catch (e) { reject(new Error('The file is not valid JSON.')); }
+            };
+            reader.onerror = function () { reject(new Error('The file could not be read.')); };
+            reader.readAsText(file);
+        });
+        input.click();
+    });
+}
+
 // BADGE_STATES
 // The status names badges.css tints, plus the raw color modifiers. Reference these instead of hardcoding
 // state strings so a plugin's C#-enum-to-badge mapping has one source of truth and drift is detectable.
@@ -94,13 +207,30 @@ function legacyCopy(text) {
 //   bind      : function(shared, page) run once, for event wiring
 //   load      : function(shared, page) run on every viewshow, for (re)loading data
 //   onHide    : function(shared, page) run on viewhide, after automatic cleanups
+//   isDirty   : function() returning whether there are unsaved changes; when true, leaving the page asks
+//               first and closing the tab warns [optional; page.guardUnsaved sets it later]
+//   leaveMessage : the question asked before leaving with unsaved changes [optional]
 // }
-// Returns a page handle: { view, shared, addCleanup(fn), createPoller(fn, ms) }.
+// Returns a page handle: { view, shared, addCleanup(fn), createPoller(fn, ms), guardUnsaved(isDirty, message) }.
+// guardUnsaved accepts a function or a createChangeTracker tracker.
 export function createConfigPage(view, opts) {
     opts = opts || {};
     var shared = createShared(view, opts.pluginId, opts.apiPrefix);
     var cleanups = [];
     var bound = false;
+    var isDirty = opts.isDirty || null;
+    var leaveMessage = opts.leaveMessage || 'You have unsaved changes. Leave without saving?';
+
+    function hasUnsaved() {
+        try { return !!(isDirty && isDirty()); } catch (e) { return false; }
+    }
+
+    function onBeforeUnload(e) {
+        if (hasUnsaved()) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    }
 
     var page = {
         view: view,
@@ -112,6 +242,11 @@ export function createConfigPage(view, opts) {
             var poller = shared.createPoller(fn, intervalMs);
             cleanups.push(poller.stop);
             return poller;
+        },
+        // Ask before leaving while there are unsaved changes. Pass a function or a change tracker.
+        guardUnsaved: function (dirty, message) {
+            isDirty = dirty && typeof dirty.isDirty === 'function' ? dirty.isDirty : dirty;
+            if (message) leaveMessage = message;
         }
     };
 
@@ -122,10 +257,15 @@ export function createConfigPage(view, opts) {
         cleanups.length = 0;
     }
 
-    view.addEventListener('viewshow', function () {
+    function applyTabs() {
         if (opts.tabs && opts.tabsKey !== undefined && opts.tabsKey !== null) {
             setTabs(opts.tabsKey, opts.tabIndex || 0, opts.tabs);
         }
+    }
+
+    view.addEventListener('viewshow', function () {
+        applyTabs();
+        window.addEventListener('beforeunload', onBeforeUnload);
         if (!bound) {
             bound = true;
             if (opts.bind) opts.bind(shared, page);
@@ -133,7 +273,16 @@ export function createConfigPage(view, opts) {
         if (opts.load) opts.load(shared, page);
     });
 
+    view.addEventListener('viewbeforehide', function (e) {
+        if (hasUnsaved() && !window.confirm(leaveMessage)) {
+            e.preventDefault();
+            // The dashboard has already moved the tab highlight; put it back on this page.
+            applyTabs();
+        }
+    });
+
     view.addEventListener('viewhide', function () {
+        window.removeEventListener('beforeunload', onBeforeUnload);
         runCleanups();
         if (opts.onHide) opts.onHide(shared, page);
     });
@@ -204,6 +353,39 @@ export function createShared(view, pluginId, apiPrefix) {
             var el = this.getEl(id);
             return el ? el.checked : false;
         },
+
+        setValue: function (id, value) {
+            var el = this.getEl(id);
+            if (el) el.value = value === null || value === undefined ? '' : value;
+        },
+
+        getValue: function (id, fallback) {
+            var el = this.getEl(id);
+            return el ? el.value : (fallback === undefined ? '' : fallback);
+        },
+
+        // Parses a field as an integer, returning fallback when it is empty or not a number.
+        getIntValue: function (id, fallback) {
+            var v = parseInt(this.getValue(id, ''), 10);
+            return isNaN(v) ? fallback : v;
+        },
+
+        // Secret field helpers bound to this view; each accepts an element id or the element.
+        bindSecretField: function (id, hasStored, opts) {
+            bindSecretField(typeof id === 'string' ? this.getEl(id) : id, hasStored, opts);
+        },
+
+        clearSecretField: function (id) {
+            clearSecretField(typeof id === 'string' ? this.getEl(id) : id);
+        },
+
+        readSecretField: function (id) {
+            return readSecretField(typeof id === 'string' ? this.getEl(id) : id);
+        },
+
+        debounce: debounce,
+        downloadJson: downloadJson,
+        pickJsonFile: pickJsonFile,
 
         // Show/hide a target element based on a checkbox, and bind it so the target
         // follows the checkbox. Binds once (guarded), and applies the current state
@@ -345,6 +527,39 @@ export function createShared(view, pluginId, apiPrefix) {
                     .catch(function () { return legacyCopy(text); });
             }
             return Promise.resolve(legacyCopy(text));
+        },
+
+        // Copies text and briefly swaps the button's label to say whether it worked, then restores it.
+        // The label is the button's last <span> when it has one (icon buttons), else the button itself.
+        // Resolves to whether the copy succeeded.
+        copyWithFeedback: function (btn, text, opts) {
+            opts = opts || {};
+            var label = btn ? (btn.querySelector('span:last-child') || btn) : null;
+            return this.copyToClipboard(text).then(function (ok) {
+                if (label) {
+                    var original = label.dataset.jpkCopyLabel || label.textContent;
+                    label.dataset.jpkCopyLabel = original;
+                    label.textContent = ok ? (opts.copiedText || 'Copied!') : (opts.failedText || 'Copy failed');
+                    setTimeout(function () {
+                        label.textContent = original;
+                        delete label.dataset.jpkCopyLabel;
+                    }, opts.duration || 1500);
+                }
+                return ok;
+            });
+        },
+
+        // Fetches an authenticated endpoint (under apiPrefix) as a blob and returns an object URL for an <img>
+        // or download link. The session token travels in the Authorization header, never in the URL, so it
+        // stays out of proxy logs and browser caches. Revoke the URL when done (img onload is a good place).
+        fetchObjectUrl: function (endpoint, params) {
+            var url = this.apiPrefix ? this.apiPrefix + '/' + endpoint : endpoint;
+            return ApiClient.fetch({ url: ApiClient.getUrl(url, params), type: 'GET' }).then(function (response) {
+                if (!response || !response.ok) throw new Error('Request failed' + (response ? ' (' + response.status + ')' : ''));
+                return response.blob();
+            }).then(function (blob) {
+                return URL.createObjectURL(blob);
+            });
         },
 
         // Builds a self-guarding interval poller. tick() never overlaps a slow async fn, errors are swallowed

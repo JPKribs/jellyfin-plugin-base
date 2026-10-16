@@ -20,15 +20,16 @@ public class PromotedUtilitiesTests
         => Assert.Equal(expected, FormatUtilities.FormatBytes(bytes));
 
     [Fact]
-    public void TruncateForLog_HandlesEmptyAndLong()
+    public void SanitizeForLog_HandlesEmptyLongAndControlCharacters()
     {
-        Assert.Equal("(empty)", FormatUtilities.TruncateForLog(null));
-        Assert.Equal("(empty)", FormatUtilities.TruncateForLog(string.Empty));
-        Assert.Equal("abc", FormatUtilities.TruncateForLog("abc", 10));
+        Assert.Equal("[empty]", FormatUtilities.SanitizeForLog(null));
+        Assert.Equal("[empty]", FormatUtilities.SanitizeForLog(string.Empty));
+        Assert.Equal("abc", FormatUtilities.SanitizeForLog("abc", 10));
+        Assert.Equal("forgedentry", FormatUtilities.SanitizeForLog("forged\r\nentry"));
 
-        var truncated = FormatUtilities.TruncateForLog(new string('x', 50), 10);
-        Assert.Equal(11, truncated.Length); // 10 chars + the ellipsis
-        Assert.EndsWith("…", truncated, System.StringComparison.Ordinal);
+        var truncated = FormatUtilities.SanitizeForLog(new string('x', 50), 10);
+        Assert.Equal(13, truncated.Length); // 10 chars + "..."
+        Assert.EndsWith("...", truncated, System.StringComparison.Ordinal);
     }
 
     // MARK: HashUtilities — 32-char lowercase fingerprint (first 16 bytes of UTF-8 SHA-256)

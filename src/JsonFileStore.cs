@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace JPKribs.Jellyfin.Base;
 
@@ -17,16 +18,19 @@ public sealed class JsonFileStore<T>
     private static readonly JsonSerializerOptions _options = new() { WriteIndented = true };
 
     private readonly string _path;
+    private readonly ILogger? _logger;
     private readonly object _lock = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="JsonFileStore{T}"/> class.
     /// </summary>
     /// <param name="path">Absolute path to the backing JSON file. Its directory is created on first save.</param>
-    public JsonFileStore(string path)
+    /// <param name="logger">Optional logger; when given, an unreadable file is logged as a warning before starting fresh.</param>
+    public JsonFileStore(string path, ILogger? logger = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(path);
         _path = path;
+        _logger = logger;
     }
 
     /// <summary>
@@ -55,6 +59,7 @@ public sealed class JsonFileStore<T>
             }
             catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException)
             {
+                _logger?.LogWarning(ex, "Could not read {Path}, starting fresh.", _path);
                 return new T();
             }
         }
@@ -102,6 +107,29 @@ public sealed class JsonFileStore<T>
             mutate(value);
             Save(value);
             return value;
+        }
+    }
+
+    /// <summary>
+    /// Loads the value, applies <paramref name="mutate"/>, and saves only when it returns <c>true</c>, all under
+    /// the same lock. Use it when most calls change nothing, such as checking a counter before bumping it.
+    /// </summary>
+    /// <param name="mutate">The mutation; return <c>true</c> to persist the change.</param>
+    /// <returns>Whether the value was saved.</returns>
+    public bool UpdateIf(Func<T, bool> mutate)
+    {
+        ArgumentNullException.ThrowIfNull(mutate);
+
+        lock (_lock)
+        {
+            var value = Load();
+            if (!mutate(value))
+            {
+                return false;
+            }
+
+            Save(value);
+            return true;
         }
     }
 }

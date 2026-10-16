@@ -7,8 +7,8 @@ using MediaBrowser.Model.Tasks;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// Base for plugin scheduled tasks. Supplies the usual configurable task defaults and an interval
-/// trigger helper so a task only declares its name, key, description, and work.
+/// Base for plugin scheduled tasks. Supplies the usual configurable task defaults and trigger
+/// helpers so a task only declares its name, key, description, and work.
 /// </summary>
 public abstract class PluginScheduledTask : IScheduledTask, IConfigurableScheduledTask
 {
@@ -49,5 +49,25 @@ public abstract class PluginScheduledTask : IScheduledTask, IConfigurableSchedul
     {
         Type = TaskTriggerInfoType.IntervalTrigger,
         IntervalTicks = interval.Ticks
+    };
+
+    /// <summary>
+    /// Builds a trigger that fires once each time the server starts.
+    /// </summary>
+    /// <returns>The startup trigger.</returns>
+    protected static TaskTriggerInfo OnStartup() => new()
+    {
+        Type = TaskTriggerInfoType.StartupTrigger
+    };
+
+    /// <summary>
+    /// Builds a trigger that fires once a day at the given server-local time of day.
+    /// </summary>
+    /// <param name="timeOfDay">The time after midnight to run, for example <c>TimeSpan.FromHours(3)</c>.</param>
+    /// <returns>The daily trigger.</returns>
+    protected static TaskTriggerInfo Daily(TimeSpan timeOfDay) => new()
+    {
+        Type = TaskTriggerInfoType.DailyTrigger,
+        TimeOfDayTicks = timeOfDay.Ticks
     };
 }

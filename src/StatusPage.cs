@@ -20,6 +20,8 @@ public static class StatusPage
     /// <param name="buttonText">The action button text, or <c>null</c> for no button.</param>
     /// <param name="buttonHref">The action button link, or <c>null</c> for no button.</param>
     /// <param name="showSpinner">Whether to show a loading spinner.</param>
+    /// <param name="content">Raw HTML placed in the card below the message, such as a form or a page the
+    /// plugin's script fills in. It is not encoded, so pass only markup the plugin owns.</param>
     /// <returns>A complete HTML document.</returns>
     public static string Render(
         string heading,
@@ -27,7 +29,8 @@ public static class StatusPage
         string? title = null,
         string? buttonText = "Back to Jellyfin",
         string? buttonHref = "../web/",
-        bool showSpinner = false)
+        bool showSpinner = false,
+        string? content = null)
     {
         var spinner = showSpinner
             ? "<div class=\"jpk-spinner\" role=\"status\" aria-label=\"Loading\"></div>"
@@ -44,7 +47,7 @@ public static class StatusPage
             ["MESSAGE"] = WebUtility.HtmlEncode(message),
             ["SPINNER"] = spinner,
             ["BUTTON"] = button,
-            ["CONTENT"] = string.Empty
+            ["CONTENT"] = content ?? string.Empty
         });
     }
 }

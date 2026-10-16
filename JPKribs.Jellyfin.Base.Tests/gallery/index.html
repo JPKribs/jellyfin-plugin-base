@@ -451,6 +451,56 @@ function html(parent, markup) {
     s.appendChild(st);
 })();
 
+// ---- Static dialog markup ----
+(function () {
+    const s = section('Dialog in page markup — bindDialog');
+    s.insertAdjacentHTML('beforeend',
+        '<div id="demoStaticDialog" class="jpk-dialog hidden">' +
+          '<div class="jpk-dialog-content jpk-dialog-content-narrow">' +
+            '<button type="button" class="jpk-dialog-close" aria-label="Close">&times;</button>' +
+            '<h2 class="jpk-modal-title">Session log</h2>' +
+            '<div class="jpk-modal-body"><p style="opacity:.8">This markup was in the page already. Backdrop, ×, and Escape close it.</p>' +
+            '<input id="demoStaticInput" class="jpk-edit-input" placeholder="Focus starts here" /></div>' +
+            '<div class="jpk-modal-button-row"><button type="button" id="demoStaticDone" class="raised jpk-modal-button jpk-button-submit">Done</button></div>' +
+          '</div>' +
+        '</div>');
+    const st = document.createElement('span'); st.id = 'staticDialogStatus'; st.className = 'jpk-status-text';
+    const dialog = JPK.bindDialog('demoStaticDialog', {
+        root: view,
+        onClose: (value) => shared.setStatus('staticDialogStatus', 'closed: ' + (value || 'dismissed'), false, { timeout: 0 })
+    });
+    view.querySelector('#demoStaticDone').addEventListener('click', () => dialog.close('done'));
+    const r = row(s);
+    const b = document.createElement('button'); b.className = 'raised jpk-button-submit'; b.id = 'demoStaticOpen'; b.textContent = 'Open';
+    b.onclick = () => dialog.open();
+    r.appendChild(b); r.appendChild(st);
+})();
+
+// ---- Secret field ----
+(function () {
+    const s = section('Secret field — bindSecretField / readSecretField');
+    s.insertAdjacentHTML('beforeend',
+        '<div class="inputContainer"><label>API key</label><input id="demoSecret" type="password" placeholder="Enter an API key" /></div>');
+    shared.bindSecretField('demoSecret', true);
+    const r = row(s);
+    const read = document.createElement('button'); read.className = 'raised jpk-button-small'; read.id = 'demoSecretRead'; read.textContent = 'Read';
+    const clear = document.createElement('button'); clear.className = 'raised jpk-secondary jpk-button-small'; clear.id = 'demoSecretClear'; clear.textContent = 'Clear stored';
+    const out = document.createElement('span'); out.id = 'demoSecretOut'; out.className = 'jpk-mono';
+    read.onclick = () => { out.textContent = JSON.stringify(shared.readSecretField('demoSecret')); };
+    clear.onclick = () => shared.clearSecretField('demoSecret');
+    r.appendChild(read); r.appendChild(clear); r.appendChild(out);
+})();
+
+// ---- Copy with feedback ----
+(function () {
+    const s = section('Copy — shared.copyWithFeedback');
+    const r = row(s);
+    const b = document.createElement('button'); b.className = 'raised jpk-button-small'; b.id = 'demoCopy';
+    b.innerHTML = '<span class="material-icons">content_copy</span><span>Copy link</span>';
+    b.onclick = () => shared.copyWithFeedback(b, 'https://example.test/invite/abc');
+    r.appendChild(b);
+})();
+
 // ---- Change tracker + unsaved indicator ----
 (function () {
     const s = section('Unsaved indicator — shared.createChangeTracker');

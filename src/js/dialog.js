@@ -5,6 +5,7 @@
 //   * openDialog   - a general modal with a title, body, and footer buttons; returns a handle
 //   * confirmDialog - a yes/no prompt; resolves to a boolean
 //   * promptDialog  - a small form of labelled fields; resolves to the values, or null when cancelled
+//   * bindDialog    - the same behavior for a jpk-dialog already written into the page markup
 
 function escapeHtml(str) {
     if (str === null || str === undefined) return '';
@@ -14,6 +15,32 @@ function escapeHtml(str) {
 }
 
 var FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+// Keeps Tab and Shift+Tab cycling inside container.
+function trapFocus(container, e) {
+    var focusable = container.querySelectorAll(FOCUSABLE);
+    if (!focusable.length) return;
+    var first = focusable[0];
+    var last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+    }
+}
+
+// Focuses the first control in container, or the container itself, so Escape and the focus trap work at once.
+function focusFirst(container) {
+    var toFocus = container.querySelector(FOCUSABLE);
+    if (toFocus) {
+        toFocus.focus();
+    } else {
+        container.setAttribute('tabindex', '-1');
+        container.focus();
+    }
+}
 
 // openDialog
 // Opens a modal and returns { element, content, close }. The overlay closes on backdrop click (unless
@@ -104,21 +131,7 @@ export function openDialog(opts) {
             return;
         }
         if (e.key === 'Tab') {
-            trapFocus(e);
-        }
-    }
-
-    function trapFocus(e) {
-        var focusable = content.querySelectorAll(FOCUSABLE);
-        if (!focusable.length) return;
-        var first = focusable[0];
-        var last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
+            trapFocus(content, e);
         }
     }
 
@@ -128,17 +141,88 @@ export function openDialog(opts) {
     document.addEventListener('keydown', onKeyDown, true);
 
     document.body.appendChild(overlay);
-
-    // Focus the first control (or the panel) so Escape and the focus trap work immediately.
-    var toFocus = content.querySelector(FOCUSABLE);
-    if (toFocus) {
-        toFocus.focus();
-    } else {
-        content.setAttribute('tabindex', '-1');
-        content.focus();
-    }
+    focusFirst(content);
 
     return { element: overlay, content: bodyEl, close: close };
+}
+
+// bindDialog
+// Gives a jpk-dialog already in the page markup the same behavior openDialog builds: it shows and hides by the
+// hidden class, closes on backdrop click, Escape, and any .jpk-dialog-close button inside it, traps focus while
+// open, and restores focus on close. Use it for a modal whose body is static markup the page fills in.
+//
+// Param: overlay | the .jpk-dialog element, or its id within root
+// Param: opts    | {
+//   root        : element to resolve an id within (default document)
+//   dismissable : allow backdrop/Escape/close-button dismissal (default true)
+//   onOpen      : function() called after the dialog shows [optional]
+//   onClose     : function(value) called once per close [optional]
+// }
+// Returns { element, open, close(value), isOpen, destroy }.
+export function bindDialog(overlay, opts) {
+    opts = opts || {};
+    if (typeof overlay === 'string') {
+        overlay = (opts.root || document).querySelector('#' + overlay);
+    }
+    if (!overlay) throw new Error('bindDialog: dialog element not found');
+
+    var content = overlay.querySelector('.jpk-dialog-content') || overlay;
+    var dismissable = opts.dismissable !== false;
+    var previouslyFocused = null;
+    var open = false;
+
+    function onKeyDown(e) {
+        if (e.key === 'Escape' && dismissable) {
+            e.preventDefault();
+            close();
+        } else if (e.key === 'Tab') {
+            trapFocus(content, e);
+        }
+    }
+
+    function onMouseDown(e) {
+        if (e.target === overlay && dismissable) close();
+    }
+
+    function onClick(e) {
+        if (dismissable && e.target.closest && e.target.closest('.jpk-dialog-close')) close();
+    }
+
+    function show() {
+        if (open) return;
+        open = true;
+        previouslyFocused = document.activeElement;
+        overlay.classList.remove('hidden');
+        document.addEventListener('keydown', onKeyDown, true);
+        focusFirst(content);
+        if (opts.onOpen) opts.onOpen();
+    }
+
+    function close(value) {
+        if (!open) return;
+        open = false;
+        overlay.classList.add('hidden');
+        document.removeEventListener('keydown', onKeyDown, true);
+        if (previouslyFocused && previouslyFocused.focus) {
+            try { previouslyFocused.focus(); } catch (e) { /* element gone */ }
+        }
+        if (opts.onClose) opts.onClose(value);
+    }
+
+    overlay.addEventListener('mousedown', onMouseDown);
+    overlay.addEventListener('click', onClick);
+
+    return {
+        element: overlay,
+        open: show,
+        close: close,
+        isOpen: function () { return open; },
+        destroy: function () {
+            close();
+            overlay.removeEventListener('mousedown', onMouseDown);
+            overlay.removeEventListener('click', onClick);
+        }
+    };
 }
 
 // confirmDialog

@@ -52,6 +52,12 @@ public sealed class SecretProtector
         }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether this protector encrypts. False when the host supplied no Data
+    /// Protection provider, in which case <see cref="Protect"/> leaves secrets in plaintext.
+    /// </summary>
+    public bool IsAvailable => _protector is not null;
+
     /// <summary>Returns true when the stored value is an encrypted blob.</summary>
     /// <param name="value">The stored value.</param>
     /// <returns>Whether the value is encrypted.</returns>

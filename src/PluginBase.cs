@@ -9,7 +9,7 @@ namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
 /// Base class for JPKribs Jellyfin plugins. Provides the singleton accessor, a lock-guarded
-/// configuration read/mutate pair, and registration of the shared CSS/JS assets that this package
+/// configuration read/mutate pair, a locked save hook, and registration of the shared CSS/JS assets that this package
 /// injects into the consuming plugin's assembly.
 /// </summary>
 /// <typeparam name="TPlugin">The concrete plugin type.</typeparam>
@@ -65,6 +65,34 @@ public abstract class PluginBase<TPlugin, TConfiguration> : BasePlugin<TConfigur
         {
             return read(Configuration);
         }
+    }
+
+    /// <summary>
+    /// Replaces and persists the configuration under the same lock as <see cref="MutateConfiguration"/>, so a
+    /// save from the dashboard cannot interleave with a mutation. Runs <see cref="OnConfigurationSaving"/>
+    /// first; override that rather than this to validate, normalize, or protect secrets on the way in.
+    /// </summary>
+    /// <param name="configuration">The incoming configuration.</param>
+    public override void UpdateConfiguration(BasePluginConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        lock (_configLock)
+        {
+            var incoming = (TConfiguration)configuration;
+            OnConfigurationSaving(incoming, Configuration);
+            base.UpdateConfiguration(incoming);
+        }
+    }
+
+    /// <summary>
+    /// Called under the configuration lock before an incoming configuration replaces the stored one. Mutate
+    /// <paramref name="incoming"/> to change what is saved (for example resolving kept secrets against
+    /// <paramref name="stored"/>), or throw to reject the save and keep the stored configuration.
+    /// </summary>
+    /// <param name="incoming">The configuration about to be saved.</param>
+    /// <param name="stored">The configuration currently in effect.</param>
+    protected virtual void OnConfigurationSaving(TConfiguration incoming, TConfiguration stored)
+    {
     }
 
     /// <inheritdoc />

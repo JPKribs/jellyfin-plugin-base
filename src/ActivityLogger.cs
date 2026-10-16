@@ -9,7 +9,7 @@ namespace JPKribs.Jellyfin.Base;
 /// <summary>
 /// Writes a plugin's events to Jellyfin's activity log, where administrators already look. Entries are fire
 /// and forget and failures are swallowed, since an activity entry must never break the flow it documents.
-/// Register one per plugin in DI and give each entry a <paramref name="type"/> namespaced under the plugin
+/// Register one per plugin in DI (<c>services.AddActivityLogger()</c>) and give each entry a <paramref name="type"/> namespaced under the plugin
 /// (for example <c>MyPlugin.SyncCompleted</c>) so entries are attributable.
 /// </summary>
 public sealed class ActivityLogger
@@ -32,7 +32,14 @@ public sealed class ActivityLogger
 
         _activityManager = activityManager;
         _logger = logger;
+        Current = this;
     }
+
+    /// <summary>
+    /// Gets the most recently constructed logger, for the callers outside DI such as the plugin class's
+    /// configuration save hook. Null until DI first resolves the logger.
+    /// </summary>
+    public static ActivityLogger? Current { get; private set; }
 
     /// <summary>
     /// Writes an entry to the activity log without awaiting or throwing.
@@ -43,11 +50,13 @@ public sealed class ActivityLogger
     /// <param name="severity">The severity, informational by default.</param>
     /// <param name="userId">Optional associated user; defaults to none.</param>
     public void Log(string name, string type, string? overview = null, LogLevel severity = LogLevel.Information, Guid userId = default)
-        => _ = WriteAsync(name, type, overview, severity, userId);
+        => _ = WriteCoreAsync(name, type, overview, severity, userId);
 
     /// <summary>
     /// Writes an entry to the activity log and completes once it is stored. It never throws, so a caller can
-    /// await it inside the flow it documents.
+    /// await it inside the flow it documents. It is deliberately not named <c>LogAsync</c>: the analyzers
+    /// (CA1849) would then flag every <see cref="Log"/> call inside an async method as blocking, though
+    /// <see cref="Log"/> never blocks.
     /// </summary>
     /// <param name="name">The entry headline shown in the activity feed.</param>
     /// <param name="type">The entry type, namespaced under the plugin, such as <c>MyPlugin.Something</c>.</param>
@@ -55,8 +64,8 @@ public sealed class ActivityLogger
     /// <param name="severity">The severity, informational by default.</param>
     /// <param name="userId">Optional associated user, none by default.</param>
     /// <returns>A task that completes when the entry is written or the write failed.</returns>
-    public Task LogAsync(string name, string type, string? overview = null, LogLevel severity = LogLevel.Information, Guid userId = default)
-        => WriteAsync(name, type, overview, severity, userId);
+    public Task LogAndWaitAsync(string name, string type, string? overview = null, LogLevel severity = LogLevel.Information, Guid userId = default)
+        => WriteCoreAsync(name, type, overview, severity, userId);
 
     /// <summary>
     /// Cuts text to the length the activity log stores. Jellyfin keeps at most 512 characters of an entry's
@@ -70,7 +79,7 @@ public sealed class ActivityLogger
         return text.Length > MaxTextLength ? text[..MaxTextLength] : text;
     }
 
-    private async Task WriteAsync(string name, string type, string? overview, LogLevel severity, Guid userId)
+    private async Task WriteCoreAsync(string name, string type, string? overview, LogLevel severity, Guid userId)
     {
         try
         {

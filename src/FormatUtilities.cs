@@ -26,11 +26,14 @@ public static class FormatUtilities
     }
 
     /// <summary>
-    /// Truncates a string for log output. Empty or null renders as "(empty)".
+    /// Makes caller-supplied text safe to log: strips control characters (so a newline cannot forge a log
+    /// entry) and truncates it (so a long value cannot flood the log). Empty or null renders as "[empty]".
     /// </summary>
-    public static string TruncateForLog(string? s, int maxLength = 200)
+    public static string SanitizeForLog(string? input, int maxLength = 200)
     {
-        if (string.IsNullOrEmpty(s)) return "(empty)";
-        return s.Length <= maxLength ? s : string.Concat(s.AsSpan(0, maxLength), "…");
+        if (string.IsNullOrEmpty(input)) return "[empty]";
+
+        var sanitized = new string(Array.FindAll(input.ToCharArray(), c => !char.IsControl(c)));
+        return sanitized.Length <= maxLength ? sanitized : string.Concat(sanitized.AsSpan(0, maxLength), "...");
     }
 }

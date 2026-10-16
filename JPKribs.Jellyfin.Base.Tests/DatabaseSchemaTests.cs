@@ -13,6 +13,8 @@ using Xunit;
 namespace JPKribs.Jellyfin.Base.Tests;
 
 /// <summary>Tests for the database schema versioning and the activity log text limit.</summary>
+// Both classes construct ActivityLogger, which sets the static ActivityLogger.Current, so they run in one collection.
+[Collection("ActivityLogger.Current")]
 public sealed class DatabaseSchemaTests : IDisposable
 {
     private readonly string _dir = Path.Combine(Path.GetTempPath(), "jpk-schema-" + Guid.NewGuid().ToString("N"));
@@ -173,7 +175,7 @@ public sealed class DatabaseSchemaTests : IDisposable
         manager.CreateAsync(Arg.Do<ActivityLog>(e => written = e)).Returns(Task.CompletedTask);
         var logger = new ActivityLogger(manager, NullLogger<ActivityLogger>.Instance);
 
-        await logger.LogAsync(new string('n', 600), "Test.Entry", new string('o', 600));
+        await logger.LogAndWaitAsync(new string('n', 600), "Test.Entry", new string('o', 600));
 
         Assert.NotNull(written);
         Assert.Equal(ActivityLogger.MaxTextLength, written!.Name.Length);
@@ -181,6 +183,6 @@ public sealed class DatabaseSchemaTests : IDisposable
         Assert.Equal("short", ActivityLogger.Trim("short"));
 
         manager.CreateAsync(Arg.Any<ActivityLog>()).Returns(Task.FromException(new InvalidOperationException("down")));
-        await logger.LogAsync("name", "Test.Entry");
+        await logger.LogAndWaitAsync("name", "Test.Entry");
     }
 }
