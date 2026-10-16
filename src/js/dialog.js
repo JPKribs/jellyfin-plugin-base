@@ -317,6 +317,13 @@ export function promptDialog(fields, opts) {
             onClose: function (value) { done(value || null); }
         });
 
+        // Start in the first field rather than the corner close button, selecting any prefilled value.
+        var firstControl = fields.length ? controls[fields[0].name] : null;
+        if (firstControl) {
+            firstControl.focus();
+            if (firstControl.select && firstControl.tagName !== 'SELECT') firstControl.select();
+        }
+
         // Submit on Enter from any single-line input.
         form.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
