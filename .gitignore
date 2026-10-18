@@ -3,3 +3,9 @@ obj/
 nupkg/
 dist/
 .DS_Store
+
+# Local AI assistant files, never committed
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+.mcp.json
