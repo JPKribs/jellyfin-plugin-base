@@ -1,3 +1,5 @@
+import { classNames } from './escape.js';
+
 // createPaginatedTable
 // Builds a searchable, filterable, infinite scrolling table backed by an endpoint that returns Items and TotalCount. Returns a controller with load, reload, setSearch, setFilter, and selection helpers.
 //
@@ -79,7 +81,7 @@ export function createPaginatedTable(view, shared, options) {
             html += '<div class="jpk-table-filter-wrapper"><select class="jpk-table-filter"><option value="">All</option>';
             opts.filters.options.forEach(function (opt) {
                 var style = opt.hidden ? ' style="display:none"' : '';
-                var id = opt.id ? ' id="' + opt.id + '"' : '';
+                var id = opt.id ? ' id="' + shared.escapeHtml(opt.id) + '"' : '';
                 html += '<option value="' + shared.escapeHtml(opt.value) + '"' + style + id + '>' +
                     shared.escapeHtml(opt.label) + '</option>';
             });
@@ -233,12 +235,12 @@ export function createPaginatedTable(view, shared, options) {
             var value = item[col.key];
             var cellClass = 'jpk-table-cell';
             if (col.type === 'status') cellClass += ' jpk-table-cell-status';
-            if (col.className) cellClass += ' ' + col.className;
+            if (col.className) cellClass += ' ' + classNames(col.className);
             var content = '';
             if (col.type === 'status') {
                 var displayStatus = table.options.getDisplayStatus ? table.options.getDisplayStatus(item, value) : (value || '');
                 var statusClass = table.options.getStatusClass ? table.options.getStatusClass(item, value) : (value || '');
-                content = '<button type="button" class="jpk-table-status-badge jpk-table-status-btn ' + statusClass + '" data-id="' +
+                content = '<button type="button" class="jpk-table-status-badge jpk-table-status-btn ' + classNames(statusClass) + '" data-id="' +
                     shared.escapeHtml(String(itemId)) + '">' + shared.escapeHtml(displayStatus) + '</button>';
             } else if (col.type === 'custom' && col.render) {
                 content = col.render(item, value);

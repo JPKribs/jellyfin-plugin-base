@@ -20,11 +20,21 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
 
+      # The version reaches the shell through the environment, never spliced into the script, and must be a
+      # release version before anything runs with the API key.
       - name: Unlist
+        env:
+          VERSION: ${{ inputs.version }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          dotnet nuget delete JPKribs.Jellyfin.Base "${{ inputs.version }}" \
+          set -euo pipefail
+          if ! [[ "${VERSION}" =~ ^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}(\.[0-9]+)?$ ]]; then
+            echo "::error::Version must look like YYYY.M.D or YYYY.M.D.N."
+            exit 1
+          fi
+          dotnet nuget delete JPKribs.Jellyfin.Base "${VERSION}" \
             --source https://api.nuget.org/v3/index.json \
-            --api-key "${{ secrets.NUGET_API_KEY }}" \
+            --api-key "${NUGET_API_KEY}" \
             --non-interactive

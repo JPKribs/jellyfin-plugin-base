@@ -7,12 +7,7 @@
 //   * promptDialog  - a small form of labelled fields; resolves to the values, or null when cancelled
 //   * bindDialog    - the same behavior for a jpk-dialog already written into the page markup
 
-function escapeHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
+import { escapeHtml } from './escape.js';
 
 var FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 

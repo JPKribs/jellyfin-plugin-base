@@ -8,18 +8,14 @@ using System.Text.RegularExpressions;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// Replaces characters and patterns that are illegal in cross-platform file names.
+/// Replaces characters and patterns that are illegal in cross-platform file names. The same fixed set is
+/// replaced on every OS, so a name made on Linux is still valid when the library is read from Windows.
 /// </summary>
 public static partial class FileNameSanitizer
 {
-    private static readonly char[] InvalidChars = Path.GetInvalidFileNameChars();
-
-    private static readonly char[] AdditionalInvalidChars = { ':', '*', '?', '"', '<', '>', '|', '\0' };
-
-    private static readonly HashSet<char> AllInvalidChars = InvalidChars
-        .Concat(AdditionalInvalidChars)
-        .Distinct()
-        .ToHashSet();
+    // Both separators and everything Windows rejects, whatever the host OS. Control characters, which
+    // Windows also rejects, are caught by char.IsControl.
+    private static readonly HashSet<char> AllInvalidChars = new() { '/', '\\', ':', '*', '?', '"', '<', '>', '|', '\0' };
 
     private static readonly Regex UnderscoreCollapseRegex = new(@"_+", RegexOptions.Compiled);
 

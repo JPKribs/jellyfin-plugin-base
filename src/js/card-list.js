@@ -1,3 +1,5 @@
+import { escapeHtml } from './escape.js';
+
 // createSortableCardList
 // Renders records as cards in priority order: a numbered head per record with a status dot, badges, up and
 // down arrows, and drag to reorder, plus a body the open card shows. One editor element can be handed in and
@@ -28,10 +30,7 @@ export function createSortableCardList(listEl, options) {
     var dragIndex = -1;
     var reorder = options.reorder !== false;
     var collapsible = options.collapsible !== false;
-    var esc = options.escapeHtml || function (str) {
-        if (str === null || str === undefined) return '';
-        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    };
+    var esc = options.escapeHtml || escapeHtml;
 
     // The editor parks here while the list re-renders, since innerHTML would destroy it.
     var holder = null;

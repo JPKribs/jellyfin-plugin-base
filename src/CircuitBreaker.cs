@@ -129,7 +129,7 @@ public class CircuitBreaker
                 _circuitOpenedAt = DateTime.UtcNow;
                 _logger.LogWarning(
                     "Circuit breaker OPEN for {Service}: {Failures} consecutive failures. " +
-                    "Sync operations will pause for {Cooldown} minutes. Last error: {Error}",
+                    "Calls will pause for {Cooldown} minutes. Last error: {Error}",
                     _serviceName,
                     _consecutiveFailures,
                     _cooldownPeriod.TotalMinutes,

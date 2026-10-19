@@ -81,13 +81,41 @@ public sealed class JsonFileStore<T>
                 Directory.CreateDirectory(dir);
             }
 
-            var json = JsonSerializer.Serialize(value, _options);
-            var temp = _path + ".tmp";
-            File.WriteAllText(temp, json);
+            var json = JsonSerializer.SerializeToUtf8Bytes(value, _options);
 
-            // Swap the temp file into place. File.Move(overwrite) is atomic on the same volume; the temp lives
-            // in the same directory as the target so the rename never crosses a filesystem boundary.
-            File.Move(temp, _path, overwrite: true);
+            // A temp name of its own, so another store or process writing the same file never shares it.
+            var temp = _path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            try
+            {
+                using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                {
+                    stream.Write(json);
+
+                    // Reach the disk before the swap, or a power loss can leave the renamed file empty.
+                    stream.Flush(flushToDisk: true);
+                }
+
+                // Swap the temp file into place. File.Move(overwrite) is an atomic rename on the same volume; the
+                // temp lives in the same directory as the target so the rename never crosses a filesystem boundary.
+                File.Move(temp, _path, overwrite: true);
+            }
+            catch
+            {
+                TryDeleteTemp(temp);
+                throw;
+            }
+        }
+    }
+
+    private void TryDeleteTemp(string temp)
+    {
+        try
+        {
+            File.Delete(temp);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            _logger?.LogWarning(ex, "Could not remove the temp file {Path}.", temp);
         }
     }
 

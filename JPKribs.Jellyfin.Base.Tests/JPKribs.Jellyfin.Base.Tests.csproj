@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
@@ -12,10 +12,13 @@
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageReference Include="NSubstitute" Version="5.1.0" />
-    <PackageReference Include="Jellyfin.Controller" Version="10.11.10" />
-    <PackageReference Include="Jellyfin.Model" Version="10.11.10" />
+    <PackageReference Include="Jellyfin.Controller" Version="12.0.0" />
+    <PackageReference Include="Jellyfin.Model" Version="12.0.0" />
     <!-- DatabaseSchema is written against DbConnection. The tests drive it with a real SQLite file. -->
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.10" />
+    <!-- Microsoft.Data.Sqlite pulls a native SQLite build with a high severity advisory (GHSA-2m69-gcr7-jv3q).
+         The patched build is pinned here; the plugins use the SQLite that ships with Jellyfin. -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.12" />
   </ItemGroup>
 
   <!-- Compile the shipped source under test, exactly as a consuming plugin does via the targets file. -->
@@ -27,6 +30,14 @@
   <ItemGroup>
     <EmbeddedResource Include="..\src\templates\*.html">
       <LogicalName>JPKribs.Jellyfin.Base.Tests.Templates.%(Filename).html</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- A shared asset embedded under a root namespace other than the test plugin's, as a plugin whose
+       RootNamespace differs from its plugin class's namespace would have it. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Fixtures\jpkribs_shared.*">
+      <LogicalName>Other.Root.Namespace.Configuration.%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
 

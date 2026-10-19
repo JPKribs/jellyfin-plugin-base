@@ -9,8 +9,11 @@ namespace JPKribs.Jellyfin.Base;
 /// Encrypts plugin secrets at rest with ASP.NET Core Data Protection. Stored values carry a version
 /// prefix so pre-migration plaintext is detected and transparently upgraded.
 /// <para>
-/// This is defense-in-depth: the protection key lives in the Jellyfin data directory, so it guards
-/// against leaked/synced configuration files and backups, not against an attacker with full host access.
+/// This is defense-in-depth, not a vault. With <see cref="StableSecretProtection"/> the key ring is stored
+/// unencrypted in the plugin configurations folder, beside the configuration it protects. It keeps secrets out
+/// of a configuration file that travels on its own (shared for support, pasted into an issue, copied without its
+/// folder). It does not protect against anyone who can read that folder, a backup that includes the key ring,
+/// or an attacker with access to the host.
 /// </para>
 /// <para>
 /// Construct one per plugin with a stable, unique <c>purpose</c> (e.g. the plugin's namespace) so each

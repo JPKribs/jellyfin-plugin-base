@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Model.Plugins;
@@ -107,17 +108,46 @@ public abstract class PluginBase<TPlugin, TConfiguration> : BasePlugin<TConfigur
     /// <returns>The shared asset page registrations.</returns>
     protected IEnumerable<PluginPageInfo> GetSharedPages(string prefix)
     {
-        var ns = GetType().Namespace;
+        // The targets file embeds the assets under the project's RootNamespace, which need not be the plugin
+        // class's namespace, so the names are looked up in the assembly rather than assumed.
+        var type = GetType();
         yield return new PluginPageInfo
         {
             Name = prefix + "_jpkribs_shared.css",
-            EmbeddedResourcePath = ns + ".Configuration.jpkribs_shared.css"
+            EmbeddedResourcePath = SharedAssets.ResolveResourceName(type.Assembly, type.Namespace, "jpkribs_shared.css")
         };
 
         yield return new PluginPageInfo
         {
             Name = prefix + "_jpkribs_shared.js",
-            EmbeddedResourcePath = ns + ".Configuration.jpkribs_shared.js"
+            EmbeddedResourcePath = SharedAssets.ResolveResourceName(type.Assembly, type.Namespace, "jpkribs_shared.js")
         };
+    }
+}
+
+/// <summary>Finds the shared assets the targets file embeds into the plugin assembly.</summary>
+internal static class SharedAssets
+{
+    /// <summary>
+    /// Returns the embedded resource name of a shared asset. The targets file names it
+    /// <c>$(RootNamespace).Configuration.&lt;file&gt;</c>. The plugin class's namespace is tried first, since it
+    /// usually is the root namespace; otherwise the one resource with that suffix is used.
+    /// </summary>
+    /// <param name="assembly">The plugin assembly.</param>
+    /// <param name="pluginNamespace">The plugin class's namespace.</param>
+    /// <param name="fileName">The asset file name, such as <c>jpkribs_shared.css</c>.</param>
+    /// <returns>The resource name, or the namespace-based name when no resource matches.</returns>
+    internal static string ResolveResourceName(Assembly assembly, string? pluginNamespace, string fileName)
+    {
+        var expected = pluginNamespace + ".Configuration." + fileName;
+        var names = assembly.GetManifestResourceNames();
+        if (Array.IndexOf(names, expected) >= 0)
+        {
+            return expected;
+        }
+
+        var suffix = ".Configuration." + fileName;
+        var matches = Array.FindAll(names, n => n.EndsWith(suffix, StringComparison.Ordinal));
+        return matches.Length == 1 ? matches[0] : expected;
     }
 }

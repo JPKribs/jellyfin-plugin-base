@@ -7,6 +7,10 @@ name: '🚀 Release'
 # is pushed the version is checked against both nuget.org and the repository's tags, so a version that
 # already exists is refused instead of silently skipped.
 #
+# The tag and GitHub release are made before the push to nuget.org, since a nuget.org version can never
+# be deleted. If a run fails after tagging, re-running it on the same commit picks the tagged version back
+# up: the existing tag and release are kept and only the missing push is done.
+#
 # Start it from the Actions tab. Leave the version blank to release today's date, or type one to
 # override, for example to re-release a specific date.
 
@@ -47,7 +51,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
 
       - name: Resolve version
         id: ver
@@ -59,14 +63,18 @@ jobs:
           PACKAGE=jpkribs.jellyfin.base
           # Versions already on nuget.org, normalized the way NuGet normalizes them.
           PUBLISHED=$(curl -fsSL "https://api.nuget.org/v3-flatcontainer/${PACKAGE}/index.json" | jq -r '.versions[]' || true)
-          exists() {
-            echo "${PUBLISHED}" | grep -qx "$1" && return 0
-            git tag -l "v$1" | grep -q . && return 0
-            return 1
-          }
+          HEAD_SHA=$(git rev-parse HEAD)
+          published() { echo "${PUBLISHED}" | grep -qx "$1"; }
+          tagged() { git rev-parse -q --verify "refs/tags/v$1" >/dev/null; }
+          # A tag on this very commit with no package behind it is a release an earlier run started.
+          resumable() { tagged "$1" && ! published "$1" && [ "$(git rev-list -n 1 "v$1")" = "${HEAD_SHA}" ]; }
           if [ -n "${REQUESTED}" ]; then
+            if ! [[ "${REQUESTED}" =~ ^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}(\.[0-9]+)?$ ]]; then
+              echo "::error::Version must look like YYYY.M.D or YYYY.M.D.N."
+              exit 1
+            fi
             VERSION="${REQUESTED}"
-            if exists "${VERSION}"; then
+            if ! resumable "${VERSION}" && { published "${VERSION}" || tagged "${VERSION}"; }; then
               echo "::error::Version ${VERSION} already exists on nuget.org or as a tag. Pick another."
               exit 1
             fi
@@ -74,7 +82,7 @@ jobs:
             TODAY=$(TZ="${RELEASE_TIMEZONE}" date +%Y.%-m.%-d)
             VERSION="${TODAY}"
             N=0
-            while exists "${VERSION}"; do
+            while ! resumable "${VERSION}" && { published "${VERSION}" || tagged "${VERSION}"; }; do
               N=$((N + 1))
               VERSION="${TODAY}.${N}"
             done
@@ -86,22 +94,35 @@ jobs:
         run: dotnet test JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Release
 
       - name: Bundle and pack
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
         run: |
           bash scripts/bundle.sh
-          dotnet pack JPKribs.Jellyfin.Base.csproj -c Release -o nupkg -p:Version=${{ steps.ver.outputs.version }}
+          dotnet pack JPKribs.Jellyfin.Base.csproj -c Release -o nupkg -p:Version="${VERSION}"
           ls -l nupkg
 
-      - name: Push to nuget.org
-        run: |
-          dotnet nuget push "nupkg/JPKribs.Jellyfin.Base.${{ steps.ver.outputs.version }}.nupkg" \
-            --source https://api.nuget.org/v3/index.json \
-            --api-key "${{ secrets.NUGET_API_KEY }}"
-
+      # Tag and release first: both can be redone, a nuget.org push cannot. Each is skipped when an earlier
+      # run already made it.
       - name: Tag and release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.ver.outputs.version }}
         run: |
-          VERSION="${{ steps.ver.outputs.version }}"
-          git tag "v${VERSION}"
+          set -euo pipefail
+          if ! git rev-parse -q --verify "refs/tags/v${VERSION}" >/dev/null; then
+            git tag "v${VERSION}"
+          fi
           git push origin "v${VERSION}"
-          gh release create "v${VERSION}" nupkg/*.nupkg --title "v${VERSION}" --generate-notes
+          if ! gh release view "v${VERSION}" >/dev/null 2>&1; then
+            gh release create "v${VERSION}" nupkg/*.nupkg --title "v${VERSION}" --generate-notes
+          fi
+
+      - name: Push to nuget.org
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push "nupkg/JPKribs.Jellyfin.Base.${VERSION}.nupkg" \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key "${NUGET_API_KEY}" \
+            --skip-duplicate

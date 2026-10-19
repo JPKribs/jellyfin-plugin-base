@@ -150,20 +150,28 @@ public static class DatabaseSchema
     /// Brings an open database to this build's schema. An empty database is created, an older one migrated,
     /// and either is stamped. A current one gets the marker when it lacks it. A newer one this build can read is
     /// left untouched. For <see cref="SchemaAction.TooNew"/> and <see cref="SchemaAction.MigrationFailed"/>
-    /// nothing is written, and the caller moves the file aside and opens a fresh one.
+    /// nothing is written by this method, and the caller moves the file aside and opens a fresh one.
+    /// <para>
+    /// With <paramref name="transactional"/> the create or migrate and the version stamp run in one transaction,
+    /// so a crash or a throwing step leaves the database as it was, and a migration that returns false is rolled
+    /// back. Only pass it when <paramref name="create"/> and <paramref name="migrate"/> open no transaction of
+    /// their own and run nothing SQLite refuses inside one (such as <c>VACUUM</c> or a <c>journal_mode</c> change).
+    /// </para>
     /// </summary>
     /// <param name="connection">An open connection.</param>
     /// <param name="currentVersion">This build's schema version.</param>
     /// <param name="minReaderVersion">The oldest version that can read what this build writes.</param>
     /// <param name="create">Creates the whole schema in an empty database.</param>
     /// <param name="migrate">Migrates from the given version, and returns false when it could not.</param>
+    /// <param name="transactional">Whether to run the schema change and the stamp in one transaction.</param>
     /// <returns>What was done.</returns>
     public static SchemaAction Open(
         DbConnection connection,
         int currentVersion,
         int minReaderVersion,
         Action<DbConnection> create,
-        Func<DbConnection, int, bool> migrate)
+        Func<DbConnection, int, bool> migrate,
+        bool transactional = false)
     {
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentNullException.ThrowIfNull(create);
@@ -174,30 +182,101 @@ public static class DatabaseSchema
         switch (action)
         {
             case SchemaAction.Created:
-                create(connection);
-                Stamp(connection, currentVersion, minReaderVersion);
+                Apply(connection, transactional, () =>
+                {
+                    create(connection);
+                    Stamp(connection, currentVersion, minReaderVersion);
+                    return true;
+                });
                 break;
 
             case SchemaAction.Migrated:
-                if (!migrate(connection, stored))
+                var migrated = Apply(connection, transactional, () =>
+                {
+                    if (!migrate(connection, stored))
+                    {
+                        return false;
+                    }
+
+                    Stamp(connection, currentVersion, minReaderVersion);
+                    return true;
+                });
+                if (!migrated)
                 {
                     return SchemaAction.MigrationFailed;
                 }
 
-                Stamp(connection, currentVersion, minReaderVersion);
                 break;
 
             case SchemaAction.Current:
                 // A database at this version written by a build that did not record the marker gets it now.
                 if (GetMinReaderVersion(connection) != minReaderVersion)
                 {
-                    Stamp(connection, currentVersion, minReaderVersion);
+                    Apply(connection, transactional, () =>
+                    {
+                        Stamp(connection, currentVersion, minReaderVersion);
+                        return true;
+                    });
                 }
 
                 break;
         }
 
         return action;
+    }
+
+    // Runs a schema change, inside one transaction when asked: committed when it returns true, rolled back when
+    // it returns false or throws. Plain SQL rather than BeginTransaction, so the callbacks' commands need no
+    // transaction handed to them.
+    private static bool Apply(DbConnection connection, bool transactional, Func<bool> change)
+    {
+        if (!transactional)
+        {
+            return change();
+        }
+
+        Execute(connection, "BEGIN IMMEDIATE");
+        bool done;
+        try
+        {
+            done = change();
+        }
+        catch
+        {
+            Rollback(connection);
+            throw;
+        }
+
+        if (done)
+        {
+            Execute(connection, "COMMIT");
+        }
+        else
+        {
+            Rollback(connection);
+        }
+
+        return done;
+    }
+
+    private static void Rollback(DbConnection connection)
+    {
+        try
+        {
+            Execute(connection, "ROLLBACK");
+        }
+        catch (DbException)
+        {
+            // SQLite already rolled back after the failure, so there is no transaction left to end.
+        }
+    }
+
+    [SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Only the fixed transaction statements in this class are passed.")]
+    private static void Execute(DbConnection connection, string sql)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = sql;
+        command.ExecuteNonQuery();
     }
 
     /// <summary>
