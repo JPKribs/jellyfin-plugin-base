@@ -38,17 +38,22 @@ function focusFirst(container) {
 }
 
 // openDialog
-// Opens a modal and returns { element, content, close }. The overlay closes on backdrop click (unless
-// opts.dismissable === false), on Escape, and on the corner close button. Focus is trapped within the panel
-// and restored to the previously focused element on close.
+// Opens a modal and returns { element, content, close, dismiss, setTitle }. The overlay closes on backdrop click
+// (unless opts.dismissable === false), on Escape, and on the corner close button, each asking opts.beforeClose
+// first. Focus is trapped within the panel and restored to the previously focused element on close.
 //
 // Param: opts | {
 //   title       : heading text [optional]
 //   body        : HTML string or a DOM node for the modal body [optional]
 //   narrow      : constrain width for a compact dialog (default false)
+//   wide        : a wide editor that fills the screen on a phone, with its buttons kept in view (default false)
+//   className   : classes added to the panel, such as pluginConfigurationPage for the page's form look [optional]
 //   dismissable : allow backdrop/Escape/close-button dismissal (default true)
 //   closeButton : render the corner close button (default true)
-//   buttons     : [{ text, className, value, action(closeFn) }] rendered in the footer row [optional]
+//   beforeClose : function() returning false, or a promise of false, to keep the dialog open when it is
+//                 dismissed, such as to confirm discarding changes [optional]
+//   buttons     : [{ text, className, value, action(close, dismiss) }] rendered in the footer row; dismiss
+//                 closes as Escape does, asking beforeClose first [optional]
 //   onClose     : function(value) called once when the dialog closes [optional]
 // }
 export function openDialog(opts) {
@@ -59,10 +64,23 @@ export function openDialog(opts) {
     overlay.className = 'jpk-dialog';
 
     var content = document.createElement('div');
-    content.className = 'jpk-dialog-content' + (opts.narrow ? ' jpk-dialog-content-narrow' : '');
+    content.className = 'jpk-dialog-content' + (opts.narrow ? ' jpk-dialog-content-narrow' : '')
+        + (opts.wide ? ' jpk-dialog-content-wide' : '') + (opts.className ? ' ' + opts.className : '');
     overlay.appendChild(content);
 
     var closed = false;
+    var asking = false;
+    // Closes as a dismissal does, once beforeClose agrees.
+    function dismiss() {
+        if (closed || asking) return;
+        var verdict = opts.beforeClose ? opts.beforeClose() : true;
+        if (verdict && typeof verdict.then === 'function') {
+            asking = true;
+            verdict.then(function (ok) { asking = false; if (ok !== false) close(); }, function () { asking = false; });
+        } else if (verdict !== false) {
+            close();
+        }
+    }
     function close(value) {
         if (closed) return;
         closed = true;
@@ -82,16 +100,14 @@ export function openDialog(opts) {
         closeBtn.className = 'jpk-dialog-close';
         closeBtn.setAttribute('aria-label', 'Close');
         closeBtn.innerHTML = '&times;';
-        closeBtn.addEventListener('click', function () { close(); });
+        closeBtn.addEventListener('click', dismiss);
         content.appendChild(closeBtn);
     }
 
-    if (opts.title) {
-        var title = document.createElement('h2');
-        title.className = 'jpk-modal-title';
-        title.textContent = opts.title;
-        content.appendChild(title);
-    }
+    var title = document.createElement('h2');
+    title.className = 'jpk-modal-title';
+    title.textContent = opts.title || '';
+    if (opts.title) content.appendChild(title);
 
     var bodyEl = document.createElement('div');
     bodyEl.className = 'jpk-modal-body';
@@ -111,7 +127,7 @@ export function openDialog(opts) {
             btn.className = 'raised jpk-modal-button ' + (spec.className || 'jpk-secondary');
             btn.textContent = spec.text || '';
             btn.addEventListener('click', function () {
-                if (spec.action) spec.action(close);
+                if (spec.action) spec.action(close, dismiss);
                 else close(spec.value);
             });
             row.appendChild(btn);
@@ -120,25 +136,42 @@ export function openDialog(opts) {
     }
 
     function onKeyDown(e) {
-        if (e.key === 'Escape' && dismissable) {
+        // Only the dialog on top answers Escape.
+        if (e.key === 'Escape' && dismissable && overlay === topDialog()) {
             e.preventDefault();
-            close();
+            e.stopPropagation();
+            dismiss();
             return;
         }
-        if (e.key === 'Tab') {
+        if (e.key === 'Tab' && overlay === topDialog()) {
             trapFocus(content, e);
         }
     }
 
     overlay.addEventListener('mousedown', function (e) {
-        if (e.target === overlay && dismissable) close();
+        if (e.target === overlay && dismissable) dismiss();
     });
     document.addEventListener('keydown', onKeyDown, true);
 
     document.body.appendChild(overlay);
     focusFirst(content);
 
-    return { element: overlay, content: bodyEl, close: close };
+    return {
+        element: overlay,
+        content: bodyEl,
+        close: close,
+        dismiss: dismiss,
+        setTitle: function (text) {
+            title.textContent = text || '';
+            if (text && !title.parentNode) content.insertBefore(title, bodyEl);
+        }
+    };
+}
+
+// The dialog shown on top, when one opens over another.
+function topDialog() {
+    var all = document.querySelectorAll('.jpk-dialog');
+    return all.length ? all[all.length - 1] : null;
 }
 
 // bindDialog

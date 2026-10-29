@@ -1,0 +1,41 @@
+/* A field's Placeholders hint, under the field where Jellyfin puts a field's help */
+/* Example: <div class="jpk-placeholder-hint"><button class="jpk-hint-button" data-jpk-hint>Placeholders</button></div> */
+.jpk-placeholder-hint { margin-top: 0.4em; font-size: 0.85em; }
+
+/* The hint's toggle: quiet until pressed, accent while its list shows */
+/* Example: <button class="jpk-hint-button" aria-expanded="false"><span class="material-icons">help_outline</span>Placeholders</button> */
+.jpk-hint-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: 0;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    opacity: 0.7;
+}
+.jpk-hint-button .material-icons { font-size: 1.2em; }
+.jpk-hint-button:hover,
+.jpk-hint-button[aria-expanded="true"] {
+    opacity: 1;
+    color: var(--jpk-accent);
+}
+
+/* The placeholders a hint shows */
+/* Example: <div class="jpk-placeholders"><span class="jpk-tags"><button class="jpk-tag jpk-tag-button">{title}</button></span></div> */
+.jpk-placeholders { margin-top: 6px; }
+.jpk-placeholders .jpk-tags { margin: 0; gap: 4px; }
+
+/* A tag that is a button, such as a placeholder to put in */
+/* Example: <button class="jpk-tag jpk-tag-button">{title}</button> */
+.jpk-tag-button {
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    font-family: var(--jpk-mono);
+    font-size: 0.9em;
+    padding: 2px 6px;
+}
+.jpk-tag-button:hover { background: rgba(0, 164, 220, 0.25); }

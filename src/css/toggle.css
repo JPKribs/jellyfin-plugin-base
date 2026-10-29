@@ -1,0 +1,29 @@
+/* A wrapping row of on and off pills, for choosing any number of places or options */
+/* Example: <div class="jpk-toggle-group"><button class="jpk-toggle" aria-pressed="true">Discord</button></div> */
+.jpk-toggle-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* One pill: dim when off, accent tinted when its aria-pressed is true */
+/* Example: <button class="jpk-toggle" aria-pressed="false"><span class="material-icons">forum</span>Discord</button> */
+.jpk-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px 7px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--jpk-border);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    opacity: 0.75;
+}
+.jpk-toggle .material-icons { font-size: 18px; }
+.jpk-toggle[aria-pressed="true"] {
+    opacity: 1;
+    background: rgba(0, 164, 220, 0.2);
+    border-color: var(--jpk-accent);
+}

@@ -1,5 +1,6 @@
 import { createUserSelector, createUserMultiSelector } from './user-selector.js';
 import { escapeHtml, classNames } from './escape.js';
+import { insertAtCursor, placeholderHint, bindPlaceholders } from './placeholders.js';
 
 // setTabs
 // Wires the dashboard tab bar for a config page. Call it inside viewshow with the active tab index.
@@ -55,10 +56,23 @@ export var SECRET_KEPT = '__JPK_SECRET_KEPT__';
 //
 // Param: input     | the input element
 // Param: hasStored | whether a secret is currently stored (the C# side's SecretProtector.HasSecret)
-// Param: opts      | { placeholder: shown when a secret is stored (default "Saved, leave blank to keep") }
+// Param: opts      | { placeholder: shown when a secret is stored (default "Saved, leave blank to keep"),
+//                     clearButton: a button shown while a secret is stored, which clears it [optional] }
 export function bindSecretField(input, hasStored, opts) {
     if (!input) return;
     opts = opts || {};
+    var clear = opts.clearButton;
+    if (clear) {
+        clear.classList.toggle('hidden', !hasStored);
+        if (!clear.dataset.jpkSecretClear) {
+            clear.dataset.jpkSecretClear = '1';
+            clear.addEventListener('click', function () {
+                clearSecretField(input);
+                clear.classList.add('hidden');
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+        }
+    }
     if (input.dataset.jpkSecretPlaceholder === undefined) {
         input.dataset.jpkSecretPlaceholder = input.placeholder || '';
     }
@@ -94,6 +108,21 @@ export function readSecretField(input) {
     if (input.value) return input.value;
     if (input.dataset.jpkSecretCleared) return '';
     return input.dataset.jpkSecretStored ? SECRET_KEPT : '';
+}
+
+// errorText
+// Resolves to the reason a failed request gave, such as the Error of a 400 response's JSON body, or to fallback.
+//
+// Param: err      | what apiRequest rejected with, or a { Error } object
+// Param: fallback | text when there is no reason (default "It could not be saved.")
+export function errorText(err, fallback) {
+    var otherwise = fallback || 'It could not be saved.';
+    // A plugin's own { Error }, or the title and detail of ASP.NET's problem details.
+    var pick = function (body) { return (body && (body.Error || body.error || body.detail || body.title || body.message)) || otherwise; };
+    if (err && typeof err.json === 'function') {
+        return err.json().then(pick, function () { return otherwise; });
+    }
+    return Promise.resolve(err && (err.Error || err.error) ? pick(err) : otherwise);
 }
 
 // debounce
@@ -409,6 +438,10 @@ export function createShared(view, pluginId, apiPrefix) {
         },
 
         escapeHtml: escapeHtml,
+        errorText: errorText,
+        insertAtCursor: insertAtCursor,
+        placeholderHint: placeholderHint,
+        bindPlaceholders: bindPlaceholders,
 
         badge: function (cls, label) {
             return '<span class="jpk-badge ' + classNames(cls) + '">' + this.escapeHtml(label) + '</span>';

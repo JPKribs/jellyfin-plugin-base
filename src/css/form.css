@@ -15,8 +15,15 @@
 .pluginConfigurationPage .jpk-record-card,
 .pluginConfigurationPage .jpk-asset-list,
 .pluginConfigurationPage .jpk-field-row,
+.pluginConfigurationPage .jpk-section,
 .pluginConfigurationPage .jpk-collapsible-section {
     margin: 0 0 var(--jpk-field-gap) 0 !important;
+}
+
+/* The last block in a card sits on the card's own padding */
+/* Example: <div class="jpk-record-card"><div class="jpk-field-row"></div></div> */
+.pluginConfigurationPage .jpk-record-card > :last-child {
+    margin-bottom: 0 !important;
 }
 
 /* Containers add no padding so every field starts on the same left edge */
@@ -45,8 +52,9 @@
     margin: 0 0 0.4em 0 !important;
 }
 
-/* Inputs and selects fill the row so every field shares one left and right edge */
+/* Inputs, text areas and selects fill the row so every field shares one left and right edge */
 .pluginConfigurationPage .inputContainer input,
+.pluginConfigurationPage .inputContainer textarea,
 .pluginConfigurationPage .selectContainer select {
     width: 100% !important;
     box-sizing: border-box !important;

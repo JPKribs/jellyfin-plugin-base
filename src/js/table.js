@@ -5,7 +5,8 @@ import { classNames } from './escape.js';
 //
 // Param: view    | page element containing the table container
 // Param: shared  | helper bag from createShared, used for escapeHtml and apiRequest
-// Param: options | table config such as containerId, endpoint, columns, and selection
+// Param: options | table config such as containerId, endpoint, columns, selection, and filters
+//                   ({ options, buildParams, onChange(value) })
 export function createPaginatedTable(view, shared, options) {
     var table = {
         options: {
@@ -157,7 +158,8 @@ export function createPaginatedTable(view, shared, options) {
         table.state.items = [];
         table.state.currentPage = 1;
         table.state.hasMore = true;
-        if (!keepSelection) table.state.selectedIds.clear();
+        // Through clearSelection, so the checkboxes and anyone listening hear of it.
+        if (!keepSelection) publicAPI.clearSelection();
     }
 
     function _setFooterLoading(loading) {
@@ -180,10 +182,7 @@ export function createPaginatedTable(view, shared, options) {
     function _handleReload() {
         var btn = table.elements.reloadBtn;
         if (btn) { btn.classList.add('spinning'); btn.disabled = true; }
-        table.state.items = [];
-        table.state.currentPage = 1;
-        table.state.hasMore = true;
-        table.state.selectedIds.clear();
+        _resetState(false);
         publicAPI.load().finally(function () {
             if (btn) { btn.classList.remove('spinning'); btn.disabled = false; }
             if (table.options.actions && table.options.actions.onReload) table.options.actions.onReload();
@@ -374,14 +373,15 @@ export function createPaginatedTable(view, shared, options) {
         },
         setFilter: function (value) {
             table.state.filterValue = value;
-            _resetState(true);
-            this.clearSelection();
+            if (table.elements.filter) table.elements.filter.value = value;
+            _resetState(false);
+            var filters = table.options.filters;
+            if (filters && filters.onChange) filters.onChange(value);
             return this.load();
         },
         setSearch: function (query) {
             table.state.searchQuery = query;
-            _resetState(true);
-            this.clearSelection();
+            _resetState(false);
             return this.load();
         },
         getSelectedIds: function () { return Array.from(table.state.selectedIds); },

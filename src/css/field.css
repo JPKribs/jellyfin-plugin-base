@@ -3,7 +3,7 @@
 .jpk-field {
     display: flex;
     flex-direction: column;
-    flex: 1 1 0;
+    flex: 1 1 10em;
     min-width: 0;
 }
 .jpk-field > label {
