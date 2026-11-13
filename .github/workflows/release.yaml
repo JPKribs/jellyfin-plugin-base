@@ -121,12 +121,12 @@ jobs:
 
       # nuget.org's Trusted Publishing hands this run a key that lasts for the run only, once it confirms
       # the run is this repository's release workflow, so no long-lived key is kept as a secret.
-      # NUGET_USER is the nuget.org account name that owns the package and its publishing policy.
+      # The user is the nuget.org account that owns the package and its publishing policy.
       - name: Log in to nuget.org
         id: nuget
         uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
         with:
-          user: ${{ secrets.NUGET_USER }}
+          user: JPKribs
 
       - name: Push to nuget.org
         env:
