@@ -31,14 +31,21 @@
     user-select: none;
     border-radius: 8px;
 }
-.jpk-card-item-head:hover { background: rgba(255, 255, 255, 0.05); }
+.jpk-card-item-head:hover { background: rgba(255, 255, 255, 0.05); background: color-mix(in srgb, currentColor 5%, transparent); }
+/* The accent tints are written twice: the plain rgba for engines without color-mix(), then a share of the theme's
+   accent where it works. The upgrade sits in @supports because a value that uses var() is accepted when parsed and only
+   fails later, which would wipe the fallback instead of falling back to it. */
 .jpk-card-item.selected > .jpk-card-item-head { background: rgba(0, 164, 220, 0.08); border-radius: 8px 8px 0 0; }
+@supports (color: color-mix(in srgb, red, blue)) {
+    .jpk-card-item.selected > .jpk-card-item-head { background: color-mix(in srgb, var(--jpk-accent) 8%, transparent); }
+}
 .jpk-card-item.selected.collapsed > .jpk-card-item-head { border-radius: 8px; }
 
 /* Drag handle icon at the left of the head */
 /* Example: <span class="jpk-card-item-grip material-icons">drag_indicator</span> */
 .jpk-card-item-grip {
     color: rgba(255, 255, 255, 0.35);
+    color: color-mix(in srgb, currentColor 35%, transparent);
     cursor: grab;
     display: flex;
 }
@@ -56,6 +63,7 @@
     font-weight: 700;
     font-size: 0.9em;
     background: rgba(255, 255, 255, 0.08);
+    background: color-mix(in srgb, currentColor 8%, transparent);
     border: 1px solid var(--jpk-border);
 }
 .jpk-card-item.selected .jpk-card-item-num {
@@ -91,6 +99,28 @@
     text-overflow: ellipsis;
 }
 
+/* The sub line in the page's own font, for words rather than an address or path */
+/* Example: <div class="jpk-card-item-sub jpk-card-item-sub-text">Someone requests a title</div> */
+.jpk-card-item-sub.jpk-card-item-sub-text {
+    font-family: inherit;
+    font-size: 0.85em;
+}
+
+/* Tags under the title and sub line, such as where a record applies or what it holds; they wrap rather than clip */
+/* Example: <div class="jpk-tags jpk-card-item-tags"><span class="jpk-tag">HD</span><span class="jpk-tag jpk-tag-off">4K (off)</span></div> */
+.jpk-card-item-main .jpk-card-item-tags {
+    margin-top: 4px;
+    gap: 6px;
+}
+.jpk-card-item-tags .jpk-tag { font-size: 0.85em; padding: 2px 8px; }
+.jpk-card-item-tags .material-icons { font-size: 16px; opacity: 0.8; }
+
+/* A head row that only holds a control at its end (such as Unblock) opens nothing itself */
+/* Example: <div class="jpk-card-item-head jpk-card-item-head-static">...<button class="jpk-row-btn"></button></div> */
+.jpk-card-item-head.jpk-card-item-head-static { cursor: default; }
+.jpk-card-item-head.jpk-card-item-head-static:hover { background: none; }
+.jpk-card-item-head:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: -2px; }
+
 /* Small status dot before the title: ok, bad, or checking; plain gray otherwise */
 /* Example: <span class="jpk-card-item-dot ok"></span> */
 .jpk-card-item-dot {
@@ -118,6 +148,7 @@
 /* Example: <span class="jpk-card-item-chevron material-icons">expand_more</span> */
 .jpk-card-item-chevron {
     color: rgba(255, 255, 255, 0.5);
+    color: color-mix(in srgb, currentColor 50%, transparent);
     transition: transform 0.15s;
 }
 .jpk-card-item.selected:not(.collapsed) .jpk-card-item-chevron { transform: rotate(180deg); }
@@ -127,6 +158,7 @@
 .jpk-card-item-body {
     padding: 4px 16px 16px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid color-mix(in srgb, currentColor 10%, transparent);
 }
 .jpk-card-item.collapsed .jpk-card-item-body,
 .jpk-card-item:not(.selected) .jpk-card-item-body { display: none; }
@@ -139,4 +171,6 @@
 
 @media (max-width: 768px) {
     .jpk-card-item-sub { display: none; }
+    /* A sub line in words says what the record is, so it stays on a phone; an address or path is what drops. */
+    .jpk-card-item-sub.jpk-card-item-sub-text { display: block; }
 }

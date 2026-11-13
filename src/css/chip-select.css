@@ -15,3 +15,11 @@
 .jpk-chip-select .jpk-tags {
     margin-top: 0;
 }
+
+/* Its search box is a page field like any other, not the compact inline input. */
+.jpk-chip-select .jpk-edit-input {
+    font-size: 110%;
+    padding: 0.5em;
+    /* A select's height, so it lines up with selects beside it. */
+    height: 2.5em;
+}

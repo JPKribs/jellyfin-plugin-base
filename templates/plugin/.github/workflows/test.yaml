@@ -1,0 +1,23 @@
+name: '🧪 Test Plugin'
+# Synced from jellyfin-plugin-base templates/plugin by scripts/sync-plugins.sh; edit it there.
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**/*.md'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - '**/*.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  test:
+    uses: JPKribs/jellyfin-plugin-base/.github/workflows/plugin-test.yaml@<SHA> # <VERSION>

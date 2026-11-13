@@ -11,6 +11,7 @@
     width: 100%;
     padding: 10px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent);
     color: inherit;
     font-size: 1.1em;
     font-weight: 500;
@@ -30,10 +31,16 @@
     font-size: 0.95em;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.6);
+    color: color-mix(in srgb, currentColor 60%, transparent);
     margin: 16px 0 12px 0;
     padding-bottom: 6px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+/* The title fades its own text, so its rule takes the theme's text colour (--jpk-fg): a share of currentColor here would
+   be a share of the faded colour. */
+@supports (color: color-mix(in srgb, red, blue)) {
+    .jpk-subsection-title { border-bottom-color: color-mix(in srgb, var(--jpk-fg) 8%, transparent); }
 }
 .jpk-subsection-title:first-child { margin-top: 0; }

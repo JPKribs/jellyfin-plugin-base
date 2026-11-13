@@ -1,9 +1,23 @@
-/* Design tokens: accent palette, status swatches, and the mono font stack */
+/* Design tokens: accent palette, status swatches, and the mono font stack.
+   The accent and surface follow the web client's live theme (its MUI palette variables, prefixed jf), falling back to
+   the dark theme's values where they aren't set. Lines and washes are a share of the text colour (currentColor,
+   resolved where the token is used), so they are light on dark themes and dark on light ones without a per-theme rule.
+   Older engines (the desktop app's Qt WebEngine, older TV webviews) have no color-mix(). A custom property holding one
+   is not rejected when parsed, it only fails where it is used, so a second declaration can't act as a fallback for a
+   token. Each token therefore starts on a plain colour, the old dark-theme value, and is upgraded in the @supports
+   block below only where color-mix() works.
+   In the components, a colour written as a share of currentColor is preceded by the plain rgba it replaced: an engine
+   that can't parse color-mix() drops that second line and keeps the first, so dark themes look as they did. A share of a
+   variable (the accent, --jpk-fg) is accepted when parsed even where it can't work, so those go in an @supports block
+   after the plain rule instead. */
 :root {
-    --jpk-accent: #00a4dc;
+    --jpk-accent: var(--jf-palette-primary-main, #00a4dc);
     --jpk-accent-hover: #0088cc;
     --jpk-border: #555;
-    --jpk-surface: #181818;
+    --jpk-surface: var(--jf-palette-background-paper, #181818);
+    /* The theme's text colour, for a wash on an element that fades its own colour: currentColor there is already
+       faded, so a share of it would come out far fainter than intended. */
+    --jpk-fg: var(--jf-palette-text-primary, #fff);
 
     --jpk-field-gap: 1.5em;
 
@@ -22,6 +36,12 @@
     --jpk-purple-bg: rgba(155, 89, 182, 0.2); --jpk-purple-fg: #9b59b6;
     --jpk-blue-bg: rgba(52, 152, 219, 0.2);   --jpk-blue-fg: #3498db;
     --jpk-gray-bg: rgba(153, 153, 153, 0.2);  --jpk-gray-fg: #999;
+}
+@supports (color: color-mix(in srgb, red, blue)) {
+    :root {
+        --jpk-accent-hover: color-mix(in srgb, var(--jpk-accent) 82%, #000);
+        --jpk-border: color-mix(in srgb, currentColor 30%, transparent);
+    }
 }
 
 /* Generic-named convenience aliases for the accent/status swatches. These use un-namespaced names that could

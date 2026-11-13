@@ -1,0 +1,14 @@
+/* A thin progress bar in the theme's accent over a faint track, such as a download's progress in a table row */
+/* Example: <div class="jpk-progress"><div class="jpk-progress-bar" style="width: 40%"></div></div> */
+.jpk-progress {
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.15);
+    background: color-mix(in srgb, currentColor 15%, transparent);
+}
+.jpk-progress-bar {
+    height: 100%;
+    background: var(--jpk-accent);
+    transition: width 0.3s ease;
+}

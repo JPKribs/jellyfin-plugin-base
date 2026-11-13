@@ -10,6 +10,7 @@
     justify-content: space-between;
     padding: 10px 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid color-mix(in srgb, currentColor 5%, transparent);
 }
 .jpk-reset-row:last-child { border-bottom: none; }
 .jpk-reset-row-nuclear {

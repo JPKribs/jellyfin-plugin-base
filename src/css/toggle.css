@@ -27,3 +27,7 @@
     background: rgba(0, 164, 220, 0.2);
     border-color: var(--jpk-accent);
 }
+/* The theme's accent where color-mix() works; in @supports because a var() value would wipe the fallback above. */
+@supports (color: color-mix(in srgb, red, blue)) {
+    .jpk-toggle[aria-pressed="true"] { background: color-mix(in srgb, var(--jpk-accent) 20%, transparent); }
+}

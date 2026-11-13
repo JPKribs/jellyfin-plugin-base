@@ -15,6 +15,7 @@
     background: rgba(0, 0, 0, 0.3);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid color-mix(in srgb, currentColor 6%, transparent);
     max-width: 420px;
     width: 100%;
 }
@@ -30,10 +31,12 @@
     font-weight: 600;
     margin-bottom: 8px;
     color: rgba(255, 255, 255, 0.85);
+    color: color-mix(in srgb, currentColor 85%, transparent);
 }
 .jpk-empty-state-subtitle {
     font-size: 0.95em;
     color: rgba(255, 255, 255, 0.45);
+    color: color-mix(in srgb, currentColor 45%, transparent);
     line-height: 1.5;
     margin-bottom: 28px;
 }
@@ -58,7 +61,13 @@
     text-align: center;
     padding: 40px 24px;
     color: rgba(255, 255, 255, 0.5);
+    color: color-mix(in srgb, currentColor 50%, transparent);
     font-size: 1.1em;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
+}
+/* The box fades its own text, so its border takes the theme's text colour (--jpk-fg): a share of currentColor here would
+   be a share of the faded colour. */
+@supports (color: color-mix(in srgb, red, blue)) {
+    .jpk-empty-section { border-color: color-mix(in srgb, var(--jpk-fg) 10%, transparent); }
 }

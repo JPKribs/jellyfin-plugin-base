@@ -1,0 +1,219 @@
+name: '🚀 Publish Plugin'
+
+# Called by each plugin's publish.yaml when a release is published (or by hand for an existing tag).
+# Prepends the release to manifest.json on master:
+#   version    the tag minus its v
+#   changelog  the release body, backticks removed
+#   targetAbi  build.yaml as it was at the tag
+#   sourceUrl  the release's <repo>-<version>.zip
+#   checksum   the release's .md5 asset, or the zip's md5 when that asset is missing
+#   timestamp  now
+# The entry is inserted into master's current manifest, not the tag commit's, replacing any entry with
+# the same version, and the push retries if master moves meanwhile. dry-run commits locally and prints
+# the commit, but never uploads or pushes.
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: 'Release tag to publish. Defaults to the published release.'
+        type: string
+        default: ''
+      release-assets:
+        description: 'Newline-separated files to attach to the release (release events only).'
+        type: string
+        default: ''
+      pre-commit-command:
+        description: 'Command run on the tag checkout before committing, e.g. to regenerate images.'
+        type: string
+        default: ''
+      extra-commit-paths:
+        description: 'Space-separated paths written by pre-commit-command to commit with the manifest.'
+        type: string
+        default: ''
+      commit-message:
+        description: 'Commit message; {tag} becomes the tag.'
+        type: string
+        default: 'Update manifest for release {tag}'
+      dotnet-version:
+        description: 'The .NET SDK version to set up.'
+        type: string
+        default: 10.0.x
+      dry-run:
+        description: 'Print the manifest commit without uploading or pushing.'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  update-manifest:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      DRY_RUN: ${{ inputs.dry-run }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Get Release Info
+        id: release_info
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+
+          # The tag is the single source of truth. A manual dispatch must name one explicitly, so a
+          # run without a tag can never hash a 404 page into the manifest every user's server fetches.
+          TAG="${INPUT_TAG:-${RELEASE_TAG:-}}"
+          if [ -z "$TAG" ]; then
+            echo "No release tag available; refusing to touch the manifest." >&2
+            exit 1
+          fi
+
+          # The version comes from the tag itself, not from build.yaml at the checked out commit, so a
+          # manual publish from master cannot pick up a version a later auto-increment wrote into build.yaml.
+          BUILD_VERSION="${TAG#v}"
+
+          # Read targetAbi from build.yaml as it was at the tag, falling back to the checked out copy.
+          git fetch --depth 1 origin "refs/tags/${TAG}:refs/tags/${TAG}" 2>/dev/null || true
+          TARGET_ABI=$(git show "refs/tags/${TAG}:build.yaml" 2>/dev/null | sed -n 's/^targetAbi:[[:space:]]*//p' | tr -d '"' || true)
+          if [ -z "$TARGET_ABI" ]; then
+            TARGET_ABI=$(sed -n 's/^targetAbi:[[:space:]]*//p' build.yaml | tr -d '"')
+          fi
+
+          ASSET="${GITHUB_REPOSITORY#*/}-${BUILD_VERSION}.zip"
+          SOURCE_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${ASSET}"
+
+          # -f on every download: a missing asset must fail the job rather than hashing an error page.
+          echo "Trying to download checksum from: ${SOURCE_URL}.md5"
+          CHECKSUM=$(curl -sfL "${SOURCE_URL}.md5" | cut -d' ' -f1 || true)
+          if [ -z "$CHECKSUM" ]; then
+            echo "Checksum download failed, calculating from ZIP file..."
+            curl -sfL -o "$RUNNER_TEMP/plugin.zip" "${SOURCE_URL}"
+            CHECKSUM=$(md5sum "$RUNNER_TEMP/plugin.zip" | cut -d' ' -f1)
+          fi
+
+          if ! echo "$CHECKSUM" | grep -Eq '^[0-9a-f]{32}$'; then
+            echo "Checksum '${CHECKSUM}' does not look like an MD5 hash; aborting." >&2
+            exit 1
+          fi
+
+          echo "Tag: ${TAG}"
+          echo "Build Version: ${BUILD_VERSION}"
+          echo "Target ABI: ${TARGET_ABI}"
+          echo "Checksum: ${CHECKSUM}"
+
+          # The release body reaches the shell only through gh and env vars, never through workflow
+          # template interpolation, so quotes or $() in a changelog cannot execute or break the job.
+          RELEASE_BODY=$(gh release view "$TAG" --json body --jq '.body // ""')
+          SANITIZED_CHANGELOG=$(printf '%s' "$RELEASE_BODY" | tr -d '`')
+
+          # Only the new entry is built here. It is inserted into whatever manifest.json is on master at
+          # push time; pushing the tag commit's copy wholesale could clobber entries added since.
+          jq -n \
+            --arg version "$BUILD_VERSION" \
+            --arg changelog "$SANITIZED_CHANGELOG" \
+            --arg targetAbi "$TARGET_ABI" \
+            --arg sourceUrl "$SOURCE_URL" \
+            --arg checksum "$CHECKSUM" \
+            --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+            '{
+              version: $version,
+              changelog: $changelog,
+              targetAbi: $targetAbi,
+              sourceUrl: $sourceUrl,
+              checksum: $checksum,
+              timestamp: $timestamp
+            }' > "$RUNNER_TEMP/new-version.json"
+          cat "$RUNNER_TEMP/new-version.json"
+
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Release Assets
+        if: inputs.release-assets != '' && github.event_name == 'release'
+        env:
+          TAG: ${{ steps.release_info.outputs.tag }}
+          RELEASE_ASSETS: ${{ inputs.release-assets }}
+        run: |
+          set -euo pipefail
+          ASSETS=()
+          while IFS= read -r asset; do
+            [ -n "$asset" ] && ASSETS+=("$asset")
+          done <<< "$RELEASE_ASSETS"
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "Dry run: would upload ${ASSETS[*]} to ${TAG}"
+            exit 0
+          fi
+          gh release upload "$TAG" "${ASSETS[@]}" --clobber
+
+      - name: Setup .NET
+        if: inputs.pre-commit-command != ''
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      # Runs on the tag's checkout; what it writes to extra-commit-paths is set aside and laid over master
+      # in the next step.
+      - name: Run Pre-Commit Command
+        if: inputs.pre-commit-command != ''
+        env:
+          PRE_COMMIT_COMMAND: ${{ inputs.pre-commit-command }}
+          EXTRA_COMMIT_PATHS: ${{ inputs.extra-commit-paths }}
+        run: |
+          set -euo pipefail
+          bash -c "$PRE_COMMIT_COMMAND"
+          for path in $EXTRA_COMMIT_PATHS; do
+            mkdir -p "$RUNNER_TEMP/extra/$(dirname "$path")"
+            cp -R "$path" "$RUNNER_TEMP/extra/$path"
+          done
+
+      - name: Commit Changes
+        env:
+          TAG: ${{ steps.release_info.outputs.tag }}
+          EXTRA_COMMIT_PATHS: ${{ inputs.extra-commit-paths }}
+          COMMIT_MESSAGE: ${{ inputs.commit-message }}
+        run: |
+          set -euo pipefail
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          MESSAGE="${COMMIT_MESSAGE//\{tag\}/$TAG}"
+
+          # The checkout is the release tag's commit (detached HEAD), and master may have moved past it; a
+          # blind push of a commit based on the tag gets rejected, which is how v10.11.66.1 of serversync
+          # failed to publish. Instead: fetch CURRENT master, insert the new entry into master's manifest,
+          # push, and retry if master moves mid-publish. The select() drops any existing entry with the same
+          # version, so a re-run of a failed publish is idempotent.
+          for attempt in 1 2 3; do
+            git fetch origin master
+            git checkout -f -B master FETCH_HEAD
+            jq --argjson newVersion "$(cat "$RUNNER_TEMP/new-version.json")" \
+              '.[0].versions = [$newVersion] + [ .[0].versions[] | select(.version != $newVersion.version) ]' \
+              manifest.json > manifest_temp.json
+            mv manifest_temp.json manifest.json
+            for path in $EXTRA_COMMIT_PATHS; do
+              rm -rf "$path"
+              cp -R "$RUNNER_TEMP/extra/$path" "$path"
+            done
+            # shellcheck disable=SC2086 # a space-separated list
+            git add manifest.json $EXTRA_COMMIT_PATHS
+            if git diff --cached --quiet; then
+              echo "Manifest already up to date on master; nothing to push"
+              exit 0
+            fi
+            git commit -m "$MESSAGE"
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "Dry run: not pushing this commit"
+              git show --stat HEAD
+              exit 0
+            fi
+            if git push origin master; then
+              exit 0
+            fi
+            echo "Push rejected (master moved during publish); retrying (${attempt}/3)"
+            sleep 5
+          done
+          echo "Failed to push the manifest update after 3 attempts"
+          exit 1

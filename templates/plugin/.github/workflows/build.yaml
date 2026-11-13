@@ -1,0 +1,30 @@
+name: '🏗️ Build Plugin'
+# Synced from jellyfin-plugin-base templates/plugin by scripts/sync-plugins.sh; edit it there.
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**/*.md'
+      - '.gitignore'
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/docs.yaml'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - '**/*.md'
+      - '.gitignore'
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/docs.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: JPKribs/jellyfin-plugin-base/.github/workflows/plugin-build.yaml@<SHA> # <VERSION>

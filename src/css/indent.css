@@ -5,4 +5,5 @@
     padding-left: 1em;
     margin-top: 4px;
     border-left: 2px solid rgba(255, 255, 255, 0.12);
+    border-left: 2px solid color-mix(in srgb, currentColor 12%, transparent);
 }

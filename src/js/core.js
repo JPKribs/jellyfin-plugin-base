@@ -16,12 +16,22 @@ export function setTabs(key, index, tabs) {
 
 // initCollapsibles
 // Binds every collapsible header in the view so a click toggles its target. Safe to call more than once per header.
+// The header's arrow becomes the web client's own expand_more icon (it draws icons by class), whatever glyph the
+// markup carries, and the header says which section it opens and whether it is open.
 //
 // Param: view | page element to search within
 export function initCollapsibles(view) {
     view.querySelectorAll('.jpk-collapsible-header').forEach(function (header) {
         if (header.dataset.jpkBound) return;
         header.dataset.jpkBound = '1';
+        var icon = header.querySelector('.jpk-collapsible-icon');
+        if (icon) {
+            icon.className = 'material-icons jpk-collapsible-icon expand_more';
+            icon.textContent = '';
+            icon.setAttribute('aria-hidden', 'true');
+        }
+        if (header.dataset.target) header.setAttribute('aria-controls', header.dataset.target);
+        header.setAttribute('aria-expanded', String(!header.classList.contains('collapsed')));
         header.addEventListener('click', function () {
             var content = view.querySelector('#' + this.dataset.target);
             if (!content) return;
@@ -35,9 +45,10 @@ export function initCollapsibles(view) {
 // generateGuid
 // Returns a random RFC 4122 version 4 GUID for keying new config entities on the client.
 //
-// No parameters
-export function generateGuid() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+// Param: opts | { compact: true } leaves out the dashes [optional]
+export function generateGuid(opts) {
+    var pattern = opts && opts.compact ? 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx' : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
+    return pattern.replace(/[xy]/g, function (c) {
         var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
     });
@@ -249,9 +260,12 @@ export function createConfigPage(view, opts) {
     var cleanups = [];
     var bound = false;
     var isDirty = opts.isDirty || null;
+    // Editor dialogs open over the page (openEditorDialog), whose unsaved edits count as the page's.
+    var editors = [];
     var leaveMessage = opts.leaveMessage || 'You have unsaved changes. Leave without saving?';
 
     function hasUnsaved() {
+        if (editors.some(function (d) { return d.isDirty(); })) return true;
         try { return !!(isDirty && isDirty()); } catch (e) { return false; }
     }
 
@@ -277,7 +291,10 @@ export function createConfigPage(view, opts) {
         guardUnsaved: function (dirty, message) {
             isDirty = dirty && typeof dirty.isDirty === 'function' ? dirty.isDirty : dirty;
             if (message) leaveMessage = message;
-        }
+        },
+        // Used by openEditorDialog: an open editor counts toward the guard and closes when the page hides.
+        trackEditor: function (dialog) { if (editors.indexOf(dialog) < 0) editors.push(dialog); },
+        untrackEditor: function (dialog) { editors = editors.filter(function (d) { return d !== dialog; }); }
     };
 
     function runCleanups() {
@@ -313,6 +330,7 @@ export function createConfigPage(view, opts) {
 
     view.addEventListener('viewhide', function () {
         window.removeEventListener('beforeunload', onBeforeUnload);
+        editors.slice().forEach(function (d) { d.close(); });
         runCleanups();
         if (opts.onHide) opts.onHide(shared, page);
     });
@@ -454,8 +472,10 @@ export function createShared(view, pluginId, apiPrefix) {
             return '<span class="jpk-table-status-badge ' + classNames(stateClass) + '">' + this.escapeHtml(text) + '</span>';
         },
 
-        emptySection: function (message) {
-            return '<div class="jpk-empty-section">' + this.escapeHtml(message) + '</div>';
+        // A bordered box for an empty region; { inline: true } is a single muted line, for an empty list.
+        emptySection: function (message, opts) {
+            var cls = opts && opts.inline ? 'jpk-empty' : 'jpk-empty-section';
+            return '<div class="' + cls + '">' + this.escapeHtml(message) + '</div>';
         },
 
         formatSize: function (bytes) {
@@ -486,10 +506,12 @@ export function createShared(view, pluginId, apiPrefix) {
             return 'Just now';
         },
 
-        formatDate: function (value) {
+        // The date and time in the viewer's locale; { seconds: false } leaves the seconds out.
+        formatDate: function (value, opts) {
             if (!value) return '';
             var d = new Date(value);
-            return isNaN(d.getTime()) ? '' : d.toLocaleString();
+            if (isNaN(d.getTime())) return '';
+            return opts && opts.seconds === false ? d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : d.toLocaleString();
         },
 
         toDateInput: function (value) {

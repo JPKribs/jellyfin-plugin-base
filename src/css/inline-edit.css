@@ -13,6 +13,7 @@
     border: 1px solid var(--jpk-border);
     border-radius: 6px;
     background: rgba(255, 255, 255, 0.04);
+    background: color-mix(in srgb, currentColor 4%, transparent);
 }
 .jpk-bulk-edit-bar > button {
     align-self: flex-start;

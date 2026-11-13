@@ -1,0 +1,54 @@
+name: '🏗️ Build Plugin'
+
+# Called by each plugin's build.yaml. Packages the plugin with its own build.sh, the same script the
+# release draft uses, so a green build proves the zip users install, then compiles any extra projects the
+# solution does not cover.
+
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        description: 'The .NET SDK version to set up.'
+        type: string
+        default: 10.0.x
+      extra-projects:
+        description: 'Newline-separated project files outside the solution to compile as well.'
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      # build.sh checks the zip holds the plugin DLL, every artifact, meta.json and Logo.png.
+      - name: Package with build.sh
+        run: bash build.sh
+
+      - name: Build extra projects
+        if: inputs.extra-projects != ''
+        env:
+          EXTRA_PROJECTS: ${{ inputs.extra-projects }}
+        run: |
+          set -euo pipefail
+          while IFS= read -r project; do
+            [ -n "$project" ] || continue
+            dotnet build "$project" --configuration Release
+          done <<< "$EXTRA_PROJECTS"
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ github.event.repository.name }}-package
+          path: dist/*.zip
+          retention-days: 14

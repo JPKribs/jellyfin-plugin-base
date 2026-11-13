@@ -1,0 +1,27 @@
+name: '🚀 Publish Plugin'
+# Synced from jellyfin-plugin-base templates/plugin by scripts/sync-plugins.sh; edit it there.
+
+on:
+  release:
+    types:
+      - released
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to publish (e.g. v12.2.2.0)'
+        required: true
+        type: string
+      dry-run:
+        description: 'Print the manifest commit without pushing it'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    uses: JPKribs/jellyfin-plugin-base/.github/workflows/plugin-publish.yaml@<SHA> # <VERSION>
+    with:
+      tag: ${{ inputs.tag || github.event.release.tag_name }}
+      dry-run: ${{ inputs.dry-run == true }}

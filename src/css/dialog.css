@@ -14,7 +14,7 @@
 /* Centered, scrollable modal panel */
 /* Example: <div class="jpk-dialog-content"></div> */
 .jpk-dialog-content {
-    background: var(--theme-background-primary, #1c1c1c);
+    background: var(--jf-palette-background-paper, #1c1c1c);
     border: 1px solid var(--jpk-border);
     padding: 24px;
     border-radius: 8px;
@@ -43,6 +43,8 @@
 .jpk-dialog-content-wide .jpk-modal-button.jpk-button-destructive { margin-right: auto; }
 @media (max-width: 700px) {
     .jpk-dialog:has(.jpk-dialog-content-wide) { padding: 0; align-items: stretch; }
+    /* The same, by the class openDialog puts on the overlay, for engines without :has(). */
+    .jpk-dialog.jpk-dialog-wide { padding: 0; align-items: stretch; }
     .jpk-dialog-content-wide {
         display: flex;
         flex-direction: column;
@@ -60,6 +62,11 @@
         padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
     }
     .jpk-dialog-content-wide .jpk-modal-title { font-size: 1.3em; }
+    /* Buttons wrap rather than run off a narrow screen, and a destructive one goes last instead of being left alone
+       on the first line. */
+    .jpk-modal-button-row { flex-wrap: wrap; row-gap: 8px; }
+    .jpk-dialog-content-wide .jpk-modal-button { flex: 1 1 auto; }
+    .jpk-modal-button-row .jpk-modal-button.jpk-button-destructive { order: 1; margin-right: 0; }
 }
 
 /* Close button pinned to the panel corner */
@@ -70,7 +77,7 @@
     right: 12px;
     background: none;
     border: none;
-    color: #fff;
+    color: inherit;
     font-size: 24px;
     cursor: pointer;
     opacity: 0.7;
@@ -82,6 +89,11 @@
 /* Modal heading */
 /* Example: <h2 class="jpk-modal-title">Title</h2> */
 .jpk-modal-title { margin-top: 0; padding-right: 32px; }
+
+/* A dialog opens at the end of the body, outside the dashboard's own link styling, so its links take the accent here */
+/* Example: <p>See <a href="https://example.com">the guide</a>.</p> */
+/* A link styled as a button (raised, emby-linkbutton) keeps its own colour. */
+.jpk-dialog a:not(.raised):not(.emby-button):not([is="emby-linkbutton"]) { color: var(--jpk-accent); }
 
 /* Modal body region between header and footer */
 /* Example: <div class="jpk-modal-body"></div> */

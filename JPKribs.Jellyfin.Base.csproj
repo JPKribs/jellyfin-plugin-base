@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <!-- This package ships source + bundled assets + an import targets file; it has no runtime assembly. -->
+    <!-- This package ships source + bundled assets + import props/targets + the plugin packaging script; it has no runtime assembly. -->
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <NoWarn>NU5100;NU5128</NoWarn>
@@ -31,7 +31,9 @@
     <None Include="dist/jpkribs_shared.css" Pack="true" PackagePath="assets/" />
     <None Include="dist/jpkribs_shared.js" Pack="true" PackagePath="assets/" />
     <None Include="src/templates/*.html" Pack="true" PackagePath="templates/" />
+    <None Include="build/JPKribs.Jellyfin.Base.props" Pack="true" PackagePath="build/" />
     <None Include="build/JPKribs.Jellyfin.Base.targets" Pack="true" PackagePath="build/" />
+    <None Include="tools/build-plugin.sh" Pack="true" PackagePath="tools/" />
     <None Include="README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 

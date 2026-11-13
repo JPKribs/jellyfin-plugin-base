@@ -16,6 +16,7 @@
     text-align: center;
     border: 1px solid var(--jpk-border);
     background: rgba(255, 255, 255, 0.03);
+    background: color-mix(in srgb, currentColor 3%, transparent);
 }
 .jpk-card-count {
     display: block;
@@ -35,6 +36,19 @@
 .jpk-card.blue { background: var(--jpk-blue-bg); color: var(--jpk-blue-fg); border-color: var(--jpk-blue-fg); }
 .jpk-card.gray { background: var(--jpk-gray-bg); color: var(--jpk-gray-fg); border-color: var(--jpk-gray-fg); }
 .jpk-card.yellow { background: rgba(224, 200, 78, 0.18); color: #e0c84e; border-color: #e0c84e; }
+.jpk-card.pink { background: rgba(232, 93, 154, 0.2); color: #e85d9a; border-color: #e85d9a; }
+.jpk-card.teal { background: rgba(38, 166, 154, 0.2); color: #26a69a; border-color: #26a69a; }
+
+/* Status cards that share one row when they fit and wrap to a second otherwise, never a third: a column
+   is at most a fifth of the row. Every card is the same width, so a wrapped row lines up under the
+   first, and hidden cards take no column. */
+.jpk-cards.jpk-cards-rows {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(72px, calc((100% - 48px) / 5)), 1fr));
+}
+.jpk-cards.jpk-cards-rows .jpk-card.hidden { display: none; }
+.jpk-cards.jpk-cards-rows .jpk-card { min-width: 0; padding-left: 4px; padding-right: 4px; }
+.jpk-cards.jpk-cards-rows .jpk-card-label { font-size: 0.78em; line-height: 1.25; }
 
 @media (max-width: 768px) {
     .jpk-cards { gap: 6px; }

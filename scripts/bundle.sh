@@ -16,7 +16,8 @@ mkdir -p dist
   cat src/css/tokens.css
   find src/css -name '*.css' ! -name 'tokens.css' | sort | xargs cat
 } > dist/_bundle.css
-npx --yes esbuild dist/_bundle.css --minify --outfile=dist/jpkribs_shared.css --allow-overwrite
+# The target keeps fallback colours as rgba() rather than 8-digit hex, which engines before Chromium 62 can't read.
+npx --yes esbuild dist/_bundle.css --minify --target=chrome58,safari11,firefox57 --outfile=dist/jpkribs_shared.css --allow-overwrite
 rm -f dist/_bundle.css
 
 # JS: bundle and minify the ES module components into one ESM file. Exported names are preserved.

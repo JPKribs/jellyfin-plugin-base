@@ -8,3 +8,5 @@ export * from './checkbox-list.js';
 export * from './card-list.js';
 export * from './choice.js';
 export * from './placeholders.js';
+// The kit's HTML escaping, for plugin code that builds markup outside a component.
+export { escapeHtml } from './escape.js';

@@ -1,0 +1,31 @@
+name: '📝 Create/Update Release Draft'
+# Synced from jellyfin-plugin-base templates/plugin by scripts/sync-plugins.sh; edit it there.
+
+# build.yaml and .github/** are ignored on purpose: a version bump alone, or a workflow edit, never cuts a
+# draft; the next code commit does.
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - build.yaml
+      - '**/*.md'
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/**'
+      - '.gitignore'
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Build and print what would change, without pushing or writing a release'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  draft:
+    uses: JPKribs/jellyfin-plugin-base/.github/workflows/plugin-release-draft.yaml@<SHA> # <VERSION>
+    with:
+      dry-run: ${{ inputs.dry-run == true }}

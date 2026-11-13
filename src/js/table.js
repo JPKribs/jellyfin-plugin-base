@@ -6,7 +6,9 @@ import { classNames } from './escape.js';
 // Param: view    | page element containing the table container
 // Param: shared  | helper bag from createShared, used for escapeHtml and apiRequest
 // Param: options | table config such as containerId, endpoint, columns, selection, and filters
-//                   ({ options, buildParams, onChange(value) })
+//                   ({ options, buildParams, onChange(value), initialValue, allValue, allLabel }). The All option's
+//                   value is allValue (default ''); give it one when buildParams must also run for All, as it is only
+//                   called for a non-empty value. initialValue is the filter the first load already carries.
 export function createPaginatedTable(view, shared, options) {
     var table = {
         options: {
@@ -22,7 +24,14 @@ export function createPaginatedTable(view, shared, options) {
         },
         state: null,
         elements: {},
-        searchTimeout: null
+        searchTimeout: null,
+        // Each load gets a number; an answer for an older one is dropped, so a newer load never waits on or loses to it.
+        loadSeq: 0,
+        loadedOnce: false,
+        destroyed: false,
+        // Whether the caller wants the infinite-scroll observer. The first load creates it, and that can land after
+        // the caller disconnected it (a tab hidden while the first page was still loading); this keeps it off then.
+        wantObserver: true
     };
 
     Object.keys(options).forEach(function (key) {
@@ -33,10 +42,12 @@ export function createPaginatedTable(view, shared, options) {
         }
     });
 
+    // filters may be passed as null to mean none.
+    var initialFilters = table.options.filters || {};
     table.state = {
         items: [], totalCount: 0, currentPage: 1,
         pageSize: table.options.pagination.pageSize,
-        searchQuery: '', filterValue: '',
+        searchQuery: '', filterValue: initialFilters.initialValue || initialFilters.allValue || '',
         selectedIds: new Set(), isLoading: false, hasMore: true
     };
 
@@ -79,7 +90,8 @@ export function createPaginatedTable(view, shared, options) {
                 shared.escapeHtml(opts.search.placeholder || 'Search items...') + '" />';
         }
         if (opts.filters && opts.filters.options && opts.filters.options.length) {
-            html += '<div class="jpk-table-filter-wrapper"><select class="jpk-table-filter"><option value="">All</option>';
+            html += '<div class="jpk-table-filter-wrapper"><select class="jpk-table-filter"><option value="' +
+                shared.escapeHtml(opts.filters.allValue || '') + '">' + shared.escapeHtml(opts.filters.allLabel || 'All') + '</option>';
             opts.filters.options.forEach(function (opt) {
                 var style = opt.hidden ? ' style="display:none"' : '';
                 var id = opt.id ? ' id="' + shared.escapeHtml(opt.id) + '"' : '';
@@ -137,15 +149,17 @@ export function createPaginatedTable(view, shared, options) {
             // Manual pagination: Load More fetches the next page, Load All fetches the rest.
             if (table.elements.loadMoreBtn) table.elements.loadMoreBtn.addEventListener('click', _loadMore);
             if (table.elements.loadAllBtn) table.elements.loadAllBtn.addEventListener('click', _loadAll);
-        } else if (table.elements.scrollSentinel) {
-            _createScrollObserver();
         }
+        // The infinite-scroll observer starts once the first page is in (see load), so it never pages past one
+        // that hasn't arrived.
+        if (table.elements.filter) table.elements.filter.value = table.state.filterValue;
     }
 
     // Builds and attaches the infinite-scroll observer. Shared by initial binding and reconnectObserver so
     // the construction lives in one place.
     function _createScrollObserver() {
-        if (table._scrollObserver || !table.elements.scrollSentinel) return;
+        if (table._scrollObserver || !table.elements.scrollSentinel || !table.loadedOnce || table.destroyed || !table.wantObserver) return;
+        if (typeof IntersectionObserver === 'undefined') return;
         if (table.options.pagination && table.options.pagination.loadMore) return;
         table._scrollObserver = new IntersectionObserver(function (entries) {
             if (entries[0].isIntersecting && !table.state.isLoading && table.state.hasMore) _loadMore();
@@ -171,8 +185,9 @@ export function createPaginatedTable(view, shared, options) {
     function _loadAll() {
         if (table.state.isLoading || !table.state.hasMore) return;
         _setFooterLoading(true);
-        function step() {
-            if (!table.state.hasMore) { _setFooterLoading(false); return; }
+        // A load superseded by a search, filter or reload ends the run.
+        function step(result) {
+            if (result === null || !table.state.hasMore) { _setFooterLoading(false); return; }
             table.state.currentPage++;
             publicAPI.load().then(step).catch(function () { _setFooterLoading(false); });
         }
@@ -183,9 +198,18 @@ export function createPaginatedTable(view, shared, options) {
         var btn = table.elements.reloadBtn;
         if (btn) { btn.classList.add('spinning'); btn.disabled = true; }
         _resetState(false);
-        publicAPI.load().finally(function () {
+        function done() {
             if (btn) { btn.classList.remove('spinning'); btn.disabled = false; }
             if (table.options.actions && table.options.actions.onReload) table.options.actions.onReload();
+        }
+        publicAPI.load().then(function (result) {
+            // null means a newer load (a search or filter typed meanwhile) replaced this one. The spinner stops, but
+            // onReload isn't told of a reload whose result was thrown away.
+            if (result !== null) done();
+            else if (btn) { btn.classList.remove('spinning'); btn.disabled = false; }
+        }, function () {
+            // A failure is reported by apiRequest; it is handled here so it doesn't also surface as unhandled.
+            done();
         });
     }
 
@@ -224,7 +248,9 @@ export function createPaginatedTable(view, shared, options) {
     function _renderRow(item) {
         var opts = table.options;
         var itemId = _getItemId(item);
-        var html = '<div class="jpk-table-row" data-id="' + shared.escapeHtml(String(itemId)) + '">';
+        // A row that opens something is reached and opened from the keyboard too.
+        var opens = opts.actions && opts.actions.onRowClick ? ' jpk-table-row-clickable" tabindex="0' : '';
+        var html = '<div class="jpk-table-row' + opens + '" data-id="' + shared.escapeHtml(String(itemId)) + '">';
         if (opts.selection && opts.selection.enabled) {
             var checked = table.state.selectedIds.has(String(itemId)) ? ' checked' : '';
             html += '<div class="jpk-table-cell jpk-table-cell-checkbox"><input type="checkbox" class="jpk-table-row-checkbox" data-id="' +
@@ -265,6 +291,14 @@ export function createPaginatedTable(view, shared, options) {
                     table.options.actions.onRowClick(item);
                 }
             });
+            row.addEventListener('keydown', function (e) {
+                if (e.target !== row || (e.key !== 'Enter' && e.key !== ' ')) return;
+                var item = _getItemById(row.dataset.id);
+                if (item && table.options.actions && table.options.actions.onRowClick) {
+                    e.preventDefault();
+                    table.options.actions.onRowClick(item);
+                }
+            });
         });
         body.querySelectorAll('.jpk-table-status-btn').forEach(function (btn) {
             btn.addEventListener('click', function (e) {
@@ -296,11 +330,12 @@ export function createPaginatedTable(view, shared, options) {
         if (!table.elements.itemCount) return;
         var loaded = table.state.items.length, total = table.state.totalCount;
         var loadMore = table.options.pagination && table.options.pagination.loadMore;
+        var noun = total === 1 ? ' item' : ' items';
         if (total === 0) table.elements.itemCount.textContent = '';
-        else if (loaded >= total) table.elements.itemCount.textContent = total + ' items';
+        else if (loaded >= total) table.elements.itemCount.textContent = total + noun;
         else table.elements.itemCount.textContent = loadMore
-            ? (loaded + '/' + total + ' items')
-            : ('Showing ' + loaded + ' of ' + total + ' items');
+            ? (loaded + '/' + total + noun)
+            : ('Showing ' + loaded + ' of ' + total + noun);
         if (table.elements.footerActions) {
             table.elements.footerActions.style.display = (total > 0 && loaded < total) ? '' : 'none';
         }
@@ -332,9 +367,10 @@ export function createPaginatedTable(view, shared, options) {
     }
 
     var publicAPI = {
+        // Resolves to the page's result, or null when a newer load superseded it.
         load: function () {
             var state = table.state, opts = table.options;
-            if (state.isLoading) return Promise.resolve();
+            var seq = ++table.loadSeq;
             state.isLoading = true;
             _setLoading(true);
 
@@ -353,6 +389,7 @@ export function createPaginatedTable(view, shared, options) {
             var endpoint = opts.endpoint + (params.length ? '?' + params.join('&') : '');
 
             return shared.apiRequest(endpoint, 'GET').then(function (result) {
+                if (seq !== table.loadSeq) return null;
                 var newItems = result.Items || [];
                 state.totalCount = result.TotalCount || 0;
                 state.items = state.currentPage === 1 ? newItems : state.items.concat(newItems);
@@ -360,8 +397,10 @@ export function createPaginatedTable(view, shared, options) {
                 _render();
                 state.isLoading = false;
                 _setLoading(false);
+                if (!table.loadedOnce) { table.loadedOnce = true; _createScrollObserver(); }
                 return result;
             }).catch(function (err) {
+                if (seq !== table.loadSeq) return null;
                 state.isLoading = false;
                 _setLoading(false);
                 throw err;
@@ -405,10 +444,15 @@ export function createPaginatedTable(view, shared, options) {
         getItems: function () { return table.state.items; },
         getTotalCount: function () { return table.state.totalCount; },
         getBulkActionsContainer: function () { return table.elements.bulkActions; },
+        // The row the search box and filter sit in, for a caller's own extra filter controls.
+        getControlsContainer: function () { return table.elements.container && table.elements.container.querySelector('.jpk-table-controls'); },
         disconnectObserver: function () {
+            table.wantObserver = false;
             if (table._scrollObserver) { table._scrollObserver.disconnect(); table._scrollObserver = null; }
         },
         reconnectObserver: function () {
+            table.destroyed = false;
+            table.wantObserver = true;
             _createScrollObserver();
         },
         // Reloads keeping the current selection (unlike reload(), which clears it).
@@ -418,6 +462,7 @@ export function createPaginatedTable(view, shared, options) {
         },
         // Tears down the table's observer and pending search timer. Call on viewhide to avoid leaks.
         destroy: function () {
+            table.destroyed = true;
             this.disconnectObserver();
             if (table.searchTimeout) { clearTimeout(table.searchTimeout); table.searchTimeout = null; }
         },

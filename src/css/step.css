@@ -19,4 +19,5 @@
     font-size: 0.8em;
     font-weight: 700;
     background: rgba(255, 255, 255, 0.1);
+    background: color-mix(in srgb, currentColor 10%, transparent);
 }

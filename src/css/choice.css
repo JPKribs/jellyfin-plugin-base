@@ -20,11 +20,20 @@
     border: 1px solid var(--jpk-border);
     transition: border-color 0.15s, background 0.15s;
 }
-.jpk-choice:hover { background: rgba(255, 255, 255, 0.05); }
-.jpk-choice.selected,
+.jpk-choice:hover { background: rgba(255, 255, 255, 0.05); background: color-mix(in srgb, currentColor 5%, transparent); }
+/* Two rules rather than one list: an engine without :has() drops a whole rule it can't parse, which would take the
+   .selected look with it. The tint is the theme's accent where color-mix() works, the default accent before it. */
+.jpk-choice.selected {
+    border-color: var(--jpk-accent);
+    background: rgba(0, 164, 220, 0.08);
+}
 .jpk-choice:has(input:checked) {
     border-color: var(--jpk-accent);
     background: rgba(0, 164, 220, 0.08);
+}
+@supports (color: color-mix(in srgb, red, blue)) {
+    .jpk-choice.selected { background: color-mix(in srgb, var(--jpk-accent) 8%, transparent); }
+    .jpk-choice:has(input:checked) { background: color-mix(in srgb, var(--jpk-accent) 8%, transparent); }
 }
 .jpk-choice input {
     position: absolute;

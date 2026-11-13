@@ -19,14 +19,23 @@ namespace JPKribs.Jellyfin.Base.Tests;
 /// </remarks>
 public class SelectChevronTests
 {
+    // form.css scopes its rules to config pages and to kit dialogs, which open outside the page. The two are written as
+    // a plain selector list (older engines can't parse :is()), so each rule must name both.
+    private const string Scope = @"(?:\.pluginConfigurationPage|\.jpk-dialog)";
+
+    private static readonly string[] Scopes = { ".pluginConfigurationPage", ".jpk-dialog" };
+
     [Fact]
-    public void TableFilterArrow_IsHiddenOnConfigPages()
+    public void TableFilterArrow_IsHiddenOnConfigPagesAndInDialogs()
     {
         var css = KitCss(".Css.table.css");
 
-        Assert.Matches(
-            new Regex(@"\.pluginConfigurationPage\s+\.jpk-table-filter-arrow\s*\{[^}]*display\s*:\s*none", RegexOptions.Singleline),
-            css);
+        foreach (var scope in Scopes)
+        {
+            var body = CssRules.BodyFor(css, scope + " .jpk-table-filter-arrow");
+            Assert.True(body != null, "table.css must hide .jpk-table-filter-arrow under " + scope + ", where the select rule already paints a chevron.");
+            Assert.Matches(new Regex(@"display\s*:\s*none"), body);
+        }
     }
 
     [Fact]
@@ -34,7 +43,12 @@ public class SelectChevronTests
     {
         var css = FormCss();
 
-        Assert.Matches(new Regex(@"\.pluginConfigurationPage\s+select\s*\{[^}]*background-image\s*:", RegexOptions.Singleline), css);
+        foreach (var scope in Scopes)
+        {
+            var body = CssRules.BodyFor(css, scope + " select");
+            Assert.True(body != null, "form.css must style " + scope + " select.");
+            Assert.Matches(new Regex(@"background-image\s*:"), body);
+        }
     }
 
     [Fact]
@@ -42,13 +56,12 @@ public class SelectChevronTests
     {
         var css = FormCss();
 
-        var rule = Regex.Match(
-            css,
-            @"\.pluginConfigurationPage\s+\.selectArrowContainer\s*\{(?<body>[^}]*)\}",
-            RegexOptions.Singleline);
-
-        Assert.True(rule.Success, "form.css must neutralize .selectArrowContainer, or emby-select-withcolor dropdowns render two chevrons.");
-        Assert.Matches(new Regex(@"display\s*:\s*none\s*!important"), rule.Groups["body"].Value);
+        foreach (var scope in Scopes)
+        {
+            var body = CssRules.BodyFor(css, scope + " .selectArrowContainer");
+            Assert.True(body != null, "form.css must neutralize .selectArrowContainer under " + scope + ", or emby-select-withcolor dropdowns render two chevrons.");
+            Assert.Matches(new Regex(@"display\s*:\s*none\s*!important"), body);
+        }
     }
 
     /// <summary>
@@ -62,7 +75,7 @@ public class SelectChevronTests
 
         Assert.DoesNotMatch(
             new Regex(@"(^|[^.\w-])\.selectArrowContainer\s*\{", RegexOptions.Multiline),
-            css.Replace(".pluginConfigurationPage .selectArrowContainer", "SCOPED", StringComparison.Ordinal));
+            Regex.Replace(css, Scope + @"\s+\.selectArrowContainer", "SCOPED"));
     }
 
     private static string FormCss() => KitCss(".Css.form.css");

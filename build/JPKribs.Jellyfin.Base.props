@@ -1,0 +1,14 @@
+<Project>
+
+  <!--
+    Imported into every consuming project before its own body. Only defines a property, so it changes
+    nothing about the build itself:
+      * JPKribsBaseBuildScript is the packaging script shipped with this package version. A plugin's
+        build.sh resolves it with `dotnet msbuild <csproj> -getProperty:JPKribsBaseBuildScript` and runs it
+        with bash (NuGet extraction drops the exec bit).
+  -->
+  <PropertyGroup>
+    <JPKribsBaseBuildScript>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', 'tools', 'build-plugin.sh'))</JPKribsBaseBuildScript>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,167 @@
+name: '📝 Create/Update Release Draft'
+
+# Called by each plugin's changelog.yaml on a push to master. Keeps one draft release for the version in
+# build.yaml, holding the zip build.sh makes, its .md5, and the build.yaml changelog as notes:
+#   * no release for the version: create a draft v<version>
+#   * a draft exists: replace its assets and notes
+#   * a published release exists: bump the 4th version part in build.yaml, commit and push that, then
+#     create the new draft. The push uses GITHUB_TOKEN, so it does not trigger another run.
+# The draft has no --target, so its tag is cut from master's tip when the draft is published.
+# dry-run does everything locally and prints it, but never pushes and never writes a release.
+
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        description: 'The .NET SDK version to set up.'
+        type: string
+        default: 10.0.x
+      dry-run:
+        description: 'Build and print what would change, without pushing or writing a release.'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      DRY_RUN: ${{ inputs.dry-run }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      - name: Check Existing Releases
+        id: check_releases
+        run: |
+          set -euo pipefail
+          VERSION=$(grep '^version:' build.yaml | sed 's/version: *"\?\([^"]*\)"\?.*/\1/' | tr -d '"')
+          TAG="v${VERSION}"
+
+          # Any release, draft or published, with this tag.
+          RELEASE_INFO=$(gh release view "${TAG}" --json isDraft 2>/dev/null || echo "not_found")
+
+          if [ "$RELEASE_INFO" = "not_found" ]; then
+            echo "No existing release for ${TAG} - will create new draft"
+            ACTION=create
+            FINAL_VERSION="${VERSION}"
+          elif [ "$(echo "$RELEASE_INFO" | jq -r '.isDraft')" = "true" ]; then
+            echo "Draft ${TAG} exists - will update it"
+            ACTION=update
+            FINAL_VERSION="${VERSION}"
+          else
+            # Version scheme is JJ.JJ.F.B (Jellyfin.Jellyfin.Feature.Build); an auto-increment is always
+            # a patch, so only the build part advances.
+            IFS=. read -r JF_MAJOR JF_MINOR FEATURE BUILD <<< "$VERSION"
+            FINAL_VERSION="${JF_MAJOR}.${JF_MINOR}.${FEATURE}.$((BUILD + 1))"
+            echo "Published ${TAG} exists - incrementing to v${FINAL_VERSION}"
+            ACTION=increment
+          fi
+
+          echo "action=${ACTION}" >> "$GITHUB_OUTPUT"
+          echo "final_version=${FINAL_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Update Version (if incrementing)
+        if: steps.check_releases.outputs.action == 'increment'
+        env:
+          NEW_VERSION: ${{ steps.check_releases.outputs.final_version }}
+        run: |
+          set -euo pipefail
+          echo "Updating build.yaml version to ${NEW_VERSION}"
+
+          # Keep the quote style build.yaml already uses for the version.
+          sed -E -i "s/^(version:[[:space:]]*)(\"?)[^\"]*(\"?)[[:space:]]*$/\1\2${NEW_VERSION}\3/" build.yaml
+          git diff build.yaml
+
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "Dry run: not committing or pushing the version bump"
+            exit 0
+          fi
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add build.yaml
+          git commit -m "Auto-increment version to ${NEW_VERSION}"
+          git push
+
+      - name: Build Plugin
+        run: bash build.sh
+
+      - name: Extract Changelog
+        run: |
+          set -euo pipefail
+          CHANGELOG=$(python3 << 'PYEOF'
+          import yaml
+
+          with open('build.yaml', 'r') as f:
+              data = yaml.safe_load(f)
+
+          changelog = data.get('changelog', '')
+          output = []
+
+          # A plain string, or categories each holding a list of entries.
+          if isinstance(changelog, str):
+              output.append(changelog.strip())
+          elif isinstance(changelog, dict):
+              for category, items in changelog.items():
+                  if isinstance(items, list):
+                      output.append(f"\n## {category.capitalize()}")
+                      for item in items:
+                          output.append(f"- {item}")
+
+          print('\n'.join(output))
+          PYEOF
+          )
+
+          # Kept in a file to avoid shell escaping issues.
+          echo "$CHANGELOG" > "$RUNNER_TEMP/changelog.md"
+
+      - name: Create or Update Draft Release
+        env:
+          FINAL_VERSION: ${{ steps.check_releases.outputs.final_version }}
+          ACTION: ${{ steps.check_releases.outputs.action }}
+        run: |
+          set -euo pipefail
+          TAG="v${FINAL_VERSION}"
+          PACKAGE="${GITHUB_REPOSITORY#*/}"
+          CHANGELOG=$(cat "$RUNNER_TEMP/changelog.md")
+          ASSETS=("./dist/${PACKAGE}-${FINAL_VERSION}.zip" "./dist/${PACKAGE}-${FINAL_VERSION}.zip.md5")
+          ls -l "${ASSETS[@]}"
+
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "Dry run: would ${ACTION} draft ${TAG} with ${ASSETS[*]} and notes:"
+            echo "$CHANGELOG"
+            exit 0
+          fi
+
+          if [ "$ACTION" = "update" ]; then
+            echo "Updating existing draft release ${TAG}"
+
+            gh release view "${TAG}" --json assets --jq '.assets[].name' | while read -r asset; do
+              if [[ "$asset" == *"${PACKAGE}"* ]]; then
+                echo "Deleting old asset: $asset"
+                gh release delete-asset "${TAG}" "$asset" -y || true
+              fi
+            done
+
+            gh release edit "${TAG}" --notes "${CHANGELOG}"
+          else
+            echo "Creating new draft release ${TAG}"
+            gh release create "${TAG}" \
+              --draft \
+              --title "${TAG}" \
+              --notes "${CHANGELOG}"
+          fi
+
+          gh release upload "${TAG}" "${ASSETS[@]}" --clobber
+
+          echo "Successfully uploaded assets to ${TAG}"

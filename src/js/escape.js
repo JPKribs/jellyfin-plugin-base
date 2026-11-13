@@ -1,5 +1,5 @@
-// Escaping shared by the components. Internal to the bundle: the components import these, and plugins reach
-// escapeHtml through the shared bag (shared.escapeHtml).
+// Escaping shared by the components. escapeHtml is also exported from the bundle, so a plugin script that has no shared
+// bag at hand can import it directly; it is the same function as shared.escapeHtml. classNames stays internal.
 
 // escapeHtml
 // Escapes a value for HTML text or a quoted attribute. null and undefined become ''.

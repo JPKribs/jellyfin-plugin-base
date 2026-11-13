@@ -22,6 +22,7 @@
 }
 .jpk-user-multi-option:hover {
     background: rgba(255, 255, 255, 0.05);
+    background: color-mix(in srgb, currentColor 5%, transparent);
 }
 
 .jpk-user-multi-check {

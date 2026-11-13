@@ -1,77 +1,183 @@
-/* Single spacing system for plugin config forms, scoped to the page and forced over the emby defaults */
+/* Single spacing system for plugin config forms, scoped to the page and forced over the emby defaults. A kit dialog
+   opens at the end of the body, outside the page, so every rule covers it too: its fields look like the page's
+   without the caller passing a class. The two scopes are written out as plain selector lists rather than with the is
+   pseudo-class, which older engines (the desktop app's Qt WebEngine) can't parse and would drop the whole rule for. */
 /* Example: <div class="inputContainer"><label for="x">Name</label><input is="emby-input" id="x"></div> */
 .pluginConfigurationPage .inputContainer,
+.jpk-dialog .inputContainer,
 .pluginConfigurationPage .selectContainer,
+.jpk-dialog .selectContainer,
 .pluginConfigurationPage .checkboxContainer,
+.jpk-dialog .checkboxContainer,
 .pluginConfigurationPage .jpk-selector,
+.jpk-dialog .jpk-selector,
 .pluginConfigurationPage .jpk-cards,
+.jpk-dialog .jpk-cards,
 .pluginConfigurationPage .jpk-card-list,
+.jpk-dialog .jpk-card-list,
 .pluginConfigurationPage .jpk-choice-group,
+.jpk-dialog .jpk-choice-group,
 .pluginConfigurationPage .jpk-warn,
+.jpk-dialog .jpk-warn,
 .pluginConfigurationPage .jpk-info,
+.jpk-dialog .jpk-info,
 .pluginConfigurationPage .jpk-success,
+.jpk-dialog .jpk-success,
 .pluginConfigurationPage .jpk-error,
+.jpk-dialog .jpk-error,
 .pluginConfigurationPage .jpk-neutral,
+.jpk-dialog .jpk-neutral,
 .pluginConfigurationPage .jpk-record-card,
+.jpk-dialog .jpk-record-card,
 .pluginConfigurationPage .jpk-asset-list,
+.jpk-dialog .jpk-asset-list,
 .pluginConfigurationPage .jpk-field-row,
+.jpk-dialog .jpk-field-row,
 .pluginConfigurationPage .jpk-section,
-.pluginConfigurationPage .jpk-collapsible-section {
+.jpk-dialog .jpk-section,
+.pluginConfigurationPage .jpk-collapsible-section,
+.jpk-dialog .jpk-collapsible-section {
     margin: 0 0 var(--jpk-field-gap) 0 !important;
 }
 
 /* The last block in a card sits on the card's own padding */
 /* Example: <div class="jpk-record-card"><div class="jpk-field-row"></div></div> */
-.pluginConfigurationPage .jpk-record-card > :last-child {
+.pluginConfigurationPage .jpk-record-card > :last-child,
+.jpk-dialog .jpk-record-card > :last-child {
     margin-bottom: 0 !important;
 }
 
 /* Containers add no padding so every field starts on the same left edge */
 .pluginConfigurationPage .inputContainer,
+.jpk-dialog .inputContainer,
 .pluginConfigurationPage .selectContainer,
-.pluginConfigurationPage .checkboxContainer {
+.jpk-dialog .selectContainer,
+.pluginConfigurationPage .checkboxContainer,
+.jpk-dialog .checkboxContainer {
     padding: 0 !important;
 }
 
-/* Reset the assorted inner emby margins so only the container controls spacing */
-.pluginConfigurationPage .inputContainer > *,
-.pluginConfigurationPage .selectContainer > *,
-.pluginConfigurationPage .checkboxContainer > * {
+/* Reset the assorted inner emby margins so only the container controls spacing. That covers the field's own pieces,
+   buttons beside it, and any kit block placed in it (a selector, a table, a warning), which would otherwise bring its own
+   field gap inside the container's. A caller's own content without a kit class (a grid of choices, say) keeps its
+   spacing. The kit classes are matched by prefix so a new block needs no entry here. */
+.pluginConfigurationPage .inputContainer > label,
+.pluginConfigurationPage .inputContainer > input,
+.pluginConfigurationPage .inputContainer > textarea,
+.pluginConfigurationPage .inputContainer > select,
+.pluginConfigurationPage .inputContainer > button,
+.pluginConfigurationPage .inputContainer > .emby-input,
+.pluginConfigurationPage .inputContainer > .emby-textarea,
+.pluginConfigurationPage .inputContainer > .emby-select-wrapper,
+.pluginConfigurationPage .inputContainer > [class^="jpk-"],
+.pluginConfigurationPage .inputContainer > [class*=" jpk-"],
+.pluginConfigurationPage .selectContainer > label,
+.pluginConfigurationPage .selectContainer > input,
+.pluginConfigurationPage .selectContainer > textarea,
+.pluginConfigurationPage .selectContainer > select,
+.pluginConfigurationPage .selectContainer > button,
+.pluginConfigurationPage .selectContainer > .emby-input,
+.pluginConfigurationPage .selectContainer > .emby-textarea,
+.pluginConfigurationPage .selectContainer > .emby-select-wrapper,
+.pluginConfigurationPage .selectContainer > [class^="jpk-"],
+.pluginConfigurationPage .selectContainer > [class*=" jpk-"],
+.pluginConfigurationPage .checkboxContainer > label,
+.pluginConfigurationPage .checkboxContainer > input,
+.pluginConfigurationPage .checkboxContainer > textarea,
+.pluginConfigurationPage .checkboxContainer > select,
+.pluginConfigurationPage .checkboxContainer > button,
+.pluginConfigurationPage .checkboxContainer > .emby-input,
+.pluginConfigurationPage .checkboxContainer > .emby-textarea,
+.pluginConfigurationPage .checkboxContainer > .emby-select-wrapper,
+.pluginConfigurationPage .checkboxContainer > [class^="jpk-"],
+.pluginConfigurationPage .checkboxContainer > [class*=" jpk-"],
+.jpk-dialog .inputContainer > label,
+.jpk-dialog .inputContainer > input,
+.jpk-dialog .inputContainer > textarea,
+.jpk-dialog .inputContainer > select,
+.jpk-dialog .inputContainer > button,
+.jpk-dialog .inputContainer > .emby-input,
+.jpk-dialog .inputContainer > .emby-textarea,
+.jpk-dialog .inputContainer > .emby-select-wrapper,
+.jpk-dialog .inputContainer > [class^="jpk-"],
+.jpk-dialog .inputContainer > [class*=" jpk-"],
+.jpk-dialog .selectContainer > label,
+.jpk-dialog .selectContainer > input,
+.jpk-dialog .selectContainer > textarea,
+.jpk-dialog .selectContainer > select,
+.jpk-dialog .selectContainer > button,
+.jpk-dialog .selectContainer > .emby-input,
+.jpk-dialog .selectContainer > .emby-textarea,
+.jpk-dialog .selectContainer > .emby-select-wrapper,
+.jpk-dialog .selectContainer > [class^="jpk-"],
+.jpk-dialog .selectContainer > [class*=" jpk-"],
+.jpk-dialog .checkboxContainer > label,
+.jpk-dialog .checkboxContainer > input,
+.jpk-dialog .checkboxContainer > textarea,
+.jpk-dialog .checkboxContainer > select,
+.jpk-dialog .checkboxContainer > button,
+.jpk-dialog .checkboxContainer > .emby-input,
+.jpk-dialog .checkboxContainer > .emby-textarea,
+.jpk-dialog .checkboxContainer > .emby-select-wrapper,
+.jpk-dialog .checkboxContainer > [class^="jpk-"],
+.jpk-dialog .checkboxContainer > [class*=" jpk-"] {
     margin: 0 !important;
 }
 
+/* Nothing at the end of a field container adds space under it: the container's own gap is the space to the next field.
+   A trailing description is left alone, as it has always carried its own gap below. */
+.pluginConfigurationPage .inputContainer > :last-child:not(.fieldDescription),
+.pluginConfigurationPage .selectContainer > :last-child:not(.fieldDescription),
+.pluginConfigurationPage .checkboxContainer > :last-child:not(.fieldDescription),
+.jpk-dialog .inputContainer > :last-child:not(.fieldDescription),
+.jpk-dialog .selectContainer > :last-child:not(.fieldDescription),
+.jpk-dialog .checkboxContainer > :last-child:not(.fieldDescription) {
+    margin-bottom: 0 !important;
+}
+
 /* Helper and intro text keeps a small gap above and a full gap below */
-.pluginConfigurationPage .fieldDescription {
+.pluginConfigurationPage .fieldDescription,
+.jpk-dialog .fieldDescription {
     margin: 0.4em 0 var(--jpk-field-gap) 0 !important;
 }
 
-/* A field label sits a small uniform gap above its control */
+/* A field label sits a small uniform gap above its control, whether written as a plain label or as the web client's
+   inputLabel and selectLabel. */
 .pluginConfigurationPage .inputContainer > label,
-.pluginConfigurationPage .selectContainer > label {
+.jpk-dialog .inputContainer > label,
+.pluginConfigurationPage .selectContainer > label,
+.jpk-dialog .selectContainer > label,
+.pluginConfigurationPage .inputLabel,
+.jpk-dialog .inputLabel,
+.pluginConfigurationPage .selectLabel,
+.jpk-dialog .selectLabel {
     display: block !important;
     margin: 0 0 0.4em 0 !important;
 }
 
 /* Inputs, text areas and selects fill the row so every field shares one left and right edge */
 .pluginConfigurationPage .inputContainer input,
+.jpk-dialog .inputContainer input,
 .pluginConfigurationPage .inputContainer textarea,
-.pluginConfigurationPage .selectContainer select {
+.jpk-dialog .inputContainer textarea,
+.pluginConfigurationPage .selectContainer select,
+.jpk-dialog .selectContainer select {
     width: 100% !important;
     box-sizing: border-box !important;
 }
 
-/* Every config-page dropdown shows the chevron Jellyfin uses natively. emby-select
-   suppresses the browser's own arrow and repaints a solid background over any plain
-   background-image, so the glyph is forced back over it with !important. This is the
-   filled Material keyboard_arrow_down (solid, near-full opacity) so the dropdowns read
-   identically to every other select on the dashboard rather than a dim thin outline. */
-.pluginConfigurationPage select {
+/* Every config-page dropdown shows a chevron. emby-select suppresses the browser's own arrow and repaints a solid
+   background over any plain background-image, so the glyph is forced back over it with !important. It is drawn from
+   two gradients in the text colour, so it follows the theme (an image can't take currentColor). */
+.pluginConfigurationPage select,
+.jpk-dialog select {
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
     appearance: none !important;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='rgba(255,255,255,0.9)'><path d='M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z'/></svg>") !important;
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%) !important;
     background-repeat: no-repeat !important;
-    background-position: right 6px center !important;
+    background-size: 6px 6px, 6px 6px !important;
+    background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50% !important;
     padding-right: 34px !important;
 }
 
@@ -84,7 +190,8 @@
    the injected one sits at right .3em, the painted one at right 6px. The kit has taken over
    select styling here, so it stands the injected arrow down rather than every plugin having to
    remember not to use the class. Absolutely positioned, so hiding it costs no layout. */
-.pluginConfigurationPage .selectArrowContainer {
+.pluginConfigurationPage .selectArrowContainer,
+.jpk-dialog .selectArrowContainer {
     display: none !important;
 }
 
@@ -92,13 +199,21 @@
    dark surface, border, and focus ring over the emby defaults, so every field matches the selectors. */
 /* Example: <input is="emby-input" type="text"> and <select class="jpk-selector-dropdown"> render alike. */
 .pluginConfigurationPage input[type="text"],
+.jpk-dialog input[type="text"],
 .pluginConfigurationPage input[type="number"],
+.jpk-dialog input[type="number"],
 .pluginConfigurationPage input[type="password"],
+.jpk-dialog input[type="password"],
 .pluginConfigurationPage input[type="search"],
+.jpk-dialog input[type="search"],
 .pluginConfigurationPage input[type="url"],
+.jpk-dialog input[type="url"],
 .pluginConfigurationPage input[type="email"],
+.jpk-dialog input[type="email"],
 .pluginConfigurationPage textarea,
-.pluginConfigurationPage select {
+.jpk-dialog textarea,
+.pluginConfigurationPage select,
+.jpk-dialog select {
     background-color: var(--jpk-surface) !important;
     color: inherit !important;
     border: 1px solid var(--jpk-border) !important;
@@ -107,18 +222,50 @@
 }
 
 .pluginConfigurationPage input[type="text"]:focus,
+.jpk-dialog input[type="text"]:focus,
 .pluginConfigurationPage input[type="number"]:focus,
+.jpk-dialog input[type="number"]:focus,
 .pluginConfigurationPage input[type="password"]:focus,
+.jpk-dialog input[type="password"]:focus,
 .pluginConfigurationPage input[type="search"]:focus,
+.jpk-dialog input[type="search"]:focus,
 .pluginConfigurationPage input[type="url"]:focus,
+.jpk-dialog input[type="url"]:focus,
 .pluginConfigurationPage input[type="email"]:focus,
+.jpk-dialog input[type="email"]:focus,
 .pluginConfigurationPage textarea:focus,
-.pluginConfigurationPage select:focus {
+.jpk-dialog textarea:focus,
+.pluginConfigurationPage select:focus,
+.jpk-dialog select:focus {
     outline: none !important;
     border-color: var(--jpk-accent) !important;
 }
 
-.pluginConfigurationPage select option {
+.pluginConfigurationPage select option,
+.jpk-dialog select option {
     background-color: var(--jpk-surface);
-    color: #fff;
+    color: var(--jf-palette-text-primary, #fff);
 }
+
+/* The web client lays a checkboxContainer out as a row, which would put a description beside the checkbox. It wraps
+   onto its own line under the checkbox instead, as it does under every other field. */
+.pluginConfigurationPage .checkboxContainer,
+.jpk-dialog .checkboxContainer {
+    flex-wrap: wrap;
+}
+.pluginConfigurationPage .checkboxContainer > .fieldDescription,
+.jpk-dialog .checkboxContainer > .fieldDescription {
+    flex: 0 0 100%;
+    width: 100%;
+}
+
+/* emby-select and emby-input add an empty label of their own before the control when it has no label attribute; its
+   margin would push the control below a field's other controls, so an empty one takes no room. */
+.pluginConfigurationPage label.selectLabel:empty,
+.jpk-dialog label.selectLabel:empty,
+.pluginConfigurationPage label.inputLabel:empty,
+.jpk-dialog label.inputLabel:empty { display: none !important; }
+
+/* Fields side by side in a row are one height: a text box takes a select's (emby-select's 0.5em padding). */
+.pluginConfigurationPage .jpk-field input.emby-input,
+.jpk-dialog .jpk-field input.emby-input { padding-top: 0.5em; padding-bottom: 0.5em; }
