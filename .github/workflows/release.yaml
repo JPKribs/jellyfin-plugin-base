@@ -24,6 +24,8 @@ on:
 
 permissions:
   contents: write
+  # Trusted Publishing: the run proves its identity to nuget.org with a GitHub token instead of a stored key.
+  id-token: write
 
 # The date in the version is the calendar date where the releases are made, not UTC, so a release made in
 # the evening is not stamped with tomorrow.
@@ -117,10 +119,19 @@ jobs:
             gh release create "v${VERSION}" nupkg/*.nupkg --title "v${VERSION}" --generate-notes
           fi
 
+      # nuget.org's Trusted Publishing hands this run a key that lasts for the run only, once it confirms
+      # the run is this repository's release workflow, so no long-lived key is kept as a secret.
+      # NUGET_USER is the nuget.org account name that owns the package and its publishing policy.
+      - name: Log in to nuget.org
+        id: nuget
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
       - name: Push to nuget.org
         env:
           VERSION: ${{ steps.ver.outputs.version }}
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ steps.nuget.outputs.NUGET_API_KEY }}
         run: |
           dotnet nuget push "nupkg/JPKribs.Jellyfin.Base.${VERSION}.nupkg" \
             --source https://api.nuget.org/v3/index.json \
