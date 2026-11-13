@@ -75,7 +75,7 @@ public static class ActivityText
         }
 
         // The nouns these entries use: item, file, change, user, playlist, entry, request, episode.
-        if (noun.EndsWith("y", StringComparison.OrdinalIgnoreCase) && noun.Length > 1 && !"aeiou".Contains(char.ToLowerInvariant(noun[^2]), StringComparison.Ordinal))
+        if (noun.Length > 1 && char.ToLowerInvariant(noun[^1]) == 'y' && !"aeiou".Contains(char.ToLowerInvariant(noun[^2]), StringComparison.Ordinal))
         {
             return noun[..^1] + (char.IsUpper(noun[^1]) ? "IES" : "ies");
         }
