@@ -2,13 +2,13 @@
 
 A soft inline notice. Pick the class by meaning.
 
-## When to Use
+## Decision
 
-* Use it for a hint, a result, or a problem that belongs beside the content it explains.
-
-## When Not to Use
-
-* Use a [Banner](banner.md) when the user can dismiss it, and a [Toast](toast.md) for a message that appears after an action.
+| When | Use |
+| :--- | :--- |
+| A hint, a result, or a problem that belongs beside the content it explains | Callout |
+| A notice the user can dismiss | [Banner](banner.md) |
+| A message that appears after an action | [Toast](toast.md) |
 
 ## Usage
 
@@ -50,10 +50,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-error-message` | Red, mono block for surfacing raw failure text such as an error body or a stack line |
 
 <!-- reference:end -->
-
-## Used By
-
-Custom Pages, Remote Access, Requests, Scripts, Server Sync, and User Management use it.
 
 ## Example
 

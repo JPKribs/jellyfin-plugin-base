@@ -1,4 +1,4 @@
-// Checks that every gap and margin in the kit CSS is one of the two spacing tokens, per Two spacings in skills/style.md.
+// Checks that every gap and margin in the kit CSS is one of the two spacing tokens, per the Two Spacings rule in Spacing and Shape in skills/style.md.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';

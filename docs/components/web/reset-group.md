@@ -2,13 +2,12 @@
 
 A stack of rows that pair a description with an action button, as for per table resets.
 
-## When to Use
+## Decision
 
-* Use it for a list of destructive actions, each with a sentence of explanation.
-
-## When Not to Use
-
-* Never use it for ordinary settings. Use [Form Fields](form-fields.md).
+| When | Use |
+| :--- | :--- |
+| A list of destructive actions, each with a sentence of explanation | Reset Group |
+| Ordinary settings | [Form Fields](form-fields.md) |
 
 ## Usage
 
@@ -50,10 +49,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-reset-info` | Column that holds the description beside an action button |
 
 <!-- reference:end -->
-
-## Used By
-
-Server Sync and YouTube Audio use it.
 
 ## Example
 

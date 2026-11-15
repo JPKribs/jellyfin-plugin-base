@@ -71,6 +71,28 @@ public class SelectChevronTests
             Regex.Replace(css, Scope + @"\s+\.selectArrowContainer", "SCOPED"));
     }
 
+    /// <summary>
+    /// The rule that fixes a single line field's height also removes its padding above and below the text, over Jellyfin's select style.
+    /// True: a select's text has the whole field height, so letters such as y and g are never clipped.
+    /// False: Jellyfin's padding would leave less room than the text needs inside the fixed height.
+    /// </summary>
+    [Fact]
+    public void Kit_FixedHeightFieldsHaveNoVerticalPadding()
+    {
+        var rules = CssRules.Parse(FormCss());
+
+        foreach (var scope in Scopes)
+        {
+            foreach (var field in new[] { " select", " input[type=\"text\"]", " input[type=\"number\"]" })
+            {
+                var rule = rules.FirstOrDefault(r => r.Selectors.Contains(scope + field) && r.Declarations.Any(d => d.Property == "height" && d.Value.Contains("--base-field-height", StringComparison.Ordinal)));
+                Assert.True(rule != null, "form-fields.css must fix the height of " + scope + field + ".");
+                Assert.Contains(rule!.Declarations, d => d.Property == "padding-top" && d.Value == "0 !important");
+                Assert.Contains(rule.Declarations, d => d.Property == "padding-bottom" && d.Value == "0 !important");
+            }
+        }
+    }
+
     private static string FormCss() => KitCss(".Css.form-fields.css");
 
     private static string KitCss(string suffix)

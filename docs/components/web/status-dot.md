@@ -2,13 +2,12 @@
 
 A small round dot in a status color, with a text name as its title and its accessible name.
 
-## When to Use
+## Decision
 
-* Use it for health or state in a row, such as reachable or not.
-
-## When Not to Use
-
-* Never use color alone. The dot always carries a name, and a badge shows the word on screen. See [Badge](badge.md).
+| When | Use |
+| :--- | :--- |
+| Health or state in a row, such as reachable or not | Status Dot. |
+| Color alone as the signal | A name with the color. The dot always carries one, and a badge shows the word on screen. See [Badge](badge.md). |
 
 ## Usage
 
@@ -56,10 +55,6 @@ A small round dot in a status color with a text name for it, as a title and as t
 | `base-dot` | Small round dot in a status color, which needs a title and an aria-label |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

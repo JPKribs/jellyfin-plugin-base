@@ -98,6 +98,7 @@ using var client = new HttpClient(SsrfGuard.PublicOnly.CreateHandler());
 * `ValidateUrl` refuses an empty or relative URL, any scheme other than http and https, and a URL with a user name or password.
 * A host name that does not resolve is let through by the default guard, since a proxy may resolve it, and refused by `PublicOnly`. Any other resolver failure is refused, and `ValidateUrlAsync` never throws for one.
 * IPv4 translated addresses such as `::ffff:0:a.b.c.d`, and ISATAP addresses, are judged as the IPv4 address they carry. Teredo addresses in `2001::/32` and local use NAT64 addresses in `64:ff9b:1::/48` are refused. A scoped IPv6 literal such as `[fe80::1%25eth0]` is refused.
+* `new SsrfGuard(allowPrivateNetwork, requireHttpsForPublic: true)` holds plain http to loopback and private addresses, for a client that sends a key or password. A plain http URL to a public address, or a name that resolves to one, is refused with `PlainHttpRefusal`, at validation, at connect time, and on a redirect. With private networks refused as well, every plain http URL is refused. The rule is off by default, and `IsPrivateOrLoopback` says which addresses it allows.
 * `SsrfGuard.Disabled` is compared by reference. A copy made with `new SsrfGuard(true)` is not the opt out.
 * The guard checks addresses only. It does not limit ports or paths.
 
@@ -181,6 +182,24 @@ request.Options.Set(JpkRetryHandler.NoRetry, true);
 * The `HttpClient`'s own `Timeout` covers every attempt together, so it must be longer than the attempts times `AttemptTimeout`. Otherwise the client cancels first and the timeout is never retried.
 * `JpkRetryHandler.NoRetry` turns the retry off for one request, for a caller that does its own failover.
 * `JpkRetryOptions` takes a `TimeProvider`, a delay function, and a random source, so a test never sleeps.
+
+## RedirectRefusingHandler
+
+A `DelegatingHandler` that refuses to follow a redirect and fails with the address it pointed to, so a request never carries its credentials to another host and the reader learns which address to use instead.
+
+Use it in front of a handler that does not follow redirects itself, such as one from `SsrfGuard.CreateHandler`, for a client that talks to an address the user typed.
+
+```csharp
+var handler = new RedirectRefusingHandler(new SsrfGuard(true, requireHttpsForPublic: true).CreateHandler(), "Set the Server URL to the address it redirects to.");
+var client = new HttpClient(handler);
+```
+
+**Gotchas**
+
+* A response from 300 to 399 with a Location header is disposed and thrown as an `HttpRequestException` with that status code. A 304 or any other 3xx with no Location passes through.
+* The message names the server and the target, with a relative Location resolved against the request. The query is left out, so a token in it never reaches a log.
+* The message ends with the caller's advice sentence, or `DefaultAdvice` when none is given.
+* The request is sent once. Nothing goes to the redirect's target.
 
 ## JpkRetryOptions
 

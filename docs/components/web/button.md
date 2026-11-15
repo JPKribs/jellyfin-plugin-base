@@ -2,14 +2,15 @@
 
 Buttons are Jellyfin's `emby-button` with the `raised` class and the `base-button` class, with a variant and a size beside it.
 
-## When to Use
+## Decision
 
-* Use `base-button primary` for the main action, `base-button destructive` for an action that destroys data, and `base-button secondary` for the rest.
-
-## When Not to Use
-
-* Use a [Row Button](row-button.md) for an icon action inside a table or list row.
-* Use a [Pill Group](pill-group.md) or a [Toggle Group](toggle-group.md) for a set of choices.
+| When | Use |
+| :--- | :--- |
+| The main action | `base-button primary` |
+| An action that destroys data | `base-button destructive` |
+| Every other action | `base-button secondary` |
+| An icon action inside a table or list row | [Row Button](row-button.md) |
+| A set of choices | A [Pill Group](pill-group.md) or a [Toggle Group](toggle-group.md) |
 
 ## Usage
 
@@ -58,10 +59,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-button.field` | A button on the same line as a field, which takes the field's height, padding, and text size, so the two line up at any size |
 
 <!-- reference:end -->
-
-## Used By
-
-Artwork Generator, Custom Pages, Live Channels, Remote Access, Requests, Scripts, Server Sync, User Management, and YouTube Audio use it.
 
 ## Example
 

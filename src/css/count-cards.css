@@ -23,7 +23,7 @@
 .base-card-count {
     display: block;
     font-size: 1.5em;
-    font-weight: bold;
+    font-weight: 600;
     margin-bottom: var(--base-gap-narrow);
 }
 /* Small label under the count */

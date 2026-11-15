@@ -2,13 +2,12 @@
 
 A thin bar in the theme accent over a faint track, such as a download in a row.
 
-## When to Use
+## Decision
 
-* Use it for a known percent that sits in a row or under a heading.
-
-## When Not to Use
-
-* Use a [Task Progress Button](task-progress-button.md) to show a scheduled task inside its button.
+| When | Use |
+| :--- | :--- |
+| A known percent that sits in a row or under a heading | Progress Bar |
+| A scheduled task shown inside its button | [Task Progress Button](task-progress-button.md) |
 
 ## Usage
 
@@ -44,10 +43,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-progress-bar.base-btn-progress` | A progress bar along the bottom edge of a button, which the task progress button draws, thin and starting empty |
 
 <!-- reference:end -->
-
-## Used By
-
-Requests uses it.
 
 ## Example
 

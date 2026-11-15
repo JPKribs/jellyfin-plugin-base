@@ -2,13 +2,13 @@
 
 A small form dialog that resolves to a map of the values.
 
-## When to Use
+## Decision
 
-* Use it to ask for one to three values, such as a name.
-
-## When Not to Use
-
-* Use an [Editor Dialog](editor-dialog.md) for a record, and the [Form Fields](form-fields.md) on a page for anything larger.
+| When | Use |
+| :--- | :--- |
+| Asking for one to three values, such as a name | Prompt Dialog |
+| A record | [Editor Dialog](editor-dialog.md) |
+| Anything larger | The [Form Fields](form-fields.md) on a page |
 
 ## Usage
 
@@ -57,10 +57,6 @@ Opens a small form that resolves to a { name: value } map, or to null when cance
 | `PromptDialogField` | One field in a prompt dialog. A select reads options as value and label pairs, and required and validate check it through the validation core. |
 
 <!-- reference:end -->
-
-## Used By
-
-Artwork Generator, Requests, and Scripts use it.
 
 ## Example
 

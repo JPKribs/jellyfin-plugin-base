@@ -2,13 +2,12 @@
 
 A range input with a readout of its value. The readout is an `output` element and the input carries `aria-valuetext` with the same text.
 
-## When to Use
+## Decision
 
-* Use it for a value in a small range where the position matters, such as an opacity.
-
-## When Not to Use
-
-* Use a [Number Unit Field](number-unit-field.md) when the user needs an exact number.
+| When | Use |
+| :--- | :--- |
+| A value in a small range where the position matters, such as an opacity | Slider Field |
+| A value where the user needs an exact number | [Number Unit Field](number-unit-field.md) |
 
 ## Usage
 
@@ -65,10 +64,6 @@ A range input with a readout of its value. The readout is an output element and 
 | `base-slider` | Range input with a readout that keeps its width so the slider does not jump |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

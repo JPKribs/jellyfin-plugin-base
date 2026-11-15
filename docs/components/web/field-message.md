@@ -2,13 +2,12 @@
 
 A message for under a field, with a state of `error`, `warn`, `success`, or `info`. Bound to an input, it keeps `aria-invalid` and `aria-describedby` in step, and it is a polite live region.
 
-## When to Use
+## Decision
 
-* Use `setFieldState` to report a validation result under any input.
-
-## When Not to Use
-
-* Never report a field error with `Dashboard.alert`. Use this so the message sits under the field.
+| When | Use |
+| :--- | :--- |
+| Reporting a validation result under any input | `setFieldState`. |
+| Reporting a field error | `setFieldState`, so the message sits under the field. Never `Dashboard.alert`. |
 
 ## Usage
 
@@ -102,10 +101,6 @@ Shows a message under an input, creating it on first use, and wires aria-invalid
 | `base-field-message.error` | The color of each message state, one rule for the field message, the status line, and the toast's icon |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

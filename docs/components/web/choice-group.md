@@ -2,13 +2,13 @@
 
 Radio cards. One `base-choice` label per option, with a name and a sentence of explanation.
 
-## When to Use
+## Decision
 
-* Use it for a mode or strategy where each option needs a line of help.
-
-## When Not to Use
-
-* Use a [Pill Group](pill-group.md) when the names explain themselves, and a select for a long list of options.
+| When | Use |
+| :--- | :--- |
+| A mode or strategy where each option needs a line of help | Choice Group |
+| Options whose names explain themselves | [Pill Group](pill-group.md) |
+| A long list of options | A select |
 
 ## Usage
 
@@ -79,10 +79,6 @@ Wires a group of base-choice radio cards, keeping the selected class in step wit
 | `base-choice-text` | Small dimmed sentence under the name |
 
 <!-- reference:end -->
-
-## Used By
-
-Scripts, Server Sync, and YouTube Audio use it.
 
 ## Example
 

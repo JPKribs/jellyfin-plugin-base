@@ -2,14 +2,13 @@
 
 Hours, minutes, and seconds number boxes on one line, each with Base's up and down arrows and its unit inside the box, like the [Color Picker](color-picker.md)'s percent. It is built on the [Field Adornments](field-adornments.md) number box and checks through the validation core.
 
-## When to Use
+## Decision
 
-* Use it for a length of time a plugin stores in seconds, such as a timeout or an interval.
-
-## When Not to Use
-
-* Never use it for a size or a count with a unit to choose. Use the [Number Unit Field](number-unit-field.md).
-* Never use it for a time of day. Use a time input, a [Time Range Field](time-range-field.md), or a [Schedule Picker](schedule-picker.md).
+| When | Use |
+| :--- | :--- |
+| A length of time a plugin stores in seconds, such as a timeout or an interval | Duration Field |
+| A size or a count with a unit to choose | [Number Unit Field](number-unit-field.md) |
+| A time of day | A time input, a [Time Range Field](time-range-field.md), or a [Schedule Picker](schedule-picker.md) |
 
 ## Usage
 
@@ -82,10 +81,6 @@ Hours, minutes, and seconds number boxes on one line, each with Base's up and do
 | `base-duration` | Hours, minutes, and seconds number boxes on one line, each with its unit inside before its arrows, and the message under them |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

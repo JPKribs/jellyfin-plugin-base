@@ -2,14 +2,14 @@
 
 A drop zone that is also a button. The user clicks it, presses Enter or Space, or drops files on it. Files that do not match `accept` or `maxSize` are refused with a message, and the rest are listed with a Remove button.
 
-## When to Use
+## Decision
 
-* Use it to choose files to upload, such as a logo or a cover.
-
-## When Not to Use
-
-* Use an [Asset List](asset-list.md) to show files already stored.
-* Use an [Image Picker](image-picker.md) for one image with a preview, and a [Folder Picker](folder-picker.md) for a path on the server.
+| When | Use |
+| :--- | :--- |
+| Choosing files to upload, such as a logo or a cover | File Picker |
+| Showing files already stored | [Asset List](asset-list.md) |
+| One image with a preview | [Image Picker](image-picker.md) |
+| A path on the server | [Folder Picker](folder-picker.md) |
 
 ## Usage
 
@@ -73,10 +73,6 @@ A drop zone that is also a button. The user clicks it, presses Enter or Space, o
 | `base-file-list` | One chosen file with its name, size, and remove button |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

@@ -47,7 +47,7 @@ export default function (view) {
 }
 ```
 
-A plugin may also wrap the bundle in its own module that imports the builders it needs, re-exports them, and adds its own helpers on top of `createShared`. Server Sync does this in `serversync_shared.js`.
+A plugin may also wrap the bundle in its own module that imports the builders it needs, re-exports them, and adds its own helpers on top of `createShared`.
 
 On a page built with `createConfigPage`, every field that carries a rule in its attributes is validated with no call, and number, date, time, and search fields get their adornments. See [Config Page](config-page.md) and [Field Message](field-message.md#validation).
 
@@ -244,6 +244,7 @@ The CSS is written to survive the desktop app's Qt WebEngine and older TV webvie
 | :--- | :--- |
 | [Bar Chart](bar-chart.md) | Grouped bars of a few amounts |
 | [Line Chart](line-chart.md) | A value over time |
+| [Pie Chart](pie-chart.md) | Shares of a whole as a pie or donut, with a legend of values and percents |
 | [Sparkline](sparkline.md) | A small line beside a number |
 | [Usage Meter](usage-meter.md) | Used out of a total, with warning colors and parts |
 | [Relative Time](relative-time.md) | A live "3 minutes ago" or a countdown |

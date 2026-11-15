@@ -2,13 +2,13 @@
 
 A short status label in a status color. There are two badges. `base-badge` takes a color name, and `base-table-status-badge` takes a state name, as the table status column uses.
 
-## When to Use
+## Decision
 
-* Use `shared.badge` for a label you color yourself, and `shared.statusBadge` to map a status code to a color.
-
-## When Not to Use
-
-* Never use a badge as a button. The table status column renders its own button. See [Paginated Table](paginated-table.md).
+| When | Use |
+| :--- | :--- |
+| A label you color yourself | `shared.badge`. |
+| A status code mapped to a color | `shared.statusBadge`. |
+| A button | A real button, never a badge. The table status column renders its own button. See [Paginated Table](paginated-table.md). |
 
 ## Usage
 
@@ -59,10 +59,6 @@ The state names a badge knows, in names, the color modifiers that base-badge tak
 | `base-badge.medium` | A badge at the medium or large size of the scale |
 
 <!-- reference:end -->
-
-## Used By
-
-Remote Access, Requests, Scripts, Server Sync, and YouTube Audio use it.
 
 ## Example
 

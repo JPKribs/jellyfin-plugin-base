@@ -2,13 +2,12 @@
 
 An always open titled block, matched to the collapsible section but with no toggle.
 
-## When to Use
+## Decision
 
-* Use it for content that must stay visible, such as a list beside collapsible forms.
-
-## When Not to Use
-
-* Use a [Collapsible Section](collapsible-section.md) when the reader may fold the content away.
+| When | Use |
+| :--- | :--- |
+| Content that must stay visible, such as a list beside collapsible forms | Section |
+| Content the reader may fold away | [Collapsible Section](collapsible-section.md) |
 
 ## Usage
 
@@ -25,7 +24,7 @@ Classes: `base-section`, `base-section-title`, `base-section-content`.
 
 ## States and Modifiers
 
-* The title is optional. Server Sync's Servers page uses `base-section` and `base-section-content` with no title element.
+* The title is optional. A section may hold only `base-section-content`, with no title element.
 * Inside a page or dialog the section takes the field gap as bottom margin.
 * The title is capitalized by CSS, so a sentence case title changes.
 
@@ -45,10 +44,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-section-title` | Static header row styled like a collapsible header, with no button, pointer, or chevron |
 
 <!-- reference:end -->
-
-## Used By
-
-Artwork Generator, Requests, Scripts, Server Sync, and User Management use it.
 
 ## Example
 

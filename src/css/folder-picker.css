@@ -63,4 +63,4 @@
 .base-folder-picker-entry.selected { background: var(--base-accent-wash); }
 .base-folder-picker-entry .material-icons { opacity: 0.7; }
 .base-folder-picker-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-.base-folder-picker-up .base-folder-picker-name { opacity: 0.8; }
+.base-folder-picker-up .base-folder-picker-name { opacity: 0.7; }

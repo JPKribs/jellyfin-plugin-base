@@ -99,3 +99,9 @@
 .base-chart-tip[hidden] { display: none; }
 .base-chart-tip-label { opacity: 0.7; }
 .base-chart-tip-value { display: flex; align-items: center; gap: var(--base-gap-narrow); font-variant-numeric: tabular-nums; }
+.base-chart-tip-detail { opacity: 0.7; }
+
+/* The empty sentence that stands in for the plot and the legend when a chart has nothing to draw, in the List's empty look */
+/* Example: <figure class="base-chart base-pie-chart"><div class="base-list-empty base-chart-empty">Nothing to show.</div></figure> */
+.base-chart-empty[hidden],
+.base-chart-plot[hidden] { display: none; }

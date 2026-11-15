@@ -2,13 +2,12 @@
 
 The kit restyles Jellyfin's own field containers, so every field on a config page or in a kit dialog has the same surface, border, focus ring, chevron, spacing, and left edge. You write Jellyfin markup and no kit class.
 
-## When to Use
+## Decision
 
-* Use it for every text input, number input, text area, select, and checkbox.
-
-## When Not to Use
-
-* Use a [Field and Field Row](field.md) for dense lines with several fields side by side.
+| When | Use |
+| :--- | :--- |
+| Every text input, number input, text area, select, and checkbox | Form Fields |
+| Dense lines with several fields side by side | [Field and Field Row](field.md) |
 
 ## Usage
 
@@ -70,10 +69,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-record-card` | The last block in a record card or a panel body sits on the padding, with no gap below it |
 
 <!-- reference:end -->
-
-## Used By
-
-Artwork Generator, Custom Pages, Live Channels, Remote Access, Requests, Scripts, Server Sync, User Management, and YouTube Audio use it.
 
 ## Example
 

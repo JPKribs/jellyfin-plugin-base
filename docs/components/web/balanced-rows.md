@@ -2,14 +2,13 @@
 
 Groups of equal tiles wrap in rows of even size, so a wrapped row never holds a single tile. Four tiles that do not fit in one row become two rows of two, five become three and two, and seven become three, two, and two.
 
-## When to Use
+## Decision
 
-* Base balances its own groups: count cards, choice cards, the check grid, and a [List](list.md) in its grid layout. A page built with `createConfigPage` also balances every such group on it.
-* Use `balanceRows` for a group of tiles a plugin builds itself, such as a row of stat cards.
-
-## When Not to Use
-
-* Never use it for text chips that size to their words, such as tags, pills, and breadcrumbs. They wrap like text.
+| When | Use |
+| :--- | :--- |
+| Base's own groups, such as count cards, choice cards, the check grid, and a [List](list.md) in its grid layout | Nothing. Base balances them, and a page built with `createConfigPage` also balances every such group on it. |
+| A group of tiles a plugin builds itself, such as a row of stat cards | `balanceRows`. |
+| Text chips that size to their words, such as tags, pills, and breadcrumbs | No `balanceRows`. They wrap like text. |
 
 ## Usage
 
@@ -52,10 +51,6 @@ Balances every group of tiles under a root, such as count cards, choice cards, a
 | `base-balanced` | Tiles in rows of even size, so no row holds a single tile, laid out by balanceRows |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it directly. Every count card group and choice group in a plugin gets it through Base.
 
 ## Example
 

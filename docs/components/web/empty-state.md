@@ -2,13 +2,12 @@
 
 Three ways to show an empty region, a boxed message, a compact message, and a small dimmed line. A [List](list.md), and every component built on it, shows its own empty text.
 
-## When to Use
+## Decision
 
-* Use `shared.emptySection` for a list with no rows yet.
-
-## When Not to Use
-
-* Use a List's `emptyText` for a list built with a List, a [Filtered List](filtered-list.md), or a table built on one.
+| When | Use |
+| :--- | :--- |
+| A list with no rows yet | `shared.emptySection` |
+| A list built with a List, a [Filtered List](filtered-list.md), or a table built on one | The List's `emptyText` |
 
 ## Usage
 
@@ -48,10 +47,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-empty` | Compact dimmed message for an empty list |
 
 <!-- reference:end -->
-
-## Used By
-
-Artwork Generator, Custom Pages, Live Channels, Requests, Scripts, Server Sync, and User Management use it.
 
 ## Example
 

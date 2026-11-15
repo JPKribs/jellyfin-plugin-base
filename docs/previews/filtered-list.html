@@ -51,7 +51,7 @@ const list = base.createFilteredList({
     onOpen: (item) => base.openDialog({ title: item.name, body: '<p>' + base.escapeHtml(item.type + ', ' + item.state + ', ' + (detailOf(item) || 'no detail')) + '</p>', buttons: [{ text: 'Done', className: 'base-button primary' }] }),
     height: 420
 });
-// The servers arrive after the first load, as Server Sync's peer pills do.
+// The servers arrive after the first load, so the pills fill in late.
 setTimeout(() => list.setFilterOptions('peer', peers), 600);
 // A poll every 3 seconds changes one item's state, and only that row draws again.
 let tick = 0;

@@ -2,14 +2,13 @@
 
 Small functions exported from the bundle for what a plugin otherwise rewrites. Each one is also on the [Shared Bag](shared-bag.md), and `copyWithFeedback` and `fetchObjectUrl` live only there.
 
-## When to Use
+## Decision
 
-* Use `escapeHtml` for every value placed into HTML a component builds from a string.
-* Use `plural` for any count in a label.
-
-## When Not to Use
-
-* Never build a plural by hand, such as `n + ' items'`.
+| When | Use |
+| :--- | :--- |
+| Every value placed into HTML a component builds from a string | `escapeHtml` |
+| Any count in a label | `plural` |
+| A plural built by hand, such as `n + ' items'` | `plural` instead |
 
 ## Usage
 
@@ -96,10 +95,6 @@ Escapes a value for HTML text or a quoted attribute. null and undefined become '
 Copies text to the clipboard, with a textarea fallback for HTTP dashboards. The promise resolves to true when the copy worked and never rejects. The shared bag's copyToClipboard calls it.
 
 <!-- reference:end -->
-
-## Used By
-
-Artwork Generator, Live Channels, and Scripts use `downloadJson` and `pickJsonFile`. Live Channels, Remote Access, and Scripts use `copyWithFeedback`. Artwork Generator and YouTube Audio use `debounce`.
 
 ## Example
 

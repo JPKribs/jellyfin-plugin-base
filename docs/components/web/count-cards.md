@@ -2,13 +2,13 @@
 
 A row of large counts over labels, tinted by status.
 
-## When to Use
+## Decision
 
-* Use it for a summary of counts at the top of a page or tab.
-
-## When Not to Use
-
-* Use a [Stat Card](stat-card.md) when each count needs a trend. Never confuse it with `base-card-list` and `base-card-item` (records) or the [Record Card](record-card.md).
+| When | Use |
+| :--- | :--- |
+| A summary of counts at the top of a page or tab | Count Cards. |
+| Counts that each need a trend | [Stat Card](stat-card.md). |
+| Cards for records | `base-card-list` and `base-card-item`, or the [Record Card](record-card.md). Never confuse them with Count Cards. |
 
 ## Usage
 
@@ -59,10 +59,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-cards.compact` | A tighter row of small count cards, for many counts in little room, such as on a phone |
 
 <!-- reference:end -->
-
-## Used By
-
-Custom Pages, Live Channels, Requests, Scripts, Server Sync, User Management, and YouTube Audio use it.
 
 ## Example
 

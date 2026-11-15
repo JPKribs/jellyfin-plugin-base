@@ -2,13 +2,12 @@
 
 A number input beside a unit select, such as 512 MB or 2 GB. The number is checked against `min` and `max`, and a unit may carry a factor so the field can also report and take a base value.
 
-## When to Use
+## Decision
 
-* Use it for sizes, durations, and limits that the user thinks of in different units.
-
-## When Not to Use
-
-* Use a [Slider Field](slider-field.md) for a value with a small range.
+| When | Use |
+| :--- | :--- |
+| Sizes, durations, and limits that the user thinks of in different units | Number Unit Field |
+| A value with a small range | [Slider Field](slider-field.md) |
 
 ## Usage
 
@@ -83,10 +82,6 @@ A number input beside a unit select, such as 512 MB or 2 GB. The value is checke
 | `base-number-unit-row` | A number input and a unit select side by side, with a message under them |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

@@ -2,14 +2,13 @@
 
 A hub in the middle with lanes of pills on its left, right, and below, each joined to the hub by a line with arrows that show the way things travel.
 
-## When to Use
+## Decision
 
-* Use it to show what one thing is connected to and which way each connection runs, such as the servers this one pulls from, pushes to, and syncs with.
-
-## When Not to Use
-
-* Never use it for a long list of connections. Use a [List](list.md) or a [Paginated Table](paginated-table.md).
-* Never use it for steps in order. Use a [Stepper](stepper.md) or a [Timeline](timeline.md).
+| When | Use |
+| :--- | :--- |
+| Showing what one thing is connected to and which way each connection runs, such as the servers this one pulls from, pushes to, and syncs with | Flow Diagram |
+| A long list of connections | A [List](list.md) or a [Paginated Table](paginated-table.md) |
+| Steps in order | A [Stepper](stepper.md) or a [Timeline](timeline.md) |
 
 ## Usage
 
@@ -84,10 +83,6 @@ A hub in the middle with lanes of pills on its left, right, and below, each pill
 | `base-flow-diagram-dot` | Round status dot inside a pill, in a status color |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

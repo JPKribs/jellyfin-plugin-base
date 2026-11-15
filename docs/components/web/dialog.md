@@ -2,13 +2,15 @@
 
 A modal over the page with a title, a body, and footer buttons. All dialog helpers are built on one panel. `openDialog` creates the markup, and [Bound Dialog](bound-dialog.md) adds the behavior to markup already in the page. The [Detail Drawer](detail-drawer.md) is the same panel docked to the right edge.
 
-## When to Use
+## Decision
 
-* Use it for a short task or a detail view that needs the user's full attention.
-
-## When Not to Use
-
-* Use a [Confirm Dialog](confirm-dialog.md) for a yes or no question, a [Prompt Dialog](prompt-dialog.md) for a few values, an [Editor Dialog](editor-dialog.md) for a record, and a [Detail Drawer](detail-drawer.md) for the details of a row.
+| When | Use |
+| :--- | :--- |
+| A short task or a detail view that needs the user's full attention | Dialog |
+| A yes or no question | [Confirm Dialog](confirm-dialog.md) |
+| A few values | [Prompt Dialog](prompt-dialog.md) |
+| A record | [Editor Dialog](editor-dialog.md) |
+| The details of a row | [Detail Drawer](detail-drawer.md) |
 
 ## Usage
 
@@ -50,7 +52,7 @@ Classes: `base-dialog`, `base-dialog-content`, with the size modifiers `small`, 
 
 * `body` is an HTML string or a DOM node. A string is inserted as HTML, so escape data in it.
 * `ariaLabel` names a dialog with no `title`. Without it the name is the start of the body text, else "Dialog".
-* `size` sets the panel's width as a share of the window: `small` is 40% (at least 320px), `medium` is 60% (at least 420px, the default), and `large` is 80% (at least 560px). A panel never grows past the screen, and below 700px every size takes the screen's width.
+* `size` sets the panel's width as a share of the window: `small` is 40% (at least 320px), `medium` is 60% (at least 420px, the default), and `large` is 80% (at least 560px). A panel never grows past the screen, and below 600px every size takes the screen's width.
 * `className` adds classes to the panel. `dismissable` (default true) allows the backdrop, Escape, and the close button. `closeButton` shows the corner button and is never shown when the dialog is not dismissable.
 * `beforeClose()` returns `false`, or a promise of `false`, to keep the dialog open when it is dismissed.
 * `buttons` is `[{ text, className, value, action(close, dismiss, button) }]`. Without `action` a button closes with its `value`. `dismiss` closes the way Escape does, asking `beforeClose`.
@@ -58,7 +60,7 @@ Classes: `base-dialog`, `base-dialog-content`, with the size modifiers `small`, 
 * Focus on open goes to `autofocus`, else the first visible field in the body, else a non destructive footer button, else the close button, else the panel. A `base-button destructive` button is never focused automatically. On a touch screen a text field is not focused, so the keyboard does not cover the dialog.
 * Tab and Shift+Tab cycle inside the panel. Only the top dialog answers Escape. A backdrop `mousedown` dismisses. The page behind does not scroll while a dialog is open.
 * On close, focus returns to the control that opened it, else `returnFocus`, else the first heading of the config page. A dialog still open underneath takes focus back.
-* A `large` panel is for an editor. Its button row is sticky at the bottom, with a destructive button apart on the left, and below 700px it fills the whole screen. Confirm and prompt dialogs are `small`.
+* A `large` panel is for an editor. Its button row is sticky at the bottom, with a destructive button apart on the left, and below 600px it fills the whole screen. Confirm and prompt dialogs are `small`.
 * `setTitle(text)` changes the title and adds or removes the heading and `aria-labelledby` as needed.
 * The close button sits in the top right corner, inset by the panel's padding and level with the title, in every dialog. The padding is `--base-dialog-pad` on the panel, which the parts that reach its edges, such as a large dialog's button row, also read.
 * A footer button that is disabled, such as a typed confirm's button before the text matches, is dimmed.
@@ -123,10 +125,6 @@ Opens a modal that closes on backdrop click, Escape, and the corner close button
 | `base-modal-button` | Equal width button in the footer row |
 
 <!-- reference:end -->
-
-## Used By
-
-Requests and Scripts use it.
 
 ## Example
 

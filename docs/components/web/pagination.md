@@ -2,13 +2,12 @@
 
 A footer for a list that is read a page at a time. It has a page size select, Previous and Next buttons, a window of page numbers, and a total text. It reports `skip` and `take`, so it works with a `PagedResult`.
 
-## When to Use
+## Decision
 
-* Use it under a plain list that loads one page per request.
-
-## When Not to Use
-
-* Never use it with a [Paginated Table](paginated-table.md), a [Filtered List](filtered-list.md), or a [Data Table](data-table.md). They load more as the list scrolls, or from Load More.
+| When | Use |
+| :--- | :--- |
+| A plain list that loads one page per request | Pagination, under the list. |
+| A [Paginated Table](paginated-table.md), a [Filtered List](filtered-list.md), or a [Data Table](data-table.md) | Not the Pagination. They load more as the list scrolls, or from Load More. |
 
 ## Usage
 
@@ -84,10 +83,6 @@ A footer for a list that is read a page at a time. It has a page size select, Pr
 | `base-pager-gap` | Gap between page numbers, drawn as three dots |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

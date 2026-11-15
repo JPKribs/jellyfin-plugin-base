@@ -1,0 +1,85 @@
+/* A pie chart on the shared chart core: the pie, a diameter on the size scale, beside its legend */
+/* Example: <figure class="base-chart base-pie-chart"><div class="base-chart-plot" tabindex="0"><svg></svg></div><div class="base-chart-legend base-pie-chart-legend"></div><table class="base-sr-only"></table></figure> */
+.base-pie-chart {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--base-gap-wide);
+}
+.base-pie-chart > .base-chart-plot {
+    flex: 0 0 auto;
+    width: calc(var(--base-size-medium) * 5);
+    max-width: 100%;
+}
+.base-pie-chart.small > .base-chart-plot { width: calc(var(--base-size-small) * 5); }
+.base-pie-chart.large > .base-chart-plot { width: calc(var(--base-size-large) * 5); }
+.base-pie-chart > .base-chart-empty { flex: 1 1 auto; }
+
+/* A narrow pie chart, which stacks the legend under the pie */
+/* Example: <figure class="base-chart base-pie-chart compact"></figure> */
+.base-pie-chart.compact {
+    flex-direction: column;
+    align-items: stretch;
+}
+.base-pie-chart.compact > .base-chart-plot { align-self: center; }
+
+/* One slice in its color, parted from the next by a line of the surface, dimmed while another is under the pointer or selected */
+/* Example: <path class="base-pie-chart-slice base-chart-series blue base-chart-mark selected" role="button" aria-pressed="true" aria-label="Movies, 820 GB, 41%"></path> */
+.base-pie-chart-slice {
+    fill: var(--base-chart-color);
+    stroke: var(--base-surface);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    cursor: pointer;
+    transition: opacity 0.15s ease-out;
+}
+.base-chart-plot:hover .base-pie-chart-slice { opacity: 0.75; }
+.base-pie-chart.has-selection .base-pie-chart-slice { opacity: 0.35; }
+.base-chart-plot .base-pie-chart-slice:hover,
+.base-pie-chart.has-selection .base-pie-chart-slice.selected { opacity: 1; }
+
+/* The value and its label in a donut's center */
+/* Example: <text class="base-pie-chart-center">2.4k</text><text class="base-pie-chart-center-label">Total</text> */
+.base-pie-chart-center,
+.base-chart text.base-pie-chart-center { font-size: var(--base-font-large); font-weight: 600; }
+.base-pie-chart-center-label { opacity: 0.7; }
+
+/* The legend of a pie: a row per slice with its color dot, label, value, and percent, the values and percents each in one column */
+/* Example: <div class="base-chart-legend base-pie-chart-legend"><button type="button" class="base-pie-chart-key" aria-pressed="false"><span class="base-chart-swatch blue"></span><span class="base-pie-chart-key-label">Movies</span><span class="base-pie-chart-key-value">820 GB</span><span class="base-pie-chart-key-share">41%</span></button></div> */
+.base-pie-chart-legend {
+    flex: 1 1 0;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0;
+    min-width: 0;
+    font-size: var(--base-field-font);
+}
+.base-pie-chart .base-chart-swatch { border-radius: var(--base-radius-round); }
+.base-pie-chart-key {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto calc(var(--base-field-font) * 3.5);
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    width: 100%;
+    min-height: var(--base-field-height);
+    margin: 0;
+    padding: 0 var(--base-pad-small);
+    border: 0;
+    border-radius: var(--base-radius-small);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.base-pie-chart-key:hover { background: var(--base-wash); }
+.base-pie-chart-key:focus { outline: none; }
+.base-pie-chart-key:focus-visible { box-shadow: inset 0 0 0 2px var(--base-accent); }
+.base-pie-chart-key.selected {
+    background: var(--base-accent-wash);
+    box-shadow: inset 3px 0 0 var(--base-accent);
+}
+.base-pie-chart-key:disabled { opacity: 0.5; cursor: default; background: none; }
+.base-pie-chart-key-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.base-pie-chart-key-value,
+.base-pie-chart-key-share { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.base-pie-chart-key-share { opacity: 0.7; }

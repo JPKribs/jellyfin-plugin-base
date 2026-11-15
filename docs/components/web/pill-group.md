@@ -2,13 +2,13 @@
 
 A wrapping row of pills where exactly one is chosen, such as a frequency or a mode.
 
-## When to Use
+## Decision
 
-* Use it for a short list of exclusive choices.
-
-## When Not to Use
-
-* Use a [Toggle Group](toggle-group.md) for any number, and a [Choice Group](choice-group.md) when each option needs a sentence.
+| When | Use |
+| :--- | :--- |
+| A short list of exclusive choices | Pill Group |
+| Choices where any number may be on | [Toggle Group](toggle-group.md) |
+| Options that each need a sentence | [Choice Group](choice-group.md) |
 
 ## Usage
 
@@ -69,10 +69,6 @@ Wires a base-pill-group of buttons as a single choice, keeping aria-pressed and 
 | `base-pill.small` | A pill at the small or large size of the scale |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

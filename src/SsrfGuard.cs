@@ -22,6 +22,9 @@ public sealed class SsrfGuard
     /// <summary>The reason prefix the guard puts at the start of every refusal it reports through <see cref="HttpResult.Body"/>.</summary>
     public const string RefusalPrefix = "blocked by SSRF guard: ";
 
+    /// <summary>The reason a guard with <see cref="RequireHttpsForPublic"/> gives when a plain http URL would reach a public address.</summary>
+    public const string PlainHttpRefusal = "plain http only reaches loopback and private network addresses, since it sends credentials unencrypted, so use an https URL";
+
     private static readonly Lazy<HttpClient> PublicOnlyClient = new(() => BuildClient(false));
 
     private static readonly Lazy<HttpClient> PrivateAllowedClient = new(() => BuildClient(true));
@@ -32,14 +35,16 @@ public sealed class SsrfGuard
     /// Initializes a new instance of the <see cref="SsrfGuard"/> class.
     /// </summary>
     /// <param name="allowPrivateNetwork">Whether loopback, private, carrier grade NAT, and unique local addresses are allowed. Link local, multicast, unspecified, and broadcast addresses are refused either way.</param>
-    public SsrfGuard(bool allowPrivateNetwork = false)
-        : this(allowPrivateNetwork, ResolveAsync)
+    /// <param name="requireHttpsForPublic">Whether a plain http URL is refused unless every address it reaches is loopback or private, for a caller that sends a key or password. With <paramref name="allowPrivateNetwork"/> off, every plain http URL is refused.</param>
+    public SsrfGuard(bool allowPrivateNetwork = false, bool requireHttpsForPublic = false)
+        : this(allowPrivateNetwork, ResolveAsync, requireHttpsForPublic)
     {
     }
 
-    internal SsrfGuard(bool allowPrivateNetwork, Func<string, CancellationToken, Task<IPAddress[]>> resolver)
+    internal SsrfGuard(bool allowPrivateNetwork, Func<string, CancellationToken, Task<IPAddress[]>> resolver, bool requireHttpsForPublic = false)
     {
         AllowPrivateNetwork = allowPrivateNetwork;
+        RequireHttpsForPublic = requireHttpsForPublic;
         _resolver = resolver;
     }
 
@@ -57,6 +62,9 @@ public sealed class SsrfGuard
 
     /// <summary>Gets a value indicating whether loopback and private network addresses are allowed.</summary>
     public bool AllowPrivateNetwork { get; }
+
+    /// <summary>Gets a value indicating whether a plain http URL may only reach loopback and private network addresses.</summary>
+    public bool RequireHttpsForPublic { get; }
 
     /// <summary>Gets the shared client that sends through a guard with the same private network setting. It never follows a redirect.</summary>
     /// <remarks>The client does not use a system proxy, since a proxy would resolve and connect to the target itself.</remarks>
@@ -134,6 +142,17 @@ public sealed class SsrfGuard
     public string? ClassifyAddress(IPAddress address) => Classify(address, AllowPrivateNetwork);
 
     /// <summary>
+    /// Says whether an address is loopback or on a private network, the only places a plain http URL may reach under <see cref="RequireHttpsForPublic"/>.
+    /// </summary>
+    /// <param name="address">The address to check.</param>
+    /// <returns><c>true</c> when the address is loopback or private, and allowed at all.</returns>
+    public static bool IsPrivateOrLoopback(IPAddress address)
+    {
+        ArgumentNullException.ThrowIfNull(address);
+        return Classify(address, allowPrivateNetwork: true) is null && Classify(address, allowPrivateNetwork: false) is not null;
+    }
+
+    /// <summary>
     /// Checks a URL without any network access. An address written in the host is classified, and a name is
     /// left for <see cref="ValidateUrlAsync"/> and the connect time check.
     /// </summary>
@@ -201,7 +220,7 @@ public sealed class SsrfGuard
             return null;
         }
 
-        return ClassifyAll(uri.Host, addresses);
+        return ClassifyAll(uri.Host, addresses, uri.Scheme == Uri.UriSchemeHttp);
     }
 
     /// <summary>
@@ -261,7 +280,8 @@ public sealed class SsrfGuard
             ? new[] { literal }
             : await _resolver(endPoint.Host, cancellationToken).ConfigureAwait(false);
 
-        var refusal = ClassifyAll(endPoint.Host, addresses);
+        var plainHttp = context.InitialRequestMessage?.RequestUri?.Scheme == Uri.UriSchemeHttp;
+        var refusal = ClassifyAll(endPoint.Host, addresses, plainHttp);
         if (refusal is not null)
         {
             throw new HttpRequestException(RefusalPrefix + refusal);
@@ -323,6 +343,12 @@ public sealed class SsrfGuard
             return "a scoped IPv6 address is not allowed";
         }
 
+        var plainHttp = uri.Scheme == Uri.UriSchemeHttp;
+        if (plainHttp && RequireHttpsForPublic && !AllowPrivateNetwork)
+        {
+            return PlainHttpRefusal;
+        }
+
         if (IPAddress.TryParse(uri.Host.Trim('[', ']'), out var address))
         {
             var rejection = ClassifyAddress(address);
@@ -330,12 +356,17 @@ public sealed class SsrfGuard
             {
                 return uri.Host + " is refused, " + rejection;
             }
+
+            if (plainHttp && RequireHttpsForPublic && !IsPrivateOrLoopback(address))
+            {
+                return uri.Host + " is a public address, and " + PlainHttpRefusal;
+            }
         }
 
         return null;
     }
 
-    private string? ClassifyAll(string host, IPAddress[] addresses)
+    private string? ClassifyAll(string host, IPAddress[] addresses, bool plainHttp)
     {
         if (addresses.Length == 0)
         {
@@ -348,6 +379,11 @@ public sealed class SsrfGuard
             if (rejection is not null)
             {
                 return "the name '" + host + "' resolves to " + address + ", " + rejection;
+            }
+
+            if (plainHttp && RequireHttpsForPublic && !IsPrivateOrLoopback(address))
+            {
+                return "the name '" + host + "' resolves to " + address + ", a public address, and " + PlainHttpRefusal;
             }
         }
 

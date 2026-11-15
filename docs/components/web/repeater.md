@@ -2,15 +2,15 @@
 
 The base for any list of rows or cards of mixed fields. Each item is a row of fields, or a boxed card with a title and its fields in a grid. Rows add and remove, keep a least and a most, and move up and down. It is built on the row editor core, which the [Access Schedule](access-schedule.md) shares, and its rows sit in a [List](list.md). The [Key Value Editor](key-value-editor.md) and the [Rule Builder](rule-builder.md) are built on it. Every field checks through the validation core, so a [Save Bar](save-bar.md) with `form`, or `validateAll`, covers it.
 
-## When to Use
+## Decision
 
-* Use it for a list of records the reader adds, edits, and removes in place, such as servers, webhooks, or schedules.
-* Use `layout: 'card'` when a record has more fields than fit on one row.
-
-## When Not to Use
-
-* Use a [Key Value Editor](key-value-editor.md) for two text fields, and a [String List](string-list.md) for one.
-* Use a [Data Table](data-table.md) with `editable` when the records are mostly read and edited one at a time.
+| When | Use |
+| :--- | :--- |
+| A list of records the reader adds, edits, and removes in place, such as servers, webhooks, or schedules | Repeater |
+| A record with more fields than fit on one row | `layout: 'card'` |
+| Two text fields | [Key Value Editor](key-value-editor.md) |
+| One text field | [String List](string-list.md) |
+| Records that are mostly read and edited one at a time | A [Data Table](data-table.md) with `editable` |
 
 ## Usage
 
@@ -125,10 +125,6 @@ The base for any list of rows or cards of mixed fields, built on the row editor 
 | `base-repeater.inline.compact` | A narrow inline repeater: each row stacks its fields full width under their labels, with the row buttons pinned top right, level with the first label |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

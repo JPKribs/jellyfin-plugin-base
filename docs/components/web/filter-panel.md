@@ -2,14 +2,14 @@
 
 A Filter button that counts the filters on and opens a panel of filter groups. Each group is a heading over checkboxes, or over radio choices when only one value may be picked.
 
-## When to Use
+## Decision
 
-* Use it above a list that narrows by several criteria at once, such as status, kind, and owner.
-
-## When Not to Use
-
-* Use the `filters` of a [Filtered List](filtered-list.md), [Data Table](data-table.md), or [Paginated Table](paginated-table.md) when a few filters fit in the list's own toolbar.
-* Use a [Checkbox List](checkbox-list.md) for a long searchable list of picks, and a [Rule Builder](rule-builder.md) for a filter the reader writes.
+| When | Use |
+| :--- | :--- |
+| A list that narrows by several criteria at once, such as status, kind, and owner | Filter Panel, above the list |
+| A few filters that fit in the list's own toolbar | The `filters` of a [Filtered List](filtered-list.md), [Data Table](data-table.md), or [Paginated Table](paginated-table.md) |
+| A long searchable list of picks | [Checkbox List](checkbox-list.md) |
+| A filter the reader writes | [Rule Builder](rule-builder.md) |
 
 ## Usage
 
@@ -102,10 +102,6 @@ A Filter button with a count of the filters on, which opens a panel of filter gr
 | `base-filter-actions` | Row of the Clear and Done buttons at the end of the floating panel |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

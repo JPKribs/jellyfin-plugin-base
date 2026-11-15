@@ -2,13 +2,13 @@
 
 An inline spinner with a hidden status label. Its size is small, medium, or large.
 
-## When to Use
+## Decision
 
-* Use it beside a button or inside a region while one request is in flight.
-
-## When Not to Use
-
-* Use a [Skeleton](skeleton.md) for content that has a known shape, and a [Progress Ring](progress-ring.md) when you know the percent.
+| When | Use |
+| :--- | :--- |
+| One request in flight, beside a button or inside a region | Spinner |
+| Content that has a known shape | [Skeleton](skeleton.md) |
+| A known percent | [Progress Ring](progress-ring.md) |
 
 ## Usage
 
@@ -65,10 +65,6 @@ An inline spinner with a hidden status label. Its size is small, medium, or larg
 | `base-loading` | Inline spinner, a ring with one accent edge that turns, in three sizes |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

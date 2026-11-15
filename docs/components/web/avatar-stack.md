@@ -2,13 +2,12 @@
 
 A row of overlapping [Avatars](avatar.md), such as who watched an item. Past `max`, the rest fold into a +N bubble whose tooltip names them.
 
-## When to Use
+## Decision
 
-* Use it to show several people in the space of one, in a row or a card.
-
-## When Not to Use
-
-* Use a [User Chip](avatar.md) for one person with a name beside them.
+| When | Use |
+| :--- | :--- |
+| Several people in the space of one, in a row or a card | Avatar Stack |
+| One person with a name beside them | [User Chip](avatar.md) |
 
 ## Usage
 
@@ -61,10 +60,6 @@ A row of overlapping avatars, such as who watched an item, built from createAvat
 | `base-avatar-more` | The +N bubble that stands for the avatars past max, with their names in its tooltip |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

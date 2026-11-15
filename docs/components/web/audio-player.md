@@ -2,13 +2,12 @@
 
 A small audio player: a Play and Pause button, a seek slider on the [Slider Field](slider-field.md), and the current and total time, under an optional title. Only one player plays at a time on the page.
 
-## When to Use
+## Decision
 
-* Use it to preview a short sound, such as a theme song.
-
-## When Not to Use
-
-* Never use it for video or a long playlist.
+| When | Use |
+| :--- | :--- |
+| Previewing a short sound, such as a theme song | Audio Player |
+| Video or a long playlist | Not the Audio Player |
 
 ## Usage
 
@@ -75,10 +74,6 @@ A small audio player: a Play and Pause button, a seek slider on the Slider Field
 | `base-audio-player.failed` | A player whose audio could not load: the error in red in the title's place, and the button an X that resets it |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

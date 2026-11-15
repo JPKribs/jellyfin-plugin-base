@@ -2,13 +2,13 @@
 
 A progress bar of how much of something is used, such as disk space, with a label and an "X of Y used" line. It turns orange past a warning share and red past a danger share, and splits into colored parts with a legend.
 
-## When to Use
+## Decision
 
-* Use it for a used amount out of a known total, such as a cache, a drive, or a quota.
-
-## When Not to Use
-
-* Use a [Progress Ring](progress-ring.md) for a task's progress, and a [Bar Chart](bar-chart.md) to compare amounts with no total.
+| When | Use |
+| :--- | :--- |
+| A used amount out of a known total, such as a cache, a drive, or a quota | Usage Meter |
+| A task's progress | [Progress Ring](progress-ring.md) |
+| Comparing amounts with no total | [Bar Chart](bar-chart.md) |
 
 ## Usage
 
@@ -73,10 +73,6 @@ A progress bar that shows how much of something is used, such as disk space, wit
 | `base-usage-meter-legend` | The legend of a segmented meter: a swatch, a name, and an amount per part, wrapping as a row |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

@@ -2,13 +2,12 @@
 
 A circular progress indicator with its percent in the middle. It is an SVG ring with `role="progressbar"`, and the arc length is set through `stroke-dasharray` on a path of length 100.
 
-## When to Use
+## Decision
 
-* Use it where the percent is known and space is tight, such as a queue row.
-
-## When Not to Use
-
-* Use a [Progress Bar](progress-bar.md) for a thin line in a row.
+| When | Use |
+| :--- | :--- |
+| A known percent where space is tight, such as a queue row | Progress Ring |
+| A thin line in a row | [Progress Bar](progress-bar.md) |
 
 ## Usage
 
@@ -63,10 +62,6 @@ A circular progress indicator with its percent in the middle. It is an SVG ring,
 | `base-ring-pie` | A small disc that fills like a pie with no text, such as beside a small button that is running a task |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

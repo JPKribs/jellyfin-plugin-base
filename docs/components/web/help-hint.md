@@ -2,13 +2,12 @@
 
 A small help icon button for next to a label, with a bubble that explains the field. The bubble shows on hover and focus, and a click or tap toggles it.
 
-## When to Use
+## Decision
 
-* Use it for a long explanation that would crowd a `fieldDescription`.
-
-## When Not to Use
-
-* Use a [Placeholder Hint](placeholder-hint.md) to insert tokens into a field.
+| When | Use |
+| :--- | :--- |
+| A long explanation that would crowd a `fieldDescription` | Help Hint |
+| Inserting tokens into a field | [Placeholder Hint](placeholder-hint.md) |
 
 ## Usage
 
@@ -60,10 +59,6 @@ A small help icon button for next to a label, with a bubble that explains the fi
 | `base-help-tip` | Bubble on the base-float surface, fixed to the viewport, that explains the field, placed by the hint beside its icon, and hidden until the hint is hovered, focused, or open |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

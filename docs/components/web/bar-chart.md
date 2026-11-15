@@ -2,13 +2,15 @@
 
 A bar chart drawn as inline SVG on the shared chart core. Each label is a group with one bar per series, in the series' color. It draws at its own width and again when that width changes, so its text never scales.
 
-## When to Use
+## Decision
 
-* Use it to compare a few amounts side by side, such as items synced per day or storage per library.
-
-## When Not to Use
-
-* Use a [Line Chart](line-chart.md) for a value over many points in time, a [Sparkline](sparkline.md) for a shape beside a number, and a [Usage Meter](usage-meter.md) for a share of a whole.
+| When | Use |
+| :--- | :--- |
+| Comparing a few amounts side by side, such as items synced per day or storage per library | Bar Chart |
+| A value over many points in time | [Line Chart](line-chart.md) |
+| A shape beside a number | [Sparkline](sparkline.md) |
+| How a whole splits into a few named parts | [Pie Chart](pie-chart.md) |
+| How much of one limit is used | [Usage Meter](usage-meter.md) |
 
 ## Usage
 
@@ -72,12 +74,9 @@ A bar chart on the shared chart core, drawn as inline SVG at its own width. Each
 | `base-chart-legend` | The legend under a chart with several series: a swatch and a name per series, wrapping as a row |
 | `base-chart-swatch` | A small square in a series color, in the legend and the tooltip |
 | `base-chart-tip` | The tooltip of a mark, on the shared tooltip surface: the label over the value |
+| `base-chart-empty` | The empty sentence that stands in for the plot and the legend when a chart has nothing to draw, in the List's empty look |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

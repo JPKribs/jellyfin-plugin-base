@@ -396,3 +396,14 @@ test('a column image that returns an empty value keeps only the placeholder', as
     assert.ok(thumb.querySelector('.base-thumb-placeholder'));
     assert.equal(thumb.querySelector('.base-thumb-image'), null);
 });
+
+test('rowClass marks a row from its first draw, cleans the names, and follows a refresh', async function () {
+    var picked = 'b';
+    var t = makeTable({ rowClass: function (item) { return item.id === picked ? 'selected bad"><x' : null; } }, answerWith(['a', 'b']));
+    await t.table.load();
+    assert.deepEqual(selected(t), [false, true]);
+    assert.ok(rows(t)[1].className.indexOf('"') === -1 && rows(t)[1].className.indexOf('<') === -1, 'class names from data are cleaned');
+    picked = 'a';
+    await t.table.refresh();
+    assert.deepEqual(selected(t), [true, false]);
+});

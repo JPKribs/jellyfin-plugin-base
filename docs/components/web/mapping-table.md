@@ -2,15 +2,14 @@
 
 A table that pairs each source with one target picked from a select, such as remote libraries to local libraries or remote users to local users. It uses the [Static Table](static-table.md) styling and stacks the two columns on a narrow screen.
 
-## When to Use
+## Decision
 
-* Use it to pair a fixed list of sources with a list of targets, one target per source.
-* Use it with `unique` when two sources must never share a target.
-
-## When Not to Use
-
-* Use a [Key Value Editor](key-value-editor.md) when the user types both sides or adds rows.
-* Use a [Static Table](static-table.md) for read only rows.
+| When | Use |
+| :--- | :--- |
+| Pairing a fixed list of sources with a list of targets, one target per source | Mapping Table |
+| Two sources that must never share a target | Mapping Table with `unique` |
+| Both sides typed by the user, or rows the user adds | [Key Value Editor](key-value-editor.md) |
+| Read only rows | [Static Table](static-table.md) |
 
 ## Usage
 
@@ -128,10 +127,6 @@ A table that pairs each source with one target picked from a select, such as rem
 | `base-mapping-table-grid.extended` | A table with extra columns: a toggle first, a cell per extra field, and a remove button last. A row switched off dims its source and target |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

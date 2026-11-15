@@ -2,13 +2,12 @@
 
 Checkboxes laid out in as many columns as fit.
 
-## When to Use
+## Decision
 
-* Use it for a longer set of independent options, such as artwork types.
-
-## When Not to Use
-
-* Use a [Toggle Group](toggle-group.md) for a short set.
+| When | Use |
+| :--- | :--- |
+| A longer set of independent options, such as artwork types | Check Grid |
+| A short set | [Toggle Group](toggle-group.md) |
 
 ## Usage
 
@@ -36,10 +35,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-check-grid` | Checkboxes laid out in as many columns as fit |
 
 <!-- reference:end -->
-
-## Used By
-
-Requests uses it.
 
 ## Example
 

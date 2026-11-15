@@ -2,13 +2,12 @@
 
 A scrolling mono output area with a toolbar. Lines are appended, colored by level, bounded to `maxLines`, and scrolled into view while Auto Scroll is on.
 
-## When to Use
+## Decision
 
-* Use it for a session log or the output of a run.
-
-## When Not to Use
-
-* Never use it for a long history. Use a [Paginated Table](paginated-table.md).
+| When | Use |
+| :--- | :--- |
+| A session log or the output of a run | Log Viewer |
+| A long history | [Paginated Table](paginated-table.md) |
 
 ## Usage
 
@@ -86,10 +85,6 @@ A scrolling mono output area with a toolbar. Lines are appended, colored by leve
 | `base-log-output` | Area of lines in the mono font, given its height and scrolling by createList |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

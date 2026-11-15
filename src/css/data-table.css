@@ -48,7 +48,7 @@
     min-height: var(--base-field-height);
     font-size: var(--base-font-small);
     text-transform: uppercase;
-    opacity: 0.75;
+    opacity: 0.7;
 }
 .base-data-heading.end,
 .base-data-cell.end { text-align: right; justify-self: stretch; }

@@ -47,6 +47,7 @@ export interface DataTableOptions<T = any> {
     rows?: T[] | null;
     fetch?(query: DataQuery): Promise<PagedResult<T> | T[]> | PagedResult<T> | T[];
     rowKey?: string | ((row: T) => unknown);
+    rowClass?(row: T, index: number): unknown;
     search?: { keys?: string[]; placeholder?: string; label?: string } | false;
     filters?: DataTableFilter[];
     filterValues?: Record<string, string[]>;
@@ -115,6 +116,7 @@ function alignClass(column: { align?: string }): string { return column.align ==
  *   rows         : local rows [optional]
  *   fetch        : function(query) returning a page { Items, TotalCount } or an array, for server data [optional]
  *   rowKey       : the field or function that names a row (default 'id')
+ *   rowClass     : function(row, index) returning class names for the row, such as 'selected' for a row picked elsewhere, set after every draw and refresh through the Filtered List's itemClass [optional]
  *   search       : { keys, placeholder, label } to show a search field, or false (default no search)
  *   filters      : array of { name, label, field, options: [{ value, label }] } shown as selects [optional]
  *   filterValues : the filter values that start picked, by name [optional]
@@ -260,6 +262,7 @@ export function createDataTable<T = any>(options: DataTableOptions<T>): DataTabl
     // The headings exist before the list draws, since its first draw marks the sorted column.
     var headings: Record<string, HTMLElement> = {};
     var base = createFilteredList<T>({
+        itemClass: opts.rowClass,
         render: renderRow,
         items: opts.rows || [],
         fetch: opts.fetch as any,

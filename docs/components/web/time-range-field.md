@@ -2,16 +2,15 @@
 
 Two time boxes, a start and an end, each with the time field's clock icon inside. It is built on the [Field Adornments](field-adornments.md) time box and checks through the validation core, with its message from the [Field Message](field-message.md).
 
-## When to Use
+## Decision
 
-* Use it for a window within a day, such as quiet hours or an access window.
-
-## When Not to Use
-
-* Never use it for a single time. Use a time input, which Base adorns.
-* Never use it for a range of days. Use the [Date Range Picker](date-range-picker.md).
-* Never use it for a length of time. Use the [Duration Field](duration-field.md).
-* Use an [Access Schedule](access-schedule.md) for several windows on chosen days.
+| When | Use |
+| :--- | :--- |
+| A window within a day, such as quiet hours or an access window | Time Range Field |
+| A single time | A time input, which Base adorns |
+| A range of days | [Date Range Picker](date-range-picker.md) |
+| A length of time | [Duration Field](duration-field.md) |
+| Several windows on chosen days | [Access Schedule](access-schedule.md) |
 
 ## Usage
 
@@ -95,10 +94,6 @@ Two time boxes, a start and an end, each with the time field's clock icon inside
 | `base-time-range` | A start and an end time side by side, each with the clock icon inside its box, and the range's message under them |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

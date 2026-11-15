@@ -2,14 +2,13 @@
 
 Rules of field, operator, and value under a choice of matching all of them or any one. It is a [Repeater](repeater.md) whose value control follows the chosen field: a text box, a select, a number box, or chips. A warning row under the rules says when they need attention.
 
-## When to Use
+## Decision
 
-* Use it for a filter the reader writes, such as which items a sync takes or which events send a notification.
-
-## When Not to Use
-
-* Use a [Filter Panel](filter-panel.md) for filters the reader picks from fixed choices.
-* Use a [Repeater](repeater.md) for rows of fields that do not depend on each other.
+| When | Use |
+| :--- | :--- |
+| A filter the reader writes, such as which items a sync takes or which events send a notification | Rule Builder |
+| Filters the reader picks from fixed choices | [Filter Panel](filter-panel.md) |
+| Rows of fields that do not depend on each other | [Repeater](repeater.md) |
 
 ## Usage
 
@@ -102,10 +101,6 @@ Rows of field, operator, and value, with a choice of matching all rules or any o
 | `base-rule-warning` | The warning under the rules, a Field Message in the warning state |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

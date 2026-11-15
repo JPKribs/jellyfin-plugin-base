@@ -2,14 +2,13 @@
 
 A free form tag field. The user types a tag and presses Enter or comma to add it, and a pasted list with commas is split into tags. The tags use the `base-tag-pill` style.
 
-## When to Use
+## Decision
 
-* Use it for short free form labels, such as group tags.
-
-## When Not to Use
-
-* Use a [Chip Select](chip-select.md) to pick from a known list.
-* Use a [String List](string-list.md) for longer values the reader reviews one per row.
+| When | Use |
+| :--- | :--- |
+| Short free form labels, such as group tags | Tag Input |
+| Picking from a known list | [Chip Select](chip-select.md) |
+| Longer values the reader reviews one per row | [String List](string-list.md) |
 
 ## Usage
 
@@ -75,10 +74,6 @@ A free form tag field. The user types a tag and presses Enter or comma to add it
 | `base-tag-input-box` | Field box that holds tag pills and a text input that grows to the free width |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

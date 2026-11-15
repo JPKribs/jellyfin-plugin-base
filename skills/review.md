@@ -56,10 +56,10 @@ Each item matches a rule in [style.md](style.md) or [code.md](code.md#the-compon
 * [ ] It takes one size from the scale. Placed beside a field, a button, or a row, it is the same height and shares its edges.
 * [ ] Icons sit on the first line of their text through `base-icon-text`, headings line up with their values, and numbers align right.
 * [ ] Nothing spills out of its frame, overlaps, or sits out of line. A narrow layout adapts by the component's own width before anything scrolls, and no text is shrunk to fit.
-* [ ] It was checked in the [gallery](testing.md#the-gallery) at desktop, about 1280px, tablet, 768px, and phone, 375px, and every component built on a changed core was checked too.
+* [ ] It was checked in the [gallery](testing.md#the-gallery) at desktop, about 1280px, tablet, 768px, and phone, 375px, and every component built on a changed core was checked too. The [layout audit](testing.md#the-layout-audit) returned an empty list at each width.
 * [ ] It has a gallery section, or its preview is framed in the gallery.
 * [ ] Every input validates through the [validation core](code.md#validation), with its message through the Field Message, and a form refuses to save while a field is invalid.
-* [ ] Colors are status names or hex codes through the color core, and keep their [meaning](style.md#meaning). Nothing relies on color alone.
+* [ ] Colors are status names or hex codes through the color core, and keep their [meaning](style.md#choosing-a-color). Nothing relies on color alone.
 * [ ] Every `color-mix()` has its plain fallback, and no rule an older engine needs uses `:has()`.
 * [ ] Every mark on screen carries information.
 * [ ] Focus, Escape, Enter, and Space behave, and every icon only control has a name.
@@ -79,7 +79,7 @@ Each item matches a rule in [style.md](style.md) or [code.md](code.md#the-compon
 * [ ] Every change has tests, per [testing.md](testing.md).
 * [ ] A bug fix has a test that fails without it.
 * [ ] A variation's tests cover what it adds, and a change to a core ran the tests of every component built on it.
-* [ ] `npm run bundle`, `node scripts/check-bundle.mjs`, `bash scripts/check-types.sh`, `node scripts/build-docs.mjs --check`, the JS tests, and `dotnet test` passed. CI runs all six, in that order.
+* [ ] `npm run bundle`, `node scripts/check-bundle.mjs`, `bash scripts/check-types.sh`, `node scripts/build-docs.mjs --check`, the JS tests, and `dotnet test` passed. `build.yaml` runs all six in that order, and `release.yaml` runs the same order. `docs.yaml` runs a different set. See [The CI Order](testing.md#the-ci-order).
 * [ ] A bundle change that was meant was written to the golden copy with `node scripts/check-bundle.mjs --update`, in the same change.
 
 ## Docs
@@ -89,7 +89,7 @@ Each item matches a rule in [style.md](style.md) or [code.md](code.md#the-compon
 * [ ] A C# page is usage only, with no member table and no signature list, and the index lists every public type.
 * [ ] `README.md` stays a short landing page and lists no component.
 * [ ] Every doc describes the current release only.
-* [ ] `bash scripts/bundle.sh`, `node scripts/build-previews.mjs`, and `mkdocs build --strict` pass when `docs/`, `mkdocs.yml`, or a preview changed.
+* [ ] `bash scripts/bundle.sh`, `node scripts/build-docs.mjs --check`, `node scripts/build-previews.mjs`, and `mkdocs build --strict` pass, in that order, when `docs/`, `mkdocs.yml`, or a preview changed.
 
 ## Reporting
 

@@ -2,13 +2,13 @@
 
 Picks an image file, shows it in a frame, and hands the caller the file data. It never uploads, so the caller sends the data where it belongs.
 
-## When to Use
+## Decision
 
-* Use it for one image the user chooses from their computer, such as a logo, a poster, or a backdrop.
-
-## When Not to Use
-
-* Use a [File Picker](file-picker.md) for files that are not images or for several files, and an [Avatar](avatar.md) to show a user's picture.
+| When | Use |
+| :--- | :--- |
+| One image the user chooses from their computer, such as a logo, a poster, or a backdrop | Image Picker |
+| Files that are not images, or several files | [File Picker](file-picker.md) |
+| Showing a user's picture | [Avatar](avatar.md) |
 
 ## Usage
 
@@ -91,10 +91,6 @@ Picks an image file, shows it in a frame, and hands the caller the file data. It
 | `base-image-picker-fallback` | The picture an empty picker shows in place of its placeholder: initials or an icon on a status color over the surface, filling the frame |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

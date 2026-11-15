@@ -2,15 +2,14 @@
 
 Small classes for visibility, fonts, and text color.
 
-## When to Use
+## Decision
 
-* Use `hidden` or the `[hidden]` attribute to show and hide a block. `shared.setVisible` toggles `hidden` for you.
-* Use `base-mono` for paths, ids, and addresses.
-* Use `base-sr-only` for the label of an icon only control.
-
-## When Not to Use
-
-* Never use `base-ok` and `base-bad` as the only signal. Pair the color with a word.
+| When | Use |
+| :--- | :--- |
+| Showing and hiding a block | `hidden` or the `[hidden]` attribute. `shared.setVisible` toggles `hidden` for you. |
+| Paths, ids, and addresses | `base-mono`. |
+| The label of an icon only control | `base-sr-only`. |
+| A state shown with `base-ok` or `base-bad` | The color paired with a word. Never the color as the only signal. |
 
 ## Usage
 
@@ -53,10 +52,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-float` | The surface every floating box shares, a menu, a filter panel, a help bubble, a tooltip, a dropdown, or a toast, over the page. anchorPopover adds it to the box it places |
 
 <!-- reference:end -->
-
-## Used By
-
-Remote Access uses `base-ok`. Remote Access and Requests use `base-bad`. Custom Pages, Requests, and YouTube Audio use `base-url`. No plugin uses `base-sr-only`, `base-icon-text`, `base-thumb`, or `base-float`.
 
 ## Example
 

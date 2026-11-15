@@ -2,15 +2,15 @@
 
 An editor for a list of strings. The user types a value and presses Add or Enter, and each row has a Remove button and, when reorder is on, up and down buttons.
 
-## When to Use
+## Decision
 
-* Use it for hosts, paths, or names the user lists one at a time.
-
-## When Not to Use
-
-* Use a [Tag Input](tag-input.md) for short free form tags, and a [Key Value Editor](key-value-editor.md) for pairs.
-* Use a [Repeater](repeater.md) when each entry has more than one field.
-* Use an [Ordered List](ordered-list.md) to reorder a set of items the reader does not type.
+| When | Use |
+| :--- | :--- |
+| Hosts, paths, or names the user lists one at a time | String List |
+| Short free form tags | [Tag Input](tag-input.md) |
+| Pairs | [Key Value Editor](key-value-editor.md) |
+| Entries with more than one field | [Repeater](repeater.md) |
+| Reordering a set of items the reader does not type | [Ordered List](ordered-list.md) |
 
 ## Usage
 
@@ -94,10 +94,6 @@ An editor for a list of strings. The user types a value and presses Add or Enter
 | `base-string-add` | Row holding the new value input and the add button |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

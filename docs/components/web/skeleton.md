@@ -2,13 +2,12 @@
 
 A placeholder for content that is loading, as lines of text, a block, or a circle. The wrapper is marked busy and carries a hidden status label.
 
-## When to Use
+## Decision
 
-* Use it where a list or card will appear, so the page does not jump.
-
-## When Not to Use
-
-* Use a [Spinner](spinner.md) for a short wait with no known shape.
+| When | Use |
+| :--- | :--- |
+| A place where a list or card will appear, so the page does not jump | Skeleton |
+| A short wait with no known shape | [Spinner](spinner.md) |
 
 ## Usage
 
@@ -67,10 +66,6 @@ A placeholder for content that is loading, as lines of text, a block, or a circl
 | `base-skeleton-block` | A block or a circle in three sizes |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

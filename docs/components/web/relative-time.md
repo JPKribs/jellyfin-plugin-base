@@ -2,15 +2,14 @@
 
 A live time, such as "3 minutes ago" or "in 2 hours", with the full date as its title. Every live time on a page runs on one shared clock, which ticks only when a text is due to change, more slowly as a value ages, and stops when none is left on the page.
 
-## When to Use
+## Decision
 
-* Use it for a last sync, a last seen, or a next run.
-* Use `countdown: true` for a wait that ends soon, such as a gathering window before a sync sends.
-* Use `renderRelative(key)` as a column's `render` in a [Data Table](data-table.md), or in a [Filtered List](filtered-list.md) row.
-
-## When Not to Use
-
-* Use a plain date when the exact moment matters more than how long ago it was.
+| When | Use |
+| :--- | :--- |
+| A last sync, a last seen, or a next run | Relative Time |
+| A wait that ends soon, such as a gathering window before a sync sends | `countdown: true` |
+| A column in a [Data Table](data-table.md), or a [Filtered List](filtered-list.md) row | `renderRelative(key)`, as the column's `render` or in the row |
+| A moment where the exact time matters more than how long ago it was | A plain date |
 
 ## Usage
 
@@ -97,10 +96,6 @@ A render function for a Data Table column or a Filtered List that draws a live r
 | `base-relative-time.countdown` | A countdown, a clock of the time left with an optional small ring that fills as the wait passes |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

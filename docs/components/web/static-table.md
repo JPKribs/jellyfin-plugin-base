@@ -2,13 +2,13 @@
 
 A plain bordered table for a few fixed rows, such as a list of settings or a summary.
 
-## When to Use
+## Decision
 
-* Use it for a short table with no paging, search, or selection.
-
-## When Not to Use
-
-* Use a [Data Table](data-table.md) for rows that sort or filter, and a [Paginated Table](paginated-table.md) for a list read from a paged endpoint.
+| When | Use |
+| :--- | :--- |
+| A short table with no paging, search, or selection | Static Table |
+| Rows that sort or filter | [Data Table](data-table.md) |
+| A list read from a paged endpoint | [Paginated Table](paginated-table.md) |
 
 ## Usage
 
@@ -46,10 +46,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-static-table` | Plain bordered table with a tinted header row and a rule between rows |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

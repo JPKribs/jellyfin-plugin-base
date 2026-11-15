@@ -2,14 +2,13 @@
 
 A read only list of label and value pairs. The label sits beside its value and stacks above it on a narrow screen. The columns layout sets each label over its value in balanced columns, with an optional route arrow between two items.
 
-## When to Use
+## Decision
 
-* Use it to show the details of one thing, such as a version and an id.
-* Use the columns layout for a few short facts side by side, such as a last sync and a library, or a From and To route.
-
-## When Not to Use
-
-* Use a [Record Card](record-card.md) when the rows need the card surface.
+| When | Use |
+| :--- | :--- |
+| The details of one thing, such as a version and an id | Definition List |
+| A few short facts side by side, such as a last sync and a library, or a From and To route | The columns layout |
+| Rows that need the card surface | [Record Card](record-card.md) |
 
 ## Usage
 
@@ -92,10 +91,6 @@ A read-only list of label and value pairs. The label sits beside its value and s
 | `base-defs.columns` | The columns layout, each small uppercase label over its value, in balanced columns on the wash |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

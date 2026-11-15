@@ -2,13 +2,12 @@
 
 A floating tooltip that shows when the pointer rests on, or keyboard focus reaches, any element under a root that has a `data-base-tip` attribute.
 
-## When to Use
+## Decision
 
-* Use it to explain an icon only control or a short label.
-
-## When Not to Use
-
-* Never put essential information only in a tooltip. Use a [Help Hint](help-hint.md) or a `fieldDescription` for a field.
+| When | Use |
+| :--- | :--- |
+| Explaining an icon only control or a short label | Tooltip. |
+| Essential information | A [Help Hint](help-hint.md), or a `fieldDescription` for a field. Never put it only in a tooltip. |
 
 ## Usage
 
@@ -69,10 +68,6 @@ Shows a floating tooltip when the pointer rests on, or keyboard focus reaches, a
 | `base-tooltip` | Floating tooltip bubble on the base-float surface that bindTooltips positions beside its target, above a dialog and a toast |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

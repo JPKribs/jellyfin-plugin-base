@@ -2,14 +2,13 @@
 
 A table of properties by columns of values, such as source, local, and after sync. A row whose values differ wears the accent wash, and each value that differs from the first column is bold. A Show Only Changes toggle hides the rows that match. Section rows group the rows under a heading, and note rows add a line of detail. It is a [Data Table](data-table.md) with no sort, search, or selection.
 
-## When to Use
+## Decision
 
-* Use it to show what a sync or an import would change before it runs.
-
-## When Not to Use
-
-* Use a [Definition List](definition-list.md) for the values of one thing.
-* Use a [Data Table](data-table.md) for rows the reader sorts, searches, or selects.
+| When | Use |
+| :--- | :--- |
+| Showing what a sync or an import would change before it runs | Compare Table |
+| The values of one thing | [Definition List](definition-list.md) |
+| Rows the reader sorts, searches, or selects | [Data Table](data-table.md) |
 
 ## Usage
 
@@ -104,10 +103,6 @@ A table of properties by columns of values, such as source, local, and after syn
 | `base-compare-note` | A note row, a dimmed line of detail across every column that wraps rather than cut off |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

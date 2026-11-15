@@ -27,7 +27,7 @@
     from { transform: translateY(100%); }
     to { transform: none; }
 }
-@media (max-width: 700px) {
+@media (max-width: 600px) {
     /* Below the compact width the drawer is a full screen sheet that slides up. */
     .base-dialog-content.base-drawer-content { animation-name: base-drawer-up; }
 }

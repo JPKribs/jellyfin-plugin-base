@@ -2,13 +2,13 @@
 
 A setup page as a checklist of numbered steps. Each step is a [Collapsible Section](collapsible-section.md) whose header badge shows its state, and a [Stepper](stepper.md) bar above them sums up the progress, such as "3 of 6 done".
 
-## When to Use
+## Decision
 
-* Use it for a setup that has several steps the reader finishes in any order and comes back to, such as opening a server to the internet.
-
-## When Not to Use
-
-* Use a [Stepper](stepper.md) for a flow that moves forward one stage at a time, and numbered [Collapsible Sections](collapsible-section.md) for a form in ordered parts with no state.
+| When | Use |
+| :--- | :--- |
+| A setup that has several steps the reader finishes in any order and comes back to, such as opening a server to the internet | Setup Checklist |
+| A flow that moves forward one stage at a time | [Stepper](stepper.md) |
+| A form in ordered parts with no state | Numbered [Collapsible Sections](collapsible-section.md) |
 
 ## Usage
 
@@ -91,10 +91,6 @@ A setup page as a checklist of numbered collapsible steps, each showing its stat
 | `base-setup-steps` | The numbered run of steps, counted from one in each checklist |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

@@ -2,13 +2,12 @@
 
 A row of numbered steps for a flow of several stages. Steps before the current one are completed and later ones are upcoming.
 
-## When to Use
+## Decision
 
-* Use it to show where the reader is in a setup flow.
-
-## When Not to Use
-
-* Use a numbered [Collapsible Section](collapsible-section.md) for a form split into ordered steps.
+| When | Use |
+| :--- | :--- |
+| Showing where the reader is in a setup flow | Stepper |
+| A form split into ordered steps | A numbered [Collapsible Section](collapsible-section.md) |
 
 ## Usage
 
@@ -85,10 +84,6 @@ A row of numbered steps for a flow of several stages. Steps before the current o
 | `base-stepper.segments` | A stepper drawn as a bar of one segment per step, in each step's color, for a summary of progress. Its labels are tooltips and hidden text |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today. Remote Access walks a setup flow with `data-step` in `remoteaccess_configuration.js`.
 
 ## Example
 

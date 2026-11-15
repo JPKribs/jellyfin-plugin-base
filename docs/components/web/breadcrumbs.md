@@ -2,13 +2,12 @@
 
 A trail of places that ends at the current one.
 
-## When to Use
+## Decision
 
-* Use it where a page drills into a record and the reader needs a way back.
-
-## When Not to Use
-
-* Never use it as a menu of unrelated pages.
+| When | Use |
+| :--- | :--- |
+| A page that drills into a record, where the reader needs a way back | Breadcrumbs |
+| A menu of unrelated pages | Not the Breadcrumbs |
 
 ## Usage
 
@@ -66,10 +65,6 @@ A trail of places ending at the current one. An item with an href is a link and 
 | `base-breadcrumb-current` | The current place, which is plain text |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

@@ -2,14 +2,14 @@
 
 Removable chips that wrap. The [Chip Select](chip-select.md), the [Tag Input](tag-input.md), and the [Placeholder Hint](placeholder-hint.md) draw them.
 
-## When to Use
+## Decision
 
-* Use it to show a set of short values, with or without a remove control.
-
-## When Not to Use
-
-* Use a [Tag Input](tag-input.md) when the user types new tags, and a [Chip Select](chip-select.md) when the user picks them from a list.
-* Use a [Badge](badge.md) for a status.
+| When | Use |
+| :--- | :--- |
+| A set of short values, with or without a remove control | Tags |
+| Tags the user types | [Tag Input](tag-input.md) |
+| Tags the user picks from a list | [Chip Select](chip-select.md) |
+| A status | [Badge](badge.md) |
 
 ## Usage
 
@@ -53,10 +53,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-tag.base-tag-pill` | Round tag filled with the blue token, with dark text and its x inset in a filled circle a little smaller than the tag |
 
 <!-- reference:end -->
-
-## Used By
-
-Artwork Generator, Live Channels, Requests, and Scripts use it.
 
 ## Example
 

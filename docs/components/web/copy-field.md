@@ -2,13 +2,12 @@
 
 A read only value with a copy button beside it that shows its result. A secret value is masked, and with `allowExpose` an eye inside the box shows and hides it.
 
-## When to Use
+## Decision
 
-* Use it for a link or a key the user copies, such as a webhook URL.
-
-## When Not to Use
-
-* Use a [Secret Field](secret-field.md) for a credential the user types.
+| When | Use |
+| :--- | :--- |
+| A link or a key the user copies, such as a webhook URL | Copy Field |
+| A credential the user types | [Secret Field](secret-field.md) |
 
 ## Usage
 
@@ -73,10 +72,6 @@ A read-only value with a copy button beside it that shows its result. A secret v
 | `base-copy-field` | Read-only value with a copy button beside it, and an optional eye inside a secret's box |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

@@ -2,13 +2,14 @@
 
 A search input with a search icon at its trailing end, which a clear button replaces while it has text. Escape clears it, and clearing returns focus to the input.
 
-## When to Use
+## Decision
 
-* Use it to filter a list the page holds in memory, or to feed a [Data Table](data-table.md)'s `setSearch` from a search that sits elsewhere on the page.
-
-## When Not to Use
-
-* Never add one to a [Paginated Table](paginated-table.md), which has its own search. A [Data Table](data-table.md) and a [Filtered List](filtered-list.md) draw one with their `search` option.
+| When | Use |
+| :--- | :--- |
+| Filtering a list the page holds in memory | Search Field. |
+| Feeding a [Data Table](data-table.md)'s `setSearch` from a search that sits elsewhere on the page | Search Field. |
+| A [Paginated Table](paginated-table.md) | Not the Search Field. It has its own search. |
+| A [Data Table](data-table.md) or a [Filtered List](filtered-list.md) | Its `search` option, which draws one. |
 
 ## Usage
 
@@ -66,10 +67,6 @@ A search input with a search icon at its trailing end, which a clear button repl
 | `base-search` | Search input with a search icon at its trailing end, which a clear button replaces while it has text |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

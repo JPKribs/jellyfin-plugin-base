@@ -2,15 +2,14 @@
 
 `setTabs(key, index, tabs)` sets the dashboard tab bar for a page. Each tab is a native registered config page, `{ href, name }`.
 
-## When to Use
+## Decision
 
-* Use it inside `viewshow` when a page cannot use `createConfigPage`.
-* Pass a function for `tabs` when the list changes at runtime, so the bar stays current.
-
-## When Not to Use
-
-* Never call it yourself on a page that passes `tabs` and `tabsKey` to `createConfigPage`. The lifecycle calls it for you.
-* Never use it for an in-page tab list. See [Sub Tabs](sub-tabs.md).
+| When | Use |
+| :--- | :--- |
+| A page that cannot use `createConfigPage` | `setTabs`, inside `viewshow`. |
+| A tab list that changes at runtime | A function for `tabs`, so the bar stays current. |
+| A page that passes `tabs` and `tabsKey` to `createConfigPage` | Nothing. The lifecycle calls `setTabs` for you, so never call it yourself. |
+| An in-page tab list | [Sub Tabs](sub-tabs.md). |
 
 ## Usage
 
@@ -37,10 +36,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 Wires the dashboard tab bar for a config page. Call it inside viewshow with the active tab index.
 
 <!-- reference:end -->
-
-## Used By
-
-Server Sync calls `LibraryMenu.setTabs` itself. The other plugins pass `tabs` to `createConfigPage`, which calls `setTabs`.
 
 ## Example
 

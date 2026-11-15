@@ -2,15 +2,16 @@
 
 A typeahead picker. The user types to search, then clicks a result or presses Enter to add it as a removable chip. It runs over a static list or an async search, and can keep a single value.
 
-## When to Use
+## Decision
 
-* Use it to pick several values from a list too long for checkboxes, such as genres or languages.
-* Use `single: true` with `searchFn` for an async picker that stores an opaque id and keeps a friendly label.
-
-## When Not to Use
-
-* Use a [Checkbox List](checkbox-list.md) when every option should stay visible, and a [Combo Box](combo-box.md) for one free text value.
-* Use a [Tag Input](tag-input.md) for free form tags with no list, and a [Media Picker](media-picker.md) to pick library items.
+| When | Use |
+| :--- | :--- |
+| Picking several values from a list too long for checkboxes, such as genres or languages | Chip Select |
+| An async picker that stores an opaque id and keeps a friendly label | `single: true` with `searchFn` |
+| A list where every option should stay visible | [Checkbox List](checkbox-list.md) |
+| One free text value | [Combo Box](combo-box.md) |
+| Free form tags with no list | [Tag Input](tag-input.md) |
+| Picking library items | [Media Picker](media-picker.md) |
 
 ## Usage
 
@@ -101,10 +102,6 @@ A typeahead multi-select where typing searches and picking a result adds a remov
 | `base-tag-thumb` | A round picture at the start of a chip, from the thumb core, as tall as the chip's text and inset from its edge, for the chip select and the tag input |
 
 <!-- reference:end -->
-
-## Used By
-
-Remote Access, Requests, and Scripts use it.
 
 ## Example
 

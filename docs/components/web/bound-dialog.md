@@ -2,13 +2,12 @@
 
 The same dialog behavior for a `base-dialog` already written in the page markup, whose body is static markup the page fills in.
 
-## When to Use
+## Decision
 
-* Use it for a detail dialog the page fills in before it opens.
-
-## When Not to Use
-
-* Use [Dialog](dialog.md) when the content is built in code.
+| When | Use |
+| :--- | :--- |
+| A detail dialog the page fills in before it opens | Bound Dialog |
+| Content built in code | [Dialog](dialog.md) |
 
 ## Usage
 
@@ -74,10 +73,6 @@ Gives a base-dialog already in the page markup the behavior openDialog builds, s
 | `destroy` | <code>(): void</code> |
 
 <!-- reference:end -->
-
-## Used By
-
-Artwork Generator, Live Channels, Server Sync, and User Management use it.
 
 ## Example
 

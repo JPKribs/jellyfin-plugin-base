@@ -80,6 +80,7 @@ grep -hE '^\s*public\s+(static |sealed |abstract |readonly |partial )*(class|rec
 A web page has a **Usage** section, a generated **Reference**, and a live **Example**.
 
 * `scripts/build-docs.mjs` writes each page's Reference between the `reference:start` and `reference:end` markers, from the code: every export and its signature, every option with its type and the description from the function's TSDoc, every handle member, every other type, and every CSS class and modifier with its header line. Never edit inside the markers. Edit the code and run the script.
+* `scripts/build-docs.mjs` reads the export list from `dist/jpkribs_shared.meta.json`, which the bundle writes. Without it the script fails with "Run scripts/bundle.sh first", so bundle before you run it.
 * `node scripts/build-docs.mjs --check` runs in the build, docs, and release workflows. It fails when a Reference is out of date, or when a component file has no page, a page has no preview, or a page is missing from the nav or the index.
 * Every file in `src/js/*.ts` and `src/css/*.css` is a component, except `index`, `types`, `globals`, and `animations`, and the cores in `src/js/lib/`. A component's page is `docs/components/web/<name>.md` and its preview is `docs/previews/<name>.html`, both named after its source file.
 * A variation's page says what it is built on and links to that page, and documents only what it adds. The base's page holds the shared behavior.
@@ -88,12 +89,13 @@ A web page has a **Usage** section, a generated **Reference**, and a live **Exam
 Every web page has the same sections, in this order.
 
 1. A title and one or two sentences on what the component is.
-2. **When to Use** and **When Not to Use**, with a link to the component to use instead.
+2. **Decision**, a table with two columns, When and Use. The situations this component is for come first, and their Use names the component or the exact option. The situations it is not for follow, and their Use links the component to use instead.
 3. **Usage**, the minimal markup or call, and the classes.
 4. **States and Modifiers** and **Gotchas**, only for what the example does not show.
 5. **Reference**, generated, so leave it to the script.
-6. **Used By**, the plugins that use it today, found by searching their pages.
-7. **Example**, the live frame, and **Example Code**, the preview source.
+6. **Example**, the live frame, and **Example Code**, the preview source.
+
+A page describes only what this repository controls, as it is today. It never names the plugins that use a component, or how one plugin uses it, since that changes outside this repository and would go stale.
 
 `docs/components/web/index.md` lists every page by group, with one row per page, and `mkdocs.yml` lists each page in the nav under **Web**, in the same group, such as **Page Lifecycle and Helpers** or **Layout and Sections**.
 
@@ -117,7 +119,7 @@ A web page embeds a live example, the real bundle running in an isolated page, s
 | Frame script | `docs/assets/preview.js` | Sizes each frame from the height the preview posts, and sends it the docs color scheme. |
 | Frame style | `docs/assets/preview.css` | Styles `iframe.base-preview`. |
 
-`mkdocs.yml` lists the script and the style under `extra_javascript` and `extra_css`, and it excludes `previews/` from the site, so only the built pages ship. The `pymdownx.snippets` extension reads the snippets from `docs/previews/` for the **Example Code** blocks.
+`mkdocs.yml` lists the script and the style under `extra_javascript` and `extra_css`, and it excludes `previews/` from the site, so only the built pages ship. The `pymdownx.snippets` extension reads the snippets from `docs/previews/` for the **Example Code** blocks. It runs with `check_paths: true`, so an include of a snippet that does not exist fails the build.
 
 ### Embed a Preview
 
@@ -244,8 +246,9 @@ It follows the shape of the plugin READMEs.
 1. The icon at the top left, then one paragraph on what Base is and that its source and assets compile into each plugin.
 2. **Documentation.** One sentence on what the site covers and a link to it.
 3. **Package.** The `PackageReference` line.
+4. **License.** One line that links `LICENSE`, the Zero-Clause BSD license, and says what it allows.
 
-Use `##` for README headings. Keep the README under 30 lines. Never list a component, a usage snippet, or release steps there. Usage lives in `docs/Usage.md` and releasing in `docs/Releasing.md`.
+Use `##` for README headings, so the README has exactly these three, **Documentation**, **Package**, and **License**. Keep the README under 30 lines. Never list a component, a usage snippet, or release steps there. Usage lives in `docs/Usage.md` and releasing in `docs/Releasing.md`.
 
 ## Building the Docs
 
@@ -279,7 +282,7 @@ Rerun `node scripts/build-previews.mjs` after a change to a snippet, the shell, 
 | Manual | From the Actions tab, with **Run workflow** |
 
 * A change to `README.md`, `skills/`, or `starthere.md` does not publish the site. A change to `src/` does, since the previews run the bundle.
-* The workflow keeps one deploy at a time, in the `pages` group, and a newer run cancels an older one.
+* The workflow keeps one deploy at a time, in the `pages` group. It sets `cancel-in-progress: false`, so a newer run waits for the running one to finish instead of canceling it.
 * The strict build is the same check you ran locally, so a docs change that passes locally passes there.
 * Pushing to the publishing branch publishes the site, so it is a [stop and ask](../starthere.md#stop-and-ask) item, as is any change to the workflow.
 

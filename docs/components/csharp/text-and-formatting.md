@@ -25,6 +25,21 @@ Use `SanitizeForLog` for every value that came from a client, a peer, or a remot
 * A surrogate pair that would cross the limit is left out whole, so the kept text can be one character shorter than `maxLength`.
 * A negative `maxLength` throws when the text is not empty.
 
+## UtcTime
+
+One rule for times a plugin stores or compares. A time with no zone is UTC, a local time is converted, and a stored time is UTC round trip text ending in Z.
+
+```csharp
+row.UpdatedAt = UtcTime.Format(DateTime.UtcNow);
+if (UtcTime.TryParse(row.UpdatedAt, out var updated) && updated < cutoff) { }
+```
+
+**Gotchas**
+
+* Stored text ending in Z sorts in time order as text, so a database can compare and order it without parsing.
+* `AsUtc` reads a time with no zone as UTC, never as the server's local time.
+* `TryParse` reads text with a Z, with no zone, or with an offset, and always returns a UTC time. Text that is not a time gives `false` and `DateTime.MinValue`, and `Parse` throws `FormatException`.
+
 ## StringUtilities
 
 Escapes untrusted text for generated JavaScript.

@@ -2,13 +2,13 @@
 
 A round picture of a person or thing. It shows the image, and shows Jellyfin's person icon on a gray circle when there is no image or the image fails to load. A status color adds a dot with a name.
 
-## When to Use
+## Decision
 
-* Use `createAvatar` in a row or table. Use `createUserChip` where a name and a line of text sit beside it.
-
-## When Not to Use
-
-* Never use it for a user list with checkboxes. See [User Multi Selector](user-multi-selector.md).
+| When | Use |
+| :--- | :--- |
+| A picture in a row or table | `createAvatar` |
+| A picture with a name and a line of text beside it | `createUserChip` |
+| A user list with checkboxes | [User Multi Selector](user-multi-selector.md) |
 
 ## Usage
 
@@ -84,10 +84,6 @@ A pill with an avatar, a name, and an optional second line, for showing who owns
 | `base-user-chip.two-line` | A chip with a second line, whose avatar grows to span both lines |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

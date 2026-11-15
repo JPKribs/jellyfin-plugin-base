@@ -2,13 +2,12 @@
 
 The record editor a config page builds. It has Remove (unless the record is new), Cancel, and Done, asks "Discard your changes?" when dismissed with edits, and tracks its own changes.
 
-## When to Use
+## Decision
 
-* Use it to add or edit one record, such as a server.
-
-## When Not to Use
-
-* Use a [Prompt Dialog](prompt-dialog.md) for a quick value.
+| When | Use |
+| :--- | :--- |
+| Adding or editing one record, such as a server | Editor Dialog |
+| A quick value | [Prompt Dialog](prompt-dialog.md) |
 
 ## Usage
 
@@ -72,10 +71,6 @@ Opens an editor dialog for one record with Remove, Cancel, and Done buttons, and
 | `markClean` | <code>(): void</code> |
 
 <!-- reference:end -->
-
-## Used By
-
-Requests uses it.
 
 ## Example
 

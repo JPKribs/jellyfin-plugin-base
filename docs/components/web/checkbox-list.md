@@ -2,15 +2,15 @@
 
 A searchable list of checkbox rows for picking many arbitrary items, such as series, libraries, or files. It is a [Filtered List](filtered-list.md) with multiple selection whose items are check rows, so its search, checkboxes, select all, and keyed redraw come from there. The [User Multi Selector](user-multi-selector.md) is a Checkbox List of the server's users.
 
-## When to Use
+## Decision
 
-* Use it to pick many items from a list the user may need to search.
-
-## When Not to Use
-
-* Use a [Chip Select](chip-select.md) for a very long list, and a [Check Grid](check-grid.md) for a short fixed set.
-* Use the [User Multi Selector](user-multi-selector.md) to pick the server's users.
-* Use a [Filtered List](filtered-list.md) when the selected items are acted on, with bulk actions, rather than saved as a setting.
+| When | Use |
+| :--- | :--- |
+| Picking many items from a list the user may need to search | Checkbox List |
+| A very long list | [Chip Select](chip-select.md) |
+| A short fixed set | [Check Grid](check-grid.md) |
+| Picking the server's users | [User Multi Selector](user-multi-selector.md) |
+| Selected items that are acted on, with bulk actions, rather than saved as a setting | [Filtered List](filtered-list.md) |
 
 ## Usage
 
@@ -98,10 +98,6 @@ A searchable list of checkbox rows for picking many items, with an optional thum
 | `base-check-row-disabled` | Dimmed row that cannot be selected |
 
 <!-- reference:end -->
-
-## Used By
-
-Scripts uses it. Artwork Generator writes the `base-check-list`, `base-check-row`, and `base-check-label` markup by hand.
 
 ## Example
 

@@ -1,0 +1,43 @@
+<!-- title: Pie Chart -->
+<div id="mount" style="display: grid; gap: 24px;"></div>
+<script type="module">
+const base = await window.__baseReady;
+const mount = document.getElementById('mount');
+mount.appendChild(base.createPieChart({
+    label: 'Items by library',
+    slices: [
+        { label: 'Movies', value: 1240 },
+        { label: 'Shows', value: 860 },
+        { label: 'Music', value: 410 },
+        { label: 'Photos', value: 95 },
+        { label: 'Books', value: 0 }
+    ]
+}).element);
+const storage = [
+    { label: 'Movies', value: 820 },
+    { label: 'Shows', value: 1240 },
+    { label: 'Music', value: 96 },
+    { label: 'Photos', value: 44 }
+];
+const total = storage.reduce((sum, s) => sum + s.value, 0);
+mount.appendChild(base.createPieChart({
+    label: 'Storage by library',
+    donut: true,
+    unit: 'GB',
+    centerText: (total / 1000).toFixed(1) + ' TB',
+    centerLabel: 'Total',
+    slices: storage
+}).element);
+mount.appendChild(base.createPieChart({
+    label: 'Streams by client',
+    donut: true,
+    size: 'small',
+    format: (v) => v + (v === 1 ? ' stream' : ' streams'),
+    slices: [
+        { label: 'Android TV', value: 12, color: '#3ddc84' },
+        { label: 'Web', value: 7, color: '#00a4dc' },
+        { label: 'Roku', value: 4, color: '#6c3c97' },
+        { label: 'Swiftfin', value: 2, color: '#f2994a' }
+    ]
+}).element);
+</script>

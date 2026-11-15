@@ -2,13 +2,12 @@
 
 A compact label over control field, and a row that places several side by side.
 
-## When to Use
+## Decision
 
-* Use them for dense lines of several fields, such as host and port.
-
-## When Not to Use
-
-* Use the plain field containers on [Form Fields](form-fields.md) for one field per row.
+| When | Use |
+| :--- | :--- |
+| Dense lines of several fields, such as host and port | Field and Field Row |
+| One field per row | The plain field containers on [Form Fields](form-fields.md) |
 
 ## Usage
 
@@ -47,10 +46,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-field-row` | A row that places fields side by side and wraps on narrow widths |
 
 <!-- reference:end -->
-
-## Used By
-
-Artwork Generator, Custom Pages, Requests, Server Sync, and YouTube Audio use it.
 
 ## Example
 

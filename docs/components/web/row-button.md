@@ -2,13 +2,12 @@
 
 A low emphasis icon button for table and list rows.
 
-## When to Use
+## Decision
 
-* Use it for the edit, save, and copy actions in a row.
-
-## When Not to Use
-
-* Use a [Button](button.md) for an action with a label.
+| When | Use |
+| :--- | :--- |
+| The edit, save, and copy actions in a row | Row Button |
+| An action with a label | [Button](button.md) |
 
 ## Usage
 
@@ -46,10 +45,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-row-arrows` | Up and down row buttons side by side at the end of a row |
 
 <!-- reference:end -->
-
-## Used By
-
-Live Channels, Requests, Scripts, Server Sync, and YouTube Audio use it.
 
 ## Example
 

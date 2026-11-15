@@ -61,8 +61,10 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 | `PathContainment` | Whether a folder is, or is inside, one of some folders. | [Files and Paths](files-and-paths.md#pathcontainment) |
 | `PluginBase` | The plugin base class with locked configuration and shared pages. | [Plugin and Tasks](plugin-and-tasks.md#pluginbase) |
 | `PluginScheduledTask` | A scheduled task base with defaults and trigger helpers. | [Plugin and Tasks](plugin-and-tasks.md#pluginscheduledtask) |
+| `ProgressReportingStream` | A write through stream that reports a download's progress in whole percent steps. | [Streams and Throttling](streams-and-throttling.md#progressreportingstream) |
 | `PublicPage` | Hardening headers and the favicon for standalone pages. | [Pages and Templates](pages-and-templates.md#publicpage) |
 | `RateUtilities` | Converts Mbps and older units to bytes per second. | [Streams and Throttling](streams-and-throttling.md#rateutilities) |
+| `RedirectRefusingHandler` | A handler that refuses a redirect and names the address it pointed to. | [HTTP and Resilience](http-and-resilience.md#redirectrefusinghandler) |
 | `RetryPolicy` | Exponential backoff retry for transient exceptions. | [HTTP and Resilience](http-and-resilience.md#retrypolicy) |
 | `SchemaAction` | What opening a database did or what the caller must do next. | [Data and Storage](data-and-storage.md#schemaaction) |
 | `SecretCompare` | Constant time secret comparison and random tokens. | [Security and Secrets](security-and-secrets.md#secretcompare) |
@@ -80,6 +82,7 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 | `TemplateLoader` | Loads and fills embedded HTML templates. | [Pages and Templates](pages-and-templates.md#templateloader) |
 | `ThrottledReadStream` | A read through stream held to the rate of a `SpeedBucket`. | [Streams and Throttling](streams-and-throttling.md#throttledreadstream) |
 | `UrlUtilities` | Reads text as an absolute http or https URL. | [Security and Secrets](security-and-secrets.md#urlutilities) |
+| `UtcTime` | Formats and parses stored times as UTC. | [Text and Formatting](text-and-formatting.md#utctime) |
 
 ## Pages
 

@@ -6,11 +6,19 @@ A typical download wires four of these together. `RateUtilities` turns a setting
 
 ## StreamUtilities
 
-Copies a stream, optionally at a capped speed. `CopyThrottledAsync` is the preferred copy, since several copies can share one `SpeedBucket` and a rate that changes is followed. `CopyWithSpeedLimitAsync` limits one copy on its own.
+Copies a stream, optionally at a capped speed, and optionally under an idle timeout. `CopyThrottledAsync` is the preferred copy, since several copies can share one `SpeedBucket` and a rate that changes is followed. `CopyWithSpeedLimitAsync` limits one copy on its own. `CopyWithIdleTimeoutAsync` fails a copy whose source stops sending, and runs any other copy under that watch.
 
 ```csharp
 await StreamUtilities.CopyThrottledAsync(from, to, SharedBucket, () => currentBytesPerSecond, cancellationToken: token).ConfigureAwait(false);
 await StreamUtilities.CopyWithSpeedLimitAsync(from, to, speed, token).ConfigureAwait(false);
+
+// A download that shares the speed limit and fails if the server goes quiet for two minutes.
+await StreamUtilities.CopyWithIdleTimeoutAsync(
+    body,
+    file,
+    StreamUtilities.DefaultIdleTimeout,
+    (from, to, ct) => StreamUtilities.CopyThrottledAsync(from, to, SharedBucket, () => currentBytesPerSecond, cancellationToken: ct),
+    token).ConfigureAwait(false);
 ```
 
 **Gotchas**
@@ -19,6 +27,9 @@ await StreamUtilities.CopyWithSpeedLimitAsync(from, to, speed, token).ConfigureA
 * `CopyThrottledAsync` reads the `rate` function at the start and again after `recheck`, 30 seconds by default. A value above zero is set on the bucket, and zero or less lifts the limit until the next check.
 * The bucket decides the burst. A bucket made with no burst holds the copy to its rate from the first block.
 * `CopyWithSpeedLimitAsync` does not null-check its arguments, and `CopyThrottledAsync` does. Neither flushes or disposes a stream.
+* An `HttpClient` timeout ends once the response headers arrive, so a body that stalls part way hangs a plain copy forever. `CopyWithIdleTimeoutAsync` starts its timer with the copy and again after every read that returns bytes, so it measures silence, not total time.
+* A stall fails with an `IOException` whose message starts "The copy stalled.", which `RetryPolicy` treats as transient. A cancel through the caller's token stays an `OperationCanceledException` and is never reported as a stall.
+* An idle timeout of zero or less throws `ArgumentOutOfRangeException`. `DefaultIdleTimeout` is two minutes.
 
 ## SpeedBucket
 
@@ -71,6 +82,23 @@ await body.CopyToAsync(file, token).ConfigureAwait(false);
 * Exactly the limit is accepted. A limit below zero throws.
 * It does not own the inner stream and never disposes it. It cannot seek, write, or report a length.
 * A copy that fails has already written the bytes before the limit, so write to a temp file, as `AtomicFile.WriteAsync` does.
+
+## ProgressReportingStream
+
+A write through stream that reports the share of the expected bytes written, from 0 to 1, in whole percent steps. Wrap the file a long download writes to, so one transfer moves a task's progress bar.
+
+```csharp
+await using var counted = new ProgressReportingStream(file, expectedBytes, progress, alreadyWritten: resumeOffset);
+await StreamUtilities.CopyWithIdleTimeoutAsync(body, counted, StreamUtilities.DefaultIdleTimeout, cancellationToken: token).ConfigureAwait(false);
+```
+
+**Gotchas**
+
+* It reports at most once per whole percent, so a large copy sends about a hundred reports, not one per buffer.
+* The share never passes 1, since the expected size can be out of date.
+* `alreadyWritten` starts the count at the bytes already on disk, for a resumed download.
+* An expected size of zero or less, or a negative `alreadyWritten`, throws `ArgumentOutOfRangeException`.
+* It does not own the inner stream and never disposes it. It cannot read or seek.
 
 ## StreamLimits
 

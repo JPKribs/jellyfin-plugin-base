@@ -2,13 +2,13 @@
 
 A line chart drawn as inline SVG on the shared chart core, the same core as the [Bar Chart](bar-chart.md). Each series is a line through one point per label, and a missing value breaks the line.
 
-## When to Use
+## Decision
 
-* Use it for a value over time, such as streams by hour or response time by day.
-
-## When Not to Use
-
-* Use a [Bar Chart](bar-chart.md) to compare a few separate amounts, and a [Sparkline](sparkline.md) for a small shape with no axes.
+| When | Use |
+| :--- | :--- |
+| A value over time, such as streams by hour or response time by day | Line Chart |
+| Comparing a few separate amounts | [Bar Chart](bar-chart.md) |
+| A small shape with no axes | [Sparkline](sparkline.md) |
 
 ## Usage
 
@@ -65,10 +65,6 @@ A line chart on the shared chart core, drawn as inline SVG at its own width. Eac
 | `base-line-chart.quiet` | A quiet line chart, whose dots show only under the pointer |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

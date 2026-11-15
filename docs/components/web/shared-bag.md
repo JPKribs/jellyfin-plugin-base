@@ -2,13 +2,12 @@
 
 `createShared(view, pluginId, apiPrefix)` returns the per view helper bag. Create it once per page and reuse it. `createConfigPage` builds it. Helpers that take an id look the element up inside `view`.
 
-## When to Use
+## Decision
 
-* Use it for ids, values, config calls, formatting, and the few components that live on the bag.
-
-## When Not to Use
-
-* Never create a second bag for the same view. One per page is enough.
+| When | Use |
+| :--- | :--- |
+| Ids, values, config calls, formatting, and the few components that live on the bag | Shared Bag |
+| A second bag for the same view | The one Shared Bag the page already has |
 
 ## Usage
 
@@ -62,10 +61,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 Builds the per view helper bag that a config page uses. Create it once on viewshow and reuse it.
 
 <!-- reference:end -->
-
-## Used By
-
-Every plugin that uses `createConfigPage` gets one, and Requests and Server Sync call `createShared` directly. Scripts also calls `saveConfigWith`, and Custom Pages, Server Sync, and YouTube Audio call `formatSize`.
 
 ## Example
 

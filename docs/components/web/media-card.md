@@ -4,14 +4,14 @@
 
 The action buttons, such as a remove X, are pinned to the card's top right corner, inset by its padding, and the text leaves room for them. A row card narrower than its wide layout turns `compact` from its own width: a smaller artwork slot centered on the row, the title on up to two lines, one second line that ends in an ellipsis, one chip row of the badges and the status with its detail, and an error line only when there is one. A dot between parts of a line is drawn before the part that follows, so a part that wraps never leaves one behind.
 
-## When to Use
+## Decision
 
-* Use it for any list or grid of library items, such as a sync queue, a history, or picked titles.
-* Use `mediaShape(itemType)` to give each item the artwork shape Jellyfin uses for it.
-
-## When Not to Use
-
-* Use a [Record Card](record-card.md) for label and value rows with no artwork, and a [Media Picker](media-picker.md) to search the library and pick items.
+| When | Use |
+| :--- | :--- |
+| Any list or grid of library items, such as a sync queue, a history, or picked titles | Media Card |
+| Giving each item the artwork shape Jellyfin uses for it | `mediaShape(itemType)` |
+| Label and value rows with no artwork | [Record Card](record-card.md) |
+| Searching the library and picking items | [Media Picker](media-picker.md) |
 
 ## Usage
 
@@ -158,10 +158,6 @@ One media item with its artwork, as a list row with the artwork at the start or 
 | `base-media-card-chips` | A compact card's one chip row: the badges and the status, then the status's detail, which ends in an ellipsis to keep the row on one line, then the size |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

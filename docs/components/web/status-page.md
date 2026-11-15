@@ -2,13 +2,12 @@
 
 A standalone, themed card page that the C# `StatusPage.Render` renders. It has a logo, a heading, a message, an optional spinner, an optional button, and an optional raw content slot. It needs none of the dashboard assets and is not part of the CSS and JS bundle.
 
-## When to Use
+## Decision
 
-* Use it for served pages such as a sign in prompt or a loading page.
-
-## When Not to Use
-
-* Never use it inside a config page. It is a whole HTML page.
+| When | Use |
+| :--- | :--- |
+| Served pages such as a sign in prompt or a loading page | Status Page. |
+| Anything inside a config page | Not the Status Page. It is a whole HTML page. |
 
 ## Usage
 
@@ -41,10 +40,6 @@ Classes, all defined in the template's own `<style>` block: `base-status-card`, 
 
 * It links a relative `favicon.ico` (serve one with `PublicPage.Favicon`) and the logo `../web/favicons/touchicon.png`.
 * `CssCollisionTests` fails if any template class is also defined in the kit CSS, other than `hidden`, so the card is never restyled when both load on one page.
-
-## Used By
-
-Custom Pages, User Management, and YouTube Audio use it.
 
 ## Example
 

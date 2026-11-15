@@ -2,13 +2,12 @@
 
 An in page tab list with tab panels. A panel is built the first time its tab opens.
 
-## When to Use
+## Decision
 
-* Use it to split one page into sections the reader switches between.
-
-## When Not to Use
-
-* Never use it for the dashboard tab bar. That is `setTabs`. See [Tabs](tabs.md).
+| When | Use |
+| :--- | :--- |
+| Splitting one page into sections the reader switches between | Sub Tabs |
+| The dashboard tab bar | `setTabs`, on [Tabs](tabs.md) |
 
 ## Usage
 
@@ -71,10 +70,6 @@ An in-page tab list with tab panels. Left and Right move between tabs, Home and 
 | `base-subtab-panel` | Panel under the tabs, which takes focus without a ring unless a keyboard user lands on it |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today. Remote Access builds its own tab strip in `remoteaccess_tabs.js`.
 
 ## Example
 

@@ -112,7 +112,7 @@
     background-color: transparent !important;
     color: inherit !important;
     box-shadow: inset 0 0 0 1px var(--base-border);
-    opacity: 0.6;
+    opacity: 0.7;
 }
 .base-button[aria-pressed="false"]:hover {
     background-color: var(--base-wash) !important;

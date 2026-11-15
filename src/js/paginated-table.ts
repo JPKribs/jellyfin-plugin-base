@@ -73,6 +73,7 @@ export interface TableOptions<T = any> {
     columns: TableColumn<T>[];
     getDisplayStatus?(item: T, value: any): string;
     getStatusClass?(item: T, value: any): unknown;
+    rowClass?(item: T, index: number): unknown;
     selection?: TableSelection<T>;
     pagination?: TablePagination;
     filters?: TableFilters | TableFilters[] | null;
@@ -120,6 +121,7 @@ type TableConfig<T> = Omit<TableOptions<T>, 'pagination' | 'search' | 'emptyStat
  * @param options {
  *   containerId   : id of the element the table renders into [required]
  *   endpoint      : path that takes skip, take, search, and filter parameters [required]
+ *   rowClass      : function(item, index) returning class names for the row, such as 'selected' for a row picked elsewhere, set after every draw and refresh through the Filtered List's itemClass [optional]
  *   columns       : [{ key, type: 'status' | 'custom', render(item, value), label, className, hidden, image(item), imageShape }], where label is written on each cell as data-label, and image(item) returns the thumbnail drawn before the cell in imageShape, as an address or a function that returns an address, a Blob, or a promise of one, loaded lazily and freed when its row goes, 'portrait' (default), 'wide', 'square', or 'round' [required]
  *   getDisplayStatus : function(item, value) returning the text of a status column [optional]
  *   getStatusClass   : function(item, value) returning the state class of a status column [optional]
@@ -268,6 +270,7 @@ export function createPaginatedTable<T = any>(view: ParentNode, shared: Shared, 
     }
 
     var base = createFilteredList<T>({
+        itemClass: opts.rowClass,
         render: renderRow,
         fetch: fetchPage,
         rowKey: idOfItem,

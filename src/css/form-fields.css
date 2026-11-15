@@ -262,7 +262,9 @@
     padding: 0 var(--base-field-pad);
 }
 
-/* Every single line field at one height, medium unless the field or something around it is small or large */
+/* Every single line field at one height, medium unless the field or something around it is small or large.
+   The height is fixed, so the field has no padding above or below its text. Jellyfin's select style adds some, which would
+   leave less room than the text needs and clip letters such as y and g. */
 /* Example: <input is="emby-input" type="text" class="small"> */
 .pluginConfigurationPage input[type="text"],
 .base-dialog input[type="text"],
@@ -284,6 +286,8 @@
 .base-dialog select {
     height: var(--base-field-height) !important;
     min-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
     line-height: normal !important;
 }
 

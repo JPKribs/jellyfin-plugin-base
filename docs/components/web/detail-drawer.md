@@ -2,13 +2,13 @@
 
 A panel that slides in from the right edge to show the details of one item, with a header, a body that scrolls, and optional footer buttons. It is a [Dialog](dialog.md) on the same panel and the same modal behavior, docked to the edge.
 
-## When to Use
+## Decision
 
-* Use it to open a row of a [Filtered List](filtered-list.md) or a [Data Table](data-table.md) and show everything about it.
-
-## When Not to Use
-
-* Use an [Editor Dialog](editor-dialog.md) to edit a record with change tracking, and a [Dialog](dialog.md) for a short task.
+| When | Use |
+| :--- | :--- |
+| Opening a row of a [Filtered List](filtered-list.md) or a [Data Table](data-table.md) to show everything about it | Detail Drawer |
+| Editing a record with change tracking | [Editor Dialog](editor-dialog.md) |
+| A short task | [Dialog](dialog.md) |
 
 ## Usage
 
@@ -34,7 +34,7 @@ var table = createDataTable({ columns: columns, rows: rows, onOpen: show });
 * The header shows `title`, an optional `subtitle` under it, and an optional `badge` beside it, `{ label, color }`, where `color` is a status color name, a hex code, or a [Badge](badge.md) state name. The close button sits in the top right corner, inset by the panel's padding, as in every dialog.
 * The body scrolls on its own between the header and the footer. `body` is HTML or a node.
 * `buttons` is the footer, a dialog button row pinned to the bottom, as [Dialog](dialog.md) takes them. A destructive button sits apart on the left.
-* `size` takes its width from the dialog scale: `small` is 40% of the window, `medium` 60% (the default), and `large` 80%. Below 700px the drawer is a full screen sheet that slides up.
+* `size` takes its width from the dialog scale: `small` is 40% of the window, `medium` 60% (the default), and `large` 80%. Below 600px the drawer is a full screen sheet that slides up.
 * `setContent({ title, subtitle, badge, body, buttons })` swaps what it shows without closing it. A footer button that swaps the content, such as Next, keeps focus on the same button in the new footer.
 * `detailDrawerOpener(render, options)` returns a function for `onOpen`. The first item opens a drawer, and each later item swaps its content in while it is open.
 * Escape, the backdrop, and the close button close it, asking `beforeClose` first. Focus moves in, stays inside, and returns to the row that opened it, and the page behind does not scroll.
@@ -94,10 +94,6 @@ Returns a function that shows an item in a detail drawer, for a Filtered List's 
 | `base-drawer-content` | The drawer body, which scrolls on its own between the header and the footer, edge to edge so its scroll bar sits at the panel edge |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

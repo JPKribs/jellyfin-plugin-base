@@ -2,13 +2,12 @@
 
 A horizontal rule with an optional label in the middle, with `role="separator"`.
 
-## When to Use
+## Decision
 
-* Use it to split two alternatives, such as "Or", or two parts of a form.
-
-## When Not to Use
-
-* Use a [Subsection Title](subsection-title.md) to name a group of fields.
+| When | Use |
+| :--- | :--- |
+| Splitting two alternatives, such as "Or", or two parts of a form | Divider |
+| Naming a group of fields | [Subsection Title](subsection-title.md) |
 
 ## Usage
 
@@ -51,10 +50,6 @@ A horizontal rule with an optional label in the middle, with role separator.
 | `base-divider` | Horizontal rule with an optional centered label |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

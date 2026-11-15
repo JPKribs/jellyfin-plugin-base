@@ -2,13 +2,12 @@
 
 A Save button with a status line above it. The line says the page has unsaved changes, that it is saving, that the changes saved, or that the save failed, each with its state's icon and color. It is built on the [Status Text](status-text.md) line every message uses.
 
-## When to Use
+## Decision
 
-* Use it at the bottom of any form that saves with a button.
-
-## When Not to Use
-
-* Never use it for a field that saves on change.
+| When | Use |
+| :--- | :--- |
+| The bottom of any form that saves with a button | Save Bar. |
+| A field that saves on change | Nothing. The field saves itself. |
 
 ## Usage
 
@@ -84,10 +83,6 @@ A Save button with a status line above it, built on the status line every messag
 | `base-save-bar` | A Save button with its status line above it, the line in the state's color with its icon centered on the first line |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

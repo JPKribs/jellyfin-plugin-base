@@ -52,7 +52,6 @@ extra_javascript:
 # The preview sources are built into assets/previews by scripts/build-previews.mjs, so the sources stay out of the site.
 exclude_docs: |
   .*
-  /templates/
   /previews/
 
 nav:
@@ -175,6 +174,7 @@ nav:
           - Data Display:
               - Bar Chart: components/web/bar-chart.md
               - Line Chart: components/web/line-chart.md
+              - Pie Chart: components/web/pie-chart.md
               - Sparkline: components/web/sparkline.md
               - Usage Meter: components/web/usage-meter.md
               - Relative Time: components/web/relative-time.md

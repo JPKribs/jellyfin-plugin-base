@@ -2,14 +2,13 @@
 
 A light ordered list of rows with an up and a down button on each. `render` may return `{ primary, secondary }`, so every row's secondary text starts at the same place.
 
-## When to Use
+## Decision
 
-* Use it for a short list the user ranks, with no editor and no drag.
-
-## When Not to Use
-
-* Use a [Sortable Card List](sortable-card-list.md) when each record opens an editor.
-* Use a [String List](string-list.md) when the reader also adds, edits, and removes plain text values.
+| When | Use |
+| :--- | :--- |
+| A short list the user ranks, with no editor and no drag | Ordered List |
+| Records that each open an editor | [Sortable Card List](sortable-card-list.md) |
+| Plain text values the reader also adds, edits, and removes | [String List](string-list.md) |
 
 ## Usage
 
@@ -83,10 +82,6 @@ A light ordered list of rows, each with an up and a down button. The caller draw
 | `base-ordered-main` | Content of a row that takes the free width and clips |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

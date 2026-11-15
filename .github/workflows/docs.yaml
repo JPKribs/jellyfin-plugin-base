@@ -12,6 +12,7 @@ on:
       - 'docs/**'
       - 'mkdocs.yml'
       - 'scripts/build-previews.*'
+      - 'scripts/build-docs.*'
       - 'scripts/bundle.sh'
       - 'package.json'
       - 'package-lock.json'

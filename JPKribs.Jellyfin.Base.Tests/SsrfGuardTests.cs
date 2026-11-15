@@ -1127,4 +1127,115 @@ public class SsrfGuardTests
         Assert.NotNull(SsrfGuard.PrivateNetworkAllowed.ValidateUrl(url));
         Assert.NotNull(SsrfGuard.PublicOnly.ValidateUrl(url));
     }
+
+    /// <summary>
+    /// With <see cref="SsrfGuard.RequireHttpsForPublic"/>, a plain http URL written as an address passes only for a loopback or private address,
+    /// and an https URL is judged as before.
+    /// True: a key sent over plain http stays on the local network.
+    /// False: a key would travel unencrypted to a public server.
+    /// </summary>
+    [Theory]
+    [InlineData("http://192.168.1.10:8096/", true)]
+    [InlineData("http://127.0.0.1/", true)]
+    [InlineData("http://[fd00::1]/", true)]
+    [InlineData("http://93.184.216.34/", false)]
+    [InlineData("https://93.184.216.34/", true)]
+    public void ValidateUrl_RequireHttpsForPublic_PlainHttpOnlyToPrivate(string url, bool allowed)
+    {
+        var guard = new SsrfGuard(allowPrivateNetwork: true, requireHttpsForPublic: true);
+
+        var refusal = guard.ValidateUrl(url);
+
+        Assert.Equal(allowed, refusal is null);
+        if (!allowed)
+        {
+            Assert.Contains(SsrfGuard.PlainHttpRefusal, refusal, StringComparison.Ordinal);
+        }
+    }
+
+    /// <summary>
+    /// With private networks refused as well, every plain http URL is refused, since it could only reach a public address.
+    /// True: a public only caller that sends a key is held to https.
+    /// False: plain http to a public name would pass the URL check.
+    /// </summary>
+    [Fact]
+    public void ValidateUrl_RequireHttpsWithoutPrivate_RefusesAllPlainHttp()
+    {
+        var guard = new SsrfGuard(allowPrivateNetwork: false, requireHttpsForPublic: true);
+
+        Assert.Equal(SsrfGuard.PlainHttpRefusal, guard.ValidateUrl("http://media.example/"));
+        Assert.Null(guard.ValidateUrl("https://media.example/"));
+    }
+
+    /// <summary>
+    /// A plain http name is resolved, and one public address among private ones refuses it.
+    /// True: a name cannot hide a public server behind plain http.
+    /// False: a name that resolves to a public address would carry the key unencrypted.
+    /// </summary>
+    [Fact]
+    public async Task ValidateUrlAsync_RequireHttpsForPublic_ChecksEveryResolvedAddress()
+    {
+        var mixed = new[] { IPAddress.Parse("192.168.1.10"), IPAddress.Parse("93.184.216.34") };
+        var local = new[] { IPAddress.Parse("192.168.1.10") };
+
+        var refused = await new SsrfGuard(true, (_, _) => Task.FromResult(mixed), requireHttpsForPublic: true).ValidateUrlAsync("http://media.test/");
+        var allowed = await new SsrfGuard(true, (_, _) => Task.FromResult(local), requireHttpsForPublic: true).ValidateUrlAsync("http://media.test/");
+        var secure = await new SsrfGuard(true, (_, _) => Task.FromResult(mixed), requireHttpsForPublic: true).ValidateUrlAsync("https://media.test/");
+
+        Assert.NotNull(refused);
+        Assert.Contains("93.184.216.34", refused, StringComparison.Ordinal);
+        Assert.Contains(SsrfGuard.PlainHttpRefusal, refused, StringComparison.Ordinal);
+        Assert.Null(allowed);
+        Assert.Null(secure);
+    }
+
+    /// <summary>
+    /// The connect time check holds plain http to private addresses too, so a name that changes its answer after the check is still refused.
+    /// True: a rebind to a public address cannot carry the key unencrypted.
+    /// False: only the first lookup would be held to the rule.
+    /// </summary>
+    [Fact]
+    public async Task ConnectAsync_RequireHttpsForPublic_RefusesPlainHttpToAPublicAddress()
+    {
+        var guard = new SsrfGuard(true, (_, _) => Task.FromResult(Public), requireHttpsForPublic: true);
+        using var client = new HttpClient(guard.CreateHandler());
+
+        var failure = await Assert.ThrowsAsync<HttpRequestException>(() => client.GetAsync(new Uri("http://media.test/")));
+
+        Assert.StartsWith(SsrfGuard.RefusalPrefix, failure.Message, StringComparison.Ordinal);
+        Assert.Contains(SsrfGuard.PlainHttpRefusal, failure.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// A redirect from https down to a plain http public address is refused, and by default the rule is off.
+    /// True: the rule covers redirects as well, and every existing guard behaves as before.
+    /// False: a redirect could step around the rule, or every plugin would change behavior on upgrade.
+    /// </summary>
+    [Fact]
+    public void RequireHttpsForPublic_CoversRedirectsAndIsOffByDefault()
+    {
+        var guard = new SsrfGuard(allowPrivateNetwork: true, requireHttpsForPublic: true);
+
+        Assert.False(guard.IsRedirectAllowed(new Uri("http://93.184.216.34/a"), new Uri("http://93.184.216.34/b")));
+        Assert.False(SsrfGuard.PrivateNetworkAllowed.RequireHttpsForPublic);
+        Assert.False(new SsrfGuard(true).RequireHttpsForPublic);
+        Assert.Null(SsrfGuard.PrivateNetworkAllowed.ValidateUrl("http://93.184.216.34/"));
+    }
+
+    /// <summary>
+    /// <see cref="SsrfGuard.IsPrivateOrLoopback"/> is true for loopback and private addresses only.
+    /// True: the plain http rule allows exactly the local network.
+    /// False: a public or link local address would count as local.
+    /// </summary>
+    [Theory]
+    [InlineData("127.0.0.1", true)]
+    [InlineData("10.1.2.3", true)]
+    [InlineData("100.64.0.1", true)]
+    [InlineData("::1", true)]
+    [InlineData("93.184.216.34", false)]
+    [InlineData("169.254.169.254", false)]
+    public void IsPrivateOrLoopback_OnlyTheLocalNetwork(string address, bool expected)
+    {
+        Assert.Equal(expected, SsrfGuard.IsPrivateOrLoopback(IPAddress.Parse(address)));
+    }
 }

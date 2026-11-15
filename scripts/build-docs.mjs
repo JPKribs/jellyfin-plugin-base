@@ -227,7 +227,7 @@ function reference(name, decls, runtime) {
 }
 
 // place
-// Puts a Reference into a page, between its markers, or before Used By on a page that has none yet.
+// Puts a Reference into a page, between its markers, or before its Example on a page that has none yet.
 // Param: page | the page text
 // Param: body | the Reference markdown
 // Returns: the new page text
@@ -237,8 +237,7 @@ function place(page, body) {
     var e = page.indexOf(END);
     if (s !== -1 && e !== -1) return page.slice(0, s) + block + page.slice(e + END.length);
     var section = '## Reference\n\nGenerated from the code by `scripts/build-docs.mjs`. Edit the code, not this section.\n\n' + block + '\n\n';
-    var at = page.indexOf('\n## Used By');
-    if (at === -1) at = page.indexOf('\n## Example');
+    var at = page.indexOf('\n## Example');
     if (at === -1) return page.replace(/\s*$/, '\n\n') + section.trim() + '\n';
     return page.slice(0, at + 1) + section + page.slice(at + 1);
 }

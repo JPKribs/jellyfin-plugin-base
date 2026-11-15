@@ -2,13 +2,12 @@
 
 A small, muted, uppercase heading that groups fields inside a section or form.
 
-## When to Use
+## Decision
 
-* Use it to split a long form into groups of fields.
-
-## When Not to Use
-
-* Use a [Section Title](section-title.md) for a major area of the page.
+| When | Use |
+| :--- | :--- |
+| Splitting a long form into groups of fields | Subsection Title |
+| A major area of the page | [Section Title](section-title.md) |
 
 ## Usage
 
@@ -38,10 +37,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-subsection-title` | Small muted uppercase header for a subsection grouped inside a section or form |
 
 <!-- reference:end -->
-
-## Used By
-
-Live Channels, Requests, Scripts, and Server Sync use it.
 
 ## Example
 

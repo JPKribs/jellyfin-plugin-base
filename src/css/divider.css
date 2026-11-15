@@ -6,7 +6,7 @@
     gap: var(--base-gap-wide);
     margin: var(--base-gap-wide) 0;
     font-size: 0.85em;
-    opacity: 0.8;
+    opacity: 0.7;
 }
 .base-divider::before,
 .base-divider::after {

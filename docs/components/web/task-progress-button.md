@@ -2,13 +2,12 @@
 
 `shared.pollTaskProgress(btn, taskKey, label, onComplete)` turns a button into a live progress display for a Jellyfin scheduled task.
 
-## When to Use
+## Decision
 
-* Use it on a button that starts a scheduled task and then waits for it.
-
-## When Not to Use
-
-* Never use it for a task the plugin runs itself. Use a [Poller](poller.md) and a [Progress Bar](progress-bar.md).
+| When | Use |
+| :--- | :--- |
+| A button that starts a scheduled task and then waits for it | Task Progress Button |
+| A task the plugin runs itself | A [Poller](poller.md) and a [Progress Bar](progress-bar.md) |
 
 ## Usage
 
@@ -50,10 +49,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-button.small` | A small button never draws the bar, since it is too short, and shows a pie beside it instead |
 
 <!-- reference:end -->
-
-## Used By
-
-Server Sync uses it.
 
 ## Example
 

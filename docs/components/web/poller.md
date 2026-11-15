@@ -2,14 +2,13 @@
 
 `shared.createPoller(fn, intervalMs, opts)` builds a self-guarding interval. It never overlaps a slow async `fn`, and a thrown error never stops the loop.
 
-## When to Use
+## Decision
 
-* Use it to refresh a status line, a queue, or a progress readout while the page is open.
-
-## When Not to Use
-
-* Never use `setInterval` on a config page. It keeps running after the page hides.
-* Never use it to watch a scheduled task. See [Task Progress Button](task-progress-button.md).
+| When | Use |
+| :--- | :--- |
+| Refreshing a status line, a queue, or a progress readout while the page is open | Poller. |
+| A repeating timer on a config page | Poller, never `setInterval`. An interval keeps running after the page hides. |
+| Watching a scheduled task | [Task Progress Button](task-progress-button.md). |
 
 ## Usage
 
@@ -29,10 +28,6 @@ Use `page.createPoller` so `stop` is registered for `viewhide`. Call `poller.sto
 ## Gotchas
 
 * Errors are swallowed, so a failing endpoint fails silently. Report the failure inside `fn`.
-
-## Used By
-
-Live Channels, Remote Access, Requests, and YouTube Audio use it. No plugin passes `pauseWhenHidden`.
 
 ## Example
 

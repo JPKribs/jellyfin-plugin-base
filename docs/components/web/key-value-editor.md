@@ -2,15 +2,14 @@
 
 Rows of a key input and a value input with Add and Remove, for headers, tags, and mappings. It is a [Repeater](repeater.md) of two text fields, so its rows, Add, Remove, limits, and validation come from there. Each row validates its key and value.
 
-## When to Use
+## Decision
 
-* Use it for webhook headers, variables, and path mappings.
-
-## When Not to Use
-
-* Use a [String List](string-list.md) when there is no value.
-* Use a [Repeater](repeater.md) when a row has more than two fields, or a field that is not text.
-* Use a [Mapping Table](mapping-table.md) when the keys are a fixed list and each value comes from a select.
+| When | Use |
+| :--- | :--- |
+| Webhook headers, variables, and path mappings | Key Value Editor |
+| Entries with no value | [String List](string-list.md) |
+| Rows with more than two fields, or a field that is not text | [Repeater](repeater.md) |
+| Keys from a fixed list, with each value from a select | [Mapping Table](mapping-table.md) |
 
 ## Usage
 
@@ -97,10 +96,6 @@ Rows of a key input and a value input with Add and Remove, for headers, tags, an
 | `base-kv-rows` | Rows of a key cell, a value cell, and a remove button, the repeater's rows, which stack while the editor is narrow |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

@@ -2,13 +2,13 @@
 
 Inline editing blocks. A bordered bulk edit toolbar sits above a table, and table rows expand into stacked lines of fields.
 
-## When to Use
+## Decision
 
-* Use the bar to edit several selected rows at once, and the edit row to edit one row in place.
-
-## When Not to Use
-
-* Use an [Editor Dialog](editor-dialog.md) for a record with many fields.
+| When | Use |
+| :--- | :--- |
+| Editing several selected rows at once | Bulk Edit Bar |
+| Editing one row in place | Edit Row |
+| A record with many fields | [Editor Dialog](editor-dialog.md) |
 
 ## Usage
 
@@ -56,10 +56,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-edit-secondary` | Muted, non-wrapping secondary text within an editor line, such as a file size |
 
 <!-- reference:end -->
-
-## Used By
-
-Requests, Server Sync, and YouTube Audio use it.
 
 ## Example
 

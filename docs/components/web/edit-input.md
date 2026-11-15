@@ -2,13 +2,12 @@
 
 A compact input on the surface color, at the field height. The [Combo Box](combo-box.md), the [Chip Select](chip-select.md), and the text boxes of the [Confirm Dialog](confirm-dialog.md) and the [Prompt Dialog](prompt-dialog.md) build with it.
 
-## When to Use
+## Decision
 
-* Use it for an input that sits inside a component or a table row.
-
-## When Not to Use
-
-* Use the field containers on [Form Fields](form-fields.md) for a labeled field on a page.
+| When | Use |
+| :--- | :--- |
+| An input that sits inside a component or a table row | Edit Input |
+| A labeled field on a page | The field containers on [Form Fields](form-fields.md) |
 
 ## Usage
 
@@ -33,10 +32,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-edit-input` | Input on the same surface and at the same height as the page fields, for inline and combo use outside a form |
 
 <!-- reference:end -->
-
-## Used By
-
-User Management and YouTube Audio use it.
 
 ## Example
 

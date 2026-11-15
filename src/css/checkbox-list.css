@@ -46,7 +46,7 @@
 /* Example: <span class="base-check-sub">detail</span> */
 .base-check-sub {
     font-size: var(--base-font-small);
-    opacity: 0.6;
+    opacity: 0.7;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

@@ -2,13 +2,12 @@
 
 A callout with a Dismiss button. It remembers a dismissal only when the caller gives a key and a storage object, so Base never touches browser storage on its own.
 
-## When to Use
+## Decision
 
-* Use it for a notice the user may close, such as a tip.
-
-## When Not to Use
-
-* Use a [Callout](callout.md) for a notice that stays.
+| When | Use |
+| :--- | :--- |
+| A notice the user may close, such as a tip | Banner |
+| A notice that stays | [Callout](callout.md) |
 
 ## Usage
 
@@ -74,10 +73,6 @@ A callout with a Dismiss button. It remembers a dismissal only when the caller g
 | `BannerValue` | What a banner's getValue returns, and the kind, title, and text its setValue takes. |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

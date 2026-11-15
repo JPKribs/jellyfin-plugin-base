@@ -43,7 +43,7 @@
 /* Bold asset name that clips with an ellipsis */
 /* Example: <div class="base-asset-name">logo.png</div> */
 .base-asset-name {
-    font-weight: 700;
+    font-weight: 600;
     font-size: 0.95rem;
     white-space: nowrap;
     overflow: hidden;

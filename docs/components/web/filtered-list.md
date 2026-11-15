@@ -2,15 +2,15 @@
 
 A [List](list.md) with a search, filters, a sort, a summary line, selection, and actions. It is the base the [Data Table](data-table.md), the [Paginated Table](paginated-table.md), and the [Checkbox List](checkbox-list.md) are built on: the List owns the frame, the height, the scrolling, and the empty and loading states, and the Filtered List adds the controls, the data view, and the selection core, so every variation inherits each feature below.
 
-## When to Use
+## Decision
 
-* Use it for items a reader narrows down, such as a sync queue of media cards or a list of synced content.
-
-## When Not to Use
-
-* Use a plain [List](list.md) when there is nothing to search, filter, sort, or select.
-* Use a [Data Table](data-table.md) when the items are rows with columns that sort, or a [Paginated Table](paginated-table.md) for rows a server pages through with Previous and Next.
-* Use a [Checkbox List](checkbox-list.md) when the items are choices the reader checks, such as libraries or users.
+| When | Use |
+| :--- | :--- |
+| Items a reader narrows down, such as a sync queue of media cards or a list of synced content | Filtered List |
+| Items with nothing to search, filter, sort, or select | A plain [List](list.md) |
+| Rows with columns that sort | [Data Table](data-table.md) |
+| Rows a server pages through with Previous and Next | [Paginated Table](paginated-table.md) |
+| Choices the reader checks, such as libraries or users | [Checkbox List](checkbox-list.md) |
 
 ## Usage
 
@@ -82,6 +82,7 @@ setInterval(function () { load().then(function (rows) { queue.setItems(rows); })
 * The empty sentence is "Nothing matches." unless `emptyText` replaces it.
 * With `fetch`, `immediate: false` waits for the first `query` or `reload`, and `loadOnScroll: false` stops the end of the list from loading the next page.
 * `onSearch(text)` runs before a typed search and returns `false` to run it another way. `onChange(state)` runs after the items shown change.
+* `itemClass(item, index)` gives class names for an item's row, such as `selected` for an item picked somewhere else. It runs after every draw and every refresh, and a reused row drops the names it was given before. The names are cleaned, so text from data cannot leave the class attribute. With `selectable` on, the selection owns `selected`, so give a picked row another name.
 
 ## Reference
 
@@ -98,6 +99,7 @@ The List with a search, filters, a sort, a summary line, selection, and actions.
 | Option | Type | What it does |
 | :--- | :--- | :--- |
 | `render` (required) | <code>(item: T, index: number, check?: HTMLInputElement &#124; null): ListContent</code> | function(item, index, check) drawing one item, such as a media card, where check is the item's checkbox with multiple selection, placed by render or else at the item's start [required] |
+| `itemClass` | <code>(item: T, index: number): unknown</code> | function(item, index) returning class names for the item's row, such as 'selected' for an item picked elsewhere. It runs after every draw and refresh, and replaces the names it gave before [optional] |
 | `items` | <code>T[] &#124; null</code> | local items [optional] |
 | `fetch` | <code>(query: DataQuery): Promise&lt;PagedResult&lt;T&gt; &#124; T[]&gt; &#124; PagedResult&lt;T&gt; &#124; T[]</code> | function(query) returning a page { Items, TotalCount } or an array, for server data [optional] |
 | `rowKey` | <code>string &#124; ((item: T) =&gt; unknown); search?: { keys?: string[]</code> | the field or function that names an item, so a refresh keeps what did not change (default 'id' while selectable) |
@@ -151,10 +153,6 @@ The List with a search, filters, a sort, a summary line, selection, and actions.
 | `base-filtered-summary` | The line under the controls that says how many items show out of how many |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

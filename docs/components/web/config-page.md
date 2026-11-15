@@ -2,14 +2,13 @@
 
 `createConfigPage` wires what every config page repeats. It builds the shared bag, sets the dashboard tabs, runs `bind` once, runs `load` on every `viewshow`, and tears everything down on `viewhide`.
 
-## When to Use
+## Decision
 
-* Use it from the default export of every page controller.
-* Use `addCleanup`, `createPoller`, and `guardUnsaved` on the handle it returns, so a page never leaks a timer or loses an edit.
-
-## When Not to Use
-
-* Skip it only when a page needs its own `viewshow` and `viewhide` handling. Server Sync writes its own handlers and calls `LibraryMenu.setTabs` directly.
+| When | Use |
+| :--- | :--- |
+| The default export of every page controller | `createConfigPage`. |
+| Keeping a page from leaking a timer or losing an edit | `addCleanup`, `createPoller`, and `guardUnsaved` on the handle `createConfigPage` returns. |
+| A page that needs its own `viewshow` and `viewhide` handling | Its own handlers, with a direct call to `LibraryMenu.setTabs`. This is the only case to skip `createConfigPage`. |
 
 ## Usage
 
@@ -73,10 +72,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 Wires the config page lifecycle by building the shared bag, setting the tabs, running bind once, and running load on every viewshow. On viewhide it runs the registered cleanups and onHide.
 
 <!-- reference:end -->
-
-## Used By
-
-Artwork Generator, Custom Pages, Live Channels, Remote Access, Requests, Scripts, User Management, and YouTube Audio use it. Server Sync writes its own handlers.
 
 ## Example
 

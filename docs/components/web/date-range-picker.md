@@ -2,15 +2,14 @@
 
 Two date boxes, from and to, each with the date field's calendar icon inside, under a row of preset pills: Today, Last 7 Days, Last 30 Days, and Custom. The pills are [Pill Group](pill-group.md) pills on the pressed group core, the boxes come from the [Field Adornments](field-adornments.md), and the range checks through the validation core.
 
-## When to Use
+## Decision
 
-* Use it to pick a range of days, such as for a report or a history.
-* The [Filtered List](filtered-list.md) uses it for a filter of kind `daterange`.
-
-## When Not to Use
-
-* Never use it for one day. Use a date input, which Base adorns.
-* Never use it for times within a day. Use the [Time Range Field](time-range-field.md).
+| When | Use |
+| :--- | :--- |
+| Picking a range of days, such as for a report or a history | Date Range Picker. |
+| A [Filtered List](filtered-list.md) filter of kind `daterange` | Date Range Picker. The Filtered List uses it for this filter. |
+| One day | A date input, which Base adorns. |
+| Times within a day | [Time Range Field](time-range-field.md). |
 
 ## Usage
 
@@ -100,10 +99,6 @@ Two date boxes, from and to, each with the date field's calendar icon inside, un
 | `base-date-range` | Preset pills over a from and a to date box, each with the calendar icon inside, and the range's message under them |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

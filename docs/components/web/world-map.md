@@ -2,14 +2,13 @@
 
 A world map that shades each country by its counts, such as people by country, or failed and blocked sign-ins by country. A toggle button per layer sits above the map and is clearly on or off. A country can be selected, so a table beside it can follow.
 
-## When to Use
+## Decision
 
-* Use it for any count by country, with one layer per kind of count, up to six.
-* Pair it with a table of the same rows. A country picked on the map filters the table, and a row picked in the table highlights its country.
-
-## When Not to Use
-
-* Never use it for exact numbers alone. Put them in a table beside it.
+| When | Use |
+| :--- | :--- |
+| Any count by country, with one layer per kind of count, up to six | World Map. |
+| The rows the map shows | A table of the same rows, paired with the map. A country picked on the map filters the table, and a row picked in the table highlights its country. |
+| Exact numbers | A table beside the map. Never the numbers on the map alone. |
 
 ## Usage
 
@@ -108,10 +107,6 @@ Joins a world map to a table both ways, so a selection on either one is the sele
 | `base-world-frame` | The map itself, which scales to its width, with uncounted countries in a faint wash |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

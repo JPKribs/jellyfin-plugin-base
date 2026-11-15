@@ -37,4 +37,4 @@
 
 /* The field while it inherits, dimmed and disabled with the inherited value in it */
 /* Example: <div class="base-inherit inheriting"><div class="base-inherit-field"><input type="number" disabled></div></div> */
-.base-inherit.inheriting > .base-inherit-field { opacity: 0.6; }
+.base-inherit.inheriting > .base-inherit-field { opacity: 0.5; }

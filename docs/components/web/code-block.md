@@ -2,13 +2,12 @@
 
 A monospace code editor textarea, or a read only block for a preview.
 
-## When to Use
+## Decision
 
-* Use the textarea for JSON, templates, and scripts the user edits.
-
-## When Not to Use
-
-* Never use it for a short value. Use [Copy Field](copy-field.md) or the mono class from [Utility Classes](utility-classes.md).
+| When | Use |
+| :--- | :--- |
+| JSON, templates, and scripts the user edits | The Code Block textarea |
+| A short value | [Copy Field](copy-field.md) or the mono class from [Utility Classes](utility-classes.md) |
 
 ## Usage
 
@@ -39,10 +38,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-code.base-code-invalid` | Code field or block with a red border for content that is not valid |
 
 <!-- reference:end -->
-
-## Used By
-
-Custom Pages, Live Channels, Requests, and Scripts use it.
 
 ## Example
 

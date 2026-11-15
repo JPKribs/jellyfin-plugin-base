@@ -2,13 +2,12 @@
 
 A narrow dialog that asks a yes or no question and resolves to a boolean.
 
-## When to Use
+## Decision
 
-* Use it before an action that removes or overwrites data.
-
-## When Not to Use
-
-* Use an [Editor Dialog](editor-dialog.md) when the user must also edit values.
+| When | Use |
+| :--- | :--- |
+| Before an action that removes or overwrites data | Confirm Dialog |
+| A user who must also edit values | [Editor Dialog](editor-dialog.md) |
 
 ## Usage
 
@@ -66,10 +65,6 @@ Opens a yes or no dialog that resolves to true when confirmed and false otherwis
 | `mismatchText` | <code>string</code> | the error under the field when Enter is pressed before it matches (default 'The text does not match.') |
 
 <!-- reference:end -->
-
-## Used By
-
-Custom Pages, Live Channels, Remote Access, Requests, Scripts, Server Sync, User Management, and YouTube Audio use it.
 
 ## Example
 

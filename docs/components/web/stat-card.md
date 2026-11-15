@@ -2,14 +2,13 @@
 
 A status card with a number or a short text status, a label, and an optional trend and detail lines. The trend is a number with an arrow, green when the change is good, red when it is bad, and dimmed at zero.
 
-## When to Use
+## Decision
 
-* Use it for a headline number that changes over time.
-* Use it with `layout: 'label-top'` for a text status, such as the last delivery to a server, with a line or two of detail under it.
-
-## When Not to Use
-
-* Use [Count Cards](count-cards.md) for a plain row of counts.
+| When | Use |
+| :--- | :--- |
+| A headline number that changes over time | Stat Card |
+| A text status, such as the last delivery to a server, with a line or two of detail under it | `layout: 'label-top'` |
+| A plain row of counts | [Count Cards](count-cards.md) |
 
 ## Usage
 
@@ -82,10 +81,6 @@ A status card with a number or a short text status, a label, and an optional tre
 | `base-stat.label-top` | Stat card laid out label first, a small label over a text status and its details, aligned to the start |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

@@ -2,13 +2,12 @@
 
 Wraps any field with an Inherit state. While it inherits, the field shows the inherited value, dimmed and disabled, and the toggle reads "Inherit (value)". Override turns the field back on with its own value. The toggle is two pills on the pressed group core, or a checkbox.
 
-## When to Use
+## Decision
 
-* Use it for a setting that falls back to a parent's value unless the reader overrides it, such as a per library value over a global one.
-
-## When Not to Use
-
-* Never use it for a setting with no parent value. Use the field alone.
+| When | Use |
+| :--- | :--- |
+| A setting that falls back to a parent's value unless the reader overrides it, such as a per library value over a global one | Inherit Field |
+| A setting with no parent value | The field alone |
 
 ## Usage
 
@@ -78,10 +77,6 @@ Wraps any field with an Inherit state. While it inherits, the field shows the in
 | `base-inherit.inheriting` | The field while it inherits, dimmed and disabled with the inherited value in it |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

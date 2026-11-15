@@ -47,6 +47,16 @@ Every rule below is a rule, not a suggestion. Where a rule names a token, the va
 
 Every control takes one size scale: small, medium, and large. The scale sets height, text size, padding, icon size, and line height together, through the `--base-size-*`, `--base-font-*`, `--base-pad-*`, `--base-icon-*`, and `--base-line-*` tokens. A field reads its medium values through `--base-field-height`, `--base-field-font`, and `--base-field-pad`.
 
+| Token | Small | Medium | Large |
+| :--- | :--- | :--- | :--- |
+| `--base-size-*`, the height of a control | 24px | 32px | 40px |
+| `--base-font-*`, its text | 12px | 14px | 16px |
+| `--base-pad-*`, its side padding | 8px | 12px | 16px |
+| `--base-icon-*`, an icon in it | 16px | 18px | 20px |
+| `--base-line-*`, a line of its text | 16px | 20px | 24px |
+
+The values live only in `design-tokens.css`. This table is for reading, and a rule never copies a number from it.
+
 * **Medium is the default and the reference.** A medium button, a text field, a select, a search box, a number box, a date box, a combo box, a color field, a boxed list row, and a table row are all the same height.
 * **A size is a modifier.** `base-button small`, `base-badge medium`, `base-tag large`. Buttons, pills, and fields default to medium. Badges and tags default to small.
 * **A field changes size with `small` or `large` on the field, or `data-base-size` on any ancestor.** Everything inside a sized component follows it.
@@ -58,6 +68,17 @@ Every control takes one size scale: small, medium, and large. The scale sets hei
 * **A glyph is sized to its text.** The remove mark on a tag, the icon in a button, and the dot in a pill scale with the size of the control they sit in.
 * **A glyph inside a shape is inset.** An icon in a circle or square leaves a clear margin of the shape's color on every side, and is centered in it.
 * **A picture grows with its text.** An avatar beside two lines of text spans both lines.
+* **A checkbox takes the scale too.** Small is the plain box and text most settings use. Medium is a size up. Large is a tile that fills its row. A small or medium checkbox in a row of fields stands a field tall with `field`, or sits in a field's frame with `boxed`.
+* **A larger picture is a multiple of the scale,** such as `calc(var(--base-size-large) * 6)` for a QR code, so it still lines up with the controls around it.
+
+## Type
+
+* **The page's font, always.** Base inherits Jellyfin's font family and never sets its own, except `--base-mono` for code, ids, paths, hex codes, and raw errors.
+* **Text sizes come from the scale.** A control's text is its size's `--base-font-*`. Secondary lines, hints, captions, and tile labels are `--base-font-small`. Nothing writes an `em` or pixel text size.
+* **Weight says rank, in two steps.** 600 marks a name or title the eye should land on, such as a row's title, a card's name, or a large checkbox's label. Everything else is the normal weight. A heading inside a component never goes heavier than 600.
+* **Small labels over values are uppercase.** A table heading, a definition list's column label, and a subsection title are `--base-font-small`, uppercase, and dimmed, so they read as labels and never as values.
+* **Numbers use even width digits** through `font-variant-numeric: tabular-nums`, so a column of numbers, a time, or a count does not jitter as it changes.
+* **Long text ends in an ellipsis** with the full text in its tooltip, or wraps at a word. It is never cut mid-letter and never shrunk.
 
 ## Spacing and Shape
 
@@ -123,44 +144,103 @@ A button is `base-button` on Jellyfin's raised button, with at most one variant 
 
 ## Color
 
-### Tokens
+Color carries meaning in Base, so it is never decoration. Every color a reader sees comes from one of three places, in this order: Jellyfin's theme, the tokens in `src/css/design-tokens.css`, and the color core in `src/js/lib/color.ts`. A component never writes a raw color for something those cover.
 
-Components take their colors from `src/css/design-tokens.css`. A component never writes a raw color for something a token covers.
+### Where Color Comes From
+
+1. **The theme.** Jellyfin's palette variables feed the three tokens that must follow the theme: `--jf-palette-primary-main` becomes `--base-accent`, `--jf-palette-background-paper` becomes `--base-surface`, and `--jf-palette-text-primary` becomes `--base-fg`. Each has a plain fallback for a page outside the dashboard.
+2. **The tokens.** Everything else is a token: the borders, washes, status colors, tints, the text on a fill, and the shadows. A token is the only place a color value is written.
+3. **The color core.** Any option that takes a color goes through the core, so every component accepts the same names and hex codes and draws them the same way.
+
+### Tokens
 
 | Token | Use |
 | :--- | :--- |
-| `--base-accent`, `--base-accent-hover`, `--base-accent-wash` | Links, focus rings, primary buttons, progress, selection. Follows the theme's primary color |
-| `--base-fg` | The theme's text color |
-| `--base-surface` | Panel and field backgrounds. Follows the theme's paper color |
-| `--base-border` | Every border and divider |
-| `--base-wash`, `--base-wash-strong` | Hover and subtle fills, as a share of the text color |
-| `--base-mono` | Code, ids, paths, hex codes, and raw errors |
-| `--base-success`, `--base-warning`, `--base-error`, `--base-error-hover` | Solid status colors |
-| `--base-on-accent`, `--base-on-warning` | Text on an accent or status fill, and on a light status fill |
-| `--base-<color>-bg`, `--base-<color>-fg` | Tinted background and text for each status color |
+| `--base-accent` | Interaction: links, focus rings, primary buttons, checked boxes, progress, the selection bar. Follows the theme's primary color |
+| `--base-accent-hover` | A primary button under the pointer. The accent darkened by 18% |
+| `--base-accent-wash` | A selected row or tile, and a large checkbox that is on. The accent at 12% |
+| `--base-fg` | The theme's text color, for a wash or border on an element that fades its own text |
+| `--base-surface` | Panels, cards, fields, popups, and every frame's background. Follows the theme's paper color |
+| `--base-border` | Every border and divider. The text color at 30% |
+| `--base-wash`, `--base-wash-strong` | Hover, and subtle fills such as a stripe or a track. The text color at 6% and 12% |
+| `--base-success`, `--base-warning`, `--base-error`, `--base-error-hover` | Solid status fills, such as a destructive button |
+| `--base-on-accent` | Text on the accent or a dark status fill. White in every theme |
+| `--base-on-warning` | Text on a light status fill, such as orange, yellow, green, gray, or blue, where white falls below 3 to 1 |
+| `--base-<color>-fg`, `--base-<color>-bg` | Each named color as text and marks, and as a tint at 20% behind them |
+| `--base-custom`, `--base-custom-on` | A hex color, set on the element by the color core, with the text color that reads on it |
+| `--base-shadow-float`, `--base-shadow-dialog` | The two shadows, black at an alpha |
+| `--base-mono` | Not a color, but kept with them: the font for code, ids, paths, hex codes, and raw errors |
 
-* Lines and washes are a share of the text color, so light themes get dark ones. There is no per theme rule.
-* A new color is a token first, then used.
+### The Named Colors
 
-### Meaning
+`COLOR_NAMES` holds the nine colors every colored component takes by name. Each has an `-fg` token for text and marks and a `-bg` token that tints the space behind them.
 
-A color means the same thing in every component and every plugin.
+| Name | Text and marks | Means |
+| :--- | :--- | :--- |
+| `green` | `#5cb85c` | Done and healthy |
+| `red` | `#d9534f` | Failed, off on purpose, or about to lose data |
+| `orange` | `#f0ad4e` | Waiting, or needs attention soon |
+| `purple` | `#9b59b6` | Working right now, or held |
+| `blue` | `#3498db` | Informational, or a role |
+| `gray` | `#999` | Ignored, skipped, unknown, or not applicable |
+| `yellow` | `#e0c84e` | No status meaning. A tint for categories |
+| `pink` | `#e85d9a` | No status meaning. A tint for categories |
+| `teal` | `#26a69a` | No status meaning. A tint for categories |
 
-| Color | Means |
+* **A state name maps to its color in one place.** `BADGE_STATES` in `badge.ts` pairs every state a badge shows, such as Synced, Queued, or Running, with its color. A component that shows a state reads the map and never picks a color for a state itself.
+* **Write "orange" for the warning color,** never "amber", in classes, options, and docs.
+* **A new named color is a token pair first,** then a name in `COLOR_NAMES`, then a row here.
+
+### Custom Colors
+
+Every option that takes a color takes a named color or a hex code, with three, four, six, or eight digits. Anything else falls back to the component's default.
+
+* **`colorClass(color, fallback)`** gives the class: the name for a named color, `custom` for a hex code, and the fallback otherwise.
+* **`applyColor(element, color, fallback)`** swaps the element's color class and, for a hex code, sets `--base-custom` and `--base-custom-on`. Every component's `.custom` rule reads those two.
+* **`colorStyle(color)`** gives the same two properties as a `style` attribute, for markup built as text.
+* **`textOn(hex)`** picks black or white text for a fill by its luminance, so text on a custom fill always passes 4.5 to 1.
+* **A custom tint is the hex at 20%,** through `color-mix()`, and falls back to gray's tint in an older engine.
+* **`parseColor`, `toHexColor`, and `resolveColor`** read any color, write it back as a hex code, and resolve a named color to its value on the page. The Color Picker and the paint mix are built on them.
+
+### Choosing a Color
+
+* **The accent means "you can act here" or "you chose this."** It marks interaction and selection, never a status. A status never takes the accent.
+* **A status color means a state,** and nothing else. A category that is not a state takes yellow, pink, teal, or a hex code.
+* **Tint at rest, fill for emphasis.** A badge, pill, or tag is its `-bg` tint with `-fg` text. A button or a large mark that must stand out is a solid fill with `--base-on-accent` or `--base-on-warning` text. A status line is the `-fg` color on the page's own background.
+* **Text keeps 4.5 to 1, and marks keep 3 to 1,** against what they sit on. Light fills take dark text through `--base-on-warning` or `textOn`.
+* **Dimming has two steps,** and never uses a gray hex. Secondary and helper text, small labels over values, and a toggle, tab, or pill that is off sit at 0.7 opacity. A disabled control, or a field that shows an inherited value, sits at 0.5. Icons, dot separators, and hover marks may recede on their own terms. A dimmed element that draws a border or wash uses `--base-fg`, since its `currentColor` is already faded.
+* **An invalid field takes the red border,** and its message takes the red text and the error icon.
+* **A frame never wears a meaning color.** An outline that is not a status, such as a diagram's hub, is neutral, so it is never read as one of the colored lines around it.
+* **Never use color alone.** A badge has a word, a dot has a label or a tooltip, a lane has a name, and a mixed color has a tooltip with its numbers.
+
+### Default Palettes
+
+A component that draws several colored things with no colors given takes them in a fixed order, kept as a named list in its code and given on its docs page. Every one of them can be replaced through its options.
+
+| Component | Default order |
 | :--- | :--- |
-| Green | Done and healthy |
-| Red | Failed, or about to lose data |
-| Orange | Waiting, or needs attention soon |
-| Purple | Working right now |
-| Blue | Informational |
-| Gray | Off or not applicable |
+| Chart series and pie slices, `SERIES_COLORS` | blue, green, orange, purple, red, teal, pink, yellow, so neighbors never share a color |
+| World Map layers, `DEFAULT_COLORS` | blue, yellow, red, the paint primaries, then green, orange, and purple, the secondaries, so a mix stays readable |
+| Flow Diagram lanes and status dots | gray, unless a lane or item names a color |
+| Setup Checklist steps | done green, needs attention orange, to do gray, optional blue |
+| QR Code | dots in the text color, eyes in the accent |
+| Progress bar, ring, and pie | the accent |
 
-* Yellow, pink, and teal are extra tints with no status meaning.
-* **Every place that takes a color takes a status name or a hex code.** Badges, buttons, cards, avatars, dots, rings, timelines, lanes, and map layers all go through the color core, so a custom color works everywhere.
-* **A frame never wears a meaning color.** An outline that is not a status, such as the hub of a diagram, is neutral, so it is never mistaken for one of the colored lines around it.
-* **Combined colors mix like paint.** When one mark stands for several colored things, such as a country with counts in several layers, its color mixes theirs by share, so red and yellow make orange. Keep such a picture to three colors so the mix can still be read.
-* **Never use color alone.** A badge always has a word, a dot always has a label, and a mixed color always has a tooltip with the numbers.
-* `badge.css` and `BADGE_STATES` map state names to colors from one list. Use "orange" for the warning color in class names, never "amber".
+### Mixing Colors
+
+* **One mark for several colored things mixes them like paint.** `mixColors` mixes by each part's share, as paint does, so red and yellow make orange and yellow and blue make green, then restores the brightness a paint mix loses. The World Map colors a country this way.
+* **Keep a mix readable.** A mark mixes at most the layers that are on. Six layers are allowed, but three or fewer on at once read best, which is why the map's default order puts the primaries first.
+* **A wash or tint mixes with transparency,** through `color-mix()` with its fallback, never by stacking two translucent layers.
+
+### Light and Dark Themes
+
+Base has no rule per theme. A component written with the tokens is right in both.
+
+* **Lines and washes follow the text color.** Borders and washes are shares of the text color, so a light theme gets dark ones with no extra rule.
+* **Fills do not follow the theme.** The accent and the status fills look the same in both, so the text on them is fixed too: white through `--base-on-accent`, or near black through `--base-on-warning`.
+* **Shadows are black at an alpha** in both themes.
+* **Never write a white or black wash.** An `rgba(255, 255, 255, …)` or `rgba(0, 0, 0, …)` fill reads in one theme and disappears in the other. Take `--base-wash` or `--base-wash-strong`.
+* **Check both themes.** Every preview and the gallery have a theme switch. Look at a new or changed component in both.
 
 ### Older Engines
 
@@ -168,7 +248,7 @@ The desktop app and older TV webviews have no `color-mix()`, no `:has()`, and th
 
 * A `color-mix()` of `currentColor` follows a plain `rgba()` of the same property.
 * A `color-mix()` of a variable goes in an `@supports (color: color-mix(in srgb, red, blue))` block after a plain rule.
-* A token starts on a plain color and upgrades in the `@supports` block in `design-tokens.css`.
+* A token starts on a plain color and upgrades in the `@supports` block in `design-tokens.css`, since a token holding `color-mix()` fails where it is used, not where it is parsed.
 * Never use `:has()` for a rule an older engine needs. Set a class from the JS instead.
 * White is written only in the tokens.
 
@@ -222,7 +302,9 @@ Icons come from the Material Icons font that Jellyfin's dashboard loads, drawn t
 
 * Every component works at phone width. Check each new or changed component in the [gallery](testing.md#the-gallery) at desktop width, about 1280px, at tablet width, 768px, and at phone width, 375px.
 * Never set a width in pixels on a field. Let it fill its container.
-* Use Base's breakpoints, never a new one.
+* **Two window breakpoints, never a new one.** `max-width: 768px` is tablet and below, and `max-width: 600px` is a phone, where a filter panel opens as a dialog and wide grids stack. A new rule uses one of these two.
+* **A component's own layout follows its own width,** measured with a ResizeObserver, not the window. It turns compact when its contents no longer fit side by side, worked out from what it holds, such as a repeater's fields or a table's number columns, or at 480px for a two-part layout such as a QR code beside its buttons.
+* **A ResizeObserver does not run in a background tab.** A component also measures once on the next tick after it is built, so it starts in the right layout.
 * A dialog on a touch screen never focuses a text field automatically.
 
 ## Accessibility
@@ -298,7 +380,9 @@ Run every new or changed component through this list.
 * [ ] Icons are centered on the first line of their text, and headings line up with their values.
 * [ ] Nothing spills out of its frame at tablet or phone width, and no text is shrunk to fit.
 * [ ] Every mark on screen carries information.
-* [ ] It takes a status name or a hex code wherever it takes a color, and never relies on color alone.
+* [ ] It takes a named color or a hex code wherever it takes a color, through the color core, and never relies on color alone.
+* [ ] It uses the accent only for interaction and selection, and status colors only for states.
+* [ ] It looks right in the light and dark themes, with no white or black washes.
 * [ ] Every `color-mix()` has its fallback, and nothing an older engine needs uses `:has()`.
 * [ ] Focus, Escape, Enter, and Space behave.
 * [ ] Its strings follow [Writing](#writing), and every default label can be replaced.

@@ -4,16 +4,16 @@
 
 With `key`, `setItems` keeps every item whose key and content are unchanged and draws only the rest, so a list that refreshes on a timer keeps its scroll position and focus. A boxed row (`base-item-row`) whose text has a `base-item-row-primary` and a `base-item-row-secondary` part shares the widest primary width across the list, so every secondary text starts at the same place, and wraps under the primary on a narrow row. The List also owns the one selected look every list shares, the accent wash with a leading bar.
 
-## When to Use
+## Decision
 
-* Use it for any list of items a plugin builds, such as a queue, a set of results, or a history.
-* Use it when a list needs a fixed height, a height that fills the window, or more items as the user scrolls.
-
-## When Not to Use
-
-* Use a [Filtered List](filtered-list.md) when the reader searches, filters, sorts, or selects the items.
-* Use a [Data Table](data-table.md) for rows with columns that sort, or a [Paginated Table](paginated-table.md) for rows a server pages through.
-* Use a [Sortable Card List](sortable-card-list.md) or an [Ordered List](ordered-list.md) when the reader reorders or edits the items.
+| When | Use |
+| :--- | :--- |
+| Any list of items a plugin builds, such as a queue, a set of results, or a history | List |
+| A list that needs a fixed height, a height that fills the window, or more items as the user scrolls | List |
+| Items the reader searches, filters, sorts, or selects | [Filtered List](filtered-list.md) |
+| Rows with columns that sort | [Data Table](data-table.md) |
+| Rows a server pages through | [Paginated Table](paginated-table.md) |
+| Items the reader reorders or edits | A [Sortable Card List](sortable-card-list.md) or an [Ordered List](ordered-list.md) |
 
 ## Usage
 
@@ -129,10 +129,6 @@ Builds a list. The list is the frame, its height, and its empty and loading stat
 | `base-item-row-parts` | A row's text in two parts, a primary and a dimmed secondary that starts at the same place on every row of the list, and wraps under the primary when the row is too narrow for both |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

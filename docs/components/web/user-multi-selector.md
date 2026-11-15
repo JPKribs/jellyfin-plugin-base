@@ -2,14 +2,13 @@
 
 A [Checkbox List](checkbox-list.md) whose items are the server's users. Each row shows the user's avatar, or the person icon, the name, an Admin badge, and an optional note, and ids match whatever their case or dashes. Everything else, the rows, search, Select all, disabled rows, the empty text, and the height, is the checkbox list's. It is also on the bag as `shared.createUserMultiSelector`.
 
-## When to Use
+## Decision
 
-* Use it to choose which users a rule applies to.
-
-## When Not to Use
-
-* Use a [User Selector](user-selector.md) for one user.
-* Use a [Checkbox List](checkbox-list.md) for items that are not users.
+| When | Use |
+| :--- | :--- |
+| Choosing which users a rule applies to | User Multi Selector |
+| One user | [User Selector](user-selector.md) |
+| Items that are not users | [Checkbox List](checkbox-list.md) |
 
 ## Usage
 
@@ -85,10 +84,6 @@ A checkbox list of the server's users, for picking many. It is a checkbox list w
 | `destroy` | <code>(): void</code> |
 
 <!-- reference:end -->
-
-## Used By
-
-Custom Pages, Scripts, User Management, and YouTube Audio use it.
 
 ## Example
 

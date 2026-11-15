@@ -1,5 +1,5 @@
 // chart.ts
-// The core every chart shares: the frame, the scale, the axes, the legend, the tooltip, and the hidden table of numbers. The bar chart, the line chart, and the sparkline each draw only their marks on it. None of it is exported from the bundle.
+// The core every chart shares: the frame, the scale, the axes, the legend, the tooltip, the empty state, and the hidden table of numbers. The bar chart, the line chart, the pie chart, and the sparkline each draw only their marks on it. None of it is exported from the bundle.
 
 import { make, clear, listen, runAll, toText, nextId } from './dom.js';
 import { applyColor, colorClass } from './color.js';
@@ -23,6 +23,7 @@ export interface ChartOptions {
     max?: number;
     ticks?: number;
     valueLabels?: boolean;
+    emptyText?: string;
     format?(value: number): string;
 }
 
@@ -51,15 +52,27 @@ export interface ChartFrame {
     band(index: number): { start: number; size: number; middle: number };
     group(index: number): SVGGElement;
     mark(el: SVGElement, seriesIndex: number, labelIndex: number): void;
+    paint(el: SVGElement, color: string): void;
     text(x: number, y: number, value: string, anchor: string, className: string): SVGTextElement;
     format(value: number): string;
 }
 
-/** What buildChart takes beside the chart options: the class of the variation and the function that draws its marks. */
+/**
+ * What buildChart takes beside the chart options: the class of the variation and the function that draws its marks.
+ * radial drops the axes and draws a square plot as wide as the CSS makes it. detail adds text after a mark's value, such as its share.
+ * select makes each mark a button that a click, Enter, or Space reports. legend draws the legend in place of the series legend.
+ * emptyText is the variation's default empty sentence, and hasData decides when there is something to draw.
+ */
 export interface ChartCore {
     className: string;
     points?: boolean;
+    radial?: boolean;
+    emptyText?: string;
     draw(frame: ChartFrame): void;
+    detail?(seriesIndex: number, labelIndex: number): string;
+    select?(seriesIndex: number, labelIndex: number): void;
+    legend?(legend: HTMLElement): void;
+    hasData?(series: ChartSeries[]): boolean;
 }
 
 var SVG_NS: string = 'http://www.w3.org/2000/svg';
@@ -113,6 +126,15 @@ export function shortNumber(value: number): string {
 }
 
 /**
+ * The text of one value: the chart's format function when it has one, else the short number and the unit.
+ * Internal to the charts.
+ */
+export function formatValue(options: ChartOptions, value: number): string {
+    if (typeof options.format === 'function') return options.format(value);
+    return shortNumber(value) + (options.unit ? ' ' + options.unit : '');
+}
+
+/**
  * The status color a series draws in: its own color, else the next one in SERIES_COLORS.
  * Internal to the charts.
  */
@@ -151,22 +173,47 @@ export function buildChart(options: ChartOptions, core: ChartCore): ChartHandle 
         root.setAttribute('aria-labelledby', titleId);
     }
     var plot = make('div', 'base-chart-plot');
+    var empty = make('div', 'base-list-empty base-chart-empty');
+    empty.hidden = true;
     var legend = make('div', 'base-chart-legend');
     var table = make('table', 'base-sr-only');
     var tip = make('div', 'base-tooltip base-chart-tip', { role: 'tooltip' });
     tip.hidden = true;
     root.appendChild(plot);
+    root.appendChild(empty);
     root.appendChild(legend);
     root.appendChild(table);
     root.appendChild(tip);
 
-    function format(value: number): string {
-        if (typeof options.format === 'function') return options.format(value);
-        return shortNumber(value) + (options.unit ? ' ' + options.unit : '');
+    function format(value: number): string { return formatValue(options, value); }
+
+    // Several marks of one value read as one line, such as 820 GB, 41%.
+    function valueText(seriesIndex: number, labelIndex: number): string {
+        var v = series[seriesIndex].values[labelIndex];
+        if (typeof v !== 'number' || !isFinite(v)) return '';
+        var extra = core.detail ? core.detail(seriesIndex, labelIndex) : '';
+        return format(v) + (extra ? ', ' + extra : '');
+    }
+
+    function hasData(): boolean {
+        if (core.hasData) return core.hasData(series);
+        return series.some(function (s) { return s.values.some(function (v) { return typeof v === 'number' && isFinite(v); }); });
+    }
+
+    // The empty sentence stands in for the plot and the legend when there is nothing to draw and the chart has one.
+    function drawEmpty(): boolean {
+        var text = typeof options.emptyText === 'string' ? options.emptyText : (core.emptyText || '');
+        var none = !!text && !hasData();
+        empty.textContent = none ? text : '';
+        empty.hidden = !none;
+        plot.hidden = none;
+        return none;
     }
 
     function drawLegend(): void {
         clear(legend);
+        if (core.legend && plot.hidden) { legend.hidden = true; return; }
+        if (core.legend) { legend.hidden = false; core.legend(legend); return; }
         legend.hidden = series.length < 2;
         if (legend.hidden) return;
         series.forEach(function (s, i) {
@@ -192,9 +239,8 @@ export function buildChart(options: ChartOptions, core: ChartCore): ChartHandle 
         labels.forEach(function (label, li) {
             var tr = make('tr');
             tr.appendChild(make('th', null, { scope: 'row' }, label));
-            series.forEach(function (s) {
-                var v = s.values[li];
-                tr.appendChild(make('td', null, null, typeof v === 'number' && isFinite(v) ? format(v) : ''));
+            series.forEach(function (s, si) {
+                tr.appendChild(make('td', null, null, valueText(si, li)));
             });
             body.appendChild(tr);
         });
@@ -217,6 +263,8 @@ export function buildChart(options: ChartOptions, core: ChartCore): ChartHandle 
             line.appendChild(make('span', null, null, (s.name || '') + ' '));
         }
         line.appendChild(make('strong', null, null, typeof v === 'number' ? format(v) : ''));
+        var extra = core.detail && typeof v === 'number' ? core.detail(seriesIndex, labelIndex) : '';
+        if (extra) line.appendChild(make('span', 'base-chart-tip-detail', null, extra));
         tip.appendChild(line);
         popover.open();
         placeOn(el);
@@ -240,9 +288,10 @@ export function buildChart(options: ChartOptions, core: ChartCore): ChartHandle 
         runAll(drawCleanups);
         hideTip();
         clear(plot);
+        if (plot.hidden) return;
         var width = Math.floor(plot.clientWidth || root.clientWidth || 0) || 320;
         lastWidth = width;
-        var height = options.height && options.height > 0 ? options.height : 200;
+        var height = core.radial ? width : (options.height && options.height > 0 ? options.height : 200);
         var font = tokenPx(root, '--base-font-small', 12);
         var gap = tokenPx(root, '--base-gap-narrow', 8);
         var values: number[] = [];
@@ -256,13 +305,15 @@ export function buildChart(options: ChartOptions, core: ChartCore): ChartHandle 
         var tickText = ticks.filter(function (t) { return t >= y0 && t <= y1; }).map(format);
         // The y axis is as wide as its longest tick, at about six tenths of the font size per character.
         var axis = Math.ceil(Math.max.apply(null, tickText.map(function (t) { return t.length; }).concat([1])) * font * 0.62) + gap;
-        var top = Math.ceil(font * (options.valueLabels === false ? 0.75 : 1.75));
-        var bottom = height - Math.ceil(font * 1.5 + gap);
-        var left = axis;
-        var right = width - (core.points ? gap * 2 : gap / 2);
+        var top = core.radial ? 0 : Math.ceil(font * (options.valueLabels === false ? 0.75 : 1.75));
+        var bottom = core.radial ? height : height - Math.ceil(font * 1.5 + gap);
+        var left = core.radial ? 0 : axis;
+        var right = core.radial ? width : width - (core.points ? gap * 2 : gap / 2);
         var count = Math.max(labels.length, 1);
 
-        var svg = svgEl('svg', { width: width, height: height, viewBox: '0 0 ' + width + ' ' + height, 'aria-hidden': 'true', focusable: 'false' });
+        // A radial chart's marks are buttons a screen reader can reach, so its SVG stays in the accessibility tree.
+        var svg = svgEl('svg', core.radial ? { width: width, height: height, viewBox: '0 0 ' + width + ' ' + height, focusable: 'false' }
+            : { width: width, height: height, viewBox: '0 0 ' + width + ' ' + height, 'aria-hidden': 'true', focusable: 'false' });
         var grid = svgEl('g', { class: 'base-chart-grid' });
         svg.appendChild(grid);
         var marks = svgEl('g', { class: 'base-chart-marks' });
@@ -279,6 +330,11 @@ export function buildChart(options: ChartOptions, core: ChartCore): ChartHandle 
             var size = (right - left) / count;
             return { start: left + size * index, size: size, middle: left + size * index + size / 2 };
         }
+        // SVG elements carry the color class, and a hex color its custom property, as every colored component does.
+        function paint(el: SVGElement, color: string): void {
+            el.setAttribute('class', 'base-chart-series ' + colorClass(color));
+            if (colorClass(color) === 'custom') el.setAttribute('style', '--base-custom: ' + color.trim());
+        }
         function text(x: number, yy: number, value: string, anchor: string, className: string): SVGTextElement {
             var t = svgEl('text', { x: x, y: yy, 'text-anchor': anchor, class: className });
             t.textContent = value;
@@ -286,7 +342,7 @@ export function buildChart(options: ChartOptions, core: ChartCore): ChartHandle 
         }
 
         ticks.forEach(function (t) {
-            if (t < y0 || t > y1) return;
+            if (core.radial || t < y0 || t > y1) return;
             var yy = Math.round(y(t)) + 0.5;
             grid.appendChild(svgEl('line', { x1: left, x2: right, y1: yy, y2: yy, class: t === 0 ? 'base-chart-zero' : '' }));
             grid.appendChild(text(left - gap / 2, yy + font * 0.35, format(t), 'end', 'base-chart-tick'));
@@ -300,7 +356,7 @@ export function buildChart(options: ChartOptions, core: ChartCore): ChartHandle 
         var every = core.points ? Math.max(1, Math.ceil(longest / Math.max(room, 1))) : 1;
         var fits = Math.max(3, Math.floor((room - gap / 2) / charWidth));
         labels.forEach(function (l, i) {
-            if (i % every !== 0) return;
+            if (core.radial || i % every !== 0) return;
             var b = band(i);
             var anchor = 'middle';
             if (core.points && i === 0) anchor = 'start';
@@ -320,14 +376,12 @@ export function buildChart(options: ChartOptions, core: ChartCore): ChartHandle 
             group: function (index: number): SVGGElement {
                 if (groups[index]) return groups[index];
                 var g = svgEl('g', { class: 'base-chart-series' });
-                var color = seriesColor(series[index], index);
-                // SVG elements carry the color class, and a hex color its custom property, as every colored component does.
-                g.setAttribute('class', 'base-chart-series ' + colorClass(color));
-                if (colorClass(color) === 'custom') g.setAttribute('style', '--base-custom: ' + color.trim());
+                paint(g, seriesColor(series[index], index));
                 marks.appendChild(g);
                 groups[index] = g;
                 return g;
             },
+            paint: paint,
             mark: function (el: SVGElement, seriesIndex: number, labelIndex: number): void {
                 var v = series[seriesIndex].values[labelIndex];
                 el.setAttribute('class', (el.getAttribute('class') || '') + ' base-chart-mark');
@@ -338,7 +392,11 @@ export function buildChart(options: ChartOptions, core: ChartCore): ChartHandle 
                 drawCleanups.push(listen(el, 'mouseleave', hideTip));
                 drawCleanups.push(listen(el, 'focus', function () { showTip(el, seriesIndex, labelIndex); }));
                 drawCleanups.push(listen(el, 'blur', hideTip));
-                el.setAttribute('aria-label', (labels[labelIndex] || '') + ', ' + (series[seriesIndex].name ? series[seriesIndex].name + ', ' : '') + (typeof v === 'number' ? format(v) : ''));
+                el.setAttribute('aria-label', (labels[labelIndex] || '') + ', ' + (series[seriesIndex].name ? series[seriesIndex].name + ', ' : '') + (typeof v === 'number' ? valueText(seriesIndex, labelIndex) : ''));
+                if (core.select) {
+                    el.setAttribute('role', 'button');
+                    drawCleanups.push(listen(el, 'click', function () { core.select!(seriesIndex, labelIndex); }));
+                }
             }
         };
         svg.appendChild(marks);
@@ -355,6 +413,11 @@ export function buildChart(options: ChartOptions, core: ChartCore): ChartHandle 
         if (!all.length) return;
         var step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : (e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0);
         if (e.key === 'Escape') { hideTip(); return; }
+        if (core.select && (e.key === 'Enter' || e.key === ' ') && active >= 0 && all[active]) {
+            e.preventDefault();
+            core.select(parseInt(all[active].getAttribute('data-series') || '0', 10), parseInt(all[active].getAttribute('data-label') || '0', 10));
+            return;
+        }
         if (!step) return;
         e.preventDefault();
         active = Math.max(0, Math.min(all.length - 1, active + step));
@@ -364,6 +427,7 @@ export function buildChart(options: ChartOptions, core: ChartCore): ChartHandle 
     cleanups.push(listen(plot, 'blur', function () { active = -1; hideTip(); }));
 
     function redraw(): void {
+        drawEmpty();
         drawLegend();
         drawTable();
         draw();

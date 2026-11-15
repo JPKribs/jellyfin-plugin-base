@@ -2,13 +2,12 @@
 
 A small line with no axes that shows the shape of a series, one line of text tall and as wide as its container. Its accessible name gives the first, last, lowest, and highest values.
 
-## When to Use
+## Decision
 
-* Use it beside a number to show its recent shape, such as on a [Stat Card](stat-card.md) with `sparkline`.
-
-## When Not to Use
-
-* Use a [Line Chart](line-chart.md) when the reader needs the values or the axis.
+| When | Use |
+| :--- | :--- |
+| The recent shape of a number, beside it, such as on a [Stat Card](stat-card.md) with `sparkline` | Sparkline |
+| Values or an axis the reader needs | [Line Chart](line-chart.md) |
 
 ## Usage
 
@@ -63,10 +62,6 @@ A small line with no axes that shows the shape of a series, such as beside a num
 | `base-stat-sparkline` | A sparkline under a stat card's label, in the card's own color |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

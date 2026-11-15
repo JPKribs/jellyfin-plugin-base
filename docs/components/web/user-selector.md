@@ -2,13 +2,12 @@
 
 A single user dropdown fed by `ApiClient.getUsers()`. It is also on the bag as `shared.createUserSelector`.
 
-## When to Use
+## Decision
 
-* Use it to pick one Jellyfin user, such as an approver.
-
-## When Not to Use
-
-* Use a [User Multi Selector](user-multi-selector.md) for several users.
+| When | Use |
+| :--- | :--- |
+| Picking one Jellyfin user, such as an approver | User Selector |
+| Several users | [User Multi Selector](user-multi-selector.md) |
 
 ## Usage
 
@@ -78,10 +77,6 @@ Builds a single-user dropdown from the server's user list.
 | `UserSource` | The options both selectors read to load the user list. |
 
 <!-- reference:end -->
-
-## Used By
-
-YouTube Audio uses it.
 
 ## Example
 

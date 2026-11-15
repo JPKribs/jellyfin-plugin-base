@@ -11,6 +11,8 @@ A version is a date, `YYYY.M.D`, with no leading zeros, such as `2026.10.28`.
 * The version is never written into the repository. The csproj default, `0.0.0-local`, only marks a pack made outside the workflow.
 * The release tag is the version with a `v` in front, such as `v2026.10.28`.
 
+The package carries the Zero-Clause BSD license. The csproj sets `<PackageLicenseExpression>0BSD</PackageLicenseExpression>` and packs `LICENSE` beside `README.md`.
+
 A date carries no meaning about the change. Compatibility is judged by [code.md](code.md#compatibility) before the release, not by the number.
 
 ## Before the Release
@@ -49,7 +51,7 @@ A date carries no meaning about the change. Compatibility is judged by [code.md]
 
 4. **Consumer build.** Build at least one plugin that uses the changed components against the local pack, per [testing.md](testing.md#consumer-build). Build one with strict analyzers.
 5. **Docs.** The README and the [component pages](documentation.md#the-component-pages) describe this release, and `mkdocs build --strict` passes.
-6. **Gallery.** Every component changed since the last tag looks right in the [gallery](testing.md#the-gallery) at desktop, tablet, and phone width.
+6. **Gallery.** Every component changed since the last tag looks right in the [gallery](testing.md#the-gallery) at desktop, tablet, and phone width, and the [layout audit](testing.md#the-layout-audit) returns an empty list at each.
 7. **Branch.** The commit to release is pushed to `main`, since the workflow releases the commit it starts on and refuses to run from any other branch.
 
 ## Start the Release
@@ -57,7 +59,7 @@ A date carries no meaning about the change. Compatibility is judged by [code.md]
 1. Open the repository's **Actions** tab, select **Release**, and choose **Run workflow** on `main`.
 2. Leave the version blank to release today's date. Type a version only to override it, such as to re-release a specific date.
 
-The `.github/workflows/release.yaml` run does the whole release, in this order.
+The `.github/workflows/release.yaml` run does the whole release. Its job has an `if:` guard that runs it only on `refs/heads/main`, so a dispatch from any other branch publishes nothing. It runs in the `release` concurrency group with `cancel-in-progress: false`, so a second run waits for the first instead of racing it. It runs these steps in this order.
 
 | Step | What it does |
 | :--- | :--- |
@@ -76,7 +78,11 @@ The tag and release come before the push because a nuget.org version can never b
 
 1. **Verify.** The package page on nuget.org shows the version, and the GitHub release has the package attached and its notes.
 2. **Tell the plugins.** Each plugin that wants the release raises its reference. See [How Plugins Pick It Up](#how-plugins-pick-it-up).
-3. **Docs.** The docs site publishes from its own workflow when `docs/` changes and is not part of a release. See [documentation.md](documentation.md#publishing-the-site).
+3. **Docs.** The docs site publishes from its own workflow and is not part of a release. `docs.yaml` runs on a push to `main` that changes `docs/`, `mkdocs.yml`, `src/`, `package.json`, `package-lock.json`, `tsconfig.json`, `scripts/bundle.sh`, `scripts/build-previews.mjs`, the gallery, or the workflow itself. See [documentation.md](documentation.md#publishing-the-site).
+
+## The Public Page
+
+`docs/Releasing.md` is the public mirror of this guide on the docs site. It covers the versions, starting a release, testing before one, and raising Base in a plugin. Change it in the same commit as any change here that a plugin author would see, so the two never disagree.
 
 ## How Plugins Pick It Up
 

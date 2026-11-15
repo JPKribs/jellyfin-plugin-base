@@ -2,13 +2,13 @@
 
 A stack of transient messages in a live region. A toast closes itself after its timeout, closes from its Dismiss button, and pauses its timer while the pointer or focus is on it.
 
-## When to Use
+## Decision
 
-* Use it to confirm an action or report a problem without moving the page.
-
-## When Not to Use
-
-* Use [Status Text](status-text.md) for a result that belongs beside a button, and a [Callout](callout.md) for a message that stays.
+| When | Use |
+| :--- | :--- |
+| Confirming an action or reporting a problem without moving the page | Toast |
+| A result that belongs beside a button | [Status Text](status-text.md) |
+| A message that stays | [Callout](callout.md) |
 
 ## Usage
 
@@ -83,10 +83,6 @@ A stack of transient messages in persistent live regions. A toast closes itself 
 | `base-toast-close` | The dismiss button, pinned to the toast's top right corner and inset by its padding |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

@@ -68,6 +68,7 @@
     "createOverflowMenu",
     "createPaginatedTable",
     "createPagination",
+    "createPieChart",
     "createPillGroup",
     "createPreviewFrame",
     "createProgressRing",
@@ -167,7 +168,7 @@
     "confirm-dialog": 1886,
     "copy-field": 1856,
     "count-cards": 343,
-    "data-table": 9376,
+    "data-table": 9400,
     "date-range-picker": 3781,
     "definition-list": 2708,
     "detail-drawer": 2779,
@@ -179,7 +180,7 @@
     "field-message": 2270,
     "file-picker": 2595,
     "filter-panel": 5979,
-    "filtered-list": 16817,
+    "filtered-list": 17281,
     "flow-diagram": 11381,
     "folder-picker": 7192,
     "help-hint": 1493,
@@ -191,7 +192,7 @@
     "lib/balance": 2420,
     "lib/canvas": 998,
     "lib/card": 360,
-    "lib/chart": 9707,
+    "lib/chart": 11338,
     "lib/check": 463,
     "lib/chips": 813,
     "lib/class-names": 167,
@@ -225,8 +226,9 @@
     "number-unit-field": 3113,
     "ordered-list": 1913,
     "overflow-menu": 2567,
-    "paginated-table": 9747,
+    "paginated-table": 9771,
     "pagination": 3846,
+    "pie-chart": 6310,
     "pill-group": 421,
     "placeholder-hint": 3001,
     "poller": 716,
@@ -268,5 +270,5 @@
     "user-selector": 1509,
     "world-map": 6166
   },
-  "bytes": 445479
+  "bytes": 453947
 }

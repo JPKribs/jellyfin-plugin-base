@@ -165,6 +165,8 @@ export { createBarChart } from './bar-chart.js';
 export type * from './bar-chart.js';
 export { createLineChart } from './line-chart.js';
 export type * from './line-chart.js';
+export { createPieChart } from './pie-chart.js';
+export type * from './pie-chart.js';
 export { createSparkline } from './sparkline.js';
 export type * from './sparkline.js';
 export { createUsageMeter } from './usage-meter.js';

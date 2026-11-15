@@ -2,13 +2,12 @@
 
 A frame that shows an image made by an async `render`, such as a generated poster, built on the thumb core. While it renders it shows the [Spinner](spinner.md) and a status line, and a failed render shows a [Field Message](field-message.md). A pressed group picks a dark, light, or checkered background, and a click opens the image larger in a dialog.
 
-## When to Use
+## Decision
 
-* Use it beside the fields that shape a generated image, so the reader sees the result as they type.
-
-## When Not to Use
-
-* Use an [Image Picker](image-picker.md) for an image the reader chooses.
+| When | Use |
+| :--- | :--- |
+| Fields that shape a generated image, so the reader sees the result as they type | Preview Frame, beside the fields |
+| An image the reader chooses | [Image Picker](image-picker.md) |
 
 ## Usage
 
@@ -86,10 +85,6 @@ A frame that shows an image made by an async render, such as a generated poster,
 | `base-preview-frame-zoom` | The image larger in the zoom dialog, on the same background, never wider than the dialog |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

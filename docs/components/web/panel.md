@@ -2,13 +2,12 @@
 
 A bordered sub card on the surface color, for a group of fields or text inside a section or a dialog.
 
-## When to Use
+## Decision
 
-* Use it to group related fields or a short block of text.
-
-## When Not to Use
-
-* Use a [Record Card](record-card.md) for label and value rows.
+| When | Use |
+| :--- | :--- |
+| Grouping related fields or a short block of text | Panel |
+| Label and value rows | [Record Card](record-card.md) |
 
 ## Usage
 
@@ -42,10 +41,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-panel-body` | Padded body of a panel, padded as a record card is |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

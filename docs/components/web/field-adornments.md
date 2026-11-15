@@ -2,14 +2,14 @@
 
 A number field gets Base's own up and down buttons at its trailing end, in place of the browser's spinner. A date or time field shows its picker icon at its trailing end, which opens the browser's picker. A search box gets a search icon, and a secret marked `data-base-reveal` gets an eye that shows and hides it.
 
-## When to Use
+## Decision
 
-* Nothing to do on a page built with `createConfigPage`. It adorns every number, date, time, and search field on the page, and the ones added later.
-* Call `bindFieldAdornments(root)` for a page or dialog built another way, or `adornField(input)` for one field.
-
-## When Not to Use
-
-* Never draw your own spinner or calendar button beside a field. Use the field's type and let Base adorn it.
+| When | Use |
+| :--- | :--- |
+| A page built with `createConfigPage` | Nothing. It adorns every number, date, time, and search field on the page, and the ones added later. |
+| A page or dialog built another way | `bindFieldAdornments(root)`. |
+| One field | `adornField(input)`. |
+| A spinner or calendar button beside a field | The field's type, so Base adorns it. Never draw your own. |
 
 ## Usage
 
@@ -74,10 +74,6 @@ Adorns every number, date, time, and search field under a root, and the ones add
 | `base-adorned-with-unit` | A unit such as % or h inside a number's box, dimmed and never typed, just before the up and down buttons |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it directly. Every number, date, and time field in a plugin gets it through Base.
 
 ## Example
 

@@ -2,13 +2,13 @@
 
 A text field for a server path with a Browse button. Browse opens a dialog that lists the server's drives, then a folder's subfolders, with a row to go up a level, an editable path, and a Select button that writes the path to the field.
 
-## When to Use
+## Decision
 
-* Use it for a folder or file on the Jellyfin server, such as a media folder or an export path.
-
-## When Not to Use
-
-* Use a [File Picker](file-picker.md) to choose a file from the user's own computer, and an [Image Picker](image-picker.md) for an image from it.
+| When | Use |
+| :--- | :--- |
+| A folder or file on the Jellyfin server, such as a media folder or an export path | Folder Picker |
+| A file from the user's own computer | [File Picker](file-picker.md) |
+| An image from the user's own computer | [Image Picker](image-picker.md) |
 
 ## Usage
 
@@ -98,10 +98,6 @@ A text field for a server path with a Browse button. Browse opens a dialog that 
 | `base-folder-picker-entry` | One folder, drive, or file in the list as a full width button built as base-icon-text, with the up row first |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

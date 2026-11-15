@@ -143,3 +143,13 @@ test('a hidden column hides its heading and cells and drops its track, and setCo
     assert.equal(table.element.style.getPropertyValue('--base-data-ends'), '0');
     assert.equal(table.element.querySelectorAll('.base-data-row')[2].querySelectorAll('.base-data-cell')[2].hidden, true);
 });
+
+test('rowClass marks a data table row from its first draw and on every redraw', function () {
+    var picked = 2;
+    var table = createDataTable({ columns: COLUMNS, rows: ROWS, rowClass: function (row) { return row.id === picked ? 'selected' : ''; } });
+    var marked = function () { return Array.from(table.element.querySelectorAll('.base-data-row')).filter(function (r) { return r.classList.contains('selected'); }).map(function (r) { return r.getAttribute('data-key'); }); };
+    assert.deepEqual(marked(), ['2']);
+    picked = 1;
+    table.setRows(ROWS.slice());
+    assert.deepEqual(marked(), ['1']);
+});

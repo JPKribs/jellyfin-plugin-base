@@ -2,13 +2,12 @@
 
 The browser half of `SecretProtector`. A credential input that never receives the stored secret.
 
-## When to Use
+## Decision
 
-* Use it for every API key, password, and token a plugin stores.
-
-## When Not to Use
-
-* Never put the stored secret into the page. The server sends only whether one is stored.
+| When | Use |
+| :--- | :--- |
+| Every API key, password, and token a plugin stores | Secret Field. |
+| The stored secret on the page | Nothing. Never put it into the page. The server sends only whether one is stored. |
 
 ## Usage
 
@@ -89,10 +88,6 @@ Returns the value to post for a bound secret field. That is SECRET_KEPT when it 
 | `base-secret-stored` | A secret field with a stored secret, whose eight placeholder dots show in secondary gray, since the value is not in the page |
 
 <!-- reference:end -->
-
-## Used By
-
-Custom Pages, Remote Access, Requests, Scripts, and Server Sync use it.
 
 ## Example
 

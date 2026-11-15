@@ -9,6 +9,7 @@ import type { CheckBinding } from './lib/selection.js';
 import { buildCard } from './lib/card.js';
 import { balanceRows } from './lib/balance.js';
 import { createList } from './list.js';
+import { classNames } from './lib/class-names.js';
 import type { ListContent, ListHeight, ListLayout, ListHandle, ListItemHandle } from './list.js';
 import { createSearchField } from './search-field.js';
 import { createDateRangePicker, dateKey } from './date-range-picker.js';
@@ -72,6 +73,7 @@ export interface FilteredListToolbarAction<T = any> {
 /** What createFilteredList takes. Give items for local data, or fetch for data the server searches, filters, and pages. */
 export interface FilteredListOptions<T = any> {
     render(item: T, index: number, check?: HTMLInputElement | null): ListContent;
+    itemClass?(item: T, index: number): unknown;
     items?: T[] | null;
     fetch?(query: DataQuery): Promise<PagedResult<T> | T[]> | PagedResult<T> | T[];
     rowKey?: string | ((item: T) => unknown);
@@ -201,6 +203,7 @@ function actionButton(spec: { id: string; label: string; icon?: string; variant?
  *   summary     : false hides the summary line, except the limit note (default true)
  *   summaryText : the summary line, with {shown} and {total} (default 'Showing {shown} of {total}.')
  *   size        : 'small', 'medium', or 'large' for its fields (default 'medium')
+ *   itemClass   : function(item, index) returning class names for the item's row, such as 'selected' for an item picked elsewhere. It runs after every draw and refresh, and replaces the names it gave before [optional]
  *   onOpen      : function(item) when an item is clicked or gets Enter or Space, apart from its checkbox, such as to open a detail dialog [optional]
  *   onSelectionChange : function(ids, items) after the selection changes [optional]
  *   onSearch    : function(text) called when the reader types a search, before it runs, which returns false to run it another way [optional]
@@ -508,12 +511,23 @@ export function createFilteredList<T = any>(options: FilteredListOptions<T>): Fi
     }
 
     // Marks each drawn item from the selection and the open action, and draws the bar of selected items.
+    // Swaps the names the item class gave a row last time for the ones it gives now, so a reused row follows its item.
+    function markItem(cell: HTMLElement, names: string): void {
+        var before = (cell.getAttribute('data-base-item-class') || '').split(' ').filter(Boolean);
+        var after = names.split(' ').filter(Boolean);
+        before.forEach(function (n) { if (after.indexOf(n) === -1) cell.classList.remove(n); });
+        after.forEach(function (n) { cell.classList.add(n); });
+        if (after.length) cell.setAttribute('data-base-item-class', after.join(' '));
+        else cell.removeAttribute('data-base-item-class');
+    }
+
     function decorate(): void {
         list.getItems().forEach(function (item, i) {
             var cell = list.cellAt(i);
             if (!cell) return;
             var key = keyOf(item);
             if (rowKey !== undefined) cell.setAttribute('data-key', key);
+            if (opts.itemClass) markItem(cell, classNames(opts.itemClass(item, i)));
             if (opts.onOpen) cell.classList.add('openable');
             if (opts.onOpen || opts.selectable === 'single') cell.setAttribute('tabindex', '0');
             if (!selecting) return;

@@ -2,13 +2,13 @@
 
 A [List](list.md) of static rows, each a title, a secondary line, tags with an icon and an off state, and at its end a chevron that opens the row or an aside control. Each row is a boxed `base-item-row` whose title and secondary text line up down the list, and a refresh keeps the rows that did not change.
 
-## When to Use
+## Decision
 
-* Use it for a short list of records the reader opens one at a time, such as destinations, rules, or accounts.
-
-## When Not to Use
-
-* Use a [Sortable Card List](sortable-card-list.md) when the records are ordered and edited in place, and a [Data Table](data-table.md) for many records with columns.
+| When | Use |
+| :--- | :--- |
+| A short list of records the reader opens one at a time, such as destinations, rules, or accounts | Record List |
+| Records that are ordered and edited in place | [Sortable Card List](sortable-card-list.md) |
+| Many records with columns | [Data Table](data-table.md) |
 
 ## Usage
 
@@ -72,10 +72,6 @@ A List of static rows, each a title, a secondary line, tags with an icon and an 
 | `base-record-list-open` | The chevron at the end of a row that opens, and the aside control that takes its place |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

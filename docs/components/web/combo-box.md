@@ -2,14 +2,15 @@
 
 A text input with a floating results dropdown, for a single searchable value. It is on the bag as `shared.createSearchableComboBox` and has no top level export.
 
-## When to Use
+## Decision
 
-* Use it to search a server for one value, such as a library.
-
-## When Not to Use
-
-* Use a [Chip Select](chip-select.md) for several values, or with `single: true` for one value that must come from the list. Use a plain select for a short list.
-* Use a [Search Field](search-field.md) to filter a list on the page.
+| When | Use |
+| :--- | :--- |
+| Searching a server for one value, such as a library | Combo Box |
+| Several values | [Chip Select](chip-select.md) |
+| One value that must come from the list | A [Chip Select](chip-select.md) with `single: true` |
+| A short list | A plain select |
+| Filtering a list on the page | [Search Field](search-field.md) |
 
 ## Usage
 
@@ -60,10 +61,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-combo-option` | One option row that tints in the accent on hover or when active |
 
 <!-- reference:end -->
-
-## Used By
-
-YouTube Audio uses it.
 
 ## Example
 

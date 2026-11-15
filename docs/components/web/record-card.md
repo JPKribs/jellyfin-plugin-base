@@ -2,14 +2,13 @@
 
 A bordered card of label and value rows for one record's details.
 
-## When to Use
+## Decision
 
-* Use it for the details of one item, such as a last result and an id.
-
-## When Not to Use
-
-* Use a [Definition List](definition-list.md) when the rows need no card surface, or are built from data.
-* Never confuse it with the status card of [Count Cards](count-cards.md).
+| When | Use |
+| :--- | :--- |
+| The details of one item, such as a last result and an id | Record Card. |
+| Rows that need no card surface, or are built from data | [Definition List](definition-list.md). |
+| The status card of counts | [Count Cards](count-cards.md). Never confuse it with the Record Card. |
 
 ## Usage
 
@@ -44,10 +43,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-record-label` | Dimmed label that keeps its natural width |
 
 <!-- reference:end -->
-
-## Used By
-
-Live Channels, Remote Access, Requests, and Server Sync use it.
 
 ## Example
 

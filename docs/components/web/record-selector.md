@@ -2,13 +2,12 @@
 
 A stacked dropdown with an action row under it, for picking one record and acting on it. The [User Selector](user-selector.md) is built on it.
 
-## When to Use
+## Decision
 
-* Use it to pick one record from a short list and offer New and Remove beside it.
-
-## When Not to Use
-
-* Use a [Sortable Card List](sortable-card-list.md) when the order matters or each record opens an editor.
+| When | Use |
+| :--- | :--- |
+| Picking one record from a short list, with New and Remove beside it | Record Selector |
+| Records whose order matters, or that each open an editor | [Sortable Card List](sortable-card-list.md) |
 
 ## Usage
 
@@ -47,10 +46,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-selector-actions` | Wrapping row of action buttons under the dropdown |
 
 <!-- reference:end -->
-
-## Used By
-
-Artwork Generator, Custom Pages, Live Channels, Remote Access, Scripts, and User Management use it.
 
 ## Example
 

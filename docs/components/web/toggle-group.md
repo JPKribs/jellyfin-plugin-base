@@ -2,13 +2,13 @@
 
 A wrapping row of pills for choosing any number of options. The page owns the state. The kit styles `aria-pressed`, and nothing flips it.
 
-## When to Use
+## Decision
 
-* Use it for a short set of independent options, such as notification channels.
-
-## When Not to Use
-
-* Use a [Pill Group](pill-group.md) when exactly one is chosen, and a [Check Grid](check-grid.md) for a long set.
+| When | Use |
+| :--- | :--- |
+| A short set of independent options, such as notification channels | Toggle Group |
+| A set where exactly one is chosen | [Pill Group](pill-group.md) |
+| A long set | [Check Grid](check-grid.md) |
 
 ## Usage
 
@@ -46,10 +46,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-toggle` | A wrapping row of on and off pills, for choosing any number, in the base-toggle-group row the pill group shares. One pill: dim when off, accent tinted when its aria-pressed is true |
 
 <!-- reference:end -->
-
-## Used By
-
-Requests uses it.
 
 ## Example
 

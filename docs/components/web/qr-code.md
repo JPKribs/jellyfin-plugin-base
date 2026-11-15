@@ -2,13 +2,12 @@
 
 A QR code of a short text, such as a URL, drawn as SVG on the surface in a rounded style: a round dot in the text color for each dark module, and the three corner eyes as rounded squares in the accent color. Copy Image and Download give it as a PNG, and the text sits under it as a [Copy Field](copy-field.md).
 
-## When to Use
+## Decision
 
-* Use it to hand a link to a phone, such as an invite or a pairing address.
-
-## When Not to Use
-
-* Never use it for a secret. Anyone who sees the screen can scan it.
+| When | Use |
+| :--- | :--- |
+| Handing a link to a phone, such as an invite or a pairing address | QR Code. |
+| A secret | Not the QR Code. Anyone who sees the screen can scan it. |
 
 ## Usage
 
@@ -77,10 +76,6 @@ With layout 'inline' it draws only the text as a Copy Field, with a QR button be
 | `base-qr-code-actions` | The Copy Image and Download buttons, two equal halves of a button row the code's width, a field tall like the Copy Field under them |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

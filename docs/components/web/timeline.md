@@ -2,13 +2,12 @@
 
 A vertical list of events, each with a colored marker, a time, a title, and an optional body.
 
-## When to Use
+## Decision
 
-* Use it for a short feed of what happened and when.
-
-## When Not to Use
-
-* Never use it for a long history. Use a [Paginated Table](paginated-table.md).
+| When | Use |
+| :--- | :--- |
+| A short feed of what happened and when | Timeline |
+| A long history | [Paginated Table](paginated-table.md) |
 
 ## Usage
 
@@ -72,10 +71,6 @@ A vertical list of events, each with a colored marker, a time, a title, and an o
 | `base-timeline-pre` | A block of mono text kept as written under an event's body, such as a log or a stack trace, which scrolls sideways inside itself |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

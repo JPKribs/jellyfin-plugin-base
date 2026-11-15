@@ -2,15 +2,14 @@
 
 A sortable, filterable table. It is a [Filtered List](filtered-list.md) whose items are rows, framed by a header whose sortable columns sort ascending, descending, then not at all. The Filtered List brings the search, the filter selects, the data view, the selection (`selectable: true` or `'single'` for one row, `'multiple'` for a checkbox column with a select all and `bulkActions`), `onOpen`, `actions`, and `limit`, and the [List](list.md) under it owns the rows' height, scrolling, and empty and loading states. It works on local rows or on a server that searches, filters, sorts, and pages.
 
-## When to Use
+## Decision
 
-* Use it for rows with columns a reader sorts and filters, such as activity, bans, or counts by country.
-* Pair it with a [World Map](world-map.md) through `linkWorldMap`.
-
-## When Not to Use
-
-* Use a [Paginated Table](paginated-table.md) for the Jellyfin item tables with thumbnails, status buttons, and bulk selection.
-* Use a [Static Table](static-table.md) for a few fixed rows with no sorting.
+| When | Use |
+| :--- | :--- |
+| Rows with columns a reader sorts and filters, such as activity, bans, or counts by country | Data Table |
+| A table paired with a [World Map](world-map.md) | `linkWorldMap` |
+| The Jellyfin item tables with thumbnails, status buttons, and bulk selection | [Paginated Table](paginated-table.md) |
+| A few fixed rows with no sorting | [Static Table](static-table.md) |
 
 ## Usage
 
@@ -67,6 +66,7 @@ var table = createDataTable({
 ## Gotchas
 
 * A cell's text is clipped with an ellipsis. Put long text in a column with more width.
+* `rowClass(row, index)` marks a row from its first draw, such as `selected` for a row picked elsewhere, which takes the table's selected look. It is the Filtered List's `itemClass`, so it follows every `setRows` and refresh. With `selectable` on, the selection owns `selected`, so give a picked row another name.
 
 ## Reference
 
@@ -85,7 +85,7 @@ A sortable, filterable table: a Filtered List whose items are rows, framed by a 
 | `columns` (required) | <code>DataTableColumn&lt;T&gt;[]</code> | array of { key, label, icon (a Material icon the heading shows in place of the label when the table is narrow), sortable (default true), align ('start', 'end', or 'center' for a narrow column such as a checkbox), width (a grid track; default a share, or a fixed number column for end and center), hidden (true starts it hidden; default false), value(row), render(row) } [required] |
 | `rows` | <code>T[] &#124; null</code> | local rows [optional] |
 | `fetch` | <code>(query: DataQuery): Promise&lt;PagedResult&lt;T&gt; &#124; T[]&gt; &#124; PagedResult&lt;T&gt; &#124; T[]</code> | function(query) returning a page { Items, TotalCount } or an array, for server data [optional] |
-| `rowKey` | <code>string &#124; ((row: T) =&gt; unknown); search?: { keys?: string[]</code> | the field or function that names a row (default 'id') |
+| `rowKey` | <code>string &#124; ((row: T) =&gt; unknown); rowClass?(row: T, index: number): unknown; search?: { keys?: string[]</code> | the field or function that names a row (default 'id') |
 | `placeholder` | <code>string</code> |  |
 | `label` | <code>string</code> | aria-label of the table (default 'Table') |
 
@@ -122,10 +122,6 @@ A sortable, filterable table: a Filtered List whose items are rows, framed by a 
 | `base-data-row.editing` | An open row's editor under its cells, spanning every column: its fields in a grid, a message, and Save and Cancel |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

@@ -2,13 +2,12 @@
 
 A button, by default with the three dot icon, that opens a small menu of actions.
 
-## When to Use
+## Decision
 
-* Use it for the row actions of a table or card when several buttons would crowd the row.
-
-## When Not to Use
-
-* Never hide the one action users need most. Use a [Row Button](row-button.md) for it.
+| When | Use |
+| :--- | :--- |
+| The row actions of a table or card, when several buttons would crowd the row | Overflow Menu |
+| The one action users need most | A [Row Button](row-button.md), never hidden in the menu |
 
 ## Usage
 
@@ -77,10 +76,6 @@ A button, by default with the three dot icon, that opens a small menu of actions
 | `base-menu-item` | One action row built as base-icon-text, which tints on hover and focus, and shows red as destructive |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

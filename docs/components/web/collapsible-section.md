@@ -2,14 +2,13 @@
 
 A section whose header toggles a body. The header is a native button. Its header can also hold an icon tile, a subtitle, and an aside, and with `collapsible: false` it is a fixed panel that is always open.
 
-## When to Use
+## Decision
 
-* Use it for optional or long groups of settings.
-* Use `collapsible: false` for a framed panel with a rich header, such as one card per library mapping with its route and its mode.
-
-## When Not to Use
-
-* Use a [Section](section.md) for content that must stay visible.
+| When | Use |
+| :--- | :--- |
+| Optional or long groups of settings | Collapsible Section |
+| A framed panel with a rich header, such as one card per library mapping with its route and its mode | `collapsible: false` |
+| Content that must stay visible | [Section](section.md) |
 
 ## Usage
 
@@ -205,10 +204,6 @@ Builds a collapsible section, the same markup initCollapsibles binds, with an op
 | `base-collapsible-section.base-panel` | A section on the panel surface, its header and body inset by the panel's padding, collapsible or fixed |
 
 <!-- reference:end -->
-
-## Used By
-
-Artwork Generator, Live Channels, Remote Access, Requests, Scripts, Server Sync, User Management, and YouTube Audio use it.
 
 ## Example
 

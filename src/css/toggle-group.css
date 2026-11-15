@@ -14,7 +14,7 @@
     color: inherit;
     font: inherit;
     cursor: pointer;
-    opacity: 0.75;
+    opacity: 0.7;
 }
 .base-toggle .material-icons { font-size: var(--base-icon-medium); }
 .base-toggle[aria-pressed="true"] {

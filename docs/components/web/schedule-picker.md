@@ -2,14 +2,14 @@
 
 A time of day and, optionally, days of the week as a group of toggle buttons. The value is plain data.
 
-## When to Use
+## Decision
 
-* Use it for a daily or weekly run time.
-
-## When Not to Use
-
-* Never use it for an interval such as every 5 minutes. Use a [Number Unit Field](number-unit-field.md) or a [Duration Field](duration-field.md).
-* Use an [Access Schedule](access-schedule.md) for weekly windows with a start and an end, and a [Time Range Field](time-range-field.md) for one start and end.
+| When | Use |
+| :--- | :--- |
+| A daily or weekly run time | Schedule Picker |
+| An interval, such as every 5 minutes | A [Number Unit Field](number-unit-field.md) or a [Duration Field](duration-field.md) |
+| Weekly windows with a start and an end | [Access Schedule](access-schedule.md) |
+| One start and end | [Time Range Field](time-range-field.md) |
 
 ## Usage
 
@@ -77,10 +77,6 @@ A time of day and, optionally, days of the week as a group of toggle buttons. Th
 | `base-schedule` | Time input and day toggles, side by side where there is room and stacked where there is not |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

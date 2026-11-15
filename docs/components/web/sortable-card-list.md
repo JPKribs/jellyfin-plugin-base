@@ -2,13 +2,13 @@
 
 Records as cards in priority order. Each card has a numbered head with a status dot, badges, up and down arrows, and a drag handle, plus a body that the open card shows. One editor element moves into whichever card is open.
 
-## When to Use
+## Decision
 
-* Use it for a short ordered list where each record opens an editor, such as servers or channels.
-
-## When Not to Use
-
-* Use an [Ordered List](ordered-list.md) for ranking with no editor, and a [Paginated Table](paginated-table.md) for a long list.
+| When | Use |
+| :--- | :--- |
+| A short ordered list where each record opens an editor, such as servers or channels | Sortable Card List |
+| Ranking with no editor | [Ordered List](ordered-list.md) |
+| A long list | [Paginated Table](paginated-table.md) |
 
 ## Usage
 
@@ -124,10 +124,6 @@ Renders records as numbered cards with a status dot, badges, arrow and drag reor
 | `base-card-list-actions` | Action row under the list, for an Add button |
 
 <!-- reference:end -->
-
-## Used By
-
-Scripts and Server Sync use it. Requests uses `base-card-item-head-static`, `base-card-item-sub-text`, and `base-card-item-tags` for plain record lists.
 
 ## Example
 

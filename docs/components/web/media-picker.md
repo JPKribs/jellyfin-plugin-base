@@ -2,13 +2,13 @@
 
 `createMediaPicker` searches the library and picks items. Each result and each picked item shows as a [Media Card](media-card.md) row with its artwork, and each picked item has a Remove button.
 
-## When to Use
+## Decision
 
-* Use it to pick movies, series, or other library items, such as titles to exclude or a collection to follow.
-
-## When Not to Use
-
-* Use a [Chip Select](chip-select.md) for values that have no artwork, and a [User Selector](user-selector.md) for users.
+| When | Use |
+| :--- | :--- |
+| Picking movies, series, or other library items, such as titles to exclude or a collection to follow | Media Picker |
+| Values that have no artwork | [Chip Select](chip-select.md) |
+| Picking users | [User Selector](user-selector.md) |
 
 ## Usage
 
@@ -107,10 +107,6 @@ A library search that picks media items. Each result and each picked item shows 
 | `base-combo-option.base-media-picker-option` | One result, a borderless media row with small artwork |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

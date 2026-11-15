@@ -173,6 +173,11 @@ section.setAside(document.createElement('span'));
 B.createQrCode({ value: 'https://example.com', layout: 'inline', showText: 'Show QR Code' }).open();
 // @ts-expect-error The layout is full or inline.
 B.createQrCode({ layout: 'popup' });
+var pie: B.PieChartHandle = B.createPieChart({ label: 'Storage', donut: true, centerText: '2.2k', centerLabel: 'Total', size: 'small', slices: [{ label: 'Movies', value: 820, color: '#e91e63' }], onSelect: function (slice: B.PieSlice | null, index: number) { return slice ? index : -1; } });
+pie.setSlices([{ label: 'Shows', value: 1 }]);
+pie.select(null);
+// @ts-expect-error The size is small, medium, or large.
+B.createPieChart({ size: 'huge' });
 var thumbColumn: B.TableColumn<Row> = { key: 'name', label: 'Name', image: function () { return function () { return Promise.resolve(new Blob()); }; } };
 
 export { page, table, result, secret, label, kept, states, safe };

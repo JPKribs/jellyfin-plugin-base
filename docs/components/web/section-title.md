@@ -2,13 +2,12 @@
 
 The page heading with a full width underline. Jellyfin supplies the markup classes, so they are not prefixed.
 
-## When to Use
+## Decision
 
-* Use one per tab or major area of a config page.
-
-## When Not to Use
-
-* Never use it inside a dialog. Use `base-modal-title` there. See [Dialog](dialog.md).
+| When | Use |
+| :--- | :--- |
+| Each tab or major area of a config page | One Section Title |
+| A title inside a dialog | `base-modal-title`, as on [Dialog](dialog.md) |
 
 ## Usage
 
@@ -28,10 +27,6 @@ Classes: `sectionTitleContainer`, `sectionTitle`.
 ## Gotchas
 
 * The underline needs the container to be a flex row (`flex align-items-center` from Jellyfin), or the heading does not fill it.
-
-## Used By
-
-Artwork Generator, Custom Pages, Live Channels, Remote Access, Requests, Scripts, Server Sync, User Management, and YouTube Audio use it.
 
 ## Example
 

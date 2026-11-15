@@ -2,13 +2,13 @@
 
 Nested rows that open and close, on a [List](list.md) with the collapsible pattern. Children can load when a node opens, through a promise. With `selectable` each node has a checkbox through the selection core, and a parent is checked, partly checked, or clear from its children. A node can show a thumbnail through the thumb core.
 
-## When to Use
+## Decision
 
-* Use it to pick from a hierarchy, such as libraries, series, seasons, and episodes, or folders.
-
-## When Not to Use
-
-* Use a [Folder Picker](folder-picker.md) to pick one server folder, and a [Checkbox List](checkbox-list.md) for a flat list.
+| When | Use |
+| :--- | :--- |
+| Picking from a hierarchy, such as libraries, series, seasons, and episodes, or folders | Tree View |
+| Picking one server folder | [Folder Picker](folder-picker.md) |
+| A flat list | [Checkbox List](checkbox-list.md) |
 
 ## Usage
 
@@ -94,10 +94,6 @@ Nested rows that open and close, on a List with the collapsible pattern. Childre
 | `base-tree-loading` | The line a node shows while its children load |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

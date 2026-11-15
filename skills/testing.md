@@ -15,10 +15,11 @@ Test each behavior at the lowest layer that can prove it. Go up a layer only for
 | C# unit | One helper gives the right output for each input | `dotnet test` | Seconds |
 | CSS rules | The shipped CSS keeps its invariants, such as older engine fallbacks and no class collisions | `dotnet test` | Seconds |
 | Type check | The TypeScript sources type check in strict mode | `npm run typecheck`, and first in `scripts/bundle.sh` | Seconds |
-| JavaScript | Component behavior against a stub DOM | `node --test` | Seconds |
+| JavaScript | Component behavior against a stub DOM | `npm test` | Seconds |
 | Golden bundle | The shipped JS bundle is the one expected | `scripts/check-bundle.mjs` | Seconds |
 | Typings | The shipped typings accept good calls and reject bad ones | `scripts/check-types.sh` | Seconds |
 | Docs | Every page's Reference matches the code, and every component has a page and preview | `scripts/build-docs.mjs --check` | Seconds |
+| Docs site | The previews build, and the site builds with no broken link or warning | `scripts/build-previews.mjs`, then `mkdocs build --strict`, both run by `docs.yaml` | Seconds |
 | Gallery | Every component looks right in a real browser at desktop, tablet, and phone width | `scripts/gallery.sh` | Minutes |
 | Consumer build | A plugin still builds and works against a local pack | `scripts/pack.sh` | Minutes |
 
@@ -28,21 +29,34 @@ Test each behavior at the lowest layer that can prove it. Go up a layer only for
 | A CSS file in `src/css/` | CSS rules, the docs check, since the Reference lists its classes, and the gallery |
 | A module in `src/js/` or `src/js/lib/` | The type check, JavaScript, the golden bundle, the typings, the docs, and the gallery. A change to a core also needs the tests of every component built on it |
 | A template in `src/templates/` | C# unit, and CSS rules for class collisions |
+| A page in `docs/`, a preview in `docs/previews/`, or `mkdocs.yml` | The docs check and the docs site |
 | `build/`, `scripts/`, or the csproj | Consumer build |
 | A public API change of any kind | Consumer build |
 
 There is no Docker pool, no integration suite, and no matrix. Base has no running server, so a plugin's own tests cover the behavior inside a server.
+
+## The CI Order
+
+`.github/workflows/build.yaml` and `release.yaml` run the same checks in the same order. A change runs them the same way before a push.
+
+1. `scripts/bundle.sh`, which installs the pinned tools and type checks first.
+2. `scripts/check-bundle.mjs`, `scripts/check-types.sh`, and `scripts/build-docs.mjs --check`.
+3. The JavaScript tests.
+4. The C# tests.
+
+`docs.yaml` runs its own order. It bundles, runs `scripts/build-docs.mjs --check`, builds the previews, and runs `mkdocs build --strict`.
 
 ## Layout
 
 | Path | What it holds |
 | :--- | :--- |
 | `JPKribs.Jellyfin.Base.Tests/*.cs` | The xUnit tests. |
-| `JPKribs.Jellyfin.Base.Tests/js/*.test.mjs` | The JS tests, one file per component or core, with `fake-dom.mjs` as the stub DOM. |
+| `JPKribs.Jellyfin.Base.Tests/js/*.test.mjs` | The JS tests, mostly one file per component or core, plus the cross-cutting files, with `fake-dom.mjs` as the stub DOM. |
 | `JPKribs.Jellyfin.Base.Tests/js/register.mjs`, `ts-loader.mjs` | The loader that lets a test import the TypeScript sources. |
 | `JPKribs.Jellyfin.Base.Tests/golden/` | The golden copy of the JS bundle and its summary. |
 | `JPKribs.Jellyfin.Base.Tests/types/` | The typings test and its `tsconfig.json`. |
 | `JPKribs.Jellyfin.Base.Tests/gallery/index.html` | The gallery page. |
+| `JPKribs.Jellyfin.Base.Tests/gallery/ui-audit.js` | The layout audit that runs in the gallery page. See [The Layout Audit](#the-layout-audit). |
 | `JPKribs.Jellyfin.Base.Tests/Fixtures/` | Copies of `jpkribs_shared.css` and `jpkribs_shared.js` that a test embeds under another root namespace. |
 
 The test project compiles `src/*.cs` directly, under the same strict analyzer settings as a plugin (`Directory.Build.props`), with `0 Warning(s)` as the bar. Its own `.editorconfig` relaxes a few rules for the test files only, never for `src/*.cs`. It embeds `src/templates/*.html`, and embeds `src/css/*.css` under a `.Css.` resource name. It compiles the shipped source exactly as a plugin does, so a test sees what a plugin sees.
@@ -58,8 +72,6 @@ dotnet test JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Re
 ```bash
 dotnet test JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Release --filter "FullyQualifiedName~CssFallbackTests"
 ```
-
-`.github/workflows/build.yaml` and `release.yaml` run the same checks in the same order: `scripts/bundle.sh`, which type checks first, then `scripts/check-bundle.mjs`, `scripts/check-types.sh`, and `scripts/build-docs.mjs --check`, then the JavaScript tests, then the C# tests.
 
 ### Naming and Comments
 
@@ -102,6 +114,8 @@ JS tests run on node's own test runner with a stub DOM and no dependencies. `reg
 node --import ./JPKribs.Jellyfin.Base.Tests/js/register.mjs --test JPKribs.Jellyfin.Base.Tests/js/*.test.mjs
 ```
 
+`npm test` runs the same, and `npm run typecheck` runs the type check alone.
+
 ```bash
 node --import ./JPKribs.Jellyfin.Base.Tests/js/register.mjs --test JPKribs.Jellyfin.Base.Tests/js/kit.test.mjs
 ```
@@ -119,7 +133,7 @@ test('generateGuid gives 32 hex digits when compact', function () {
 });
 ```
 
-* Put a component's tests in `<name>.test.mjs`, named after its source file, and a core's in the file named after the core, such as `validate.test.mjs` and `selection.test.mjs`.
+* Put a component's tests in `<name>.test.mjs`, named after its source file. A core's tests go where the core already has them. See [Where Core Tests Live](#where-core-tests-live).
 * Name each test as a sentence about the behavior.
 * Call `installFakeDom()` in `beforeEach` so each test starts clean.
 * Test logic and behavior, not layout. Move logic out of event handlers into exported functions so a test can call them.
@@ -127,6 +141,39 @@ test('generateGuid gives 32 hex digits when compact', function () {
 * A field a component builds has a test that an invalid value shows its message through the validation core and that `validateAll` refuses it.
 * Extend `fake-dom.mjs` when a component needs a selector or element feature it lacks, and keep it dependency free.
 * CI runs these tests on Node 22, so run them yourself before you call a change done.
+
+### Where Core Tests Live
+
+| Core | Tests |
+| :--- | :--- |
+| Data view, popover, row editor, selection, thumb, typeahead, validation | Their own file, such as `validate.test.mjs` and `selection.test.mjs` |
+| Badge core | `badge.test.mjs`, with the Badge |
+| Checkbox core, card, message, pressed group | `shared-bases.test.mjs`, which tests the shared bases a family inherits, along with the List's keyed redraw |
+| The Filtered List features every list variation inherits | `filtered-list-parity.test.mjs` |
+| Chart, clock, QR, balance | The file of the component that owns them, `bar-chart.test.mjs`, `relative-time.test.mjs`, `qr-code.test.mjs`, and `balanced-rows.test.mjs` |
+| Dialog core | `kit.test.mjs` for focus and the Tab trap, `dialog-escape.test.mjs` for names and Escape, and `dialog-size.test.mjs` for the sizes |
+| Popover placement | `popup.test.mjs`, beside `popover.test.mjs` |
+| Combo ARIA | `missing.test.mjs` |
+
+A core with no tests of its own yet, such as the field control, file, or users core, is covered through the components built on it. A new test for one goes in a file named after the core.
+
+### Cross-Cutting Tests
+
+These files test one concern across many components. Add to the one that matches a change, as well as to the component's own file.
+
+| File | Covers | Add to it when |
+| :--- | :--- | :--- |
+| `a11y.test.mjs` | Avatar names, status contrast and cues, and the persistent live regions | A change touches a label for assistive tech, a status color, or a live region |
+| `edge.test.mjs` | Ids, replacement text, odd input, and limits across the components | A component takes odd input or has a limit |
+| `race.test.mjs` | A slow search answer never overwrites a newer one or reopens a closed dropdown | A component waits on an async answer |
+| `labels.test.mjs` | The default labels a caller can replace | A component adds or changes a default label |
+| `missing.test.mjs` | Helpers that had no tests | A helper with no home file gets its first test |
+| `kit.test.mjs` | Dialog focus, the Tab trap, and Escape across Dialog, Bound Dialog, and Editor Dialog, and the bundle entry | A change touches focus or Escape in a dialog |
+| `core.test.mjs` | The config page, the shared bag, and the browser helpers | A change touches one of those |
+| `display.test.mjs` | Breadcrumbs, Stepper, Banner, Divider, Avatar, User Chip, Stat Card, Progress Ring, Timeline, and Status Dot | A change touches one of those display components |
+| `fields.test.mjs` | Number Unit Field, Slider Field, and Schedule Picker | A change touches one of those fields |
+| `icons.test.mjs` | Each arrow comes from the one icon its meaning takes, per the Icons table in [style.md](style.md#icons) | A component draws a new icon |
+| `spacing.test.mjs` | Every gap and margin in the kit CSS is one of the two spacing tokens, per [Spacing and Shape](style.md#spacing-and-shape) | It fails, which means a CSS change broke the rule |
 
 ## The Golden Bundle
 
@@ -153,7 +200,9 @@ scripts/check-types.sh
 
 ## The Gallery
 
-The gallery is a static page that loads the real bundle with the Jellyfin globals stubbed, so every component runs without a plugin. It shows every component. The newest ones embed their docs preview from `docs/assets/previews/` in a frame, so build the previews too, or those sections stay empty.
+The gallery is a static page that loads the real bundle with the Jellyfin globals stubbed, so every component runs without a plugin. It shows every component. One module script in `gallery/index.html` builds every section. It loads `docs/previews/_stubs.js` for the stubs and the sample data, and calls `base.bindFieldAdornments` on the page at the end.
+
+The newest components embed their docs preview from `docs/assets/previews/` in a frame instead. The `pages` array in `index.html` lists them, and each frame sizes itself from the `base-preview-height` message its preview posts. Build the previews too, or those sections stay empty.
 
 ```bash
 scripts/gallery.sh
@@ -169,11 +218,24 @@ node scripts/build-previews.mjs
 
 The script rebuilds the bundle, serves the repository root with Python on port 8080 by default, and opens `http://localhost:8080/JPKribs.Jellyfin.Base.Tests/gallery/index.html`. Stop it with Ctrl-C. It does not build the previews, so run `node scripts/build-previews.mjs` after it has bundled.
 
-* Add a section to `gallery/index.html` for each new component, showing its states and modifiers, or add it to the list of components whose preview the gallery frames.
+* Add a section to `gallery/index.html` for each new component, showing its states and modifiers, or add it to the `pages` array of components whose preview the gallery frames.
 * Look at every changed component, and every component built on a changed core, at desktop width, about 1280px, at tablet width, 768px, and at phone width, 375px.
 * At each width nothing spills out of its frame, overlaps, or sits out of line. Fields, buttons, and rows on one line share a height, headings line up with their values, and icons sit on the first line of their text.
-* Look at it with a light and a dark Jellyfin palette when the change touches color. The page sets the palette variables for you to edit.
+* The gallery page itself has a fixed dark background. Light and dark exist only in the framed previews, which the gallery loads with `?theme=dark` and which each have the theme toggle from `docs/previews/_shell.html`. Check both themes there, or on the docs site, when the change touches color.
 * Keep the gallery's own classes prefixed `g-` so they never touch the kit.
+
+### The Layout Audit
+
+`gallery/ui-audit.js` scans the gallery for layout problems. With the gallery served, paste it into the browser console on the gallery page, or fetch it and evaluate it there. It returns a list of `[section, problem, detail]` rows for these problems.
+
+* The page scrolls sideways.
+* A control sits outside its section.
+* Two controls overlap.
+* Controls on one line have different heights.
+* Two controls touch, with a gap under 4px.
+* Text is cut off without an ellipsis.
+
+It scans each framed preview too. Run it at 1280px, 768px, and 375px wide. A `ResizeObserver` does not run in a background tab, so the framed previews keep a stale height there. Bring the tab forward, or take a screenshot, before you run it. A clean gallery returns an empty list.
 
 ## Consumer Build
 
@@ -198,6 +260,7 @@ Raise the plugin's `JPKribs.Jellyfin.Base` reference to the local version first,
 * [ ] `dotnet test` passes.
 * [ ] The type check, the JS tests, the golden bundle, the typings check, and the docs check pass.
 * [ ] A new CSS rule keeps its fallback, and the CSS tests pass.
-* [ ] Every changed component was seen in the gallery at desktop, tablet, and phone width, with nothing spilling out, overlapping, or misaligned.
+* [ ] Every changed component was seen in the gallery at desktop, tablet, and phone width, with nothing spilling out, overlapping, or misaligned, and the layout audit returned an empty list at each width.
+* [ ] A docs change passes `mkdocs build --strict` after the previews are built.
 * [ ] Every field a change adds validates through the core, with a test.
 * [ ] A public change was built into a consuming plugin from a local pack.

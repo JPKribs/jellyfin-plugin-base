@@ -2,13 +2,12 @@
 
 A "Placeholders" help toggle under a field that lists `{name}` buttons and inserts the pressed one at the cursor, or copies it.
 
-## When to Use
+## Decision
 
-* Use it for template fields such as message formats.
-
-## When Not to Use
-
-* Use a [Help Hint](help-hint.md) to explain a field. It inserts nothing.
+| When | Use |
+| :--- | :--- |
+| Template fields such as message formats | Placeholder Hint |
+| Explaining a field | A [Help Hint](help-hint.md), which inserts nothing |
 
 ## Usage
 
@@ -86,10 +85,6 @@ Makes every hint inside root work: Placeholders shows or hides the list, and a p
 | `base-tag-button.copied` | A placeholder just copied in a hint in copy mode, green for a moment as a copy that worked |
 
 <!-- reference:end -->
-
-## Used By
-
-Requests uses it.
 
 ## Example
 

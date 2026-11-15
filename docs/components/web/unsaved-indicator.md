@@ -2,13 +2,12 @@
 
 A small dot and text that fades in to flag unsaved changes. Place it in a heading or label.
 
-## When to Use
+## Decision
 
-* Use it with a [Change Tracker](change-tracker.md), which shows and hides it.
-
-## When Not to Use
-
-* Never show it for a field that saves on change.
+| When | Use |
+| :--- | :--- |
+| A page with a [Change Tracker](change-tracker.md), which shows and hides it | Unsaved Indicator. |
+| A field that saves on change | Nothing. The field saves itself. |
 
 ## Usage
 
@@ -42,10 +41,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-unsaved-dot` | Small dot before the unsaved label in the current color |
 
 <!-- reference:end -->
-
-## Used By
-
-Artwork Generator, Requests, and Scripts use it.
 
 ## Example
 

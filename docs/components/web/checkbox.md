@@ -2,20 +2,19 @@
 
 One checkbox in Base's look, with its text beside it. The box fills with the accent and shows a check while it is on, and shows a bar while it is partly on. Every box Base draws is built on the same checkbox core, so a checkbox here matches the boxes in the [Checkbox List](checkbox-list.md), the [Filtered List](filtered-list.md), the [Filter Panel](filter-panel.md), and the [Tree View](tree-view.md).
 
-## When to Use
+## Decision
 
-* Use it for any yes or no setting you build in script.
-* Use the small size, the default, for almost every setting.
-* Use `medium` where the checkbox sits beside medium buttons or larger text.
-* Use `large` for a few headline settings on their own row, each with a `description`. A large checkbox is a tile that fills the room its row has, and tiles in one row share it and wrap.
-* Use `field: true` when a small or medium box sits in a row of text boxes and selects, so its box lines up with them.
-* Use `boxed: true` when it should look like one of those fields too: the box and its text sit in a frame drawn like a text box, the same height, border, and corners.
-
-## When Not to Use
-
-* Never use it for a list of choices. Use the [Checkbox List](checkbox-list.md).
-* Never use it for one choice of several. Use a select, the [Pill Group](pill-group.md), or the [Choice Group](choice-group.md).
-* A checkbox written in a page's own markup already takes this look. Build one in script only when you need its handle.
+| When | Use |
+| :--- | :--- |
+| Any yes or no setting you build in script | Checkbox. |
+| Almost every setting | `size: 'small'`, the default. |
+| A checkbox beside medium buttons or larger text | `size: 'medium'`. |
+| A few headline settings on their own row, each with a `description` | `size: 'large'`. A large checkbox is a tile that fills the room its row has, and tiles in one row share it and wrap. |
+| A small or medium box in a row of text boxes and selects | `field: true`, so its box lines up with them. |
+| A box that should also look like one of those fields | `boxed: true`. The box and its text sit in a frame drawn like a text box, the same height, border, and corners. |
+| A list of choices | [Checkbox List](checkbox-list.md). |
+| One choice of several | A select, the [Pill Group](pill-group.md), or the [Choice Group](choice-group.md). |
+| A checkbox written in a page's own markup | The markup as written, which already takes this look. Build one in script only when you need its handle. |
 
 ## Usage
 

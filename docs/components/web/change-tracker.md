@@ -2,13 +2,12 @@
 
 `shared.createChangeTracker(opts)` compares a serialized snapshot with the current state and drives the [Unsaved Indicator](unsaved-indicator.md). Passed to `page.guardUnsaved`, it also asks before the user leaves with unsaved edits.
 
-## When to Use
+## Decision
 
-* Use it on any page or dialog where a save is explicit.
-
-## When Not to Use
-
-* Skip it for a field that saves on change.
+| When | Use |
+| :--- | :--- |
+| Any page or dialog where a save is explicit | Change Tracker. |
+| A field that saves on change | Nothing. The field saves itself. |
 
 ## Usage
 
@@ -35,10 +34,6 @@ page.guardUnsaved(tracker, 'Leave without saving your settings?');
 
 * `serialize()` must return a stable string of the tracked state. The snapshot is taken when the tracker is created.
 * `flashSaved` without `savedText` pulses the indicator with its own label.
-
-## Used By
-
-Artwork Generator, Live Channels, Requests, and Scripts use it. Artwork Generator and Requests also pass it to `guardUnsaved`.
 
 ## Example
 

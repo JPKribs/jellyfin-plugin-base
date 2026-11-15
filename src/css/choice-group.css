@@ -50,7 +50,7 @@ label.base-choice > input[type="checkbox"] {
 /* Example: <span class="base-choice-text">Pull on a schedule.</span> */
 .base-choice-text {
     font-size: 0.85em;
-    opacity: 0.75;
+    opacity: 0.7;
     line-height: 1.4;
 }
 

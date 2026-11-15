@@ -2,14 +2,13 @@
 
 A color field. A swatch inside the box opens the browser's color picker. A fixed `#` follows it, so only the hex digits are typed, and the field also takes `rgb()` text. It is RGB by default. With `alpha: true` an opacity box in percent sits beside it on the same line, with the up and down arrows every number gets, and the value carries alpha.
 
-## When to Use
+## Decision
 
-* Use it for any color a plugin stores, such as an accent, a badge color, or an overlay.
-* Turn on `alpha` only when the color may be see-through, such as an overlay.
-
-## When Not to Use
-
-* Never use it to pick one of Base's status colors. Use their names, such as `green`, through a select or a [Choice Group](choice-group.md).
+| When | Use |
+| :--- | :--- |
+| Any color a plugin stores, such as an accent, a badge color, or an overlay | Color Picker |
+| A color that may be see-through, such as an overlay | `alpha`, turned on only in this case |
+| Picking one of Base's status colors | Their names, such as `green`, through a select or a [Choice Group](choice-group.md) |
 
 ## Usage
 
@@ -84,10 +83,6 @@ A color field: a swatch inside the box that opens the browser's color picker, th
 | `base-color-alpha` | The opacity box in percent beside the hex box, with the shared up and down arrows and a percent sign before them |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

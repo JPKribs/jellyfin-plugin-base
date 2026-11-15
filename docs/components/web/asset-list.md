@@ -2,13 +2,12 @@
 
 Rows for uploaded files, with a thumbnail, a name and reference, and action buttons.
 
-## When to Use
+## Decision
 
-* Use it to list files a plugin stores, with a way to copy or remove each.
-
-## When Not to Use
-
-* Use a [File Picker](file-picker.md) to choose files to upload.
+| When | Use |
+| :--- | :--- |
+| Listing files a plugin stores, with a way to copy or remove each | Asset List |
+| Choosing files to upload | [File Picker](file-picker.md) |
 
 ## Usage
 
@@ -56,10 +55,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-asset-actions` | Row of action buttons at the end of an asset row |
 
 <!-- reference:end -->
-
-## Used By
-
-Custom Pages uses it.
 
 ## Example
 

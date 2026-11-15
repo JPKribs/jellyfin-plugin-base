@@ -2,13 +2,12 @@
 
 A small status line after a save or an error, colored by class rather than inline style.
 
-## When to Use
+## Decision
 
-* Use it beside a Save button to report the result in one sentence.
-
-## When Not to Use
-
-* Use a [Toast](toast.md) for a message that should float over the page.
+| When | Use |
+| :--- | :--- |
+| The result of a save in one sentence, beside the Save button | Status Text |
+| A message that should float over the page | [Toast](toast.md) |
 
 ## Usage
 
@@ -46,10 +45,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 | `base-status-ok` | The older ok and bad classes setStatus also sets, in the success and error colors. Each state's own color is the shared message rule |
 
 <!-- reference:end -->
-
-## Used By
-
-Custom Pages, Live Channels, Remote Access, Requests, Scripts, Server Sync, User Management, and YouTube Audio use it.
 
 ## Example
 

@@ -2,15 +2,15 @@
 
 A searchable, filterable table of rows that reads a paged endpoint. It offers infinite scroll or Load More buttons, optional row selection with bulk actions, status badges, thumbnails, and clickable rows. It is a [Filtered List](filtered-list.md) whose items are rows from a server fetch: the search, the multiple selection with its select all and count, opening a row, paging, and the live refresh that keeps unchanged rows all come from it, and the table adds its filter select, status cells, the reload button, and the footer.
 
-## When to Use
+## Decision
 
-* Use it for any server side list too long to render at once.
-
-## When Not to Use
-
-* Use a [Data Table](data-table.md) for rows with column headings that sort, local or from a server.
-* Use a [Filtered List](filtered-list.md) for items that are not table rows, such as media cards.
-* Use a [Sortable Card List](sortable-card-list.md) for a short, ordered, editable list, and a [Static Table](static-table.md) for a few fixed rows.
+| When | Use |
+| :--- | :--- |
+| Any server side list too long to render at once | Paginated Table |
+| Rows with column headings that sort, local or from a server | [Data Table](data-table.md) |
+| Items that are not table rows, such as media cards | [Filtered List](filtered-list.md) |
+| A short, ordered, editable list | [Sortable Card List](sortable-card-list.md) |
+| A few fixed rows | [Static Table](static-table.md) |
 
 ## Usage
 
@@ -88,6 +88,7 @@ Classes: `base-table-wrapper`, `base-table-controls`, `base-table-search`, `base
 * The column `label` is written as `data-label` on each cell, but the table draws no header row, so nothing reads it.
 * The default labels "Select All", "Reload", "Load More", and "Load All" have no option to replace them.
 * Call `destroy()` on `viewhide`. It stops loading at the end of the list and drops a pending search. `reconnectObserver()` turns loading at the end back on.
+* `rowClass(item, index)` marks a row from its first draw, such as `selected` for a row picked elsewhere, which takes the table's selected look. It is the Filtered List's `itemClass`, so it follows every refresh. With checkbox selection on, the selection owns `selected`, so give a picked row another name.
 
 ## Reference
 
@@ -108,6 +109,7 @@ Builds a searchable, filterable, infinite scrolling table backed by an endpoint 
 | `columns` (required) | <code>TableColumn&lt;T&gt;[]</code> | [{ key, type: 'status' &#124; 'custom', render(item, value), label, className, hidden, image(item), imageShape }], where label is written on each cell as data-label, and image(item) returns the thumbnail drawn before the cell in imageShape, as an address or a function that returns an address, a Blob, or a promise of one, loaded lazily and freed when its row goes, 'portrait' (default), 'wide', 'square', or 'round' [required] |
 | `getDisplayStatus` | <code>(item: T, value: any): string</code> | function(item, value) returning the text of a status column [optional] |
 | `getStatusClass` | <code>(item: T, value: any): unknown</code> | function(item, value) returning the state class of a status column [optional] |
+| `rowClass` | <code>(item: T, index: number): unknown</code> | function(item, index) returning class names for the row, such as 'selected' for a row picked elsewhere, set after every draw and refresh through the Filtered List's itemClass [optional] |
 | `selection` | <code>TableSelection&lt;T&gt;</code> | { enabled, idKey, onSelectionChange(ids) }, where idKey is a property name or a function (default 'id') |
 | `pagination` | <code>TablePagination</code> | { pageSize (default 50), loadMore }, where loadMore swaps infinite scroll for Load More and Load All buttons |
 | `filters` | <code>TableFilters &#124; TableFilters[] &#124; null</code> | { name, label, options: [{ value, label, id, hidden }], buildParams(value), onChange(value), initialValue, allValue, allLabel }, an array of them for several selects, or null for none. name is the query parameter (default 'filter' for the first, then 'filter2' and on), and label the select's aria-label |
@@ -170,10 +172,6 @@ Builds a searchable, filterable, infinite scrolling table backed by an endpoint 
 | `base-table-thumb` | A row thumbnail, a base-thumb frame in the column's imageShape, portrait by default |
 
 <!-- reference:end -->
-
-## Used By
-
-Requests, Scripts, and Server Sync use it. Live Channels, User Management, and YouTube Audio write `base-table-row` markup by hand.
 
 ## Example
 

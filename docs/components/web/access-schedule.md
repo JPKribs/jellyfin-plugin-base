@@ -2,15 +2,14 @@
 
 A list of time windows, each a day choice and a start and end time, with Add and Remove, like the access schedule in Jellyfin's parental control. The value is Jellyfin's own `AccessSchedule` shape, so a plugin can pass it straight through.
 
-## When to Use
+## Decision
 
-* Use it for the times a user or a group may sign in or stream.
-* Use it for any list of weekly windows that Jellyfin stores as `AccessSchedule`.
-
-## When Not to Use
-
-* Use a [Schedule Picker](schedule-picker.md) for one run time on chosen days.
-* Use a [Number Unit Field](number-unit-field.md) for an interval such as every 5 minutes.
+| When | Use |
+| :--- | :--- |
+| The times a user or a group may sign in or stream | Access Schedule |
+| Any list of weekly windows that Jellyfin stores as `AccessSchedule` | Access Schedule |
+| One run time on chosen days | [Schedule Picker](schedule-picker.md) |
+| An interval, such as every 5 minutes | [Number Unit Field](number-unit-field.md) |
 
 ## Usage
 
@@ -108,10 +107,6 @@ A list of time windows, each a day choice and a start and end time, with Add and
 | `base-access-schedule-rows` | Rows of windows, each with its day select, its start and end time boxes, and its remove button, with the times' message under them |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 

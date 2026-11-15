@@ -53,7 +53,7 @@ button.base-stepper-control:focus-visible { outline: 2px solid var(--base-accent
     border-radius: var(--base-radius-round);
     background: var(--base-surface);
     font-size: 0.85em;
-    font-weight: 700;
+    font-weight: 600;
 }
 .base-stepper-number .material-icons { font-size: var(--base-icon-small); }
 .base-stepper-step.current .base-stepper-number { background: var(--base-accent); border-color: var(--base-accent); color: var(--base-on-accent); }

@@ -2,14 +2,14 @@
 
 A grid of row labels, each with a hint, by column headers, with a control in each cell: a toggle, a select, a number box, a text box, or a time box, or a read only badge or text. It is a [Data Table](data-table.md) whose cells hold controls, so it shares its column tracks, its compact layout with icon headings, its hidden columns, and its sideways scroll inside its frame.
 
-## When to Use
+## Decision
 
-* Use it to set the same few things for many rows, such as what each library syncs.
-* Use it with badge columns for a read only table of what each role can do.
-
-## When Not to Use
-
-* Use a [Mapping Table](mapping-table.md) to pair each row with one target, and a [Check Grid](check-grid.md) for a flat set of boxes.
+| When | Use |
+| :--- | :--- |
+| Setting the same few things for many rows, such as what each library syncs | Matrix Grid |
+| A read only table of what each role can do | Matrix Grid with badge columns |
+| Pairing each row with one target | [Mapping Table](mapping-table.md) |
+| A flat set of boxes | [Check Grid](check-grid.md) |
 
 ## Usage
 
@@ -114,10 +114,6 @@ A grid of row labels, each with a hint, by column headers, with a control in eac
 | `base-matrix-grid.has-units` | A grid with a unit in its number boxes, whose columns keep room for the digits, the unit, and the arrows, and scroll sideways before they would hide digits |
 
 <!-- reference:end -->
-
-## Used By
-
-No plugin uses it today.
 
 ## Example
 
