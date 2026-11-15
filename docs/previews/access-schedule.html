@@ -1,0 +1,21 @@
+<!-- title: Access Schedule -->
+<div id="mount"></div>
+<script type="module">
+const base = await window.__baseReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+const note = document.createElement('div');
+note.className = 'base-status-text';
+const schedule = base.createAccessSchedule({
+    label: 'Access Schedule',
+    description: 'Times when the user may sign in.',
+    value: [
+        { DayOfWeek: 'Weekday', StartHour: 16, EndHour: 21.5 },
+        { DayOfWeek: 'Weekend', StartHour: 9, EndHour: 23 },
+        { DayOfWeek: 'Friday', StartHour: 22, EndHour: 20 }
+    ],
+    onChange: (windows) => { note.textContent = JSON.stringify(windows) + (schedule.isValid() ? '' : ' (not valid)'); }
+});
+mount.appendChild(schedule.element);
+mount.appendChild(note);
+</script>

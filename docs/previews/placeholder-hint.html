@@ -1,13 +1,18 @@
 <!-- title: Placeholder Hint -->
 <div id="mount"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
+const base = await window.__baseReady;
 const mount = document.getElementById('mount');
 mount.innerHTML =
     '<div class="inputContainer">' +
         '<label for="txtTitleFormat">Title format</label>' +
         '<input is="emby-input" type="text" id="txtTitleFormat" value="Now playing " />' +
-        JPK.placeholderHint([['title', 'The item title'], ['year', 'The release year']]) +
+        base.placeholderHint([['title', 'The item title'], ['year', 'The release year']]) +
+    '</div>' +
+    '<div class="inputContainer">' +
+        '<label for="txtScript">Script</label>' +
+        '<textarea is="emby-textarea" id="txtScript" rows="3">echo "{{item.name}}"</textarea>' +
+        base.placeholderHint([['item.name', 'The item name'], ['item.path', 'The file path']], { open: '{{', close: '}}', mode: 'copy' }) +
     '</div>';
-JPK.bindPlaceholders(mount, () => {});
+base.bindPlaceholders(mount, () => {});
 </script>

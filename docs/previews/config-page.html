@@ -1,14 +1,14 @@
 <!-- title: Config Page -->
 <!-- min-height: 300 -->
-<div id="demoPage" class="jpk-record-card">The page element. The buttons send the events the dashboard sends.</div>
+<div id="demoPage" class="base-record-card">The page element. The buttons send the events the dashboard sends.</div>
 <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0;">
-    <button type="button" id="btnShow" class="raised jpk-button-submit jpk-button-small"><span>viewshow</span></button>
-    <button type="button" id="btnHide" class="raised jpk-secondary jpk-button-small"><span>viewhide</span></button>
+    <button type="button" id="btnShow" class="raised base-button primary small"><span>viewshow</span></button>
+    <button type="button" id="btnHide" class="raised base-button secondary small"><span>viewhide</span></button>
 </div>
 <div id="logMount"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
-const log = JPK.createLogViewer({ toolbar: false, emptyText: 'No events yet.' });
+const base = await window.__baseReady;
+const log = base.createLogViewer({ toolbar: false, emptyText: 'No events yet.' });
 document.getElementById('logMount').appendChild(log.element);
 const say = (text) => log.append({ text: text, level: 'info' });
 
@@ -16,7 +16,7 @@ const say = (text) => log.append({ text: text, level: 'info' });
 window.LibraryMenu = { setTabs: (key, index, getTabs) => say('setTabs ' + key + ', active ' + index + ', ' + getTabs().length + ' tabs') };
 
 const page = document.getElementById('demoPage');
-JPK.createConfigPage(page, {
+base.createConfigPage(page, {
     pluginId: '00000000-0000-0000-0000-000000000000',
     apiPrefix: 'Preview',
     tabsKey: 'myplugin',

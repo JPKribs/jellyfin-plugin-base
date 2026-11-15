@@ -1,13 +1,13 @@
 <!-- title: Chip Select -->
 <!-- min-height: 360 -->
 <div id="mount"></div>
-<span id="langStatus" class="jpk-status-text"></span>
+<span id="langStatus" class="base-status-text"></span>
 <script type="module">
-const JPK = await window.__jpkReady;
-const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const base = await window.__baseReady;
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
 const mount = document.getElementById('mount');
 
-const genres = JPK.createChipSelect({
+const genres = base.createChipSelect({
     placeholder: 'Add genres',
     value: ['drama'],
     options: [
@@ -19,7 +19,7 @@ const genres = JPK.createChipSelect({
 });
 mount.appendChild(genres.element);
 
-const pills = JPK.createChipSelect({
+const pills = base.createChipSelect({
     pill: true,
     placeholder: 'Add genres as pills',
     value: [{ value: 'drama', label: 'Drama' }],
@@ -32,7 +32,7 @@ const languages = [
     { value: 'eng', label: 'English' }, { value: 'fra', label: 'French' }, { value: 'deu', label: 'German' },
     { value: 'spa', label: 'Spanish' }, { value: 'jpn', label: 'Japanese' }
 ];
-const language = JPK.createChipSelect({
+const language = base.createChipSelect({
     single: true,
     placeholder: 'Search a language',
     value: [{ value: 'eng', label: 'English' }],
@@ -42,4 +42,17 @@ const language = JPK.createChipSelect({
 });
 language.element.style.marginTop = '14px';
 mount.appendChild(language.element);
+
+const G = window.__gallery;
+const people = base.createChipSelect({
+    placeholder: 'Add users',
+    value: [{ value: 'u1', label: 'Ada', image: G.svg(32, 32, '#3498db', 'A') }],
+    options: [
+        { value: 'u1', label: 'Ada', image: G.svg(32, 32, '#3498db', 'A') },
+        { value: 'u2', label: 'Bob', image: () => new Promise((resolve) => setTimeout(() => resolve(G.svg(32, 32, '#5cb85c', 'B')), 500)) },
+        { value: 'u3', label: 'Cy', image: 'missing.jpg' }
+    ]
+});
+people.element.style.marginTop = '14px';
+mount.appendChild(people.element);
 </script>

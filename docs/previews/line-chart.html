@@ -1,0 +1,22 @@
+<!-- title: Line Chart -->
+<div id="mount" style="display: grid; gap: 24px;"></div>
+<script type="module">
+const base = await window.__baseReady;
+const mount = document.getElementById('mount');
+const hours = Array.from({ length: 24 }, (_, i) => (i < 10 ? '0' : '') + i + ':00');
+mount.appendChild(base.createLineChart({
+    label: 'Streams by hour',
+    labels: hours,
+    area: true,
+    series: [{ name: 'Streams', values: hours.map((_, i) => Math.round(4 + 6 * Math.sin((i - 6) / 4) + (i > 17 ? 6 : 0))) }]
+}).element);
+mount.appendChild(base.createLineChart({
+    label: 'Response time',
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    unit: 'ms',
+    series: [
+        { name: 'Den', color: 'blue', values: [120, 135, 110, null, 140, 128, 118] },
+        { name: 'Cabin', color: 'orange', values: [310, 280, 295, 360, 330, 300, 290] }
+    ]
+}).element);
+</script>

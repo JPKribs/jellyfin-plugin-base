@@ -1,0 +1,26 @@
+<!-- title: World Map -->
+<div id="map"></div>
+<div id="table" style="margin-top: 16px;"></div>
+<script type="module">
+const base = await window.__baseReady;
+const map = base.createWorldMap({
+    layers: [
+        { key: 'people', label: 'People', color: 'blue' },
+        { key: 'failed', label: 'Failed', color: 'yellow' },
+        { key: 'blocked', label: 'Blocked', color: 'red' }
+    ],
+    counts: {
+        US: { people: 42, failed: 6, blocked: 1 }, GB: { people: 12, failed: 1 }, DE: { people: 9, failed: 4 },
+        BR: { people: 5 }, IN: { people: 7, blocked: 3 }, AU: { people: 3 }, CN: { failed: 2, blocked: 8 }, RU: { blocked: 5 }
+    }
+});
+const rows = ['US', 'GB', 'DE', 'BR', 'IN', 'AU', 'CN', 'RU'].map((code) => ({ country: code, name: map.countryName(code), total: map.totals()[code] }));
+const table = base.createDataTable({
+    columns: [{ key: 'name', label: 'Country' }, { key: 'total', label: 'Total', align: 'end' }],
+    rows, rowKey: 'country', sort: { key: 'total', dir: 'desc' }, selectable: true,
+    filters: [{ name: 'country', label: 'Countries', options: rows.map((r) => ({ value: r.country, label: r.name })) }]
+});
+base.linkWorldMap(map, table, 'country');
+document.getElementById('map').appendChild(map.element);
+document.getElementById('table').appendChild(table.element);
+</script>

@@ -1,0 +1,35 @@
+/* A Data Table of row labels by column headers with a control in each cell, on the table's own column tracks, compact layout, and sideways scroll */
+/* Example: <div class="base-filtered-list base-data-table base-matrix-grid"><div class="base-data-grid" role="table"></div></div> */
+.base-matrix-grid .base-data-row { padding-top: calc(var(--base-gap-narrow) / 2); padding-bottom: calc(var(--base-gap-narrow) / 2); }
+.base-matrix-grid .base-data-cell { overflow: visible; }
+
+/* A row's label over its dimmed hint, each ending in an ellipsis with the full text in its tooltip */
+/* Example: <span class="base-matrix-label"><span class="base-matrix-name">Movies</span><span class="base-matrix-hint">1,204 items</span></span> */
+.base-matrix-label { display: flex; flex-direction: column; min-width: 0; }
+.base-matrix-name,
+.base-matrix-hint { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.base-matrix-hint { font-size: var(--base-font-small); opacity: 0.7; }
+
+/* One cell's control with its message under it. A toggle column takes the narrow number track with its box centered under its heading */
+/* Example: <span class="base-matrix-cell"><div class="base-control base-control-toggle"><label class="base-check-row base-checkbox field"><input type="checkbox" class="base-check-row-input base-checkbox-input base-control-switch" checked></label></div><div class="base-field-message"></div></span> */
+.base-matrix-cell { display: flex; flex-direction: column; min-width: 0; white-space: normal; }
+.base-data-cell.end > .base-matrix-cell { align-items: flex-end; }
+.base-data-cell.center > .base-matrix-cell { align-items: center; }
+.base-matrix-cell .base-control > select,
+.base-matrix-cell .base-control > input,
+.base-matrix-cell .base-control > .base-adorned { width: 100%; min-width: 0; box-sizing: border-box; }
+
+/* A read only cell that shows its value as a badge or as text, centered on the row's line, with no control */
+/* Example: <span class="base-matrix-cell base-matrix-badge"><span class="base-badge green">Yes</span></span> */
+.base-matrix-badge,
+.base-matrix-static { justify-content: center; min-height: var(--base-field-height); }
+.base-matrix-badge { align-items: flex-start; }
+.base-matrix-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* A dimmed line under the grid, inset to its rows */
+/* Example: <div class="fieldDescription base-matrix-note">0 is no limit.</div> */
+.base-matrix-note { margin: var(--base-gap-narrow) 0 0; padding: 0 var(--base-pad-medium); }
+
+/* A grid with a unit in its number boxes, whose columns keep room for the digits, the unit, and the arrows, and scroll sideways before they would hide digits */
+/* Example: <div class="base-filtered-list base-data-table base-matrix-grid has-units"></div> */
+.base-matrix-grid.has-units { --base-data-min: calc(var(--base-size-large) * 3); }

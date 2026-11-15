@@ -1,0 +1,15 @@
+/* A start and an end time side by side, each with the clock icon inside its box, and the range's message under them */
+/* Example: <div class="base-time-range"><div class="base-time-range-row"><span class="base-adorned base-adorned-picker"><input type="time" class="base-time-range-start"></span><span class="base-adorned base-adorned-picker"><input type="time" class="base-time-range-end"></span></div></div> */
+.base-time-range {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.base-time-range-row {
+    display: grid;
+    /* Two boxes side by side while each keeps room for a whole value, and stacked when they do not fit. */
+    grid-template-columns: repeat(auto-fit, minmax(calc(var(--base-size-large) * 3), 1fr));
+    gap: var(--base-gap-narrow);
+}
+.base-time-range-row > input,
+.base-time-range-row > .base-adorned { min-width: 0; box-sizing: border-box; }

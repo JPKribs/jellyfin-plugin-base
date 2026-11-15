@@ -31,7 +31,7 @@ It returns the `openDialog` handle plus `isDirty()` and `markClean()`.
 
 ## States and Modifiers
 
-* `title`, `body`, `className`, `narrow`, `onClose`, `autofocus`, and `returnFocus` are as on [Dialog](dialog.md). It is wide unless `narrow` is set.
+* `title`, `body`, `className`, `size`, `onClose`, `autofocus`, and `returnFocus` are as on [Dialog](dialog.md). It is `large` unless `size` is set.
 * `page` is the `createConfigPage` handle. An open editor then counts toward `guardUnsaved` and closes when the page hides.
 * `isNew` marks a record not saved yet. It has no Remove button.
 * `serialize()` returns a stable string of the editor state. `ready` is a promise to wait on before taking the clean snapshot, for fields still loading.
@@ -44,13 +44,42 @@ It returns the `openDialog` handle plus `isDirty()` and `markClean()`.
 
 * The clean snapshot is taken when `ready` settles. Call `markClean()` after a save that keeps the dialog open.
 
+## Reference
+
+Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this section.
+
+<!-- reference:start -->
+
+### `openEditorDialog`
+
+<code>function openEditorDialog(opts?: EditorDialogOptions): EditorDialogHandle</code>
+
+Opens an editor dialog for one record with Remove, Cancel, and Done buttons, and asks before it discards edits. Given the createConfigPage handle, it counts toward the page unsaved guard and closes when the page hides.
+
+| Option | Type | What it does |
+| :--- | :--- | :--- |
+| `page` | <code>Pick&lt;PageHandle, 'trackEditor' &#124; 'untrackEditor'&gt; &#124; null</code> | the createConfigPage handle [optional] |
+| `isNew` | <code>boolean</code> | true for a record not saved yet, which has no Remove button (default false) |
+| `serialize` | <code>(): string</code> | function() returning a stable string of the editor's state, for its change tracking |
+| `ready` | <code>unknown</code> | a promise to wait on before taking the clean snapshot, such as fields still loading [optional] |
+| `doneText` | <code>string</code> |  |
+| `removeText` | <code>string</code> |  |
+| `cancelText` | <code>string</code> |  |
+
+| Handle member | Type |
+| :--- | :--- |
+| `isDirty` | <code>(): boolean</code> |
+| `markClean` | <code>(): void</code> |
+
+<!-- reference:end -->
+
 ## Used By
 
 Requests uses it.
 
 ## Example
 
-<iframe class="jpk-preview" src="../../../assets/previews/editor-dialog.html" title="Editor Dialog example" loading="lazy"></iframe>
+<iframe class="base-preview" src="../../../assets/previews/editor-dialog.html" title="Editor Dialog example" loading="lazy"></iframe>
 
 ## Example Code
 

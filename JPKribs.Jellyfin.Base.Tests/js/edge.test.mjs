@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { installFakeDom, all, shown } from './fake-dom.mjs';
 
 var dom = installFakeDom();
-var { fill } = await import('../../src/js/dom-util.js');
+var { fill } = await import('../../src/js/lib/dom.js');
 var kit = await import('../../src/js/index.js');
 var { createSubTabs, createStepper, createSliderField, createNumberUnitField, createSchedulePicker, createSkeleton, createTagInput,
     createKeyValueEditor, createLogViewer, createAvatar, createStatusDot, createBanner, createStringList } = kit;
@@ -25,7 +25,7 @@ test('fill puts a value in as plain text, so $ patterns in a name stay as they a
 
 test('a string list remove label keeps $$ and $& in the value', function () {
     var list = createStringList({ values: ['a$$b', 'c$&d'] });
-    var labels = all(list.element, '.jpk-string-remove').map(function (b) { return b.getAttribute('aria-label'); });
+    var labels = all(list.element, '.base-string-remove').map(function (b) { return b.getAttribute('aria-label'); });
     assert.deepEqual(labels, ['Remove a$$b', 'Remove c$&d']);
 });
 
@@ -44,14 +44,14 @@ test('sub tabs read numeric ids as strings for the value, the lookup, and the da
     var tracked = createSubTabs({ tabs: [{ id: 1, label: 'One' }, { id: 2, label: 'Two' }], onChange: function (id) { seen.push(id); } });
     tracked.setValue(2);
     assert.deepEqual(seen, ['2']);
-    var button = all(tracked.element, '.jpk-subtab')[0];
+    var button = all(tracked.element, '.base-subtab')[0];
     button.click();
     assert.equal(tracked.getValue(), '1');
 });
 
 test('sub tab ids with spaces build element ids with no spaces, wired together', function () {
     var tabs = createSubTabs({ tabs: [{ id: 'my tab', label: 'A' }, { id: 'b', label: 'B' }] });
-    var tab = tabs.element.querySelector('.jpk-subtab');
+    var tab = tabs.element.querySelector('.base-subtab');
     var panel = tabs.getPanel('my tab');
     assert.equal(/\s/.test(tab.id), false);
     assert.equal(/\s/.test(tab.getAttribute('aria-controls')), false);
@@ -119,7 +119,7 @@ test('a number and unit field ignores a base value that is not a number, and rea
     assert.equal(back.isValid(), true);
     back.setValue({ value: 11 });
     assert.equal(back.isValid(), false);
-    assert.equal(back.element.querySelector('.jpk-field-message-text').textContent, 'Enter a number from 2 to 10.');
+    assert.equal(back.element.querySelector('.base-field-message-text').textContent, 'Enter a number from 2 to 10.');
     var odd = createNumberUnitField({ units: ['x'], min: NaN, max: 'abc' });
     odd.setValue({ value: 100000 });
     assert.equal(odd.isValid(), true);
@@ -134,17 +134,17 @@ test('a schedule keeps only whole number days from 0 to 6, once each, and falls 
     p.setValue({});
     assert.deepEqual(p.getValue().days, []);
     var short = createSchedulePicker({ dayLabels: ['S', 'M'] });
-    var labels = all(short.element, '.jpk-toggle').map(function (b) { return b.textContent; });
+    var labels = all(short.element, '.base-toggle').map(function (b) { return b.textContent; });
     assert.deepEqual(labels, ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
     var own = createSchedulePicker({ dayLabels: ['a', 'b', 'c', 'd', 'e', 'f', 'g'] });
-    assert.equal(own.element.querySelector('.jpk-toggle').textContent, 'a');
+    assert.equal(own.element.querySelector('.base-toggle').textContent, 'a');
 });
 
 test('skeleton lines that are not a number fall back to the default of three', function () {
-    assert.equal(createSkeleton({ lines: NaN }).element.querySelectorAll('.jpk-skeleton-line').length, 3);
-    assert.equal(createSkeleton({ lines: 'abc' }).element.querySelectorAll('.jpk-skeleton-line').length, 3);
-    assert.equal(createSkeleton({ lines: Infinity }).element.querySelectorAll('.jpk-skeleton-line').length, 3);
-    assert.equal(createSkeleton({ lines: 2 }).element.querySelectorAll('.jpk-skeleton-line').length, 2);
+    assert.equal(createSkeleton({ lines: NaN }).element.querySelectorAll('.base-skeleton-line').length, 3);
+    assert.equal(createSkeleton({ lines: 'abc' }).element.querySelectorAll('.base-skeleton-line').length, 3);
+    assert.equal(createSkeleton({ lines: Infinity }).element.querySelectorAll('.base-skeleton-line').length, 3);
+    assert.equal(createSkeleton({ lines: 2 }).element.querySelectorAll('.base-skeleton-line').length, 2);
 });
 
 test('a tag input splits typed text on every separator it was given', function () {
@@ -178,20 +178,20 @@ test('a tag input keeps splitting on commas by default and keeps refused pieces 
 test('a key value editor disables Add and says so at maxRows, and lifts both when a row goes', function () {
     var e = createKeyValueEditor({ maxRows: 2, values: [{ key: 'a', value: '1' }] });
     dom.document.body.appendChild(e.element);
-    var add = e.element.querySelector('.jpk-kv-add');
+    var add = e.element.querySelector('.base-kv-add');
     var message = e.element.children[e.element.children.length - 1];
     assert.equal(add.disabled, false);
     assert.equal(shown(message), false);
     add.click();
     assert.equal(add.disabled, true);
     assert.equal(shown(message), true);
-    assert.equal(message.querySelector('.jpk-field-message-text').textContent, 'No more rows can be added.');
+    assert.equal(message.querySelector('.base-field-message-text').textContent, 'No more rows can be added.');
     assert.equal(e.addRow({ key: 'z' }), false);
-    e.element.querySelector('.jpk-kv-remove').click();
+    e.element.querySelector('.base-kv-remove').click();
     assert.equal(add.disabled, false);
     assert.equal(shown(message), false);
     var custom = createKeyValueEditor({ maxRows: 1, limitText: 'Full.', values: [{ key: 'a', value: '1' }] });
-    assert.equal(custom.element.children[custom.element.children.length - 1].querySelector('.jpk-field-message-text').textContent, 'Full.');
+    assert.equal(custom.element.children[custom.element.children.length - 1].querySelector('.base-field-message-text').textContent, 'Full.');
 });
 
 test('a log viewer treats null and undefined as an empty line and never throws', function () {
@@ -207,7 +207,7 @@ test('the avatar, status dot, banner, and toast kind lookups ignore inherited na
     ['constructor', '__proto__', 'toString', 'hasOwnProperty'].forEach(function (name) {
         var avatar = createAvatar({ name: 'A', status: name });
         assert.equal(avatar.getValue().status, '');
-        assert.equal(avatar.element.querySelector('.jpk-avatar-status'), null);
+        assert.equal(avatar.element.querySelector('.base-avatar-status'), null);
         var dot = createStatusDot({ color: name });
         assert.equal(dot.getValue().color, 'gray');
         var banner = createBanner({ kind: name, text: 'x' });

@@ -1,16 +1,16 @@
 <!-- title: Design Tokens -->
 <div id="mount"></div>
 <script type="module">
-await window.__jpkReady;
+await window.__baseReady;
 const swatch = (token, name) =>
     '<div style="width: 92px; text-align: center; font-size: 0.7rem;">' +
-    '<div style="height: 40px; border-radius: 8px; border: 1px solid var(--jpk-border); background: var(' + token + ');"></div>' + name + '</div>';
+    '<div style="height: 40px; border-radius: 8px; border: 1px solid var(--base-border); background: var(' + token + ');"></div>' + name + '</div>';
 const row = (tokens) => '<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">' +
     tokens.map((t) => swatch(t[0], t[1])).join('') + '</div>';
 document.getElementById('mount').innerHTML =
-    row([['--jpk-accent', 'accent'], ['--jpk-accent-hover', 'accent-hover'], ['--jpk-surface', 'surface'], ['--jpk-border', 'border'],
-         ['--jpk-accent-wash', 'accent-wash'], ['--jpk-wash', 'wash'], ['--jpk-wash-strong', 'wash-strong']]) +
-    row([['--jpk-success', 'success'], ['--jpk-warning', 'warning'], ['--jpk-error', 'error'], ['--jpk-error-hover', 'error-hover']]) +
-    row(['green', 'red', 'orange', 'purple', 'blue', 'gray', 'yellow', 'pink', 'teal'].map((c) => ['--jpk-' + c + '-bg', c + ' bg'])) +
-    row(['green', 'red', 'orange', 'purple', 'blue', 'gray', 'yellow', 'pink', 'teal'].map((c) => ['--jpk-' + c + '-fg', c + ' fg']));
+    row([['--base-accent', 'accent'], ['--base-accent-hover', 'accent-hover'], ['--base-surface', 'surface'], ['--base-border', 'border'],
+         ['--base-accent-wash', 'accent-wash'], ['--base-wash', 'wash'], ['--base-wash-strong', 'wash-strong']]) +
+    row([['--base-success', 'success'], ['--base-warning', 'warning'], ['--base-error', 'error'], ['--base-error-hover', 'error-hover']]) +
+    row(['green', 'red', 'orange', 'purple', 'blue', 'gray', 'yellow', 'pink', 'teal'].map((c) => ['--base-' + c + '-bg', c + ' bg'])) +
+    row(['green', 'red', 'orange', 'purple', 'blue', 'gray', 'yellow', 'pink', 'teal'].map((c) => ['--base-' + c + '-fg', c + ' fg']));
 </script>

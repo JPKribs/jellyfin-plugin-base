@@ -1,25 +1,7 @@
-/* Section that is always open, with the same look as a collapsible section but no toggle or chevron */
-/* Example: <div class="jpk-section"><div class="jpk-section-title">Title</div><div class="jpk-section-content"></div></div> */
-.jpk-section {
-    overflow: visible;
-}
+/* Section that is always open, with the collapsible section's frame, header, and body from collapsible-section.css, and no toggle or chevron */
+/* Example: <div class="base-section"><div class="base-section-title">Title</div><div class="base-section-content"></div></div> */
+.base-section { display: block; }
 
 /* Static header row styled like a collapsible header, with no button, pointer, or chevron */
-/* Example: <div class="jpk-section-title">Title</div> */
-.jpk-section-title {
-    width: 100%;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent);
-    color: inherit;
-    font-size: 1.1em;
-    font-weight: 500;
-    text-align: left;
-    text-transform: capitalize;
-}
-
-/* Section body that sits flush left, styled like a collapsible body */
-/* Example: <div class="jpk-section-content"></div> */
-.jpk-section-content {
-    padding: 16px 0 0 0;
-}
+/* Example: <div class="base-section-title">Title</div> */
+.base-section-title { cursor: default; text-transform: capitalize; }

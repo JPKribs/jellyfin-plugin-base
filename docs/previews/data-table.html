@@ -1,0 +1,19 @@
+<!-- title: Data Table -->
+<div id="table"></div>
+<script type="module">
+const base = await window.__baseReady;
+const rows = [
+    { id: 1, time: '10:04', user: 'ada', type: 'Sign in', country: 'United States', result: 'OK' },
+    { id: 2, time: '10:06', user: 'bob', type: 'Failed sign in', country: 'Germany', result: 'Wrong password' },
+    { id: 3, time: '10:07', user: 'cy', type: 'Blocked', country: 'China', result: 'Banned address' },
+    { id: 4, time: '10:12', user: 'dee', type: 'Sign in', country: 'United Kingdom', result: 'OK' }
+];
+const table = base.createDataTable({
+    columns: [{ key: 'time', label: 'Time' }, { key: 'user', label: 'User' }, { key: 'type', label: 'Type' }, { key: 'country', label: 'Country' }, { key: 'result', label: 'Result', sortable: false }],
+    rows,
+    search: { placeholder: 'Search activity' },
+    filters: [{ name: 'type', label: 'Types', options: [{ value: 'Sign in', label: 'Sign in' }, { value: 'Failed sign in', label: 'Failed sign in' }, { value: 'Blocked', label: 'Blocked' }] }],
+    selectable: true
+});
+document.getElementById('table').appendChild(table.element);
+</script>

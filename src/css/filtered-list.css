@@ -1,0 +1,124 @@
+/* A List with a search, filters, a sort, and a summary line above it, the base a Data Table is built on */
+/* Example: <div class="base-filtered-list"><div class="base-filtered-toolbar"></div><div class="base-filtered-summary">Showing 4 of 12.</div><div class="base-list rows"></div></div> */
+.base-filtered-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    min-width: 0;
+}
+/* Every part takes a full line, except pill rows, which share a line while they fit */
+.base-filtered-list > * { flex: 1 1 100%; min-width: 0; }
+
+/* Pill rows share a line a wide space apart while they fit, and wrap when they do not, each starting at the list's edge a narrow gap below */
+/* Example: <div class="base-pill-group base-filtered-pills">…</div><div class="base-pill-group base-filtered-pills">…</div> */
+.base-filtered-list > .base-pill-group.base-filtered-pills { flex: 0 1 auto; }
+/* The space between two groups on one line is wide, set after each group, so a group that wraps starts at the edge with the narrow gap above it */
+.pluginConfigurationPage .base-filtered-list > .base-filtered-pills,
+.base-dialog .base-filtered-list > .base-filtered-pills,
+.base-filtered-list > .base-filtered-pills { margin-right: calc(var(--base-gap-wide) - var(--base-gap-narrow)) !important; }
+/* A thin line between two pill rows that share a line, centered in the wide space, and none once they wrap */
+/* Example: <div class="base-pill-group base-filtered-pills">…</div><div class="base-pill-group base-filtered-pills beside">…</div> */
+.base-filtered-list > .base-filtered-pills.beside { position: relative; }
+.base-filtered-list > .base-filtered-pills.beside::before {
+    content: '';
+    position: absolute;
+    top: 15%;
+    bottom: 15%;
+    left: calc(var(--base-gap-wide) / -2);
+    border-left: 1px solid var(--base-border);
+}
+
+/* The list spaces its own parts with its gap, so the page's space under each component never applies inside it */
+/* Example: <div class="pluginConfigurationPage"><div class="base-filtered-list"><div class="base-cards"></div></div></div> */
+.pluginConfigurationPage .base-filtered-list > [class],
+.base-dialog .base-filtered-list > [class] { margin-top: 0 !important; margin-bottom: 0 !important; }
+
+/* The search field and the selects on one line that wraps, the search taking the room left over */
+/* Example: <div class="base-filtered-toolbar"><div class="base-search"></div><select class="base-filtered-select"></select><select class="base-filtered-sort"></select></div> */
+.base-filtered-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+}
+.base-filtered-toolbar:empty { display: none; }
+.base-filtered-toolbar > .base-search { flex: 1 1 calc(var(--base-size-large) * 5); min-width: 0; }
+.base-filtered-select,
+.base-filtered-sort { flex: 0 1 auto; width: auto; min-width: calc(var(--base-size-large) * 3.5); }
+
+/* Count cards that each turn a choice on and off: on is full strength, off is dimmed, and with none on every choice shows */
+/* Example: <div class="base-cards base-filtered-cards"><button class="base-card base-filtered-card green" aria-pressed="true"><span class="base-card-count">4</span><span class="base-card-label">Synced</span></button></div> */
+.base-filtered-card {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    transition: opacity 0.2s, box-shadow 0.2s;
+}
+.base-filtered-card[aria-pressed="true"] { box-shadow: inset 0 0 0 1px currentColor; }
+.base-filtered-cards.picking .base-filtered-card[aria-pressed="false"] { opacity: 0.45; }
+.base-filtered-card:hover { box-shadow: inset 0 0 0 1px currentColor; }
+.base-filtered-card:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 2px; }
+
+/* A row of pills, one per choice and an All pill, each with its count */
+/* Example: <div class="base-pill-group base-filtered-pills"><button class="base-pill small" aria-pressed="true">All</button><button class="base-pill small"><span>Movies</span><span class="base-filtered-pill-count">12</span></button></div> */
+.base-filtered-pill-count {
+    margin-left: var(--base-gap-narrow);
+    opacity: 0.7;
+    font-variant-numeric: tabular-nums;
+}
+.base-filtered-pill-count:empty { display: none; }
+
+/* A button beside the search or on the bar of selected items, hidden while its visible test says no */
+/* Example: <button class="raised base-button secondary field base-filtered-action" data-action="retry"><span class="material-icons" aria-hidden="true">refresh</span><span>Retry Errors</span></button> */
+.base-filtered-action[hidden] { display: none !important; }
+
+/* The bar over a list with multiple selection: the select all, the count of selected items, and the bulk actions, washed while it carries actions */
+/* Example: <div class="base-filtered-selectbar actions"><label class="base-check-row base-filtered-selectall"><input type="checkbox" class="base-check-row-input"><span class="base-check-label">Select all</span></label><span class="base-filtered-selected">2 selected</span><div class="base-filtered-bulk"></div></div> */
+.base-filtered-selectbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+}
+.base-filtered-selectbar.actions {
+    padding: var(--base-gap-narrow);
+    background: var(--base-wash);
+    border-radius: var(--base-radius-small);
+}
+.base-filtered-selectbar.actions.active { background: var(--base-accent-wash); }
+/* The select all box lines up with the row checkboxes under it, which sit at the row padding inside the list's border */
+/* Example: <div class="base-filtered-selectbar"><label class="base-check-row base-filtered-selectall"><input type="checkbox" class="base-check-row-input"></label></div> */
+.base-filtered-selectbar,
+.base-filtered-selectbar.actions { padding-left: calc(var(--base-pad-medium) + 1px - var(--base-gap-narrow)); }
+.base-filtered-selectall { flex: 0 0 auto; user-select: none; }
+.base-filtered-selected { opacity: 0.7; font-variant-numeric: tabular-nums; }
+.base-filtered-bulk { display: flex; flex-wrap: wrap; gap: var(--base-gap-narrow); }
+
+/* An item that a checkbox leads, when the item's render did not place the checkbox itself. The checkbox sits on the row's center line, where a media card centers its artwork too */
+/* Example: <div class="base-filtered-checked"><input type="checkbox" class="base-check-row-input base-filtered-check"><span class="base-filtered-checked-text">Alien</span></div> */
+.base-filtered-checked {
+    --base-filtered-check-left: 0px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    min-width: 0;
+    padding-left: calc(var(--base-filtered-check-left) + var(--base-icon-medium) + var(--base-gap-narrow));
+}
+.base-list.rows .base-filtered-checked { --base-filtered-check-left: var(--base-pad-medium); }
+.base-filtered-checked > input[type="checkbox"].base-check-row-input.base-filtered-check {
+    position: absolute;
+    left: var(--base-filtered-check-left);
+    top: 50%;
+    margin-top: calc(var(--base-icon-medium) / -2);
+}
+.base-filtered-checked > :last-child { flex: 1 1 auto; min-width: 0; }
+.base-filtered-checked-text { padding: var(--base-pad-small) var(--base-pad-medium) var(--base-pad-small) 0; }
+
+/* The line under the controls that says how many items show out of how many */
+/* Example: <div class="base-filtered-summary" role="status">Showing 4 of 12.</div> */
+.base-filtered-summary {
+    font-size: var(--base-font-small);
+    opacity: 0.7;
+}

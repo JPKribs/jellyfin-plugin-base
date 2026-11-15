@@ -1,20 +1,22 @@
-/* Bordered sub card on the surface color, for a group inside a section or a dialog */
-/* Example: <div class="jpk-panel"><div class="jpk-panel-header">Schedule</div><div class="jpk-panel-body">Fields go here.</div></div> */
-.jpk-panel {
-    background: var(--jpk-surface);
-    border: 1px solid var(--jpk-border);
-    border-radius: 8px;
-    overflow: hidden;
+/* Bordered sub card on the surface color, for a group inside a section or a dialog, the surface a record card shares */
+/* Example: <div class="base-panel"><div class="base-panel-header">Schedule</div><div class="base-panel-body">Fields go here.</div></div> */
+.base-panel,
+.base-record-card {
+    background: var(--base-surface);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-large);
 }
+.base-panel { overflow: hidden; }
 
 /* Header strip of a panel with a divider under it */
-/* Example: <div class="jpk-panel-header">Schedule</div> */
-.jpk-panel-header {
-    padding: 0.6em 1em;
+/* Example: <div class="base-panel-header">Schedule</div> */
+.base-panel-header {
+    padding: var(--base-pad-small) var(--base-pad-large);
     font-weight: 600;
-    border-bottom: 1px solid var(--jpk-border);
+    border-bottom: 1px solid var(--base-border);
 }
 
-/* Padded body of a panel */
-/* Example: <div class="jpk-panel-body">Fields go here.</div> */
-.jpk-panel-body { padding: 0.9em 1em; }
+/* Padded body of a panel, padded as a record card is */
+/* Example: <div class="base-panel-body">Fields go here.</div> */
+.base-panel-body,
+.base-record-card { padding: var(--base-pad-medium) var(--base-pad-large); }

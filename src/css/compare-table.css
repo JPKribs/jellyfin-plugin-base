@@ -1,0 +1,30 @@
+/* A Data Table of properties by columns of values, with a Show Only Changes toggle in its toolbar */
+/* Example: <div class="base-filtered-list base-data-table base-compare-table"><div class="base-filtered-toolbar"><button class="base-toggle base-compare-toggle" aria-pressed="false">Show Only Changes</button></div></div> */
+.base-compare-toggle .material-icons { font-size: var(--base-icon-small); }
+
+/* A row whose values differ, in the accent wash */
+/* Example: <div class="base-data-row changed" role="row"></div> */
+.base-compare-table .base-data-row.changed { background: var(--base-accent-wash); }
+
+/* One value. A value that differs from the first column is bold, and a missing one is dimmed */
+/* Example: <span class="base-compare-value differs">1980</span> */
+.base-compare-value { overflow: hidden; text-overflow: ellipsis; }
+.base-compare-value.differs { font-weight: 600; }
+.base-compare-value.missing { opacity: 0.55; }
+
+/* A section row, one small uppercase dimmed heading across every column over the rows it groups */
+/* Example: <div class="base-data-row base-compare-section" role="row"><div class="base-data-cell" role="cell"><span class="base-compare-section-text">Genres</span></div></div> */
+.base-compare-section > .base-data-cell:first-child,
+.base-compare-note > .base-data-cell:first-child { grid-column: 1 / -1; }
+.base-compare-section > .base-data-cell + .base-data-cell,
+.base-compare-note > .base-data-cell + .base-data-cell { display: none; }
+.base-compare-section {
+    font-size: var(--base-font-small);
+    text-transform: uppercase;
+}
+.base-compare-section .base-compare-section-text { opacity: 0.75; }
+
+/* A note row, a dimmed line of detail across every column that wraps rather than cut off */
+/* Example: <div class="base-data-row base-compare-note" role="row"><div class="base-data-cell" role="cell"><span class="base-compare-note-text">Changed because the source has a new overview.</span></div></div> */
+.base-compare-note > .base-data-cell:first-child { white-space: normal; overflow-wrap: anywhere; }
+.base-compare-note .base-compare-note-text { opacity: 0.7; }

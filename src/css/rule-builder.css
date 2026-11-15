@@ -1,0 +1,16 @@
+/* Rules of field, operator, and value under a choice of matching all or any, a Repeater with a warning row under the rules */
+/* Example: <div class="base-rule-builder"><div class="base-pill-group base-rule-match"></div><div class="base-repeater inline base-rule-rows"></div></div> */
+.base-rule-builder {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+    min-width: 0;
+}
+
+/* The value control of one rule, which follows the type of the rule's field */
+/* Example: <div class="base-rule-value"><div class="base-control base-control-number"><input type="number"></div></div> */
+.base-rule-value { min-width: 0; }
+
+/* The warning under the rules, a Field Message in the warning state */
+/* Example: <div class="base-rule-warning"><div class="base-field-message base-icon-text warn"></div></div> */
+.base-rule-warning { align-self: stretch; }

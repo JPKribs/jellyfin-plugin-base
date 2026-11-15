@@ -1,6 +1,0 @@
-/* Compact dimmed message for an empty list */
-/* Example: <div class="jpk-empty">No records yet</div> */
-.jpk-empty {
-    opacity: 0.7;
-    padding: 1em 0;
-}

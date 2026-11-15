@@ -18,7 +18,7 @@ public class StatusPageTests
 
         Assert.Contains("Sign in required", html, System.StringComparison.Ordinal);
         Assert.Contains("Please sign in.", html, System.StringComparison.Ordinal);
-        Assert.Contains("jpk-status-card", html, System.StringComparison.Ordinal);
+        Assert.Contains("base-status-card", html, System.StringComparison.Ordinal);
         // The content slot defaults to empty, so it must not leak as a literal token.
         Assert.DoesNotContain("{{", html, System.StringComparison.Ordinal);
     }
@@ -46,13 +46,13 @@ public class StatusPageTests
     {
         // The assertions look for the elements, since the template's style block always defines the classes.
         var withButton = StatusPage.Render("H", "M", buttonText: "Back", buttonHref: "../web/", showSpinner: true);
-        Assert.Contains("<div class=\"jpk-spinner\"", withButton, System.StringComparison.Ordinal);
-        Assert.Contains("<a class=\"jpk-btn\"", withButton, System.StringComparison.Ordinal);
+        Assert.Contains("<div class=\"base-spinner\"", withButton, System.StringComparison.Ordinal);
+        Assert.Contains("<a class=\"base-btn\"", withButton, System.StringComparison.Ordinal);
         Assert.Contains("../web/", withButton, System.StringComparison.Ordinal);
 
         var noButton = StatusPage.Render("H", "M", buttonText: null, buttonHref: null);
-        Assert.DoesNotContain("<a class=\"jpk-btn\"", noButton, System.StringComparison.Ordinal);
-        Assert.DoesNotContain("<div class=\"jpk-spinner\"", noButton, System.StringComparison.Ordinal);
+        Assert.DoesNotContain("<a class=\"base-btn\"", noButton, System.StringComparison.Ordinal);
+        Assert.DoesNotContain("<div class=\"base-spinner\"", noButton, System.StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -69,14 +69,14 @@ public class StatusPageTests
     [InlineData("{{MESSAGE}}")]
     [InlineData("{{SPINNER}}")]
     [InlineData("{{BUTTON}}")]
-    [InlineData("jpk-logo")]
+    [InlineData("base-logo")]
     public void StatusTemplate_ContainsRequiredMarkup(string needle)
     {
         Assert.Contains(needle, TemplateLoader.Load("status"), System.StringComparison.Ordinal);
     }
 
     /// <summary>
-    /// The card uses <c>.jpk-status-card</c> and not <c>.jpk-card</c>, which is the kit's stat card.
+    /// The card uses <c>.base-status-card</c> and not <c>.base-card</c>, which is the kit's stat card.
     /// True: a page that links the kit CSS beside this card keeps its look.
     /// False: the stat card rules would restyle the status card.
     /// </summary>
@@ -84,9 +84,9 @@ public class StatusPageTests
     public void StatusTemplate_UsesUncollidingCardClass()
     {
         var html = TemplateLoader.Load("status");
-        Assert.Contains("jpk-status-card", html, System.StringComparison.Ordinal);
-        Assert.DoesNotContain("class=\"jpk-card\"", html, System.StringComparison.Ordinal);
-        Assert.DoesNotContain(".jpk-card{", html, System.StringComparison.Ordinal);
+        Assert.Contains("base-status-card", html, System.StringComparison.Ordinal);
+        Assert.DoesNotContain("class=\"base-card\"", html, System.StringComparison.Ordinal);
+        Assert.DoesNotContain(".base-card{", html, System.StringComparison.Ordinal);
     }
 
     /// <summary>

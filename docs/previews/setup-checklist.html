@@ -1,0 +1,17 @@
+<!-- title: Setup Checklist -->
+<!-- min-height: 560 -->
+<div id="mount"></div>
+<script type="module">
+const base = await window.__baseReady;
+const checklist = base.createSetupChecklist({
+    steps: [
+        { key: 'port', title: 'Choose a Port', state: 'done', content: '<p>Port 8920 is open on this server.</p>' },
+        { key: 'router', title: 'Forward the Port', state: 'done', content: '<p>The router forwards 8920 to this server.</p>' },
+        { key: 'domain', title: 'Point a Domain', state: 'attention', content: '<p>media.example.com points to an old address.</p>', action: { text: 'Check Again', onClick: (key) => checklist.setState(key, 'done') } },
+        { key: 'certificate', title: 'Add a Certificate', state: 'todo', content: '<p>A certificate lets apps connect over HTTPS.</p>', action: { text: 'Request Certificate', onClick: (key) => checklist.setState(key, 'done') } },
+        { key: 'test', title: 'Test From Outside', state: 'todo', content: '<p>Runs a check from outside your network.</p>', action: { text: 'Run Test', onClick: (key) => checklist.setState(key, 'done') } },
+        { key: 'relay', title: 'Set Up a Relay', state: 'optional', content: '<p>A relay helps when your provider blocks incoming connections.</p>', action: { text: 'Set Up', className: 'secondary', onClick: (key) => checklist.setState(key, 'done') } }
+    ]
+});
+document.getElementById('mount').appendChild(checklist.element);
+</script>

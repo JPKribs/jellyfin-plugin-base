@@ -1,15 +1,15 @@
 <!-- title: Change Tracker -->
 <div class="inputContainer">
-    <label for="txtTrack">Name <span class="jpk-unsaved" id="unsavedIndicator"><span class="jpk-unsaved-dot"></span>Unsaved changes</span></label>
+    <label for="txtTrack">Name <span class="base-unsaved" id="unsavedIndicator"><span class="base-unsaved-dot"></span>Unsaved changes</span></label>
     <input is="emby-input" type="text" id="txtTrack" value="Living room" />
 </div>
 <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-    <button type="button" id="btnSave" class="raised jpk-button-submit jpk-button-small"><span>Save</span></button>
-    <span id="dirtyOut" class="jpk-mono">isDirty: false</span>
+    <button type="button" id="btnSave" class="raised base-button primary small"><span>Save</span></button>
+    <span id="dirtyOut" class="base-mono">isDirty: false</span>
 </div>
 <script type="module">
-const JPK = await window.__jpkReady;
-const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const base = await window.__baseReady;
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
 const input = document.getElementById('txtTrack');
 const tracker = shared.createChangeTracker({
     serialize: () => input.value,

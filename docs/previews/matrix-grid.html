@@ -1,0 +1,65 @@
+<!-- title: Matrix Grid -->
+<div id="grid"></div>
+<p class="fieldDescription">Units inside the number boxes, an Hours row of time boxes, a hidden column, and a note.</p>
+<div id="scheduleOn"></div>
+<div id="speeds"></div>
+<p class="fieldDescription">Read only badge columns.</p>
+<div id="roles"></div>
+<script type="module">
+const base = await window.__baseReady;
+const grid = base.createMatrixGrid({
+    rows: [
+        { key: 'movies', label: 'Movies', hint: '1,204 items' },
+        { key: 'shows', label: 'Shows', hint: '86 series' },
+        { key: 'music', label: 'Music', hint: '12,480 tracks' }
+    ],
+    columns: [
+        { key: 'watched', label: 'Watched', icon: 'visibility' },
+        { key: 'ratings', label: 'Ratings', icon: 'star' },
+        { key: 'mode', label: 'Mode', type: 'select', options: ['Copy', 'Link'] },
+        { key: 'limit', label: 'Limit', type: 'number', min: 0, max: 500 }
+    ],
+    rowHeader: 'Library',
+    value: { movies: { watched: true, ratings: true, mode: 'Link', limit: 100 }, shows: { watched: true } }
+});
+document.getElementById('grid').appendChild(grid.element);
+
+const speeds = base.createMatrixGrid({
+    rows: [
+        { key: 'downloads', label: 'Downloads', hint: 'Shared by every download to here' },
+        { key: 'main', label: 'Main Server', hint: 'Streams from this server' },
+        { key: 'hours', label: 'Hours', hint: 'Uses the server clock', cells: { normal: { type: 'time', unit: '' }, scheduled: { type: 'time', unit: '' } } }
+    ],
+    columns: [
+        { key: 'normal', label: 'Normal', type: 'number', min: 0, unit: 'Mbps' },
+        { key: 'scheduled', label: 'Scheduled', type: 'number', min: 0, unit: 'Mbps' }
+    ],
+    rowHeader: 'Limit',
+    label: 'Bandwidth',
+    note: 'Set stream speeds above the bitrate of your files, or playback buffers. 0 is no limit.',
+    value: { downloads: { normal: 100, scheduled: 20 }, main: { normal: 40, scheduled: 10 }, hours: { normal: '22:00', scheduled: '06:00' } }
+});
+document.getElementById('speeds').appendChild(speeds.element);
+document.getElementById('scheduleOn').appendChild(base.createCheckbox({ label: 'Scheduled Speeds', checked: true, onChange: function (on) { speeds.setColumnHidden('scheduled', !on); } }).element);
+
+const yes = { label: 'Yes', color: 'green' };
+const no = { label: 'No', color: 'red' };
+const limited = { label: 'Limited', color: 'orange' };
+const roles = base.createMatrixGrid({
+    rows: [
+        { key: 'visible', label: 'Libraries the user can see' },
+        { key: 'every', label: 'Every library' },
+        { key: 'downloads', label: 'File downloads' },
+        { key: 'live', label: 'New files as they happen', hint: 'Needs the user on the whitelist' }
+    ],
+    columns: [
+        { key: 'user', label: 'User', type: 'badge' },
+        { key: 'admin', label: 'Admin', type: 'badge' }
+    ],
+    rowHeader: 'Permission',
+    label: 'Permissions',
+    note: 'Signed in users need Allow Media Downloading.',
+    value: { visible: { user: yes, admin: yes }, every: { user: no, admin: yes }, downloads: { user: limited, admin: yes }, live: { user: limited, admin: yes } }
+});
+document.getElementById('roles').appendChild(roles.element);
+</script>

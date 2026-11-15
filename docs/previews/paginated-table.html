@@ -1,10 +1,22 @@
 <!-- title: Paginated Table -->
 <div id="contentTable"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
+const base = await window.__baseReady;
 const view = document.getElementById('view');
-const shared = JPK.createShared(view, 'preview-plugin', 'Preview');
-const table = JPK.createPaginatedTable(view, shared, {
+const shared = base.createShared(view, 'preview-plugin', 'Preview');
+// Stands in for a plugin's image proxy: a short wait, then artwork as a Blob, or a failure every seventh row so its placeholder shows.
+const HUES = [210, 280, 30, 140, 0];
+function loadArt(item) {
+    return function () {
+        const n = Number(item.id.split('-')[1]) || 0;
+        return new Promise((resolve, reject) => setTimeout(() => {
+            if (n % 7 === 0) { reject(new Error('No artwork')); return; }
+            const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="60"><rect width="40" height="60" fill="hsl(' + HUES[n % 5] + ',45%,45%)"/><text x="20" y="36" font-size="16" text-anchor="middle" fill="#fff" font-family="sans-serif">' + n + '</text></svg>';
+            resolve(new Blob([svg], { type: 'image/svg+xml' }));
+        }, 400 + (n % 4) * 200));
+    };
+}
+const table = base.createPaginatedTable(view, shared, {
     containerId: 'contentTable',
     endpoint: 'Items',
     search: { placeholder: 'Search episodes' },
@@ -12,9 +24,9 @@ const table = JPK.createPaginatedTable(view, shared, {
     pagination: { pageSize: 10, loadMore: true },
     filters: { options: [{ value: 'Queued', label: 'Queued' }, { value: 'Errored', label: 'Errored' }] },
     columns: [
-        { key: 'name', type: 'custom', render: (item) =>
-            '<div class="jpk-table-item-info"><div class="jpk-table-item-title">' + shared.escapeHtml(item.name) + '</div>' +
-            '<div class="jpk-table-item-sub">' + shared.formatSize(item.sizeBytes) + '</div></div>' },
+        { key: 'name', type: 'custom', image: loadArt, imageShape: 'portrait', render: (item) =>
+            '<div class="base-table-item-info"><div class="base-table-item-title">' + shared.escapeHtml(item.name) + '</div>' +
+            '<div class="base-table-item-sub">' + shared.formatSize(item.sizeBytes) + '</div></div>' },
         { key: 'status', type: 'status' }
     ],
     getDisplayStatus: (item) => item.status,

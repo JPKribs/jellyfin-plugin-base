@@ -1,0 +1,28 @@
+/* A List of boxed record rows a gap apart */
+/* Example: <div class="base-list plain base-record-list" role="list"><div class="base-list-item" role="listitem"><div class="base-item-row base-record-list-row"></div></div></div> */
+.base-record-list.base-list.plain { gap: var(--base-gap-narrow); }
+
+/* One record row: its title and secondary line, its tags under them, and a chevron or an aside control at its end. A row that opens takes the shared hover and focus ring */
+/* Example: <div class="base-item-row base-record-list-row openable" tabindex="0"><div class="base-record-list-body"><span class="base-item-row-text base-item-row-parts"></span><div class="base-tags base-record-list-tags"></div></div><button class="base-row-btn base-record-list-open"></button></div> */
+.base-record-list-row { padding-top: var(--base-pad-small); padding-bottom: var(--base-pad-small); }
+.base-record-list-row.openable { cursor: pointer; }
+.base-record-list-row.openable:hover { background: var(--base-wash); }
+.base-record-list-row.openable:focus { outline: none; }
+.base-record-list-row.openable:focus-visible { box-shadow: inset 0 0 0 2px var(--base-accent); }
+.base-record-list-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--base-gap-narrow) / 2);
+    min-width: 0;
+}
+
+/* The row's tags, each an icon and a label, which wrap under the text */
+/* Example: <div class="base-tags base-record-list-tags"><span class="base-tag"><span class="material-icons">movie</span><span>Movies</span></span><span class="base-tag base-tag-off"><span>4K</span></span></div> */
+.base-record-list-tags { margin-top: 0; }
+.base-record-list-tags .base-tag .material-icons { font-size: var(--base-icon-small); opacity: 0.8; }
+
+/* The chevron at the end of a row that opens, and the aside control that takes its place */
+/* Example: <div class="base-record-list-aside"><button class="raised base-button small">Unblock</button></div> */
+.base-record-list-open .material-icons { font-size: var(--base-chevron-secondary); }
+.base-record-list-aside { flex: 0 0 auto; display: flex; align-items: center; }

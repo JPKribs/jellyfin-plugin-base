@@ -4,7 +4,7 @@ A standalone, themed card page that the C# `StatusPage.Render` renders. It has a
 
 ## When to Use
 
-* Use it for served pages such as "sign in required" or "loading".
+* Use it for served pages such as a sign in prompt or a loading page.
 
 ## When Not to Use
 
@@ -14,28 +14,28 @@ A standalone, themed card page that the C# `StatusPage.Render` renders. It has a
 
 ```csharp
 var html = StatusPage.Render(
-    heading: "Sign in required",
+    heading: "Sign In Required",
     message: "Sign in to Jellyfin first.",
     buttonText: "Back to Jellyfin",
     buttonHref: "../web/");
 ```
 
-The template is `src/templates/status.html`, embedded as `<RootNamespace>.Templates.status.html`. It has one object marker comment, `card`. See [Pages and Templates](../csharp/pages-and-templates.md) for the C# side.
+The template is `src/templates/status.html`, embedded as `<RootNamespace>.Templates.status.html`. Each part sits under a comment that names it: `favicon`, `styles`, `card`, `logo`, `heading`, `message`, `spinner`, `button`, and `content`. See [Pages and Templates](../csharp/pages-and-templates.md) for the C# side.
 
 * `{{TITLE}}`: the document title, HTML encoded. It defaults to the heading.
 * `{{HEADING}}`: the `h1`, encoded.
 * `{{MESSAGE}}`: the paragraph, encoded.
-* `{{SPINNER}}`: `<div class="jpk-spinner" role="status" aria-label="Loading">`, or empty when `showSpinner` is off.
-* `{{BUTTON}}`: an `a.jpk-btn`, or empty. The defaults are "Back to Jellyfin" and `../web/`.
+* `{{SPINNER}}`: `<div class="base-spinner" role="status" aria-label="Loading">`, or empty when `showSpinner` is off.
+* `{{BUTTON}}`: an `a.base-btn`, or empty when `buttonText` or `buttonHref` is null or empty. The defaults are "Back to Jellyfin" and `../web/`.
 * `{{CONTENT}}`: raw HTML that is not encoded. Pass only markup the plugin owns.
 
-Classes, all defined in the template's own `<style>` block: `jpk-status-card`, `jpk-logo`, `jpk-spinner`, `jpk-btn`, `jpk-fields`, `jpk-hint`, `jpk-field-pair`, `jpk-submit`, `jpk-note`, and `hidden`.
+Classes, all defined in the template's own `<style>` block: `base-status-card`, `base-logo`, `base-spinner`, `base-btn`, `base-fields`, `base-hint`, `base-field-pair`, `base-submit`, `base-note`, and `hidden`.
 
 ## States and Modifiers
 
 * The page is always dark, a `#101010` page with a `#1c1c1f` card and the Jellyfin blue accent. It is centered with a 420px maximum width and 24px page padding, so it fits 375px.
-* `jpk-fields`, `jpk-hint`, `jpk-field-pair`, `jpk-submit`, and `jpk-note` are for a form a plugin supplies through `content`. `StatusPage.Render` does not produce them.
-* The template carries its own copy of `hidden` and a `jpk-spin` animation.
+* `base-fields`, `base-hint`, `base-field-pair`, `base-submit`, and `base-note` are for a form a plugin supplies through `content`. `StatusPage.Render` does not produce them.
+* The template carries its own copy of `hidden` and a `base-spin` animation.
 
 ## Gotchas
 
@@ -48,7 +48,7 @@ Custom Pages, User Management, and YouTube Audio use it.
 
 ## Example
 
-<iframe class="jpk-preview" src="../../../assets/previews/status-page.html" title="Status Page example" loading="lazy"></iframe>
+<iframe class="base-preview" src="../../../assets/previews/status-page.html" title="Status Page example" loading="lazy"></iframe>
 
 ## Example Code
 

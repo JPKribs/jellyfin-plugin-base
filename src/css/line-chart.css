@@ -1,0 +1,17 @@
+/* A line chart on the shared chart core: a line per series with a dot on each point, and an optional shaded area under it */
+/* Example: <figure class="base-chart base-line-chart"><div class="base-chart-plot"><svg><g class="base-chart-series blue"><path class="base-chart-line"></path><circle class="base-chart-dot base-chart-mark"></circle></g></svg></div></figure> */
+.base-chart-line {
+    fill: none;
+    stroke: var(--base-chart-color);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+.base-chart-area { fill: var(--base-chart-color); opacity: 0.15; stroke: none; }
+.base-chart-dot { fill: var(--base-surface); stroke: var(--base-chart-color); stroke-width: 2; }
+.base-chart-dot:hover { fill: var(--base-chart-color); }
+
+/* A quiet line chart, whose dots show only under the pointer */
+/* Example: <figure class="base-chart base-line-chart quiet"></figure> */
+.base-line-chart.quiet .base-chart-dot { opacity: 0; }
+.base-line-chart.quiet .base-chart-dot:hover { opacity: 1; }

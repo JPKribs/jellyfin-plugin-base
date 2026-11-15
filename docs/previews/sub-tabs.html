@@ -1,11 +1,11 @@
 <!-- title: Sub Tabs -->
 <div id="mount"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
+const base = await window.__baseReady;
 const view = document.getElementById('view');
 const mount = document.getElementById('mount');
-mount.appendChild(JPK.createSubTabs({
+mount.appendChild(base.createSubTabs({
     tabs: [{ id: 'general', label: 'General', text: 'General settings live here.' }, { id: 'advanced', label: 'Advanced' }, { id: 'off', label: 'Disabled', disabled: true }, { id: 'logs', label: 'Logs' }],
-    render: (tab) => tab.id === 'general' ? null : '<p style="margin:0">Built the first time ' + JPK.escapeHtml(tab.label) + ' opened.</p>'
+    render: (tab) => tab.id === 'general' ? null : '<p style="margin:0">Built the first time ' + base.escapeHtml(tab.label) + ' opened.</p>'
 }).element);
 </script>

@@ -6,7 +6,8 @@ import { installFakeDom, all } from './fake-dom.mjs';
 var dom = installFakeDom();
 var kit = await import('../../src/js/index.js');
 var { createSortableCardList, createChoiceGroup, bindSecretField, readSecretField, clearSecretField, SECRET_KEPT, bindPlaceholders, placeholderHint, createUserSelector, createShared } = kit;
-var { bindComboAria } = await import('../../src/js/combo-aria.js');
+var { bindComboAria } = await import('../../src/js/lib/combo-aria.js');
+var { createSearchableComboBox } = await import('../../src/js/combo-box.js');
 
 beforeEach(function () {
     dom = installFakeDom();
@@ -16,21 +17,18 @@ beforeEach(function () {
 
 async function flush() { for (var i = 0; i < 6; i++) await Promise.resolve(); }
 
-test('createSortableCardList writes the default Move Up, Move Down, and Drag to Reorder labels, and none without reorder', function () {
+// The stub DOM does not parse innerHTML, so the move buttons, which the row editor core adds as elements, are tested in row-editor.test.mjs.
+test('createSortableCardList writes the Drag to Reorder label and the arrows holder, and neither without reorder', function () {
     var host = dom.el('div');
     dom.document.body.appendChild(host);
     var listEl = host.appendChild(dom.el('div'));
     createSortableCardList(listEl, { items: [{ n: 'a' }, { n: 'b' }], render: function (item) { return { title: item.n }; } }).render();
     var first = listEl.children[0].innerHTML;
-    var last = listEl.children[1].innerHTML;
     assert.match(first, /title="Drag to Reorder"/);
-    assert.match(first, /title="Move Up" disabled/);
-    assert.match(first, /title="Move Down"><span/);
-    assert.match(last, /title="Move Up"><span/);
-    assert.match(last, /title="Move Down" disabled/);
+    assert.match(first, /class="base-card-item-arrows base-row-arrows"/);
     var plain = host.appendChild(dom.el('div'));
     createSortableCardList(plain, { reorder: false, items: [{ n: 'a' }], render: function (item) { return { title: item.n }; } }).render();
-    assert.doesNotMatch(plain.children[0].innerHTML, /Move Up|Drag to Reorder/);
+    assert.doesNotMatch(plain.children[0].innerHTML, /base-row-arrows|Drag to Reorder/);
 });
 
 test('createSortableCardList escapes a title and needs a list element and a render function', function () {
@@ -45,8 +43,8 @@ test('createSortableCardList escapes a title and needs a list element and a rend
 
 function choiceGroup() {
     var inputs = ['a', 'b'].map(function (v) { return dom.el('input', { type: 'radio', name: 'g', value: v }); });
-    var choices = inputs.map(function (i) { return dom.el('label', { class: 'jpk-choice' }, [i]); });
-    var group = dom.el('div', { class: 'jpk-choice-group' }, choices);
+    var choices = inputs.map(function (i) { return dom.el('label', { class: 'base-choice' }, [i]); });
+    var group = dom.el('div', { class: 'base-choice-group' }, choices);
     dom.document.body.appendChild(group);
     return { group: group, inputs: inputs, choices: choices };
 }
@@ -80,20 +78,23 @@ test('createChoiceGroup gives null with nothing checked and needs a group elemen
     assert.throws(function () { createChoiceGroup(null); }, /group element/);
 });
 
-test('bindSecretField empties the field and shows the default placeholder while a secret is stored', function () {
+test('bindSecretField empties the field and shows eight dots, with the hint in its title, while a secret is stored', function () {
     var input = dom.el('input', { type: 'password' });
     input.placeholder = 'Password';
     input.value = 'typed';
     bindSecretField(input, true);
     assert.equal(input.value, '');
-    assert.equal(input.placeholder, 'Saved, leave blank to keep');
+    assert.equal(input.placeholder, '\u2022'.repeat(8));
+    assert.equal(input.title, 'Saved, leave blank to keep');
+    assert.equal(input.classList.contains('base-secret-stored'), true);
     assert.equal(readSecretField(input), SECRET_KEPT);
     input.value = 'new';
     assert.equal(readSecretField(input), 'new');
     bindSecretField(input, true, { placeholder: 'Stored.' });
-    assert.equal(input.placeholder, 'Stored.');
+    assert.equal(input.title, 'Stored.');
     bindSecretField(input, false);
     assert.equal(input.placeholder, 'Password');
+    assert.equal(input.classList.contains('base-secret-stored'), false);
     assert.equal(readSecretField(input), '');
 });
 
@@ -121,9 +122,9 @@ test('bindSecretField wires the clear button once, and clearing posts an empty v
 function placeholderField() {
     var textarea = dom.el('textarea');
     textarea.value = 'Hello ';
-    var chip = dom.el('button', { type: 'button', 'data-jpk-placeholder': 'name' });
-    var list = dom.el('div', { class: 'jpk-placeholders', hidden: true }, [chip]);
-    var hint = dom.el('button', { type: 'button', 'data-jpk-hint': '', 'aria-expanded': 'false' });
+    var chip = dom.el('button', { type: 'button', 'data-base-placeholder': 'name' });
+    var list = dom.el('div', { class: 'base-placeholders', hidden: true }, [chip]);
+    var hint = dom.el('button', { type: 'button', 'data-base-hint': '', 'aria-expanded': 'false' });
     var container = dom.el('div', { class: 'inputContainer' }, [textarea, hint, list]);
     var root = dom.el('div', {}, [container]);
     dom.document.body.appendChild(root);
@@ -158,7 +159,7 @@ test('bindPlaceholders keeps focus in the field on mousedown, and binds a root o
 
 test('placeholderHint escapes names and descriptions', function () {
     var html = placeholderHint([['a"b', '<x>']]);
-    assert.match(html, /data-jpk-placeholder="a&quot;b"/);
+    assert.match(html, /data-base-placeholder="a&quot;b"/);
     assert.match(html, /title="&lt;x&gt;"/);
     assert.match(html, /\{a&quot;b\}/);
 });
@@ -182,7 +183,7 @@ test('createUserSelector filters administrators, hides the badge, and replaces t
     var only = createUserSelector({ fetchUsers: function () { return USERS; }, adminFilter: 'only', includeEmptyOption: false });
     await only.ready;
     assert.deepEqual(labels(only), ['Alice (admin)']);
-    var exclude = createUserSelector({ fetchUsers: function () { return USERS; }, adminFilter: 'exclude', placeholder: 'Anyone' });
+    var exclude = createUserSelector({ fetchUsers: function () { return USERS; }, adminFilter: 'exclude', emptyLabel: 'Anyone' });
     await exclude.ready;
     assert.deepEqual(labels(exclude), ['Anyone', 'Bob', 'Carol']);
     var plain = createUserSelector({ fetchUsers: function () { return USERS; }, showAdminBadge: false, emptyLabel: 'Nobody' });
@@ -291,13 +292,13 @@ test('copyWithFeedback takes replacement labels and a duration, and works with n
 
 test('bindComboAria wires the roles, opens and closes, and activates an option', function () {
     var input = dom.el('input', { type: 'text' });
-    var dropdown = dom.el('div', { class: 'jpk-combo-dropdown hidden' });
+    var dropdown = dom.el('div', { class: 'base-combo-dropdown hidden' });
     var aria = bindComboAria(input, dropdown);
     assert.equal(input.getAttribute('role'), 'combobox');
     assert.equal(input.getAttribute('aria-controls'), dropdown.id);
     assert.equal(dropdown.getAttribute('role'), 'listbox');
-    var a = dom.el('div', { class: 'jpk-combo-option' });
-    var b = dom.el('div', { class: 'jpk-combo-option' });
+    var a = dom.el('div', { class: 'base-combo-option' });
+    var b = dom.el('div', { class: 'base-combo-option' });
     dropdown.appendChild(a);
     dropdown.appendChild(b);
     aria.option(a, 0);
@@ -314,4 +315,25 @@ test('bindComboAria wires the roles, opens and closes, and activates an option',
     aria.setOpen(false);
     assert.equal(input.getAttribute('aria-expanded'), 'false');
     assert.equal(dropdown.classList.contains('hidden'), true);
+});
+
+test('createUserSelector puts size small or large on data-base-size, and leaves it off for medium or no size', function () {
+    function build(size) { return createUserSelector({ fetchUsers: function () { return []; }, size: size }); }
+    assert.equal(build('small').element.getAttribute('data-base-size'), 'small');
+    assert.equal(build('large').element.getAttribute('data-base-size'), 'large');
+    assert.equal(build('medium').element.hasAttribute('data-base-size'), false);
+    assert.equal(build(undefined).element.hasAttribute('data-base-size'), false);
+    var handle = build('small');
+    handle.setSize('large');
+    assert.equal(handle.element.getAttribute('data-base-size'), 'large');
+    handle.setSize('medium');
+    assert.equal(handle.element.hasAttribute('data-base-size'), false);
+});
+
+test('createSearchableComboBox puts size small or large on data-base-size, and leaves it off for medium or no size', function () {
+    function build(size) { return createSearchableComboBox({ searchFn: function (q, cb) { cb([]); }, size: size }); }
+    assert.equal(build('small').element.getAttribute('data-base-size'), 'small');
+    assert.equal(build('large').element.getAttribute('data-base-size'), 'large');
+    assert.equal(build('medium').element.hasAttribute('data-base-size'), false);
+    assert.equal(build(undefined).element.hasAttribute('data-base-size'), false);
 });

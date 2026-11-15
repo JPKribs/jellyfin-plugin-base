@@ -1,40 +1,40 @@
 /* Wrapper that scrolls a static table sideways when it is wider than its container */
-/* Example: <div class="jpk-static-table-scroll"><table class="jpk-static-table"></table></div> */
-.jpk-static-table-scroll {
+/* Example: <div class="base-static-table-scroll"><table class="base-static-table"></table></div> */
+.base-static-table-scroll {
     max-width: 100%;
     overflow-x: auto;
 }
 
 /* Plain bordered table with a tinted header row and a rule between rows */
-/* Example: <table class="jpk-static-table"><thead><tr><th>Name</th><th class="jpk-static-table-num">Size</th></tr></thead><tbody><tr><td>Poster</td><td class="jpk-static-table-num">12</td></tr></tbody></table> */
-.jpk-static-table {
+/* Example: <table class="base-static-table"><thead><tr><th>Name</th><th class="base-static-table-num">Size</th></tr></thead><tbody><tr><td>Poster</td><td class="base-static-table-num">12</td></tr></tbody></table> */
+.base-static-table {
     width: 100%;
-    border: 1px solid var(--jpk-border);
-    border-radius: 4px;
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-small);
     border-collapse: separate;
     border-spacing: 0;
     font-size: 0.95em;
 }
-.jpk-static-table th,
-.jpk-static-table td {
-    padding: 8px 12px;
+.base-static-table th,
+.base-static-table td {
+    padding: var(--base-pad-small) var(--base-pad-medium);
     text-align: left;
     vertical-align: top;
 }
-.jpk-static-table th {
+.base-static-table th {
     font-weight: 600;
     white-space: nowrap;
-    background: var(--jpk-wash);
+    background: var(--base-wash);
 }
-.jpk-static-table tr + tr > *,
-.jpk-static-table thead + tbody > tr:first-child > * {
-    border-top: 1px solid var(--jpk-border);
+.base-static-table tr + tr > *,
+.base-static-table thead + tbody > tr:first-child > * {
+    border-top: 1px solid var(--base-border);
 }
 
 /* Right aligned numeric column whose digits line up */
-/* Example: <td class="jpk-static-table-num">1,204</td> */
-.jpk-static-table th.jpk-static-table-num,
-.jpk-static-table td.jpk-static-table-num {
+/* Example: <td class="base-static-table-num">1,204</td> */
+.base-static-table th.base-static-table-num,
+.base-static-table td.base-static-table-num {
     text-align: right;
     font-variant-numeric: tabular-nums;
 }

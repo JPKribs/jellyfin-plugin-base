@@ -1,0 +1,20 @@
+<!-- title: Media Picker -->
+<!-- min-height: 420 -->
+<div id="mount"></div>
+<span id="pickStatus" class="base-status-text"></span>
+<script type="module">
+const base = await window.__baseReady;
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const MEDIA = window.__galleryData.MEDIA;
+const mount = document.getElementById('mount');
+
+const picker = base.createMediaPicker({
+    label: 'Excluded Titles',
+    description: 'Type two letters, such as ex.',
+    itemTypes: ['Movie', 'Series', 'Episode'],
+    value: [MEDIA[0]],
+    searchFn: (query) => Promise.resolve(MEDIA.filter((m) => m.Name.toLowerCase().indexOf(query.toLowerCase()) !== -1)),
+    onChange: (items) => shared.setStatus('pickStatus', items.length + ' picked.', false, { timeout: 0 })
+});
+mount.appendChild(picker.element);
+</script>

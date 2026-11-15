@@ -1,20 +1,20 @@
 <!-- title: Dialog -->
 <!-- min-height: 460 -->
 <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-    <button type="button" id="btnOpen" class="raised jpk-button-submit"><span>Open Dialog</span></button>
-    <button type="button" id="btnWide" class="raised jpk-secondary"><span>Open Wide Dialog</span></button>
+    <button type="button" id="btnOpen" class="raised base-button primary"><span>Open Dialog</span></button>
+    <button type="button" id="btnWide" class="raised base-button secondary"><span>Open Wide Dialog</span></button>
 </div>
-<span id="dialogStatus" class="jpk-status-text"></span>
+<span id="dialogStatus" class="base-status-text"></span>
 <script type="module">
-const JPK = await window.__jpkReady;
-const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
-shared.bindClick('btnOpen', () => JPK.openDialog({
+const base = await window.__baseReady;
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+shared.bindClick('btnOpen', () => base.openDialog({
     title: 'Session Log',
     body: '<p>The backdrop, the close button, and Escape all close it.</p>',
-    narrow: true,
+    size: 'small',
     buttons: [
-        { text: 'Close', className: 'jpk-secondary', action: (close) => close() },
-        { text: 'Retry', className: 'jpk-button-submit', value: 'retry' }
+        { text: 'Close', className: 'base-button secondary', action: (close) => close() },
+        { text: 'Retry', className: 'base-button primary', value: 'retry' }
     ],
     onClose: (value) => shared.setStatus('dialogStatus', 'Closed with ' + (value || 'nothing') + '.', false, { timeout: 0 })
 }));
@@ -23,14 +23,14 @@ shared.bindClick('btnWide', () => {
     for (let i = 1; i <= 12; i++) {
         fields += '<div class="inputContainer"><label>Field ' + i + '</label><input type="text" value="Value ' + i + '"></div>';
     }
-    JPK.openDialog({
+    base.openDialog({
         title: 'Wide Dialog',
-        wide: true,
+        size: 'large',
         body: fields,
         buttons: [
-            { text: 'Remove', className: 'jpk-button-destructive', action: (close) => close() },
-            { text: 'Cancel', className: 'jpk-secondary', action: (close) => close() },
-            { text: 'Done', className: 'jpk-button-submit', action: (close) => close() }
+            { text: 'Remove', className: 'base-button destructive', action: (close) => close() },
+            { text: 'Cancel', className: 'base-button secondary', action: (close) => close() },
+            { text: 'Done', className: 'base-button primary', action: (close) => close() }
         ]
     });
 });

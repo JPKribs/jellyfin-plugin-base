@@ -1,5 +1,8 @@
-import { make, listen, runAll, clear, nextId } from './dom-util.js';
-import { copyToClipboard } from './clipboard.js';
+import { make, listen, runAll, nextId } from './lib/dom.js';
+import { makeCheck, makeCheckRow } from './lib/check.js';
+import { copyToClipboard } from './browser-helpers.js';
+import { createList } from './list.js';
+import type { ListHeight } from './list.js';
 import type { ComponentHandle } from './types.js';
 
 /** One line as the log viewer keeps it. level is debug, info, warn, or error. */
@@ -12,7 +15,7 @@ export interface LogLine {
 /** A line that append takes, as plain text or as an object with a text, a level, and a time. */
 export type LogLineInput = string | number | { text?: unknown; level?: string; time?: string } | null | undefined;
 
-/** What createLogViewer takes. maxLines bounds the lines kept, dropping the oldest first. */
+/** What createLogViewer takes. maxLines bounds the lines kept, dropping the oldest first. height sets the output's height as a list's does. */
 export interface LogViewerOptions {
     lines?: LogLineInput[];
     maxLines?: number;
@@ -25,6 +28,9 @@ export interface LogViewerOptions {
     failedText?: string;
     emptyText?: string;
     toolbar?: boolean;
+    height?: ListHeight;
+    maxHeight?: number | string | null;
+    minHeight?: number | string | null;
     onClear?(): void;
 }
 
@@ -36,6 +42,7 @@ export interface LogViewerHandle extends ComponentHandle {
     getValue(): LogLine[];
     setValue(next: LogLineInput[]): void;
     setAutoScroll(on: boolean): void;
+    setHeight(height: ListHeight, maxHeight?: number | string | null): void;
     copyAll(): Promise<boolean>;
     destroy(): void;
 }
@@ -57,9 +64,12 @@ var LEVELS: string[] = ['debug', 'info', 'warn', 'error'];
  *   failedText     : feedback when the copy failed (default 'Copy failed.')
  *   emptyText      : sentence shown while there are no lines (default 'No output yet.')
  *   toolbar        : false hides the toolbar (default true)
+ *   height         : the output's height, 'auto', 'fill', a number of pixels, or a CSS length (default 280)
+ *   maxHeight      : the most the output grows to before it scrolls [optional]
+ *   minHeight      : the least a filling output takes (default 160px) [optional]
  *   onClear        : function() called after Clear is pressed [optional]
  * }
- * @returns { element, output, append, clear, getValue, setValue, setAutoScroll, copyAll, destroy }. append takes one line or an array of lines. getValue returns an array of { text, level, time }.
+ * @returns { element, output, append, clear, getValue, setValue, setAutoScroll, setHeight, copyAll, destroy }. append takes one line or an array of lines. getValue returns an array of { text, level, time }.
  */
 export function createLogViewer(options?: LogViewerOptions): LogViewerHandle {
     options = options || {};
@@ -69,24 +79,32 @@ export function createLogViewer(options?: LogViewerOptions): LogViewerHandle {
     var timer: ReturnType<typeof setTimeout> | null = null;
     var auto = options.autoScroll !== false;
 
-    var root = make('div', 'jpk-log');
-    var bar = make('div', 'jpk-log-toolbar');
+    var root = make('div', 'base-log');
+    var bar = make('div', 'base-log-toolbar');
     bar.hidden = options.toolbar === false;
-    var toggleLabel = make('label', 'jpk-log-toggle');
-    var toggle = make('input', '', { type: 'checkbox' });
-    toggle.id = nextId('log');
+    var toggle = makeCheck(null, { id: nextId('log') });
     toggle.checked = auto;
-    toggleLabel.appendChild(toggle);
-    toggleLabel.appendChild(make('span', '', null, options.autoScrollText || 'Auto Scroll'));
-    var clearButton = make('button', 'raised jpk-button-small jpk-secondary', { type: 'button' }, options.clearText || 'Clear');
-    var copyButton = make('button', 'raised jpk-button-small jpk-secondary', { type: 'button' }, options.copyText || 'Copy All');
+    var toggleLabel = makeCheckRow(toggle, options.autoScrollText || 'Auto Scroll', 'base-checkbox base-log-toggle');
+    var clearButton = make('button', 'raised base-button small secondary', { type: 'button' }, options.clearText || 'Clear');
+    var copyButton = make('button', 'raised base-button small secondary', { type: 'button' }, options.copyText || 'Copy All');
     bar.appendChild(toggleLabel);
     bar.appendChild(clearButton);
     bar.appendChild(copyButton);
-    var output = make('div', 'jpk-log-output', { role: 'log', 'aria-live': 'off', 'aria-label': options.label || 'Log', tabindex: '0' });
-    var empty = make('div', 'jpk-log-empty', null, options.emptyText || 'No output yet.');
+    var output = make('div', 'base-log-output', { role: 'log', 'aria-live': 'off', 'aria-label': options.label || 'Log', tabindex: '0' });
     root.appendChild(bar);
     root.appendChild(output);
+    var list = createList<LogLine>({
+        element: output,
+        layout: 'plain',
+        wrap: false,
+        role: 'log',
+        emptyText: options.emptyText || 'No output yet.',
+        height: options.height === undefined ? 280 : options.height,
+        maxHeight: options.maxHeight,
+        minHeight: options.minHeight,
+        render: node
+    });
+    list.emptyElement.classList.add('base-log-empty');
 
     function normalize(line: LogLineInput): LogLine {
         if (line === undefined || line === null) return { text: '', level: 'info', time: '' };
@@ -95,15 +113,10 @@ export function createLogViewer(options?: LogViewerOptions): LogViewerHandle {
     }
 
     function node(line: LogLine): HTMLDivElement {
-        var el = make('div', 'jpk-log-line ' + line.level);
-        if (line.time) el.appendChild(make('span', 'jpk-log-time', null, line.time));
-        el.appendChild(make('span', 'jpk-log-text', null, line.text));
+        var el = make('div', 'base-log-line ' + line.level);
+        if (line.time) el.appendChild(make('span', 'base-log-time', null, line.time));
+        el.appendChild(make('span', 'base-log-text', null, line.text));
         return el;
-    }
-
-    function syncEmpty(): void {
-        if (!lines.length) { if (!empty.parentNode) output.appendChild(empty); }
-        else if (empty.parentNode) output.removeChild(empty);
     }
 
     function follow(): void {
@@ -113,23 +126,30 @@ export function createLogViewer(options?: LogViewerOptions): LogViewerHandle {
     function append(next: LogLineInput | LogLineInput[]): void {
         var batch = (Array.isArray(next) ? next : [next]).map(normalize);
         if (!batch.length) return;
-        if (!lines.length && empty.parentNode) output.removeChild(empty);
-        batch.forEach(function (line) {
-            lines.push(line);
-            output.appendChild(node(line));
-        });
-        while (lines.length > max) {
-            lines.shift();
-            var first = output.querySelector('.jpk-log-line');
-            if (first) output.removeChild(first);
+        // A batch that fills the cap replaces every line, so it is drawn once rather than drawn and dropped.
+        if (batch.length >= max) {
+            lines = batch.slice(batch.length - max);
+            redraw();
+            follow();
+            return;
+        }
+        batch.forEach(function (line) { lines.push(line); });
+        list.append(batch);
+        var extra = lines.length - max;
+        if (extra > 0) {
+            lines.splice(0, extra);
+            list.removeFirst(extra);
         }
         follow();
     }
 
+    function redraw(): void {
+        list.setItems(lines);
+    }
+
     function reset(): void {
         lines = [];
-        clear(output);
-        syncEmpty();
+        redraw();
     }
 
     function setAutoScroll(on: boolean): void {
@@ -167,7 +187,8 @@ export function createLogViewer(options?: LogViewerOptions): LogViewerHandle {
         getValue: function () { return lines.map(function (l) { return { text: l.text, level: l.level, time: l.time }; }); },
         setValue: function (next) { reset(); if (next && next.length) append(next); },
         setAutoScroll: setAutoScroll,
+        setHeight: function (height, maxHeight) { list.setHeight(height, maxHeight); },
         copyAll: copyAll,
-        destroy: function () { clearTimeout(timer as ReturnType<typeof setTimeout>); runAll(cleanups); }
+        destroy: function () { clearTimeout(timer as ReturnType<typeof setTimeout>); runAll(cleanups); list.destroy(); }
     };
 }

@@ -1,0 +1,68 @@
+/* Soft inline callout with one shared shape and one color per meaning, in five variants */
+/* Example: <div class="base-info">Password is your API key.</div> */
+.base-info,
+.base-success,
+.base-warn,
+.base-error,
+.base-neutral {
+    border: 1px solid;
+    border-radius: var(--base-radius-medium);
+    padding: var(--base-pad-small) var(--base-pad-medium);
+    font-size: 0.9em;
+}
+
+/* Blue callout for guidance and hints */
+/* Example: <div class="base-info">Password is your API key.</div> */
+.base-info {
+    background: rgba(52, 152, 219, 0.12);
+    border-color: rgba(52, 152, 219, 0.4);
+}
+
+/* Green callout for a successful or healthy state */
+/* Example: <div class="base-success">Connected.</div> */
+.base-success {
+    background: rgba(92, 184, 92, 0.12);
+    border-color: rgba(92, 184, 92, 0.4);
+}
+
+/* Orange callout for a caution to heed */
+/* Example: <div class="base-warn">This replaces the current file.</div> */
+.base-warn {
+    background: rgba(240, 173, 78, 0.12);
+    border-color: rgba(240, 173, 78, 0.4);
+}
+
+/* Red callout for a failure or blocking problem */
+/* Example: <div class="base-error">Could not connect.</div> */
+.base-error {
+    background: rgba(217, 83, 79, 0.12);
+    border-color: rgba(217, 83, 79, 0.4);
+}
+
+/* Gray callout for a muted or inactive note */
+/* Example: <div class="base-neutral">Not configured.</div> */
+.base-neutral {
+    background: rgba(153, 153, 153, 0.12);
+    border-color: rgba(153, 153, 153, 0.4);
+}
+
+/* The tints mix the color tokens in @supports because a var() value is accepted when parsed and would wipe the fallback. */
+@supports (color: color-mix(in srgb, red, blue)) {
+    .base-info { background: color-mix(in srgb, var(--base-blue-fg) 12%, transparent); border-color: color-mix(in srgb, var(--base-blue-fg) 40%, transparent); }
+    .base-success { background: color-mix(in srgb, var(--base-green-fg) 12%, transparent); border-color: color-mix(in srgb, var(--base-green-fg) 40%, transparent); }
+    .base-warn { background: color-mix(in srgb, var(--base-orange-fg) 12%, transparent); border-color: color-mix(in srgb, var(--base-orange-fg) 40%, transparent); }
+    .base-error { background: color-mix(in srgb, var(--base-red-fg) 12%, transparent); border-color: color-mix(in srgb, var(--base-red-fg) 40%, transparent); }
+    .base-neutral { background: color-mix(in srgb, var(--base-gray-fg) 12%, transparent); border-color: color-mix(in srgb, var(--base-gray-fg) 40%, transparent); }
+}
+
+/* Red, mono block for surfacing raw failure text such as an error body or a stack line */
+/* Example: <div class="base-error-message">Request failed</div> */
+.base-error-message {
+    background: var(--base-red-bg);
+    color: var(--base-red-fg);
+    padding: var(--base-pad-small) var(--base-pad-medium);
+    border-radius: var(--base-radius-small);
+    font-family: var(--base-mono);
+    font-size: 0.9em;
+    word-break: break-all;
+}

@@ -1,14 +1,26 @@
 <!-- title: Stepper -->
-<div id="mount"></div>
+<div id="mount" style="display: grid; gap: 24px;"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
-const view = document.getElementById('view');
+const base = await window.__baseReady;
 const mount = document.getElementById('mount');
-const stepper = JPK.createStepper({
+const stepper = base.createStepper({
     steps: [{ id: 'a', label: 'Connect', description: 'Pick a server' }, { id: 'b', label: 'Choose', description: 'Select content' }, { id: 'c', label: 'Review' }],
     value: 'b',
     clickable: true,
     onSelect: (id) => stepper.setValue(id)
 });
 mount.appendChild(stepper.element);
+// Each step's own state, drawn as a bar of segments.
+const bar = base.createStepper({
+    layout: 'segments',
+    clickable: 'all',
+    steps: [
+        { id: 'port', label: 'Choose a Port', state: 'completed' },
+        { id: 'domain', label: 'Point a Domain', state: 'attention' },
+        { id: 'cert', label: 'Add a Certificate', state: 'current' },
+        { id: 'relay', label: 'Set Up a Relay', state: 'optional' }
+    ],
+    value: 'cert'
+});
+mount.appendChild(bar.element);
 </script>

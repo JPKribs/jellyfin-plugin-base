@@ -1,9 +1,10 @@
 <!-- title: Progress Bar -->
-<div class="jpk-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" aria-label="Download">
-    <div class="jpk-progress-bar" style="width: 40%"></div>
+<div class="base-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" aria-label="Download">
+    <div class="base-progress-bar" style="width: 40%"></div>
 </div>
-<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px;">
-    <button type="button" class="raised jpk-button-submit jpk-btn-progress-host"><span>Run</span><div class="jpk-btn-progress" style="width: 55%"></div></button>
-    <button type="button" class="raised jpk-button-destructive jpk-btn-progress-host"><span>Remove</span><div class="jpk-btn-progress" style="width: 55%"></div></button>
-    <button type="button" class="raised jpk-btn-progress-host"><span>Plain</span><div class="jpk-btn-progress" style="width: 55%"></div></button>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 16px;">
+    <button type="button" class="raised base-button primary base-btn-progress-host"><span>Run 55%</span><div class="base-progress-bar base-btn-progress" style="width: 55%"></div></button>
+    <button type="button" class="raised base-button destructive base-btn-progress-host"><span>Remove 55%</span><div class="base-progress-bar base-btn-progress" style="width: 55%"></div></button>
+    <button type="button" class="raised base-button secondary large base-btn-progress-host"><span>Scan 55%</span><div class="base-progress-bar base-btn-progress" style="width: 55%"></div></button>
+    <span style="display: inline-flex; align-items: center;"><button type="button" class="raised base-button primary small"><span>Refresh 55%</span></button><span class="base-ring base-ring-small base-ring-pie base-btn-progress-pie" role="progressbar" aria-label="Refresh" aria-valuemin="0" aria-valuemax="100" aria-valuenow="55"><svg viewBox="0 0 36 36" aria-hidden="true"><circle class="base-ring-track" cx="18" cy="18" r="9" fill="none" pathLength="100"></circle><circle class="base-ring-arc" cx="18" cy="18" r="9" fill="none" pathLength="100" stroke-dasharray="55 100"></circle></svg></span></span>
 </div>

@@ -1,0 +1,32 @@
+<!-- title: Compare Table -->
+<div id="compare" style="display: flex; flex-direction: column; gap: 24px;"></div>
+<script type="module">
+const base = await window.__baseReady;
+const mount = document.getElementById('compare');
+const table = base.createCompareTable({
+    rows: [
+        { key: 'title', label: 'Title', values: { source: 'Alien', local: 'Alien', after: 'Alien' } },
+        { key: 'year', label: 'Year', values: { source: 1979, local: 1980, after: 1979 } },
+        { key: 'rating', label: 'Rating', values: { source: 'R', local: '', after: 'R' } },
+        { key: 'played', label: 'Played', values: { source: 'Yes', local: 'No', after: 'Yes' } },
+        { key: 'path', label: 'Path', values: { source: '/media/movies/Alien (1979)', local: '/media/movies/Alien (1979)', after: '/media/movies/Alien (1979)' } }
+    ]
+});
+mount.appendChild(table.element);
+const grouped = base.createCompareTable({
+    rows: [
+        { section: 'Metadata' },
+        { key: 'name', label: 'Name', values: { source: 'Alien', local: 'Alien', after: 'Alien' } },
+        { key: 'overview', label: 'Overview', values: { source: 'The crew of the Nostromo answers a distress call.', local: 'A crew answers a distress call.', after: 'The crew of the Nostromo answers a distress call.' } },
+        { note: 'Changed because the source has a new overview.' },
+        { section: 'Genres' },
+        { key: 'genres', label: 'Genres', values: { source: 'Horror, Sci-Fi', local: 'Horror', after: 'Horror, Sci-Fi' } },
+        { section: 'Tags' },
+        { key: 'tags', label: 'Tags', values: { source: 'Classic', local: 'Classic', after: 'Classic' } },
+        { section: 'Studios' },
+        { key: 'studios', label: 'Studios', values: { source: 'Brandywine', local: 'Brandywine', after: 'Brandywine' } }
+    ],
+    onlyChanges: true
+});
+mount.appendChild(grouped.element);
+</script>

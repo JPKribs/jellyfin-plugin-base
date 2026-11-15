@@ -1,0 +1,50 @@
+/* A QR code in the rounded style, round dots in the text color and rounded finder eyes in the accent on the surface.
+   The code on the left, and beside it Copy Image and Download as two equal buttons a field tall over its text as a Copy Field, filling the line and level with the code's bottom edge */
+/* Example: <div class="base-qr-code"><div class="base-qr-code-frame" role="img" aria-label="QR code for https://example.com"><svg viewBox="0 0 29 29"></svg></div><div class="base-qr-code-side"><div class="base-button-row base-qr-code-actions"></div><div class="base-copy-field"></div></div></div> */
+.base-qr-code {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--base-gap-wide);
+    min-width: 0;
+}
+.base-qr-code-frame {
+    flex: 0 0 auto;
+    width: calc(var(--base-size-large) * 6);
+    max-width: 100%;
+    box-sizing: border-box;
+    background: var(--base-surface);
+    color: var(--base-fg);
+    border: 1px solid var(--base-border);
+    border-radius: calc(var(--base-radius-large) * 2);
+    overflow: hidden;
+}
+.base-qr-code-side {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+}
+/* The buttons and the Copy Field are part of the code, so they take none of the page's field spacing and end level with the frame */
+.pluginConfigurationPage .base-qr-code-side > [class],
+.base-dialog .base-qr-code-side > [class] { margin: 0 !important; }
+.base-qr-code-side > .base-field-message[hidden] { display: none; }
+
+/* A narrow QR code stacks: the code the full width, then the buttons and the text under it at the same width */
+/* Example: <div class="base-qr-code compact"></div> */
+.base-qr-code.compact { flex-direction: column; align-items: stretch; }
+.base-qr-code.compact > .base-qr-code-frame { width: 100%; }
+
+.base-qr-code-frame[hidden],
+.base-qr-code-actions[hidden],
+.base-qr-code-side > .base-copy-field[hidden] { display: none; }
+.base-qr-code-frame > svg { display: block; width: 100%; height: auto; }
+.base-qr-code-bg { fill: var(--base-surface); }
+.base-qr-code-modules { fill: currentColor; }
+.base-qr-code-eyes { fill: var(--base-accent); }
+
+/* The Copy Image and Download buttons, two equal halves of a button row the code's width, a field tall like the Copy Field under them */
+/* Example: <div class="base-button-row base-qr-code-actions"><button class="raised base-button secondary fill base-qr-code-copy">Copy Image</button><button class="raised base-button secondary fill base-qr-code-download">Download</button></div> */
+.base-qr-code-actions { flex-wrap: nowrap; }
+.base-qr-code-actions > .base-button { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.base-qr-code-copy.success { color: var(--base-green-fg); }

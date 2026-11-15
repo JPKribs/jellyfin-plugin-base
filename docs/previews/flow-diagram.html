@@ -1,0 +1,28 @@
+<!-- title: Flow Diagram -->
+<div id="mount"></div>
+<script type="module">
+const base = await window.__baseReady;
+const mount = document.getElementById('mount');
+mount.appendChild(base.createFlowDiagram({
+    label: 'Servers this one is set up with',
+    hub: { label: 'Home', title: 'Home, this server' },
+    lanes: [
+        { key: 'pull', side: 'left', direction: 'in', color: 'green', label: 'Pull', items: [
+            { label: 'Office', status: 'green', title: 'Office, Pull, answering' },
+            { label: 'Parents', status: 'orange', title: 'Parents, Pull, no plugin' },
+            { label: 'Archive', status: 'gray', title: 'Archive, Pull, disabled' }
+        ] },
+        { key: 'push', side: 'right', direction: 'out', color: 'blue', label: 'Push', items: [
+            { label: 'Cabin', status: 'green', title: 'Cabin, Push, answering' },
+            { label: 'Backup NAS', status: 'red', title: 'Backup NAS, Push, not answering' }
+        ] },
+        { key: 'sync', side: 'below', direction: 'both', color: 'purple', label: 'Sync', items: [
+            { label: 'Studio', status: 'green', title: 'Studio, Sync, answering' },
+            { label: 'Lake House', status: 'green', title: 'Lake House, Sync, answering' },
+            { label: 'Grandma', status: 'orange', title: 'Grandma, Sync, no plugin' },
+            { label: 'Travel Laptop Server', status: 'red', title: 'Travel Laptop Server, Sync, not answering' },
+            { label: 'Garage', status: 'gray', title: 'Garage, Sync, disabled' }
+        ] }
+    ]
+}).element);
+</script>

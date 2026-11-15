@@ -77,7 +77,13 @@ grep -hE '^\s*public\s+(static |sealed |abstract |readonly |partial )*(class|rec
 
 ### Web Pages
 
-A web page has a **Usage** section and a live **Example**. It carries no table of every option or signature either. The example code shows the options, and the JS comments and the CSS header comments are the reference.
+A web page has a **Usage** section, a generated **Reference**, and a live **Example**.
+
+* `scripts/build-docs.mjs` writes each page's Reference between the `reference:start` and `reference:end` markers, from the code: every export and its signature, every option with its type and the description from the function's TSDoc, every handle member, every other type, and every CSS class and modifier with its header line. Never edit inside the markers. Edit the code and run the script.
+* `node scripts/build-docs.mjs --check` runs in the build, docs, and release workflows. It fails when a Reference is out of date, or when a component file has no page, a page has no preview, or a page is missing from the nav or the index.
+* Every file in `src/js/*.ts` and `src/css/*.css` is a component, except `index`, `types`, `globals`, and `animations`, and the cores in `src/js/lib/`. A component's page is `docs/components/web/<name>.md` and its preview is `docs/previews/<name>.html`, both named after its source file.
+* A variation's page says what it is built on and links to that page, and documents only what it adds. The base's page holds the shared behavior.
+* Write an option's description, with its default, in the `name : what it is (default x)` line of the function's TSDoc, so the Reference picks it up.
 
 Every web page has the same sections, in this order.
 
@@ -85,10 +91,18 @@ Every web page has the same sections, in this order.
 2. **When to Use** and **When Not to Use**, with a link to the component to use instead.
 3. **Usage**, the minimal markup or call, and the classes.
 4. **States and Modifiers** and **Gotchas**, only for what the example does not show.
-5. **Used By**, the plugins that use it today, found by searching their pages.
-6. **Example**, the live frame, and **Example Code**, the preview source.
+5. **Reference**, generated, so leave it to the script.
+6. **Used By**, the plugins that use it today, found by searching their pages.
+7. **Example**, the live frame, and **Example Code**, the preview source.
 
-`docs/components/web/index.md` lists every page by group, and `mkdocs.yml` lists each page in the nav under **Web**.
+`docs/components/web/index.md` lists every page by group, with one row per page, and `mkdocs.yml` lists each page in the nav under **Web**, in the same group, such as **Page Lifecycle and Helpers** or **Layout and Sections**.
+
+### Add a Web Component Page
+
+1. Create `docs/components/web/<name>.md` with the sections above, and empty `reference:start` and `reference:end` markers.
+2. Add its preview, per [Add a Preview](#add-a-preview).
+3. Add the page to its group in the nav in `mkdocs.yml`, and a row to the same group in `docs/components/web/index.md`.
+4. Run `bash scripts/bundle.sh`, then `node scripts/build-docs.mjs` to write the Reference, then `node scripts/build-docs.mjs --check`.
 
 ## Live Previews
 
@@ -98,10 +112,10 @@ A web page embeds a live example, the real bundle running in an isolated page, s
 | :--- | :--- | :--- |
 | Snippet | `docs/previews/<name>.html` | The markup and a module script that calls the real Base API. One per component. |
 | Shell | `docs/previews/_shell.html` | Wraps every snippet. Loads the bundle, the Material Icons font, and the stubs, holds the light and dark toggle, and reports its height. |
-| Stubs | `docs/previews/_stubs.js` | The Jellyfin globals (`Dashboard`, `ApiClient`) with mock users and rows. A copy of the gallery's stub block. |
+| Stubs | `docs/previews/_stubs.js` | The Jellyfin globals (`Dashboard`, `ApiClient`) with mock users, rows, and library items. The gallery loads the same file, and frames the built previews of the newest components. |
 | Build | `scripts/build-previews.mjs` | Writes the finished pages, a copy of the bundle, and a copy of the status template to `docs/assets/previews/`, which is not committed. |
 | Frame script | `docs/assets/preview.js` | Sizes each frame from the height the preview posts, and sends it the docs color scheme. |
-| Frame style | `docs/assets/preview.css` | Styles `iframe.jpk-preview`. |
+| Frame style | `docs/assets/preview.css` | Styles `iframe.base-preview`. |
 
 `mkdocs.yml` lists the script and the style under `extra_javascript` and `extra_css`, and it excludes `previews/` from the site, so only the built pages ship. The `pymdownx.snippets` extension reads the snippets from `docs/previews/` for the **Example Code** blocks.
 
@@ -110,14 +124,14 @@ A web page embeds a live example, the real bundle running in an isolated page, s
 Put the frame on the page, after the usage. The path is relative to the built page, and a page in `docs/components/web/` is three folders below the site root.
 
 ```html
-<iframe class="jpk-preview" src="../../../assets/previews/badge.html" title="Badge example" loading="lazy"></iframe>
+<iframe class="base-preview" src="../../../assets/previews/badge.html" title="Badge example" loading="lazy"></iframe>
 ```
 
 ### Add a Preview
 
 1. Create `docs/previews/<component>.html`. Start it with `<!-- title: Name -->`, and with `<!-- min-height: 360 -->` when the content is an overlay or fixed and does not size the page.
-2. Write the markup, then a module script that starts with `const JPK = await window.__jpkReady;`. Call the real API, such as `JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview')`. Never copy the component's markup by hand when the API builds it.
-3. Run the bundle and the preview build, then the strict docs build, and look at the page in light and dark.
+2. Write the markup, then a module script that starts with `const base = await window.__baseReady;`. Call the real API, such as `base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview')`. Never copy the component's markup by hand when the API builds it.
+3. Run the bundle and the preview build, then the strict docs build, and look at the page in light and dark, at desktop, tablet, and phone width.
 
     ```bash
     bash scripts/bundle.sh && node scripts/build-previews.mjs && mkdocs build --strict
@@ -175,8 +189,8 @@ The site is MkDocs with the Material theme, built from `docs/` by `mkdocs.yml` a
 Keep the nav in this order.
 
 1. **Overview** (`index.md`). What Base is, how a plugin consumes it, and where to start.
-2. **Getting Started**. `Usage.md`.
-3. **Components**. **Web**, with `components/web/index.md` and one page per component, then **C#**, with `components/csharp/index.md` and its pages by purpose.
+2. **Getting Started**. **Using Base**, `Usage.md`.
+3. **Components**. **Web**, with `components/web/index.md`, **Design Tokens**, and one page per component in groups by purpose, then **C#**, with `components/csharp/index.md` and its pages by purpose.
 4. **Development**. `Releasing.md`.
 
 * Name page files in lowercase with hyphens, such as `plugin-and-tasks.md`, under `docs/components/csharp/` or `docs/components/web/`. The older top level pages keep their names.
@@ -257,17 +271,17 @@ Rerun `node scripts/build-previews.mjs` after a change to a snippet, the shell, 
 
 ## Publishing the Site
 
-`.github/workflows/docs.yaml` builds and publishes the site itself. Its `build` job checks out, sets up Node 22, runs `scripts/bundle.sh` and `scripts/build-previews.mjs`, sets up Python, installs `mkdocs==1.6.1` and `mkdocs-material==9.7.7`, runs `mkdocs build --strict`, and uploads `site/`. Its `deploy` job publishes it to GitHub Pages. The reusable `.github/workflows/plugin-docs.yaml` is for plugins only, and Base does not call it.
+`.github/workflows/docs.yaml` builds and publishes the site itself. Its `build` job checks out, sets up Node 22, runs `scripts/bundle.sh`, `scripts/build-docs.mjs --check`, and `scripts/build-previews.mjs`, sets up Python, installs `mkdocs==1.6.1` and `mkdocs-material==9.7.7`, runs `mkdocs build --strict`, and uploads `site/`. Its `deploy` job publishes it to GitHub Pages.
 
 | Trigger | When |
 | :--- | :--- |
-| Push | To the branch listed under `branches` in `docs.yaml`, when the push changes `docs/**`, `mkdocs.yml`, `scripts/build-previews.*`, `scripts/bundle.sh`, `src/**`, `JPKribs.Jellyfin.Base.Tests/gallery/**`, or `.github/workflows/docs.yaml` |
+| Push | To `main`, when the push changes `docs/**`, `mkdocs.yml`, `scripts/build-previews.*`, `scripts/bundle.sh`, `package.json`, `package-lock.json`, `tsconfig.json`, `src/**`, `JPKribs.Jellyfin.Base.Tests/gallery/**`, or `.github/workflows/docs.yaml` |
 | Manual | From the Actions tab, with **Run workflow** |
 
 * A change to `README.md`, `skills/`, or `starthere.md` does not publish the site. A change to `src/` does, since the previews run the bundle.
 * The workflow keeps one deploy at a time, in the `pages` group, and a newer run cancels an older one.
 * The strict build is the same check you ran locally, so a docs change that passes locally passes there.
-* Pushing to the publishing branch publishes the site, so it is a [stop and ask](../starthere.md#stop-and-ask) item, as is any change to the workflow or to `plugin-docs.yaml`. Plugins call the second one, so a change to it reaches every plugin's site.
+* Pushing to the publishing branch publishes the site, so it is a [stop and ask](../starthere.md#stop-and-ask) item, as is any change to the workflow.
 
 ## Release Notes
 
@@ -290,4 +304,5 @@ Base keeps no changelog file. The **Release** workflow creates the GitHub releas
 * [ ] No em dashes, en dashes as punctuation, semicolons, contractions, "please", or exclamation marks.
 * [ ] Every name matches [glossary.md](glossary.md) and the code.
 * [ ] No docs page links outside `docs/`.
+* [ ] A new web component has its page, preview, nav entry, and index row, and `node scripts/build-docs.mjs --check` passes.
 * [ ] The bundle, the previews, and `mkdocs build --strict` all ran, and the previews look right in light and dark.

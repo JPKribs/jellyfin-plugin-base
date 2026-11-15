@@ -1,13 +1,14 @@
-/* Read-only value with a copy button and an optional reveal button in one row */
-/* Example: <div class="jpk-copy-field"><input type="text" readonly class="jpk-mono"><button type="button" class="jpk-row-btn jpk-copy-button"></button></div> */
-.jpk-copy-field {
+/* Read-only value with a copy button beside it, and an optional eye inside a secret's box */
+/* Example: <div class="base-copy-field"><input type="text" readonly class="base-mono"><button type="button" class="base-row-btn base-copy-button"></button></div> */
+.base-copy-field {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--base-gap-narrow);
 }
-.jpk-copy-field > input {
+.base-copy-field > input,
+.base-copy-field > .base-adorned {
     flex: 1 1 auto;
     min-width: 0;
     box-sizing: border-box;
 }
-.jpk-copy-field .jpk-row-btn { flex: 0 0 auto; }
+.base-copy-field .base-row-btn { flex: 0 0 auto; }

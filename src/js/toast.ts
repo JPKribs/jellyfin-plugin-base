@@ -1,4 +1,5 @@
-import { make, icon, iconButton, listen, runAll, has } from './dom-util.js';
+import { make, icon, listen, runAll, has } from './lib/dom.js';
+import { MESSAGE_ICONS, dismissButton } from './lib/message.js';
 import type { ComponentHandle } from './types.js';
 
 /** The tone of a toast. An error toast joins the assertive live region, and the rest the polite one. */
@@ -40,7 +41,7 @@ export interface ToasterHandle extends ComponentHandle {
     destroy(): void;
 }
 
-var KINDS: Record<ToastKind, string> = { info: 'info', success: 'check_circle', warn: 'warning', error: 'error' };
+var KINDS: Record<ToastKind, string> = { info: MESSAGE_ICONS.info, success: MESSAGE_ICONS.success, warn: MESSAGE_ICONS.warn, error: MESSAGE_ICONS.error };
 
 /**
  * A stack of transient messages in persistent live regions. A toast closes itself after the timeout, closes from its Dismiss button, and pauses its timer while the pointer or focus is on it. Info, success, and warn toasts join a polite region, and an error toast joins an assertive one, so a screen reader announces each as it arrives. An error toast stays until dismissed unless a timeout is set.
@@ -62,10 +63,10 @@ export function createToaster(options?: ToasterOptions): ToasterHandle {
     var live: Toast[] = [];
     var max: number = options.max || 5;
 
-    var root = make('div', 'jpk-toaster jpk-toaster-' + (options.position || 'bottom-end'), { role: 'region', 'aria-label': options.label || 'Notifications' });
+    var root = make('div', 'base-toaster base-toaster-' + (options.position || 'bottom-end'), { role: 'region', 'aria-label': options.label || 'Notifications' });
     // The two live regions are made once and stay, because a region that arrives together with its message is often not announced.
-    var alerts = make('div', 'jpk-toaster-live', { role: 'alert', 'aria-live': 'assertive', 'aria-atomic': 'false' });
-    var statuses = make('div', 'jpk-toaster-live', { role: 'status', 'aria-live': 'polite', 'aria-atomic': 'false' });
+    var alerts = make('div', 'base-toaster-live', { role: 'alert', 'aria-live': 'assertive', 'aria-atomic': 'false' });
+    var statuses = make('div', 'base-toaster-live', { role: 'status', 'aria-live': 'polite', 'aria-atomic': 'false' });
     root.appendChild(alerts);
     root.appendChild(statuses);
     (options.parent || document.body).appendChild(root);
@@ -73,7 +74,7 @@ export function createToaster(options?: ToasterOptions): ToasterHandle {
     // Moves the stack into the dialog on top while one is open, and back to the body when that dialog is gone.
     function host(): void {
         if (options!.parent) return;
-        var dialogs: HTMLElement[] = Array.prototype.filter.call(document.querySelectorAll<HTMLElement>('.jpk-dialog'), function (d: HTMLElement): boolean {
+        var dialogs: HTMLElement[] = Array.prototype.filter.call(document.querySelectorAll<HTMLElement>('.base-dialog'), function (d: HTMLElement): boolean {
             return !d.classList.contains('hidden') && !d.hidden && d.getClientRects().length > 0;
         });
         var wanted: HTMLElement = dialogs.length ? dialogs[dialogs.length - 1] : document.body;
@@ -84,13 +85,13 @@ export function createToaster(options?: ToasterOptions): ToasterHandle {
         spec = typeof spec === 'string' ? { message: spec } : (spec || {});
         var kind: ToastKind = has(KINDS, spec.kind as ToastKind) ? spec.kind as ToastKind : 'info';
         var wait: number = spec.timeout !== undefined ? spec.timeout : (options!.timeout !== undefined ? options!.timeout : (kind === 'error' ? 0 : 5000));
-        var el = make('div', 'jpk-toast ' + kind);
+        var el = make('div', 'base-toast base-float base-icon-text ' + kind);
         el.appendChild(icon(KINDS[kind]));
-        var body = make('div', 'jpk-toast-body');
-        if (spec.title) body.appendChild(make('div', 'jpk-toast-title', null, spec.title));
-        body.appendChild(make('div', 'jpk-toast-message', null, spec.message || ''));
+        var body = make('div', 'base-toast-body');
+        if (spec.title) body.appendChild(make('div', 'base-toast-title', null, spec.title));
+        body.appendChild(make('div', 'base-toast-message', null, spec.message || ''));
         el.appendChild(body);
-        var close = iconButton('jpk-row-btn jpk-toast-close', 'close', options!.dismissLabel || 'Dismiss');
+        var close = dismissButton('base-toast-close', options!.dismissLabel || 'Dismiss');
         el.appendChild(close);
         var timer: ReturnType<typeof setTimeout> | null = null;
         var off: Array<() => void> = [];

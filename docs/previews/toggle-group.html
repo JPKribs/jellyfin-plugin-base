@@ -1,12 +1,12 @@
 <!-- title: Toggle Group -->
-<div class="jpk-toggle-group">
-    <button type="button" class="jpk-toggle" aria-pressed="true"><span class="material-icons">forum</span>Discord</button>
-    <button type="button" class="jpk-toggle" aria-pressed="false"><span class="material-icons">mail</span>Email</button>
-    <button type="button" class="jpk-toggle" aria-pressed="true">Webhook</button>
+<div class="base-toggle-group">
+    <button type="button" class="base-toggle" aria-pressed="true"><span class="material-icons">forum</span>Discord</button>
+    <button type="button" class="base-toggle" aria-pressed="false"><span class="material-icons">mail</span>Email</button>
+    <button type="button" class="base-toggle" aria-pressed="true">Webhook</button>
 </div>
 <script type="module">
-await window.__jpkReady;
-document.querySelectorAll('.jpk-toggle').forEach((pill) => {
+await window.__baseReady;
+document.querySelectorAll('.base-toggle').forEach((pill) => {
     pill.addEventListener('click', () => {
         pill.setAttribute('aria-pressed', pill.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
     });

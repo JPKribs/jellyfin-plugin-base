@@ -1,12 +1,12 @@
 <!-- title: Prompt Dialog -->
 <!-- min-height: 420 -->
-<button type="button" id="btnNew" class="raised jpk-secondary"><span>New Record</span></button>
-<span id="promptStatus" class="jpk-status-text"></span>
+<button type="button" id="btnNew" class="raised base-button secondary"><span>New Record</span></button>
+<span id="promptStatus" class="base-status-text"></span>
 <script type="module">
-const JPK = await window.__jpkReady;
-const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const base = await window.__baseReady;
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
 shared.bindClick('btnNew', () => {
-    JPK.promptDialog(
+    base.promptDialog(
         [
             { name: 'label', label: 'Label', value: 'My record' },
             { name: 'mode', label: 'Mode', type: 'select', options: [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }] }

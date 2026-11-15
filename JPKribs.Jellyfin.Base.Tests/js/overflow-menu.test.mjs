@@ -17,10 +17,10 @@ function build(extra) {
         onSelect: function (value, item) { picked.push([value, item.label]); }
     }, extra));
     dom.document.body.appendChild(menu.element);
-    return { menu: menu, picked: picked, button: menu.element.querySelector('.jpk-menu-button'), list: menu.element.querySelector('.jpk-menu-list') };
+    return { menu: menu, picked: picked, button: menu.element.querySelector('.base-menu-button'), list: menu.element.querySelector('.base-menu-list') };
 }
 
-function items(ui) { return all(ui.list, '.jpk-menu-item'); }
+function items(ui) { return all(ui.list, '.base-menu-item'); }
 
 test('the button has the menu roles and the list starts closed', function () {
     var ui = build();
@@ -141,8 +141,8 @@ test('setItems replaces the items and getItems returns a copy', function () {
 });
 
 test('the start alignment adds a modifier class', function () {
-    assert.ok(build({ align: 'start' }).menu.element.classList.contains('jpk-menu-start'));
-    assert.equal(build().menu.element.classList.contains('jpk-menu-start'), false);
+    assert.ok(build({ align: 'start' }).menu.element.classList.contains('base-menu-start'));
+    assert.equal(build().menu.element.classList.contains('base-menu-start'), false);
 });
 
 test('destroy removes the document listener and the button listeners', function () {

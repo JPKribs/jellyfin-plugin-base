@@ -1,0 +1,10 @@
+<!-- title: Duration Field -->
+<div class="base-field"><label>Scan Interval</label><div id="interval"></div></div>
+<div class="base-field" style="margin-top: 16px;"><label>Request Timeout</label><div id="timeout"></div></div>
+<script type="module">
+const base = await window.__baseReady;
+document.getElementById('interval').appendChild(base.createDurationField({ value: 5400, units: ['h', 'm'], min: 900 }).element);
+const timeout = base.createDurationField({ value: 7500, units: ['m', 's'], min: 5, max: 3600 });
+document.getElementById('timeout').appendChild(timeout.element);
+timeout.isValid();
+</script>

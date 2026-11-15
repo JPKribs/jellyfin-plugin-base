@@ -13,7 +13,7 @@ A group of sub fields under a toggle, indented with a 2px left rule.
 ## Usage
 
 ```html
-<div id="recyclingBinSettings" class="jpk-indent hidden">
+<div id="recyclingBinSettings" class="base-indent hidden">
     <div class="inputContainer"><label for="txtPath">Recycling bin path</label><input is="emby-input" type="text" id="txtPath" /></div>
 </div>
 ```
@@ -22,7 +22,7 @@ A group of sub fields under a toggle, indented with a 2px left rule.
 shared.bindReveal('chkEnableRecyclingBin', 'recyclingBinSettings');
 ```
 
-Class: `jpk-indent`.
+Class: `base-indent`.
 
 ## States and Modifiers
 
@@ -32,13 +32,25 @@ Class: `jpk-indent`.
 
 * Field containers inside keep their own gap.
 
+## Reference
+
+Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this section.
+
+<!-- reference:start -->
+
+| Class | What it looks like |
+| :--- | :--- |
+| `base-indent` | Indented group with a thin rule under a toggle's checkbox, so its fields line up with the toggle's label |
+
+<!-- reference:end -->
+
 ## Used By
 
 Live Channels, Server Sync, and User Management use it.
 
 ## Example
 
-<iframe class="jpk-preview" src="../../../assets/previews/indent.html" title="Indent example" loading="lazy"></iframe>
+<iframe class="base-preview" src="../../../assets/previews/indent.html" title="Indent example" loading="lazy"></iframe>
 
 ## Example Code
 

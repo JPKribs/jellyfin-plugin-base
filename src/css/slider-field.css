@@ -1,16 +1,16 @@
 /* Range input with a readout that keeps its width so the slider does not jump */
-/* Example: <div class="jpk-slider"><input type="range" aria-label="Opacity"><output class="jpk-slider-value">50%</output></div> */
-.jpk-slider {
+/* Example: <div class="base-slider"><input type="range" aria-label="Opacity"><output class="base-slider-value">50%</output></div> */
+.base-slider {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--base-gap-wide);
 }
-.jpk-slider > input[type="range"] {
+.base-slider > input[type="range"] {
     flex: 1 1 auto;
     min-width: 0;
-    accent-color: var(--jpk-accent);
+    accent-color: var(--base-accent);
 }
-.jpk-slider-value {
+.base-slider-value {
     flex: 0 0 auto;
     min-width: 3.5em;
     text-align: right;

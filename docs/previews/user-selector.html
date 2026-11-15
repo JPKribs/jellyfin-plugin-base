@@ -1,9 +1,9 @@
 <!-- title: User Selector -->
 <div id="mount"></div>
-<span id="userStatus" class="jpk-status-text"></span>
+<span id="userStatus" class="base-status-text"></span>
 <script type="module">
-const JPK = await window.__jpkReady;
-const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const base = await window.__baseReady;
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
 const approver = shared.createUserSelector({
     adminFilter: 'exclude',
     value: 'u2',

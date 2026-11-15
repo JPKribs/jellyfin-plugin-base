@@ -17,16 +17,16 @@ function build(extra) {
     return { tags: tags, changes: changes };
 }
 
-function chips(ui) { return all(ui.tags.element, '.jpk-tag'); }
+function chips(ui) { return all(ui.tags.element, '.base-tag'); }
 function key(ui, k) { return ui.tags.input.dispatch('keydown', { key: k }); }
 function type(ui, text) { ui.tags.input.value = text; }
-function msg(ui) { return ui.tags.element.querySelector('.jpk-field-message'); }
+function msg(ui) { return ui.tags.element.querySelector('.base-field-message'); }
 
-test('it draws a pill per value, built on the jpk-tag-pill style with a remove button', function () {
+test('it draws a pill per value, built on the base-tag-pill style with a remove button', function () {
     var ui = build();
     assert.equal(chips(ui).length, 1);
-    assert.ok(chips(ui)[0].classList.contains('jpk-tag-pill'));
-    assert.equal(chips(ui)[0].querySelector('.jpk-tag-remove').getAttribute('aria-label'), 'Remove news');
+    assert.ok(chips(ui)[0].classList.contains('base-tag-pill'));
+    assert.equal(chips(ui)[0].querySelector('.base-tag-remove').getAttribute('aria-label'), 'Remove news');
     assert.equal(ui.tags.input.getAttribute('aria-label'), 'New Tag');
 });
 
@@ -61,7 +61,7 @@ test('a duplicate is refused with a message and kept in the input, and the dupli
     type(ui, 'news');
     key(ui, 'Enter');
     assert.deepEqual(ui.tags.getValue(), ['news']);
-    assert.equal(msg(ui).querySelector('.jpk-field-message-text').textContent, 'Already added.');
+    assert.equal(msg(ui).querySelector('.base-field-message-text').textContent, 'Already added.');
     assert.equal(ui.tags.input.value, 'news');
     var allowed = build({ duplicates: true });
     type(allowed, 'news');
@@ -80,11 +80,22 @@ test('Backspace on an empty input removes the last tag, and on a filled one does
     assert.deepEqual(ui.changes[0], ['a']);
 });
 
-test('the remove button takes a tag out and focuses the input', function () {
+test('the remove button takes a tag out and focuses the next remove button, or the input after the last', function () {
     var ui = build({ values: ['a', 'b'] });
-    chips(ui)[0].querySelector('.jpk-tag-remove').click();
+    chips(ui)[0].querySelector('.base-tag-remove').click();
     assert.deepEqual(ui.tags.getValue(), ['b']);
+    assert.equal(dom.document.activeElement, chips(ui)[0].querySelector('.base-tag-remove'));
+    chips(ui)[0].querySelector('.base-tag-remove').click();
+    assert.deepEqual(ui.tags.getValue(), []);
     assert.equal(dom.document.activeElement, ui.tags.input);
+});
+
+test('a search icon sits at the end of the tag box', function () {
+    var ui = build();
+    var box = ui.tags.element.querySelector('.base-tag-input-box');
+    var last = box.children[box.children.length - 1];
+    assert.ok(last.classList.contains('base-adorned-icon'));
+    assert.equal(last.textContent, 'search');
 });
 
 test('blur adds the typed text unless addOnBlur is false', function () {
@@ -101,16 +112,16 @@ test('blur adds the typed text unless addOnBlur is false', function () {
 test('validate and maxTags refuse with their sentences, and the sentences can be replaced', function () {
     var ui = build({ validate: function (t) { return t.length < 3 ? 'Too short.' : ''; }, maxTags: 2, limitText: 'Enough.' });
     assert.equal(ui.tags.add('ab'), false);
-    assert.equal(msg(ui).querySelector('.jpk-field-message-text').textContent, 'Too short.');
+    assert.equal(msg(ui).querySelector('.base-field-message-text').textContent, 'Too short.');
     assert.equal(ui.tags.add('abc'), true);
     assert.equal(ui.tags.add('abcd'), false);
-    assert.equal(msg(ui).querySelector('.jpk-field-message-text').textContent, 'Enough.');
+    assert.equal(msg(ui).querySelector('.base-field-message-text').textContent, 'Enough.');
     var custom = build({ duplicateText: 'Seen.', inputLabel: 'Add Tag', removeLabel: 'Drop {value}', placeholder: 'news' });
     custom.tags.add('news');
-    assert.equal(msg(custom).querySelector('.jpk-field-message-text').textContent, 'Seen.');
+    assert.equal(msg(custom).querySelector('.base-field-message-text').textContent, 'Seen.');
     assert.equal(custom.tags.input.getAttribute('aria-label'), 'Add Tag');
     assert.equal(custom.tags.input.getAttribute('placeholder'), 'news');
-    assert.equal(chips(custom)[0].querySelector('.jpk-tag-remove').getAttribute('aria-label'), 'Drop news');
+    assert.equal(chips(custom)[0].querySelector('.base-tag-remove').getAttribute('aria-label'), 'Drop news');
 });
 
 test('setValue replaces the tags without onChange, and destroy removes the listeners', function () {
@@ -121,4 +132,17 @@ test('setValue replaces the tags without onChange, and destroy removes the liste
     ui.tags.destroy();
     assert.equal(ui.tags.input.listeners.keydown.length, 0);
     assert.equal(ui.tags.input.listeners.blur.length, 0);
+});
+
+test('createTagInput puts size small or large on data-base-size, and leaves it off for medium or no size', function () {
+    function build(size) { return createTagInput({ size: size }); }
+    assert.equal(build('small').element.getAttribute('data-base-size'), 'small');
+    assert.equal(build('large').element.getAttribute('data-base-size'), 'large');
+    assert.equal(build('medium').element.hasAttribute('data-base-size'), false);
+    assert.equal(build(undefined).element.hasAttribute('data-base-size'), false);
+    var handle = build('small');
+    handle.setSize('large');
+    assert.equal(handle.element.getAttribute('data-base-size'), 'large');
+    handle.setSize('medium');
+    assert.equal(handle.element.hasAttribute('data-base-size'), false);
 });

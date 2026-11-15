@@ -17,7 +17,7 @@ public class CssFallbackTests
 {
     private const string WhiteWash = "rgba(255, 255, 255";
     private const string DefaultAccent = "rgba(0, 164, 220";
-    private static readonly string[] Scopes = { ".pluginConfigurationPage", ".jpk-dialog" };
+    private static readonly string[] Scopes = { ".pluginConfigurationPage", ".base-dialog" };
     private static readonly string[] FieldContainers = { ".inputContainer", ".selectContainer", ".checkboxContainer" };
 
     /// <summary>
@@ -105,14 +105,14 @@ public class CssFallbackTests
     /// False: an older engine would read a value it cannot parse.
     /// </summary>
     [Theory]
-    [InlineData("--jpk-border")]
-    [InlineData("--jpk-accent-hover")]
-    [InlineData("--jpk-wash")]
-    [InlineData("--jpk-wash-strong")]
-    [InlineData("--jpk-accent-wash")]
+    [InlineData("--base-border")]
+    [InlineData("--base-accent-hover")]
+    [InlineData("--base-wash")]
+    [InlineData("--base-wash-strong")]
+    [InlineData("--base-accent-wash")]
     public void ColorMixTokens_StartOnAPlainColour(string token)
     {
-        var rules = CssRules.Parse(Source("tokens.css"));
+        var rules = CssRules.Parse(Source("design-tokens.css"));
 
         var plain = rules.Where(r => !r.InColorMixSupports && r.Selectors.Contains(":root"))
             .SelectMany(r => r.Declarations).FirstOrDefault(d => d.Property == token);
@@ -137,10 +137,10 @@ public class CssFallbackTests
     [Fact]
     public void ForegroundToken_FallsBackToWhite()
     {
-        var root = CssRules.Parse(Source("tokens.css")).Where(r => !r.InColorMixSupports && r.Selectors.Contains(":root"))
-            .SelectMany(r => r.Declarations).FirstOrDefault(d => d.Property == "--jpk-fg");
+        var root = CssRules.Parse(Source("design-tokens.css")).Where(r => !r.InColorMixSupports && r.Selectors.Contains(":root"))
+            .SelectMany(r => r.Declarations).FirstOrDefault(d => d.Property == "--base-fg");
 
-        Assert.True(root != null, "--jpk-fg must be declared on :root.");
+        Assert.True(root != null, "--base-fg must be declared on :root.");
         Assert.Matches(new Regex(@"^var\(--jf-palette-text-primary,\s*#fff\)$"), root!.Value);
     }
 
@@ -152,7 +152,7 @@ public class CssFallbackTests
     [Fact]
     public void FormCss_DoesNotUseIs()
     {
-        Assert.DoesNotContain(":is(", Source("form.css"), StringComparison.Ordinal);
+        Assert.DoesNotContain(":is(", Source("form-fields.css"), StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -179,16 +179,16 @@ public class CssFallbackTests
     [Fact]
     public void FieldContainerChildReset_CoversButtonsAndKitBlocks()
     {
-        var rules = CssRules.Parse(Source("form.css"));
+        var rules = CssRules.Parse(Source("form-fields.css"));
         foreach (var scope in Scopes)
         {
             foreach (var container in FieldContainers)
             {
-                foreach (var child in new[] { "button", "label", "input", "[class^=\"jpk-\"]", "[class*=\" jpk-\"]" })
+                foreach (var child in new[] { "button", "label", "input", "[class^=\"base-\"]", "[class*=\" base-\"]" })
                 {
                     var selector = scope + " " + container + " > " + child;
                     var rule = rules.FirstOrDefault(r => r.Selectors.Contains(selector));
-                    Assert.True(rule != null, "form.css must reset the margin of " + selector);
+                    Assert.True(rule != null, "form-fields.css must reset the margin of " + selector);
                     Assert.Contains(rule!.Declarations, d => d.Property == "margin" && d.Value == "0 !important");
                 }
 
@@ -206,13 +206,13 @@ public class CssFallbackTests
     [Fact]
     public void FieldContainerLastChild_AddsNoSpaceBelow()
     {
-        var rules = CssRules.Parse(Source("form.css"));
+        var rules = CssRules.Parse(Source("form-fields.css"));
         foreach (var scope in Scopes)
         {
             foreach (var container in FieldContainers)
             {
                 var rule = rules.FirstOrDefault(r => r.Selectors.Any(s => s.StartsWith(scope + " " + container + " > :last-child", StringComparison.Ordinal)));
-                Assert.True(rule != null, "form.css must reset the bottom margin of the last child in " + scope + " " + container);
+                Assert.True(rule != null, "form-fields.css must reset the bottom margin of the last child in " + scope + " " + container);
                 Assert.Contains(rule!.Declarations, d => d.Property == "margin-bottom" && d.Value == "0 !important");
             }
         }
@@ -224,12 +224,12 @@ public class CssFallbackTests
     /// False: an older engine would read a value it cannot parse and wipe the wash.
     /// </summary>
     [Theory]
-    [InlineData("--jpk-accent-wash")]
-    [InlineData("--jpk-wash")]
-    [InlineData("--jpk-wash-strong")]
+    [InlineData("--base-accent-wash")]
+    [InlineData("--base-wash")]
+    [InlineData("--base-wash-strong")]
     public void WashTokens_StartPlainAndUpgradeInSupports(string token)
     {
-        var rules = CssRules.Parse(Source("tokens.css"));
+        var rules = CssRules.Parse(Source("design-tokens.css"));
 
         var firstRoot = rules.First(r => r.Selectors.Contains(":root"));
         Assert.False(firstRoot.InColorMixSupports);
@@ -252,10 +252,10 @@ public class CssFallbackTests
     [Fact]
     public void OnAccentToken_IsWhiteAndNeverInSupports()
     {
-        var rules = CssRules.Parse(Source("tokens.css"));
+        var rules = CssRules.Parse(Source("design-tokens.css"));
 
         var declarations = rules.SelectMany(r => r.Declarations.Select(d => (Rule: r, Declaration: d)))
-            .Where(x => x.Declaration.Property == "--jpk-on-accent").ToList();
+            .Where(x => x.Declaration.Property == "--base-on-accent").ToList();
 
         var only = Assert.Single(declarations);
         Assert.Equal("#fff", only.Declaration.Value);
@@ -268,15 +268,15 @@ public class CssFallbackTests
     /// False: an older engine would drop the fill, or a mixed variable would wipe the plain color.
     /// </summary>
     [Theory]
-    [InlineData(".jpk-button-submit .jpk-btn-progress")]
-    [InlineData(".jpk-button-destructive .jpk-btn-progress")]
+    [InlineData(".base-button.primary .base-btn-progress")]
+    [InlineData(".base-button.destructive .base-btn-progress")]
     public void ButtonProgress_HasAPlainRuleBeforeTheSupportsUpgrade(string selector)
     {
-        var rules = CssRules.Parse(Source("button-progress.css"), "button-progress.css");
+        var rules = CssRules.Parse(Source("task-progress-button.css"), "task-progress-button.css");
 
         var plain = rules.FindIndex(r => !r.InColorMixSupports && r.Selectors.Contains(selector) && r.Declarations.Any(d => d.Property == "background" && d.Value.StartsWith("rgba(", StringComparison.Ordinal)));
         var upgrade = rules.FindIndex(r => r.InColorMixSupports && r.Selectors.Contains(selector)
-            && r.Declarations.Any(d => d.Property == "background" && d.Value == "color-mix(in srgb, var(--jpk-on-accent) 70%, transparent)"));
+            && r.Declarations.Any(d => d.Property == "background" && d.Value == "color-mix(in srgb, var(--base-on-accent) 70%, transparent)"));
 
         Assert.True(plain >= 0, selector + " needs a plain rgba() background.");
         Assert.True(upgrade > plain, selector + " needs the color-mix() upgrade inside @supports after the plain rule.");
@@ -288,8 +288,8 @@ public class CssFallbackTests
     /// False: the remove control would lose its background on an older engine.
     /// </summary>
     [Theory]
-    [InlineData(".jpk-tag-pill .jpk-tag-remove")]
-    [InlineData(".jpk-tag-pill .jpk-tag-remove:hover")]
+    [InlineData(".base-tag-pill .base-tag-remove")]
+    [InlineData(".base-tag-pill .base-tag-remove:hover")]
     public void PillTagRemove_PairsRgbaWithColorMix(string selector)
     {
         var rules = CssRules.Parse(Source("tags.css"), "tags.css").Where(r => r.Selectors.Contains(selector)).ToList();
@@ -306,7 +306,7 @@ public class CssFallbackTests
     }
 
     /// <summary>
-    /// No CSS file other than tokens.css writes white as a color.
+    /// No CSS file other than design-tokens.css writes white as a color.
     /// True: white comes from the on-accent token, so one edit changes it everywhere.
     /// False: a file would hard code white and drift from the token.
     /// </summary>
@@ -315,7 +315,7 @@ public class CssFallbackTests
     {
         var white = new Regex(@"#fff(fff)?\b|\bwhite\b", RegexOptions.IgnoreCase);
         var problems = CssRules.KitSources()
-            .Where(kv => kv.Key != "tokens.css")
+            .Where(kv => kv.Key != "design-tokens.css")
             .SelectMany(kv => CssRules.Parse(kv.Value, kv.Key))
             .SelectMany(r => r.Declarations.Where(d => white.IsMatch(d.Value)).Select(d => Where(r, d)))
             .ToList();
@@ -324,21 +324,21 @@ public class CssFallbackTests
     }
 
     /// <summary>
-    /// A selected table row is tinted with the accent wash and the rule comes after the hover rule.
-    /// True: a selected row keeps its tint while the pointer is over it.
+    /// A selected row is tinted with the accent wash in the one selection rule every list shares, and that rule comes after the hover rule.
+    /// True: a selected row of any list, a table row included, keeps its tint while the pointer is over it.
     /// False: the hover color would win and hide the selection.
     /// </summary>
     [Fact]
     public void SelectedTableRow_UsesTheAccentWashAfterHover()
     {
-        var rules = CssRules.Parse(Source("table.css"), "table.css");
+        var rules = CssRules.Parse(Source("list.css"), "list.css");
 
-        var hover = rules.FindIndex(r => r.Selectors.Contains(".jpk-table-row:hover"));
-        var selected = rules.FindIndex(r => r.Selectors.Contains(".jpk-table-row.selected"));
+        var hover = rules.FindIndex(r => r.Selectors.Contains(".base-table-row:hover"));
+        var selected = rules.FindIndex(r => r.Selectors.Contains(".base-table-row.selected") && r.Selectors.Contains(".base-list-item.selected"));
 
-        Assert.True(hover >= 0, "table.css must have a row hover rule.");
+        Assert.True(hover >= 0, "list.css must have a row hover rule.");
         Assert.True(selected > hover, "The selected row rule must come after the hover rule.");
-        Assert.Contains(rules[selected].Declarations, d => d.Property == "background" && d.Value == "var(--jpk-accent-wash)");
+        Assert.Contains(rules[selected].Declarations, d => d.Property == "background" && d.Value.StartsWith("var(--base-accent-wash)", StringComparison.Ordinal));
     }
 
     /// <summary>
@@ -349,16 +349,16 @@ public class CssFallbackTests
     [Fact]
     public void DateInput_IsInTheFieldLookAndFocusLists()
     {
-        var rules = CssRules.Parse(Source("form.css"), "form.css");
+        var rules = CssRules.Parse(Source("form-fields.css"), "form-fields.css");
 
-        foreach (var scope in new[] { ".pluginConfigurationPage", ".jpk-dialog" })
+        foreach (var scope in new[] { ".pluginConfigurationPage", ".base-dialog" })
         {
             foreach (var selector in new[] { scope + " .inputContainer input[type=\"date\"]", scope + " .inputContainer input[type=\"date\"]:focus" })
             {
                 var rule = rules.FirstOrDefault(r => r.Selectors.Contains(selector));
-                Assert.True(rule != null, "form.css must list " + selector);
+                Assert.True(rule != null, "form-fields.css must list " + selector);
                 Assert.DoesNotContain(rule!.Selectors, x => x.Contains(":is(", StringComparison.Ordinal));
-                Assert.DoesNotContain(rule.Selectors, x => x.Contains(".jpk-edit-input", StringComparison.Ordinal));
+                Assert.DoesNotContain(rule.Selectors, x => x.Contains(".base-edit-input", StringComparison.Ordinal));
             }
         }
     }
@@ -371,14 +371,14 @@ public class CssFallbackTests
     [Fact]
     public void BadgeStates_HaveRules()
     {
-        var core = File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "js", "core.ts"));
+        var core = File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "js", "badge.ts"));
         var names = ReadList(core, "names");
         var colors = ReadList(core, "colors");
-        var selectors = CssRules.Parse(Source("badges.css")).SelectMany(r => r.Selectors).ToHashSet(StringComparer.Ordinal);
+        var selectors = CssRules.Parse(Source("badge.css")).SelectMany(r => r.Selectors).ToHashSet(StringComparer.Ordinal);
 
         Assert.NotEmpty(names);
         Assert.NotEmpty(colors);
-        var missing = names.Select(n => ".jpk-table-status-badge." + n).Concat(colors.Select(c => ".jpk-badge." + c))
+        var missing = names.Select(n => ".base-table-status-badge." + n).Concat(colors.Select(c => ".base-badge." + c))
             .Where(s => !selectors.Contains(s)).ToList();
         Assert.True(missing.Count == 0, "No badge rule for " + string.Join(", ", missing));
     }
@@ -393,12 +393,12 @@ public class CssFallbackTests
     private static string RepositoryRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir != null && !File.Exists(Path.Combine(dir.FullName, "src", "css", "tokens.css")))
+        while (dir != null && !File.Exists(Path.Combine(dir.FullName, "src", "css", "design-tokens.css")))
         {
             dir = dir.Parent;
         }
 
-        Assert.True(dir != null, "The repository root with src/css/tokens.css was not found above the test output.");
+        Assert.True(dir != null, "The repository root with src/css/design-tokens.css was not found above the test output.");
         return dir!.FullName;
     }
 

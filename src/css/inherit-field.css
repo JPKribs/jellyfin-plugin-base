@@ -1,0 +1,40 @@
+/* A field with an Inherit and Override toggle beside it, which wraps under the field where the line is too narrow */
+/* Example: <div class="base-inherit inheriting"><div class="base-inherit-field"><select></select></div><div class="base-pill-group base-inherit-toggle" role="group"><button class="base-pill" aria-pressed="true">Inherit (English)</button><button class="base-pill" aria-pressed="false">Override</button></div></div> */
+.base-inherit {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--base-gap-narrow);
+}
+.base-inherit-field {
+    flex: 1 1 12em;
+    min-width: 0;
+}
+.base-inherit-field > select,
+.base-inherit-field > textarea,
+.base-inherit-field > input:not([type="checkbox"]),
+.base-inherit-field > .base-adorned { width: 100%; box-sizing: border-box; }
+.base-inherit-toggle { flex: 0 0 auto; }
+.base-inherit-toggle.base-check-row { min-height: var(--base-field-height); align-items: center; }
+
+/* A checkbox field: its box and text a field tall and centered, on one line with the Override toggle beside it */
+/* Example: <div class="base-inherit check"><div class="base-inherit-field"><label><input type="checkbox"><span>Save Artwork</span></label></div><label class="base-check-row base-inherit-toggle"><input type="checkbox" class="base-check-row-input"><span class="base-check-text">Override</span></label></div> */
+.base-inherit.check { align-items: center; }
+.base-inherit.check > .base-inherit-field {
+    display: flex;
+    align-items: center;
+    min-height: var(--base-field-height);
+}
+.base-inherit.check > .base-inherit-field > label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+}
+.base-inherit.check > .base-inherit-field > label > input { margin: 0; }
+
+/* The field while it inherits, dimmed and disabled with the inherited value in it */
+/* Example: <div class="base-inherit inheriting"><div class="base-inherit-field"><input type="number" disabled></div></div> */
+.base-inherit.inheriting > .base-inherit-field { opacity: 0.6; }

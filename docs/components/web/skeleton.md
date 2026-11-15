@@ -18,9 +18,9 @@ import { createSkeleton } from './configurationpage?name=myplugin_jpkribs_shared
 list.appendChild(createSkeleton({ lines: 4 }).element);
 ```
 
-Classes: `jpk-skeleton`, `jpk-skeleton-line`, `jpk-skeleton-block`, `jpk-skeleton-circle`. The handle is `{ element, getValue, setValue, done, destroy }`.
+Classes: `base-skeleton`, `base-skeleton-line`, `base-skeleton-block`, `base-skeleton-circle`. The handle is `{ element, getValue, setValue, done, destroy }`.
 
-Parts: `jpk-skeleton-small`, `jpk-skeleton-medium`, `jpk-skeleton-large`.
+Parts: `base-skeleton-small`, `base-skeleton-medium`, `base-skeleton-large`.
 
 ## States and Modifiers
 
@@ -34,13 +34,47 @@ Parts: `jpk-skeleton-small`, `jpk-skeleton-medium`, `jpk-skeleton-large`.
 
 * Call `done` or remove the skeleton when the content arrives.
 
+## Reference
+
+Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this section.
+
+<!-- reference:start -->
+
+### `createSkeleton`
+
+<code>function createSkeleton(options?: SkeletonOptions): SkeletonHandle</code>
+
+A placeholder for content that is loading, as lines of text, a block, or a circle. The wrapper is marked busy until done or destroy, and it carries a hidden label in a live region.
+
+| Option | Type | What it does |
+| :--- | :--- | :--- |
+| `type` | <code>'lines' &#124; 'block' &#124; 'circle' &#124; string</code> | 'lines', 'block', or 'circle' (default 'lines') |
+| `lines` | <code>number</code> | number of lines for type lines (default 3) |
+| `size` | <code>'small' &#124; 'medium' &#124; 'large' &#124; string</code> | 'small', 'medium', or 'large' for a block or a circle (default 'medium') |
+| `label` | <code>string</code> | text a screen reader reads (default 'Loading') |
+
+| Handle member | Type |
+| :--- | :--- |
+| `getValue` | <code>(): string</code> |
+| `setValue` | <code>(next: string): void</code> |
+| `done` | <code>(content?: Node &#124; null): void</code> |
+| `destroy` | <code>(): void</code> |
+
+| Class | What it looks like |
+| :--- | :--- |
+| `base-skeleton` | Placeholder for loading content, made of pulsing lines, a block, or a circle |
+| `base-skeleton-line` | One line of text, with the last line shorter |
+| `base-skeleton-block` | A block or a circle in three sizes |
+
+<!-- reference:end -->
+
 ## Used By
 
 No plugin uses it today.
 
 ## Example
 
-<iframe class="jpk-preview" src="../../../assets/previews/skeleton.html" title="Skeleton example" loading="lazy"></iframe>
+<iframe class="base-preview" src="../../../assets/previews/skeleton.html" title="Skeleton example" loading="lazy"></iframe>
 
 ## Example Code
 

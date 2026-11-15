@@ -1,0 +1,35 @@
+<!-- title: Checkbox -->
+<div style="display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px;">
+<div id="small" style="display: flex; flex-wrap: wrap; gap: 8px 24px;"></div>
+<div id="medium" style="display: flex; flex-wrap: wrap; gap: 8px 24px;"></div>
+<div id="large" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+<div id="row" style="display: flex; gap: 8px; align-items: flex-start;"></div>
+<div id="boxed" style="display: flex; gap: 8px; align-items: flex-start;"></div>
+</div>
+<script type="module">
+const base = await window.__baseReady;
+const add = (id, options) => document.getElementById(id).appendChild(base.createCheckbox(options).element);
+add('small', { label: 'Sync watched state', checked: true });
+add('small', { label: 'Sync ratings' });
+add('small', { label: 'Some libraries', indeterminate: true });
+add('small', { label: 'Locked by the server', checked: true, disabled: true });
+add('medium', { label: 'Sync watched state', size: 'medium', checked: true });
+add('medium', { label: 'Sync ratings', size: 'medium' });
+add('large', { label: 'Sync watched state', description: 'Played and resume points follow you between servers.', size: 'large', checked: true });
+add('large', { label: 'Sync ratings', description: 'Your star ratings and favorites.', size: 'large' });
+add('large', { label: 'Sync artwork', description: 'Posters and backdrops you picked by hand.', size: 'large', disabled: true });
+const row = document.getElementById('row');
+const input = document.createElement('input');
+input.type = 'text';
+input.value = 'Living Room';
+input.setAttribute('aria-label', 'Name');
+input.style.flex = '1';
+input.style.minWidth = '0';
+row.appendChild(input);
+row.appendChild(base.createCheckbox({ label: 'Enabled', checked: true, field: true }).element);
+const boxedRow = document.getElementById('boxed');
+const host = input.cloneNode();
+host.value = 'Office';
+boxedRow.appendChild(host);
+boxedRow.appendChild(base.createCheckbox({ label: 'Enabled', checked: true, boxed: true }).element);
+</script>

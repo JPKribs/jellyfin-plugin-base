@@ -1,0 +1,29 @@
+<!-- title: Tree View -->
+<div id="tree"></div>
+<script type="module">
+const base = await window.__baseReady;
+const tree = base.createTreeView({
+    nodes: [
+        { id: 'shows', label: 'Shows', icon: 'tv', children: [
+            { id: 'alpha', label: 'Alpha Station', secondary: '2 seasons', children: [
+                { id: 'a1', label: 'Season 1', secondary: '10 episodes' },
+                { id: 'a2', label: 'Season 2', secondary: 'Loads when opened', hasChildren: true }
+            ] },
+            { id: 'beta', label: 'Beta Coast', secondary: '1 season' }
+        ] },
+        { id: 'movies', label: 'Movies', icon: 'movie', children: [
+            { id: 'm1', label: 'Alien', secondary: '1979', image: '', imageShape: 'portrait' },
+            { id: 'm2', label: 'Heat', secondary: '1995', image: '', imageShape: 'portrait' }
+        ] }
+    ],
+    expanded: ['shows', 'alpha'],
+    value: ['a1'],
+    selectable: true,
+    loadChildren: function () {
+        return new Promise(function (resolve) {
+            setTimeout(function () { resolve([{ id: 'a2e1', label: 'Return' }, { id: 'a2e2', label: 'Departure' }]); }, 600);
+        });
+    }
+});
+document.getElementById('tree').appendChild(tree.element);
+</script>

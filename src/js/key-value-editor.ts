@@ -1,5 +1,5 @@
-import { make, iconButton, listen, runAll, clear, fill } from './dom-util.js';
-import { createFieldMessage } from './field-message.js';
+import { buildRepeater } from './repeater.js';
+import type { ListHeight } from './list.js';
 import type { ComponentHandle } from './types.js';
 
 /** One row of the editor, as getValue and onChange give it. */
@@ -27,6 +27,11 @@ export interface KeyValueEditorOptions {
     duplicateKeys?: boolean;
     maxRows?: number;
     limitText?: string;
+    emptyText?: string;
+    height?: ListHeight;
+    maxHeight?: number | string | null;
+    minHeight?: number | string | null;
+    size?: 'small' | 'medium' | 'large';
     validate?(key: string, value: string, index: number): string | null | undefined;
     onChange?(values: KeyValuePair[]): void;
 }
@@ -38,23 +43,12 @@ export interface KeyValueEditorHandle extends ComponentHandle {
     setItems(next: KeyValueSource | null): void;
     isValid(): boolean;
     addRow(data?: { key?: string; value?: string } | null): boolean;
+    setHeight(height: ListHeight, maxHeight?: number | string | null): void;
     destroy(): void;
 }
 
-// KeyValueRow
-// The elements and listeners of one editor row.
-interface KeyValueRow {
-    el: HTMLDivElement;
-    key: HTMLInputElement;
-    value: HTMLInputElement;
-    message: ReturnType<typeof createFieldMessage>;
-    remove: HTMLButtonElement;
-    off: Array<() => void>;
-    label?(): void;
-}
-
 /**
- * Rows of a key input and a value input with Add and Remove, for headers, tags, and mappings. Each row validates its key and value, and a repeated key is an error unless duplicateKeys is on.
+ * Rows of a key input and a value input with Add and Remove, for headers, tags, and mappings. It is a Repeater of two text fields. Each row validates its key and value as it is typed, and a repeated key is an error unless duplicateKeys is on.
  *
  * @param options {
  *   values         : array of { key, value }, or an object whose properties become rows [optional]
@@ -71,29 +65,21 @@ interface KeyValueRow {
  *   duplicateKeys  : true allows a repeated key (default false)
  *   maxRows        : most rows allowed, after which Add is disabled and the limit message shows [optional]
  *   limitText      : message when maxRows is reached (default 'No more rows can be added.')
+ *   emptyText      : sentence shown while there is no row [optional]
+ *   height         : height of the rows, as createList takes it (default 'auto')
+ *   maxHeight      : height past which the rows scroll [optional]
+ *   minHeight      : least height of a filling list [optional]
+ *   size           : 'small', 'medium', or 'large' for its fields (default 'medium')
  *   validate       : function(key, value, index) returning an error sentence, or an empty value when valid [optional]
  *   onChange       : function(values) [optional]
  * }
- * @returns { element, getValue, setValue, setItems, isValid, addRow, destroy }.
+ * @returns { element, getValue, setValue, setItems, isValid, addRow, setHeight, destroy }.
  * getValue returns an array of { key, value } and leaves out a row where both are empty. isValid() checks every row and shows its error.
  */
 export function createKeyValueEditor(options?: KeyValueEditorOptions): KeyValueEditorHandle {
-    options = options || {};
-    var cleanups: Array<() => void> = [];
-    var rows: KeyValueRow[] = [];
-
-    var root = make('div', 'jpk-kv-editor');
-    var head = make('div', 'jpk-kv-head');
-    head.appendChild(make('span', '', null, options.keyLabel || 'Key'));
-    head.appendChild(make('span', '', null, options.valueLabel || 'Value'));
-    head.hidden = options.showLabels === false;
-    var body = make('div', 'jpk-kv-rows');
-    var addButton = make('button', 'raised jpk-button-small jpk-kv-add', { type: 'button' }, options.addText || 'Add');
-    root.appendChild(head);
-    root.appendChild(body);
-    root.appendChild(addButton);
-    var limit = createFieldMessage();
-    root.appendChild(limit.element);
+    var opts = options || {};
+    var keyLabel = opts.keyLabel || 'Key';
+    var valueLabel = opts.valueLabel || 'Value';
 
     function toRows(source: KeyValueSource | null | undefined): KeyValuePair[] {
         if (!source) return [];
@@ -101,109 +87,59 @@ export function createKeyValueEditor(options?: KeyValueEditorOptions): KeyValueE
         return Object.keys(source).map(function (k) { return { key: k, value: String(source[k]) }; });
     }
 
-    function snapshot(): KeyValuePair[] {
-        return rows.map(function (r) { return { key: r.key.value, value: r.value.value }; })
-            .filter(function (r) { return r.key !== '' || r.value !== ''; });
+    // One message under the key holds every problem of the row: a value with no key, a repeated key, then validate.
+    function rowProblem(key: string, item: Record<string, any>, index: number): string {
+        var trimmed = key.trim();
+        var value = String(item.value == null ? '' : item.value);
+        if (value !== '' && trimmed === '') return opts.requiredText || 'Enter a key.';
+        var others = editor.rows().map(function (r) { return String(r.group.getValue().key).trim(); });
+        if (trimmed !== '' && !opts.duplicateKeys && others.some(function (k, i) { return i !== index && k === trimmed; })) return opts.duplicateText || 'Key is already used.';
+        if (opts.validate && (trimmed !== '' || value !== '')) return opts.validate(trimmed, value, index) || '';
+        return '';
     }
 
-    // Validates one row against the others, shows its message, and returns whether it is valid.
-    function check(row: KeyValueRow): boolean {
-        var key = row.key.value.trim();
-        var problem = '';
-        if (row.value.value !== '' && key === '') problem = options!.requiredText || 'Enter a key.';
-        else if (key !== '' && !options!.duplicateKeys && rows.some(function (r) { return r !== row && r.key.value.trim() === key; })) problem = options!.duplicateText || 'Key is already used.';
-        else if (options!.validate && (key !== '' || row.value.value !== '')) problem = options!.validate(key, row.value.value, rows.indexOf(row)) || '';
-        row.message.set(problem ? 'error' : '', problem);
-        return !problem;
-    }
+    // The editor is a repeater of two text fields, with its own class names and every problem shown as it is typed.
+    var editor = buildRepeater({
+        fields: [
+            { key: 'key', label: keyLabel, placeholder: opts.keyPlaceholder, validate: function (v, item, index) { return rowProblem(String(v), item, index); } },
+            { key: 'value', label: valueLabel, placeholder: opts.valuePlaceholder }
+        ],
+        addText: opts.addText,
+        removeText: opts.removeLabel,
+        rowName: opts.rowName,
+        showLabels: opts.showLabels,
+        maxRows: opts.maxRows,
+        limitText: opts.limitText,
+        emptyText: opts.emptyText,
+        height: opts.height,
+        maxHeight: opts.maxHeight,
+        minHeight: opts.minHeight,
+        size: opts.size,
+        onChange: function (value) { if (opts.onChange) opts.onChange(value as KeyValuePair[]); }
+    }, {
+        rootClass: 'base-kv-editor',
+        headClass: 'base-kv-head',
+        rowsClass: 'base-kv-rows',
+        rowClass: 'base-kv-row',
+        addClass: 'base-kv-add',
+        removeClass: 'base-kv-remove',
+        emptyClass: 'base-kv-empty',
+        cellClass: { key: 'base-kv-key', value: 'base-kv-value' },
+        eager: true
+    });
 
-    // Disables Add and says why once maxRows is reached, and lifts both when a row goes.
-    function syncLimit(): void {
-        var full = !!(options!.maxRows && rows.length >= options!.maxRows);
-        addButton.disabled = full;
-        if (full) limit.set('info', options!.limitText || 'No more rows can be added.');
-        else limit.clear();
-    }
+    function setValue(next: KeyValueSource | null | undefined): void { editor.setValue(toRows(next)); }
 
-    function changed(): void {
-        rows.forEach(check);
-        if (options!.onChange) options!.onChange(snapshot());
-    }
-
-    function addRow(data?: { key?: string; value?: string } | null, silent?: boolean): KeyValueRow | null {
-        if (options!.maxRows && rows.length >= options!.maxRows) return null;
-        data = data || {};
-        var el = make('div', 'jpk-kv-row');
-        var key = make('input', '', { type: 'text', 'aria-label': options!.keyLabel || 'Key', autocomplete: 'off' });
-        var value = make('input', '', { type: 'text', 'aria-label': options!.valueLabel || 'Value', autocomplete: 'off' });
-        if (options!.keyPlaceholder) key.setAttribute('placeholder', options!.keyPlaceholder);
-        if (options!.valuePlaceholder) value.setAttribute('placeholder', options!.valuePlaceholder);
-        key.value = data.key || '';
-        value.value = data.value || '';
-        var message = createFieldMessage({ input: key });
-        var remove = iconButton('jpk-row-btn jpk-kv-remove', 'close', '');
-        var row: KeyValueRow = { el: el, key: key, value: value, message: message, remove: remove, off: [] };
-        function label(): void {
-            var name = row.key.value.trim() || ((options!.rowName || 'Row') + ' ' + (rows.indexOf(row) + 1));
-            var text = fill(options!.removeLabel || 'Remove {value}', name);
-            remove.title = text;
-            remove.setAttribute('aria-label', text);
-        }
-        row.label = label;
-        row.off.push(listen(key, 'input', function () { label(); changed(); }));
-        row.off.push(listen(value, 'input', changed));
-        row.off.push(listen(remove, 'click', function () {
-            var at = rows.indexOf(row);
-            dropRow(row);
-            changed();
-            var next = rows[Math.min(at, rows.length - 1)];
-            (next ? next.key : addButton).focus();
-        }));
-        var cell = make('div', 'jpk-kv-key');
-        cell.appendChild(key);
-        cell.appendChild(message.element);
-        el.appendChild(cell);
-        el.appendChild(value);
-        el.appendChild(remove);
-        rows.push(row);
-        body.appendChild(el);
-        label();
-        syncLimit();
-        if (!silent) changed();
-        return row;
-    }
-
-    function dropRow(row: KeyValueRow): void {
-        runAll(row.off);
-        row.message.destroy();
-        body.removeChild(row.el);
-        rows.splice(rows.indexOf(row), 1);
-        rows.forEach(function (r) { r.label!(); });
-        syncLimit();
-    }
-
-    function setValue(next: KeyValueSource | null | undefined): void {
-        rows.slice().forEach(dropRow);
-        clear(body);
-        toRows(next).forEach(function (r) { addRow(r, true); });
-        rows.forEach(check);
-        syncLimit();
-    }
-
-    cleanups.push(listen(addButton, 'click', function () {
-        var row = addRow();
-        if (row) row.key.focus();
-    }));
-
-    setValue(options.values);
+    setValue(opts.values);
 
     return {
-        element: root,
-        getValue: snapshot,
+        element: editor.element,
+        getValue: function () { return editor.getValue() as KeyValuePair[]; },
         setValue: setValue,
         setItems: setValue,
-        isValid: function () { return rows.map(check).every(Boolean); },
-        addRow: function (data?: { key?: string; value?: string } | null) { return !!addRow(data); },
-        destroy: function () { rows.slice().forEach(dropRow); runAll(cleanups); limit.destroy(); }
+        isValid: function () { return editor.checkAll(false); },
+        addRow: function (data?: { key?: string; value?: string } | null) { return editor.addRow(data || null); },
+        setHeight: function (height: ListHeight, maxHeight?: number | string | null) { editor.setHeight(height, maxHeight); },
+        destroy: function () { editor.destroy(); }
     };
 }

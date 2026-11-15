@@ -12,7 +12,7 @@ namespace JPKribs.Jellyfin.Base.Tests;
 /// <summary>Verifies that <see cref="JsonFileStore{T}"/> reads and writes one JSON value safely, including after a crash or a corrupt file.</summary>
 public sealed class JsonFileStoreTests : IDisposable
 {
-    private readonly string _dir = Path.Combine(Path.GetTempPath(), "jpk-store-" + Guid.NewGuid().ToString("N"));
+    private readonly string _dir = Path.Combine(Path.GetTempPath(), "base-store-" + Guid.NewGuid().ToString("N"));
 
     public JsonFileStoreTests() => Directory.CreateDirectory(_dir);
 

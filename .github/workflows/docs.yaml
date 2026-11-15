@@ -2,8 +2,7 @@ name: '📚 Publish Docs'
 
 # Builds the mkdocs site and deploys it to GitHub Pages on every push to main that touches the docs.
 # Unlike a plugin, Base builds the site here itself. The live previews load the real bundle, so the job
-# bundles the CSS and JS and builds the preview pages before the strict mkdocs build. Plugins keep calling
-# the reusable plugin-docs.yaml, which this workflow no longer uses.
+# bundles the CSS and JS and builds the preview pages before the strict mkdocs build.
 
 on:
   push:
@@ -46,6 +45,9 @@ jobs:
 
       - name: Bundle Shared Assets
         run: bash scripts/bundle.sh
+
+      - name: Check Docs Against the Code
+        run: node scripts/build-docs.mjs --check
 
       - name: Build Previews
         run: node scripts/build-previews.mjs

@@ -1,0 +1,139 @@
+/* A sortable, filterable table, a Filtered List whose rows sit in a grid under a header of column headings */
+/* Example: <div class="base-filtered-list base-data-table"><div class="base-filtered-toolbar"></div><div class="base-data-grid" role="table"><div class="base-data-head" role="row"></div><div class="base-data-body base-list rows"></div></div></div> */
+.base-data-table {
+    --base-data-number: calc(var(--base-size-large) * 2.5);
+    --base-data-min: calc(var(--base-size-large) * 2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+    min-width: 0;
+}
+/* A table spans its toolbar and its grid across its frame, where the Filtered List alone would center them */
+/* Example: <div class="base-filtered-list base-data-table"><div class="base-filtered-toolbar"></div><div class="base-data-grid"></div></div> */
+.base-filtered-list.base-data-table { align-items: stretch; }
+
+/* The header row and each body row share the column tracks, so headings and cells line up */
+/* Example: <div class="base-data-head" role="row"><div class="base-data-heading" role="columnheader"><button class="base-data-sort">Country</button></div></div> */
+.base-data-grid {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* The header and the rows never shrink below their columns, so a table too narrow for them scrolls sideways as one */
+/* Example: <div class="base-data-grid"><div class="base-data-head"></div><div class="base-data-body"></div></div> */
+.base-data-grid > .base-data-head,
+.base-data-grid > .base-data-body.base-list {
+    --base-data-gap: var(--base-gap-wide);
+    flex: 0 0 auto;
+    min-width: calc(var(--base-data-ends, 0) * var(--base-data-number) + var(--base-data-texts, 1) * var(--base-data-min) + var(--base-data-gaps, 0) * var(--base-data-gap) + 2 * var(--base-pad-medium) + 2px);
+    box-sizing: border-box;
+}
+.base-data-table.compact .base-data-grid > .base-data-head,
+.base-data-table.compact .base-data-grid > .base-data-body.base-list { --base-data-gap: var(--base-gap-narrow); }
+.base-data-head,
+.base-data-row {
+    display: grid;
+    grid-template-columns: var(--base-data-columns, minmax(0, 1fr));
+    align-items: center;
+    column-gap: var(--base-gap-wide);
+    padding: 0 var(--base-pad-medium);
+}
+.base-data-head {
+    /* The rows sit inside the list's 1px frame, so the header steps in by the same pixel to line up with them. */
+    padding: 0 calc(var(--base-pad-medium) + 1px);
+    min-height: var(--base-field-height);
+    font-size: var(--base-font-small);
+    text-transform: uppercase;
+    opacity: 0.75;
+}
+.base-data-heading.end,
+.base-data-cell.end { text-align: right; justify-self: stretch; }
+.base-data-heading.end { display: flex; justify-content: flex-end; }
+/* On a number column the arrow sits before the label, so the label ends where the digits end */
+.base-data-heading.end .base-data-sort { flex-direction: row-reverse; }
+
+/* A narrow centered column, such as a checkbox, its heading centered over its cells */
+/* Example: <div class="base-data-heading center" role="columnheader">Watched</div><div class="base-data-cell center" role="cell"><input type="checkbox" class="base-check-row-input"></div> */
+.base-data-heading.center,
+.base-data-cell.center { text-align: center; justify-self: stretch; }
+.base-data-heading.center,
+.base-data-cell.center { display: flex; justify-content: center; }
+
+/* A sortable heading, a button whose arrow shows only while the column is sorted, and turns over when descending */
+/* Example: <button class="base-data-sort"><span>Country</span><span class="material-icons">arrow_upward</span></button> */
+.base-data-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--base-gap-narrow) / 2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+}
+.base-data-sort .base-data-arrow {
+    font-size: var(--base-icon-small);
+    opacity: 0;
+    transition: transform 0.2s, opacity 0.2s;
+}
+.base-data-sort:hover .base-data-arrow { opacity: 0.5; }
+.base-data-heading.sorted { opacity: 1; }
+.base-data-heading.sorted .base-data-arrow { opacity: 1; }
+.base-data-heading.desc .base-data-arrow { transform: rotate(180deg); }
+
+/* A narrow table: number columns shrink, and a heading with an icon shows the icon in place of its label */
+/* Example: <div class="base-data-table compact"><div class="base-data-heading end"><button class="base-data-sort"><span class="material-icons base-data-glyph">person</span><span class="base-data-label">People</span></button></div></div> */
+.base-data-glyph { display: none; font-size: var(--base-icon-medium); }
+.base-data-table.compact { --base-data-number: calc(var(--base-size-large) * 1.25); }
+.base-data-table.compact .base-data-glyph { display: inline-block; }
+.base-data-table.compact .base-data-heading.has-icon .base-data-label { display: none; }
+.base-data-table.compact .base-data-head,
+.base-data-table.compact .base-data-row { column-gap: var(--base-gap-narrow); }
+.base-data-sort:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 2px; border-radius: var(--base-radius-small); }
+
+/* A body row at least a field tall, with a hover wash, and the accent wash with a leading bar while selected */
+/* Example: <div class="base-data-row selected" role="row" aria-selected="true"><div class="base-data-cell" role="cell">Germany</div></div> */
+.base-data-row {
+    min-height: var(--base-field-height);
+    box-sizing: border-box;
+    font-size: var(--base-field-font);
+}
+.base-data-cell {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: calc(var(--base-gap-narrow) / 2) 0;
+}
+.base-data-cell.end { font-variant-numeric: tabular-nums; }
+.base-data-cell.base-data-check,
+.base-data-heading.base-data-check { display: flex; align-items: center; }
+
+/* The edit button's column, one row button wide */
+/* Example: <div class="base-data-cell base-data-edit-cell" role="cell"><button class="base-row-btn base-data-edit-btn" aria-label="Edit Bob"><span class="material-icons">edit</span></button></div> */
+.base-data-cell.base-data-edit-cell,
+.base-data-heading.base-data-edit-cell { display: flex; align-items: center; justify-content: flex-end; overflow: visible; }
+
+/* An open row's editor under its cells, spanning every column: its fields in a grid, a message, and Save and Cancel */
+/* Example: <div class="base-data-row editing"><div class="base-data-editor" role="cell"><div class="base-field-group grid"></div><div class="base-button-row base-data-editor-actions"></div></div></div> */
+.base-data-row.editing { background: var(--base-wash); }
+.base-data-editor {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+    padding: var(--base-gap-narrow) 0 var(--base-pad-medium);
+    font-size: var(--base-field-font);
+    white-space: normal;
+    cursor: auto;
+}
+.base-data-editor > .base-field-group.grid { padding-right: 0; }
+.base-data-editor-actions { display: flex; gap: var(--base-gap-narrow); flex-wrap: wrap; }

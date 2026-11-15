@@ -1,0 +1,35 @@
+<!-- title: Folder Picker -->
+<!-- min-height: 460 -->
+<div id="mount"></div>
+<div id="folderStatus" class="base-status-text"></div>
+<script type="module">
+const base = await window.__baseReady;
+const mount = document.getElementById('mount');
+const status = document.getElementById('folderStatus');
+const tree = {
+    '': [{ Name: '/', Path: '/', Type: 'Directory' }],
+    '/': [{ Name: 'media', Path: '/media', Type: 'Directory' }, { Name: 'srv', Path: '/srv', Type: 'Directory' }],
+    '/media': [{ Name: 'movies', Path: '/media/movies', Type: 'Directory' }, { Name: 'shows', Path: '/media/shows', Type: 'Directory' }, { Name: 'cover.jpg', Path: '/media/cover.jpg', Type: 'File' }],
+    '/media/movies': [],
+    '/media/shows': [{ Name: 'Season 1', Path: '/media/shows/Season 1', Type: 'Directory' }],
+    '/media/shows/Season 1': [],
+    '/srv': []
+};
+const listFolders = (path) => new Promise((resolve, reject) => {
+    setTimeout(() => (path in tree ? resolve(tree[path]) : reject(new Error('missing'))), 300);
+});
+mount.appendChild(base.createFolderPicker({
+    label: 'Media Folder',
+    placeholder: '/media/movies',
+    description: 'The folder the plugin reads from.',
+    value: '/media',
+    listFolders: listFolders,
+    onChange: (value) => { status.textContent = 'Path is ' + value + '.'; }
+}).element);
+mount.appendChild(base.createFolderPicker({
+    label: 'Cover File',
+    title: 'Select a File',
+    includeFiles: true,
+    listFolders: listFolders
+}).element);
+</script>

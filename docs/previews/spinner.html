@@ -1,9 +1,9 @@
 <!-- title: Spinner -->
 <div id="mount"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
+const base = await window.__baseReady;
 const view = document.getElementById('view');
 const mount = document.getElementById('mount');
 mount.style.cssText = 'display:flex;align-items:center;gap:16px';
-['small', 'medium', 'large'].forEach((size) => mount.appendChild(JPK.createSpinner({ size }).element));
+['small', 'medium', 'large'].forEach((size) => mount.appendChild(base.createSpinner({ size }).element));
 </script>

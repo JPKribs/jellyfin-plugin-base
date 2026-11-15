@@ -1,6 +1,6 @@
 # Choice Group
 
-Radio cards. One `jpk-choice` label per option, with a name and a sentence of explanation.
+Radio cards. One `base-choice` label per option, with a name and a sentence of explanation.
 
 ## When to Use
 
@@ -8,21 +8,21 @@ Radio cards. One `jpk-choice` label per option, with a name and a sentence of ex
 
 ## When Not to Use
 
-* Use a [Pill Group](pill-group.md) when the names explain themselves.
+* Use a [Pill Group](pill-group.md) when the names explain themselves, and a select for a long list of options.
 
 ## Usage
 
 ```html
-<div class="jpk-choice-group" id="modeChoices" role="radiogroup" aria-label="Direction">
-    <label class="jpk-choice">
+<div class="base-choice-group" id="modeChoices" role="radiogroup" aria-label="Direction">
+    <label class="base-choice">
         <input type="radio" name="serverMode" value="Pull" />
-        <span class="jpk-choice-name">Pull</span>
-        <span class="jpk-choice-text">Read from this server on a schedule.</span>
+        <span class="base-choice-name">Pull</span>
+        <span class="base-choice-text">Read from this server on a schedule.</span>
     </label>
-    <label class="jpk-choice">
+    <label class="base-choice">
         <input type="radio" name="serverMode" value="Push" />
-        <span class="jpk-choice-name">Push</span>
-        <span class="jpk-choice-text">Send changes made here as they happen.</span>
+        <span class="base-choice-name">Push</span>
+        <span class="base-choice-text">Send changes made here as they happen.</span>
     </label>
 </div>
 ```
@@ -34,14 +34,14 @@ var mode = createChoiceGroup(view.querySelector('#modeChoices'), { onChange: fun
 mode.set('Pull');
 ```
 
-Classes: `jpk-choice-group`, `jpk-choice`, `jpk-choice-name`, `jpk-choice-text`. The handle is `{ get, set, destroy }`.
+Classes: `base-choice-group`, `base-choice`, `base-choice-name`, `base-choice-text`. The handle is `{ get, set, destroy }`.
 
 ## States and Modifiers
 
 * `get()` returns the checked value or `null`. `set(value)` checks the matching input.
 * The `selected` class follows the checked input, and runs once on creation. A checked input gets the same look through `:has(input:checked)`, in its own rule so an engine without `:has()` keeps `.selected`.
 * The radio input is visually hidden but stays in the tab order and keeps the native arrow keys within its group.
-* The cards are three equal columns, and one column at 768px and below.
+* `createChoiceGroup` lays the cards out as [Balanced Rows](balanced-rows.md), up to three columns of at least 200px each, so no card sits alone on a row. Without the script, the cards are three equal columns, and one column at 768px and below.
 
 ## Gotchas
 
@@ -49,13 +49,44 @@ Classes: `jpk-choice-group`, `jpk-choice`, `jpk-choice-name`, `jpk-choice-text`.
 * Use one `name` for all radios of a group, and give the group `role="radiogroup"` and a label.
 * `createChoiceGroup` throws without an element.
 
+## Reference
+
+Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this section.
+
+<!-- reference:start -->
+
+### `createChoiceGroup`
+
+<code>function createChoiceGroup(groupEl: HTMLElement, options?: ChoiceGroupOptions): ChoiceGroupHandle</code>
+
+Wires a group of base-choice radio cards, keeping the selected class in step with the checked input for browsers without :has(). It reports each change to onChange.
+
+| Option | Type | What it does |
+| :--- | :--- | :--- |
+| `onChange` | <code>(value: string &#124; null): void</code> |  |
+
+| Handle member | Type |
+| :--- | :--- |
+| `get` | <code>(): string &#124; null</code> |
+| `set` | <code>(value: string): void</code> |
+| `destroy` | <code>(): void</code> |
+
+| Class | What it looks like |
+| :--- | :--- |
+| `base-choice-group` | Grid of equal radio cards, three across and one per row on a phone |
+| `base-choice` | One radio card holding a hidden input, a name, and a sentence, outlined in the accent when selected |
+| `base-choice-name` | Bold name of a choice |
+| `base-choice-text` | Small dimmed sentence under the name |
+
+<!-- reference:end -->
+
 ## Used By
 
 Scripts, Server Sync, and YouTube Audio use it.
 
 ## Example
 
-<iframe class="jpk-preview" src="../../../assets/previews/choice-group.html" title="Choice Group example" loading="lazy"></iframe>
+<iframe class="base-preview" src="../../../assets/previews/choice-group.html" title="Choice Group example" loading="lazy"></iframe>
 
 ## Example Code
 

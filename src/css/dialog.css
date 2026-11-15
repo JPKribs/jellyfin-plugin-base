@@ -1,53 +1,67 @@
 /* Full screen dimmed overlay that centers its panel */
-/* Example: <div class="jpk-dialog"><div class="jpk-dialog-content"></div></div> */
-.jpk-dialog {
+/* Example: <div class="base-dialog"><div class="base-dialog-content"></div></div> */
+.base-dialog {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
-    padding: 16px;
+    z-index: var(--base-layer-dialog);
+    padding: var(--base-gap-wide);
 }
 
-/* Centered, scrollable modal panel */
-/* Example: <div class="jpk-dialog-content"></div> */
-.jpk-dialog-content {
-    background: var(--jpk-surface);
-    border: 1px solid var(--jpk-border);
-    padding: 24px;
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+/* Centered, scrollable modal panel, 60% of the window wide at the medium size, whose padding every part inside it is set by */
+/* Example: <div class="base-dialog-content medium"></div> */
+.base-dialog-content {
+    --base-dialog-pad: calc(var(--base-pad-large) * 1.5);
+    box-sizing: border-box;
+    width: 60vw;
+    min-width: 420px;
+    min-width: min(420px, 100%);
+    max-width: 100%;
+    background: var(--base-surface);
+    border: 1px solid var(--base-border);
+    padding: var(--base-dialog-pad);
+    border-radius: var(--base-radius-large);
+    box-shadow: var(--base-shadow-dialog);
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
 }
 
-/* Narrow panel for a short prompt or confirmation */
-/* Example: <div class="jpk-dialog-content jpk-dialog-content-narrow"></div> */
-.jpk-dialog-content-narrow { max-width: 420px; }
+/* A small panel, 40% of the window wide, for a short prompt or confirmation */
+/* Example: <div class="base-dialog-content small"></div> */
+.base-dialog-content.small { width: 40vw; min-width: 320px; min-width: min(320px, 100%); }
 
-/* Wide editor panel with its buttons pinned at the bottom, and a full screen panel on a phone */
-/* Example: <div class="jpk-dialog-content jpk-dialog-content-wide"></div> */
-.jpk-dialog-content-wide { box-sizing: border-box; width: min(760px, 100%); }
-.jpk-dialog-content-wide .jpk-modal-button-row {
+/* A large panel, 80% of the window wide, for an editor, with its buttons pinned at the bottom and the whole screen on a phone. A drawer's footer shares the pinned row */
+/* Example: <div class="base-dialog-content large"></div> */
+.base-dialog-content.large { width: 80vw; min-width: 560px; min-width: min(560px, 100%); }
+.base-dialog-content.large .base-modal-button-row,
+.base-drawer-content .base-drawer-footer {
     position: sticky;
-    bottom: -24px;
+    bottom: calc(-1 * var(--base-dialog-pad));
     z-index: 2;
     justify-content: flex-end;
-    margin: 8px -24px -24px;
-    padding: 12px 24px;
+    margin: var(--base-gap-narrow) calc(-1 * var(--base-dialog-pad)) calc(-1 * var(--base-dialog-pad));
+    padding: var(--base-pad-medium) var(--base-dialog-pad);
     background: inherit;
-    border-top: 1px solid var(--jpk-border);
+    border-top: 1px solid var(--base-border);
 }
-.jpk-dialog-content-wide .jpk-modal-button { flex: none; min-width: 7em; }
-.jpk-dialog-content-wide .jpk-modal-button.jpk-button-destructive { margin-right: auto; }
+.base-dialog-content.large .base-modal-button,
+.base-drawer-content .base-drawer-footer .base-modal-button { flex: none; min-width: 7em; }
+.base-dialog-content.large .base-modal-button.base-button.destructive,
+.base-drawer-content .base-drawer-footer .base-modal-button.base-button.destructive { margin-right: auto; }
 @media (max-width: 700px) {
-    .jpk-dialog:has(.jpk-dialog-content-wide) { padding: 0; align-items: stretch; }
+    /* On a phone every panel takes the width of the screen, and a large one or a drawer takes the whole screen. */
+    .base-dialog-content { width: 100%; min-width: 0; }
+    .base-dialog:has(.base-dialog-content.large) { padding: 0; align-items: stretch; }
     /* The same by the class openDialog sets on the overlay, for engines without :has(). */
-    .jpk-dialog.jpk-dialog-wide { padding: 0; align-items: stretch; }
-    .jpk-dialog-content-wide {
+    .base-dialog.large,
+    .base-dialog.base-drawer { padding: 0; align-items: stretch; }
+    .base-dialog-content.large,
+    .base-dialog-content.base-drawer-content {
+        --base-dialog-pad: var(--base-gap-wide);
         display: flex;
         flex-direction: column;
         width: 100%;
@@ -56,74 +70,76 @@
         max-height: none;
         border: 0;
         border-radius: 0;
-        padding: calc(16px + env(safe-area-inset-top)) 16px 0;
+        padding: calc(var(--base-dialog-pad) + env(safe-area-inset-top)) var(--base-dialog-pad) 0;
     }
-    .jpk-dialog-content-wide .jpk-modal-button-row {
+    .base-dialog-content.large .base-dialog-close,
+    .base-dialog-content.base-drawer-content .base-dialog-close { top: calc(var(--base-dialog-pad) + env(safe-area-inset-top)); }
+    .base-dialog-content.large .base-modal-button-row,
+    .base-drawer-content .base-drawer-footer {
         bottom: 0;
-        margin: auto -16px 0;
-        padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+        margin: auto calc(-1 * var(--base-dialog-pad)) 0;
+        padding: var(--base-pad-medium) var(--base-dialog-pad) calc(var(--base-pad-medium) + env(safe-area-inset-bottom));
     }
-    .jpk-dialog-content-wide .jpk-modal-title { font-size: 1.3em; }
+    .base-dialog-content.large .base-modal-title { font-size: 1.3em; }
     /* Buttons wrap on a narrow screen, with a destructive one last rather than alone on the first line. */
-    .jpk-modal-button-row { flex-wrap: wrap; row-gap: 8px; }
-    .jpk-dialog-content-wide .jpk-modal-button { flex: 1 1 auto; }
-    .jpk-modal-button-row .jpk-modal-button.jpk-button-destructive { order: 1; margin-right: 0; }
+    .base-modal-button-row { flex-wrap: wrap; row-gap: var(--base-gap-narrow); }
+    .base-dialog-content.large .base-modal-button,
+    .base-drawer-content .base-drawer-footer .base-modal-button { flex: 1 1 auto; }
+    .base-modal-button-row .base-modal-button.base-button.destructive { order: 1; margin-right: 0; }
 }
 
-/* Close button pinned to the panel corner */
-/* Example: <button class="jpk-dialog-close">x</button> */
-.jpk-dialog-close {
+/* The corner close button, a row button pinned to the top right corner of the panel and inset by the panel's padding, level with the title */
+/* Example: <button type="button" class="base-row-btn base-dialog-close" title="Close" aria-label="Close"><span class="material-icons" aria-hidden="true">close</span></button> */
+.base-dialog-close {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    background: none;
-    border: none;
-    color: inherit;
-    font-size: 24px;
-    cursor: pointer;
-    opacity: 0.7;
-    padding: 4px 8px;
-    line-height: 1;
+    top: var(--base-dialog-pad, var(--base-pad-medium));
+    right: var(--base-dialog-pad, var(--base-pad-medium));
 }
-.jpk-dialog-close:hover { opacity: 1; }
 
 /* Modal heading */
-/* Example: <h2 class="jpk-modal-title">Title</h2> */
-.jpk-modal-title { margin-top: 0; padding-right: 32px; }
+/* Example: <h2 class="base-modal-title">Title</h2> */
+.base-modal-title { margin-top: 0; padding-right: var(--base-size-medium); }
 
 /* Dialog links in the accent color, except a link styled as a button */
 /* Example: <p>See <a href="https://example.com">the guide</a>.</p> */
-.jpk-dialog a:not(.raised):not(.emby-button):not([is="emby-linkbutton"]) { color: var(--jpk-accent); }
+.base-dialog a:not(.raised):not(.emby-button):not([is="emby-linkbutton"]) { color: var(--base-accent); }
 
 /* Modal body region between header and footer */
-/* Example: <div class="jpk-modal-body"></div> */
-.jpk-modal-body { margin: 16px 0; }
+/* Example: <div class="base-modal-body"></div> */
+.base-modal-body { margin: var(--base-gap-wide) 0; }
 
 /* Field block with a label inside a modal */
-/* Example: <div class="jpk-modal-field"><div class="jpk-modal-field-label">Name</div></div> */
-.jpk-modal-field { margin-bottom: 12px; }
+/* Example: <div class="base-modal-field"><div class="base-modal-field-label">Name</div></div> */
+.base-modal-field { margin-bottom: var(--base-gap-wide); }
 
 /* Dimmed label above a modal field */
-/* Example: <div class="jpk-modal-field-label">Name</div> */
-.jpk-modal-field-label { opacity: 0.7; margin-bottom: 4px; }
+/* Example: <div class="base-modal-field-label">Name</div> */
+.base-modal-field-label { opacity: 0.7; margin-bottom: var(--base-gap-narrow); }
 
 /* Footer row of equal width modal buttons */
-/* Example: <div class="jpk-modal-button-row"><button class="jpk-modal-button"></button></div> */
-.jpk-modal-button-row { display: flex; gap: 8px; margin-top: 8px; }
+/* Example: <div class="base-modal-button-row"><button class="base-modal-button"></button></div> */
+.base-modal-button-row { display: flex; gap: var(--base-gap-narrow); margin-top: var(--base-gap-narrow); }
 
 /* Equal width button in the footer row */
-/* Example: <button class="jpk-modal-button raised">Save</button> */
-.jpk-modal-button {
+/* Example: <button class="base-modal-button raised">Save</button> */
+.base-modal-button {
     flex: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     border: 0;
-    border-radius: 0.2em;
-    padding: 0.9em 1em;
+    border-radius: var(--base-radius-small);
+    padding: var(--base-pad-medium) var(--base-pad-large);
     font: inherit;
     font-weight: 600;
     line-height: 1.35;
     cursor: pointer;
+}
+
+/* A footer button that cannot be pressed yet, such as a typed confirm before its text matches, dimmed with no pointer */
+/* Example: <button class="base-modal-button raised base-button destructive" disabled>Delete</button> */
+.base-modal-button:disabled {
+    opacity: 0.5;
+    cursor: default;
 }

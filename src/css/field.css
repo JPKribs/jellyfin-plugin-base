@@ -1,35 +1,40 @@
 /* A compact label and control field for dense, multiple-per-line layouts */
-/* Example: <div class="jpk-field"><label for="year">Year</label><input is="emby-input" id="year"></div> */
-.jpk-field {
+/* Example: <div class="base-field"><label for="year">Year</label><input is="emby-input" id="year"></div> */
+.base-field {
     display: flex;
     flex-direction: column;
     flex: 1 1 10em;
     min-width: 0;
 }
-.jpk-field > label {
+.base-field > label {
     display: block;
-    margin: 0 0 0.4em 0;
+    margin: 0 0 var(--base-gap-narrow) 0;
 }
-.jpk-field > input,
-.jpk-field > select,
-.jpk-field > .emby-input,
-.jpk-field > .emby-select {
+.base-field > input,
+.base-field > select,
+.base-field > .emby-input,
+.base-field > .emby-select {
     width: 100%;
     box-sizing: border-box;
     margin: 0;
 }
 
 /* A field that keeps its natural width instead of growing to fill the row */
-/* Example: <div class="jpk-field jpk-field-fixed"></div> */
-.jpk-field-fixed {
+/* Example: <div class="base-field base-field-fixed"></div> */
+.base-field-fixed {
     flex: 0 0 auto;
 }
 
 /* A row that places fields side by side and wraps on narrow widths */
-/* Example: <div class="jpk-field-row"><div class="jpk-field"></div><div class="jpk-field"></div></div> */
-.jpk-field-row {
+/* Example: <div class="base-field-row"><div class="base-field"></div><div class="base-field"></div></div> */
+.base-field-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: var(--base-gap-wide);
     align-items: flex-end;
 }
+
+/* Text box in a compact field at the height of a select beside it */
+/* Example: <div class="base-field"><input is="emby-input" class="emby-input"></div> */
+.pluginConfigurationPage .base-field input.emby-input,
+.base-dialog .base-field input.emby-input { padding-top: 0.5em; padding-bottom: 0.5em; }

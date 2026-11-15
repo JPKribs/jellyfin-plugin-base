@@ -22,12 +22,12 @@ function build(extra) {
     return { tabs: tabs, changes: changes, rendered: rendered };
 }
 
-function tab(ui, id) { return all(ui.tabs.element, '.jpk-subtab').filter(function (t) { return t.getAttribute('data-id') === id; })[0]; }
+function tab(ui, id) { return all(ui.tabs.element, '.base-subtab').filter(function (t) { return t.getAttribute('data-id') === id; })[0]; }
 function key(ui, el, k) { return el.dispatch('keydown', { key: k }); }
 
 test('it has a tablist, tabs, and panels with roles and labels wired together', function () {
     var ui = build();
-    var list = ui.tabs.element.querySelector('.jpk-subtab-list');
+    var list = ui.tabs.element.querySelector('.base-subtab-list');
     assert.equal(list.getAttribute('role'), 'tablist');
     assert.equal(list.getAttribute('aria-label'), 'Sections');
     var panel = ui.tabs.getPanel('a');
@@ -35,7 +35,7 @@ test('it has a tablist, tabs, and panels with roles and labels wired together', 
     assert.equal(tab(ui, 'a').getAttribute('role'), 'tab');
     assert.equal(tab(ui, 'a').getAttribute('aria-controls'), panel.id);
     assert.equal(panel.getAttribute('aria-labelledby'), tab(ui, 'a').id);
-    assert.equal(createSubTabs({ label: 'Settings', tabs: [{ id: 'x', label: 'X' }] }).element.querySelector('.jpk-subtab-list').getAttribute('aria-label'), 'Settings');
+    assert.equal(createSubTabs({ label: 'Settings', tabs: [{ id: 'x', label: 'X' }] }).element.querySelector('.base-subtab-list').getAttribute('aria-label'), 'Settings');
 });
 
 test('the first enabled tab opens first with selected state, roving tabindex, and a visible panel', function () {
@@ -108,14 +108,14 @@ test('setValue selects without a focus move, and the value option opens another 
 test('setItems replaces the tabs and opens the first one', function () {
     var ui = build();
     ui.tabs.setItems([{ id: 'x', label: 'X' }, { id: 'y', label: 'Y' }]);
-    assert.equal(ui.tabs.element.querySelectorAll('.jpk-subtab').length, 2);
+    assert.equal(ui.tabs.element.querySelectorAll('.base-subtab').length, 2);
     assert.equal(ui.tabs.getValue(), 'x');
     assert.equal(ui.tabs.getPanel('a'), null);
 });
 
 test('destroy removes the list listeners', function () {
     var ui = build();
-    var list = ui.tabs.element.querySelector('.jpk-subtab-list');
+    var list = ui.tabs.element.querySelector('.base-subtab-list');
     ui.tabs.destroy();
     assert.equal(list.listeners.click.length, 0);
     assert.equal(list.listeners.keydown.length, 0);

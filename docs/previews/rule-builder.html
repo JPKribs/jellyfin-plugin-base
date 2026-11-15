@@ -1,0 +1,19 @@
+<!-- title: Rule Builder -->
+<div id="rules"></div>
+<script type="module">
+const base = await window.__baseReady;
+const rules = base.createRuleBuilder({
+    fields: [
+        { key: 'title', label: 'Title', placeholder: 'Alien' },
+        { key: 'year', label: 'Year', type: 'number', placeholder: '1979' },
+        { key: 'type', label: 'Type', type: 'select', options: ['Movie', 'Series', 'Episode'] },
+        { key: 'genres', label: 'Genres', type: 'chips', placeholder: 'Drama' }
+    ],
+    value: { match: 'all', rules: [{ field: 'type', operator: 'is', value: 'Movie' }, { field: 'year', operator: 'gt', value: 2000 }, { field: 'genres', operator: 'any', value: ['Drama', 'Comedy'] }] },
+    warn: function (value) {
+        var years = value.rules.filter(function (r) { return r.field === 'year'; });
+        return value.match === 'all' && years.length > 1 ? 'Two year rules may never both match.' : '';
+    }
+});
+document.getElementById('rules').appendChild(rules.element);
+</script>

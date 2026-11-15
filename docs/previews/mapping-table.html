@@ -1,0 +1,24 @@
+<!-- title: Mapping Table -->
+<div id="mount"></div>
+<script type="module">
+const base = await window.__baseReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+const note = document.createElement('div');
+note.className = 'base-status-text';
+const map = base.createMappingTable({
+    rows: [
+        { value: 'r1', label: 'Movies', description: 'source-a' },
+        { value: 'r2', label: 'Shows', description: 'source-a' },
+        { value: 'r3', label: 'Music', description: 'source-a' }
+    ],
+    targets: [{ value: 'l1', label: 'Local Movies' }, { value: 'l2', label: 'Local Shows' }, { value: 'l3', label: 'Local Music' }],
+    value: { r1: 'l1', r3: 'removed' },
+    sourceHeader: 'Remote Library',
+    targetHeader: 'Local Library',
+    unique: true,
+    onChange: (value) => { note.textContent = JSON.stringify(value); }
+});
+mount.appendChild(map.element);
+mount.appendChild(note);
+</script>

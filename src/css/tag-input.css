@@ -1,27 +1,29 @@
 /* Field box that holds tag pills and a text input that grows to the free width */
-/* Example: <div class="jpk-tag-input"><div class="jpk-tag-input-box"><div class="jpk-tags"></div><input class="jpk-tag-input-field" type="text"></div></div> */
-.jpk-tag-input-box {
+/* Example: <div class="base-tag-input"><div class="base-tag-input-box"><div class="base-tags"></div><input class="base-tag-input-field" type="text"><span class="material-icons base-adorned-icon">search</span></div></div> */
+.base-tag-input-box {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 6px;
-    padding: 4px 8px;
-    min-height: 40px;
+    position: relative;
+    gap: var(--base-gap-narrow);
+    padding: calc((var(--base-field-height) - var(--base-size-small)) / 2 - 1px) calc(var(--base-field-pad) + var(--base-chevron-primary)) calc((var(--base-field-height) - var(--base-size-small)) / 2 - 1px) var(--base-field-pad);
+    min-height: var(--base-field-height);
     box-sizing: border-box;
-    background: var(--jpk-surface);
-    border: 1px solid var(--jpk-border);
-    border-radius: 4px;
+    background: var(--base-surface);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-small);
     cursor: text;
 }
-.jpk-tag-input-box:focus-within { border-color: var(--jpk-accent); }
-.jpk-tag-input-box .jpk-tags { margin-top: 0; display: contents; }
-.pluginConfigurationPage .jpk-tag-input-box input.jpk-tag-input-field,
-.jpk-dialog .jpk-tag-input-box input.jpk-tag-input-field,
-.jpk-tag-input-box input.jpk-tag-input-field {
-    flex: 1 1 120px;
+.base-tag-input-box:focus-within { border-color: var(--base-accent); }
+.base-tag-input-box .base-tags { margin-top: 0; display: contents; }
+.pluginConfigurationPage .base-tag-input-box input.base-tag-input-field,
+.base-dialog .base-tag-input-box input.base-tag-input-field,
+.base-tag-input-box input.base-tag-input-field {
+    flex: 1 1 calc(var(--base-size-large) * 3);
     width: auto !important;
-    min-width: 80px;
-    padding: 4px 0 !important;
+    min-width: calc(var(--base-size-large) * 2);
+    height: var(--base-size-small) !important;
+    padding: 0 !important;
     border: 0 !important;
     border-radius: 0 !important;
     background: transparent !important;

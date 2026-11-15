@@ -1,16 +1,12 @@
-/* Small status line that fades out after a save */
-/* Example: <span class="jpk-status-text">Saved</span> */
-.jpk-status-text {
-    font-size: 0.9em;
+/* Status line under a form, such as after a save or a check, built as base-icon-text with the icon of its state */
+/* Example: <div class="base-status-text base-icon-text success" role="status"><span class="material-icons" aria-hidden="true">check_circle</span><span class="base-status-message">Saved.</span></div> */
+.base-status-text {
     transition: opacity 0.3s;
-    display: block;
-    margin-top: 4px;
+    margin-top: var(--base-gap-narrow);
 }
+.base-status-text:not(.base-icon-text) { display: block; }
 
-/* Green status text that setStatus applies for success */
-/* Example: <span class="jpk-status-text jpk-status-ok">Saved</span> */
-.jpk-status-ok { color: var(--jpk-success); }
-
-/* Red status text that setStatus applies for failure */
-/* Example: <span class="jpk-status-text jpk-status-bad">Could not save</span> */
-.jpk-status-bad { color: var(--jpk-error); }
+/* The older ok and bad classes setStatus also sets, in the success and error colors. Each state's own color is the shared message rule */
+/* Example: <div class="base-status-text base-status-ok">Saved.</div> */
+.base-status-ok { color: var(--base-success); }
+.base-status-bad { color: var(--base-error); }

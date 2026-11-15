@@ -1,19 +1,19 @@
 <!-- title: Bound Dialog -->
 <!-- min-height: 400 -->
-<div id="itemDetailModal" class="jpk-dialog hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="jpk-dialog-content jpk-dialog-content-narrow">
-        <button type="button" id="btnModalClose" class="jpk-dialog-close" aria-label="Close">&times;</button>
-        <h2 id="modalTitle" class="jpk-modal-title">Item Detail</h2>
-        <div id="modalContent" class="jpk-modal-body"></div>
+<div id="itemDetailModal" class="base-dialog hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="base-dialog-content small">
+        <button type="button" id="btnModalClose" class="base-row-btn base-dialog-close" title="Close" aria-label="Close"><span class="material-icons" aria-hidden="true">close</span></button>
+        <h2 id="modalTitle" class="base-modal-title">Item Detail</h2>
+        <div id="modalContent" class="base-modal-body"></div>
     </div>
 </div>
-<button type="button" id="btnDetail" class="raised jpk-button-submit"><span>Open Detail</span></button>
-<span id="boundStatus" class="jpk-status-text"></span>
+<button type="button" id="btnDetail" class="raised base-button primary"><span>Open Detail</span></button>
+<span id="boundStatus" class="base-status-text"></span>
 <script type="module">
-const JPK = await window.__jpkReady;
+const base = await window.__baseReady;
 const view = document.getElementById('view');
-const shared = JPK.createShared(view, 'preview-plugin', 'Preview');
-const detail = JPK.bindDialog('itemDetailModal', {
+const shared = base.createShared(view, 'preview-plugin', 'Preview');
+const detail = base.bindDialog('itemDetailModal', {
     root: view,
     onClose: () => shared.setStatus('boundStatus', 'Detail closed.', false, { timeout: 0 })
 });

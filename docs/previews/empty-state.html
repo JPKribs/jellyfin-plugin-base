@@ -1,8 +1,8 @@
 <!-- title: Empty State -->
 <div id="mount"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
-const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const base = await window.__baseReady;
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
 const mount = document.getElementById('mount');
 mount.innerHTML =
     shared.emptySection('No servers yet. Add one below.') +

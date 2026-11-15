@@ -32,11 +32,11 @@ Use `page.createPoller` so `stop` is registered for `viewhide`. Call `poller.sto
 
 ## Used By
 
-Live Channels, Remote Access, Requests, and YouTube Audio use it. No plugin passes `pauseWhenHidden` yet.
+Live Channels, Remote Access, Requests, and YouTube Audio use it. No plugin passes `pauseWhenHidden`.
 
 ## Example
 
-<iframe class="jpk-preview" src="../../../assets/previews/poller.html" title="Poller example" loading="lazy"></iframe>
+<iframe class="base-preview" src="../../../assets/previews/poller.html" title="Poller example" loading="lazy"></iframe>
 
 ## Example Code
 

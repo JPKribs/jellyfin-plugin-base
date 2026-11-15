@@ -1,14 +1,14 @@
 <!-- title: Checkbox List -->
 <div id="mount"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
+const base = await window.__baseReady;
 const { rect } = window.__gallery;
 const { COLORS } = window.__galleryData;
 const series = [];
 for (let i = 1; i <= 12; i++) {
     series.push({ id: 's' + i, name: 'Series ' + i, year: 2000 + i, poster: rect(32, 32, COLORS[i % COLORS.length], String(i)) });
 }
-const list = JPK.createCheckboxList({
+const list = base.createCheckboxList({
     items: series,
     value: ['s2', 's5'],
     disabledIds: ['s9'],

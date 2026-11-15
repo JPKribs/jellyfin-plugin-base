@@ -1,0 +1,63 @@
+/* A List of nested rows that open and close, one row per visible node */
+/* Example: <div class="base-list plain base-tree" role="tree"><div class="base-tree-row base-list-item" role="treeitem" aria-level="1" tabindex="0"></div></div> */
+.base-tree.base-list.plain { gap: 0; }
+
+/* One node: indented by its level, then its open button, its checkbox, its picture, and its text. The focused row takes an accent ring, and a checked one the shared selection */
+/* Example: <div class="base-tree-row" role="treeitem" aria-level="2" style="--base-tree-level: 1"><button class="base-tree-toggle"></button><input class="base-tree-check" type="checkbox"><span class="base-tree-text"></span></div> */
+.base-tree-row {
+    display: flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    box-sizing: border-box;
+    min-height: var(--base-field-height);
+    padding: 0 var(--base-pad-small) 0 calc(var(--base-pad-small) + var(--base-tree-level, 0) * var(--base-size-small));
+    border-radius: var(--base-radius-small);
+    font-size: var(--base-field-font);
+    cursor: pointer;
+}
+.base-tree-row:hover { background: var(--base-wash); }
+.base-tree-row:focus { outline: none; }
+.base-tree-row:focus-visible { box-shadow: inset 0 0 0 2px var(--base-accent); }
+
+/* The open button, a row button whose chevron points down while closed and turns up while open */
+/* Example: <button class="base-tree-toggle collapsed" aria-expanded="false"><span class="material-icons base-collapsible-icon">expand_more</span></button> */
+.base-tree-toggle,
+.base-tree-spacer {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: var(--base-size-small);
+    height: var(--base-size-small);
+}
+.base-tree-toggle {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--base-radius-small);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    opacity: 0.7;
+}
+.base-tree-toggle:hover { opacity: 1; background: var(--base-wash-strong); }
+.base-tree-toggle .base-collapsible-icon { font-size: var(--base-chevron-secondary); }
+
+/* The checkbox, the thumbnail a text line tall, the icon, and the text with its dimmed secondary part */
+/* Example: <span class="base-thumb base-tree-thumb square"></span> */
+.base-tree-check { flex: 0 0 auto; margin: 0; cursor: pointer; }
+.base-tree-thumb {
+    width: var(--base-size-small);
+    height: var(--base-size-small);
+    border-radius: var(--base-radius-small);
+}
+.base-tree-thumb.portrait { width: calc(var(--base-size-small) * 2 / 3); }
+.base-tree-thumb.wide { width: calc(var(--base-size-small) * 16 / 9); }
+.base-tree-thumb.round { border-radius: var(--base-radius-round); }
+.base-tree-thumb .base-thumb-image { width: 100%; height: 100%; object-fit: cover; display: block; }
+.base-tree-icon { flex: 0 0 auto; font-size: var(--base-icon-medium); opacity: 0.8; }
+.base-tree-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+
+/* The line a node shows while its children load */
+/* Example: <span class="base-tree-loading" role="status">Loading</span> */
+.base-tree-loading { flex: 0 0 auto; font-size: var(--base-font-small); opacity: 0.7; }

@@ -1,17 +1,17 @@
 <!-- title: Asset List -->
 <div id="mount"></div>
 <script type="module">
-await window.__jpkReady;
+await window.__baseReady;
 const { rect } = window.__gallery;
 const { COLORS } = window.__galleryData;
 const names = ['logo.png', 'a-very-long-asset-file-name-that-clips-with-an-ellipsis.svg'];
-document.getElementById('mount').innerHTML = '<div class="jpk-asset-list">' + names.map((name, i) =>
-    '<div class="jpk-asset-item">' +
-        '<img class="jpk-asset-thumb" alt="" src="' + rect(48, 48, COLORS[i], 'A') + '">' +
-        '<div class="jpk-asset-info"><div class="jpk-asset-name">' + name + '</div><div class="jpk-asset-ref">assets/' + name + '</div></div>' +
-        '<div class="jpk-asset-actions">' +
-            '<button type="button" class="jpk-asset-btn" title="Copy"><span class="material-icons">content_copy</span></button>' +
-            '<button type="button" class="jpk-asset-btn danger" title="Remove"><span class="material-icons">delete</span></button>' +
+document.getElementById('mount').innerHTML = '<div class="base-asset-list">' + names.map((name, i) =>
+    '<div class="base-asset-item">' +
+        '<img class="base-asset-thumb" alt="" src="' + rect(48, 48, COLORS[i], 'A') + '">' +
+        '<div class="base-asset-info"><div class="base-asset-name">' + name + '</div><div class="base-asset-ref">assets/' + name + '</div></div>' +
+        '<div class="base-asset-actions">' +
+            '<button type="button" class="base-row-btn" title="Copy" aria-label="Copy"><span class="material-icons" aria-hidden="true">content_copy</span></button>' +
+            '<button type="button" class="base-row-btn destructive" title="Delete" aria-label="Delete"><span class="material-icons" aria-hidden="true">delete</span></button>' +
         '</div>' +
     '</div>').join('') + '</div>';
 </script>

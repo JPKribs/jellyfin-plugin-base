@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { installFakeDom } from './fake-dom.mjs';
 
 var dom = installFakeDom();
-var { placeBox } = await import('../../src/js/dom-util.js');
+var { placeBox } = await import('../../src/js/lib/dom.js');
 var { createOverflowMenu, createHelpHint, bindTooltips } = await import('../../src/js/index.js');
 
 beforeEach(function () {
@@ -51,12 +51,12 @@ test('placeBox aligns to the start or end edge and clamps inside the viewport on
 test('the menu list is placed under the button by coordinates, aligned to its right edge', function () {
     var menu = createOverflowMenu({ items: [{ label: 'Edit' }] });
     dom.document.body.appendChild(menu.element);
-    var button = menu.element.querySelector('.jpk-menu-button');
-    var list = menu.element.querySelector('.jpk-menu-list');
+    var button = menu.element.querySelector('.base-menu-button');
+    var list = menu.element.querySelector('.base-menu-list');
     button._rect = rect(300, 100, 30, 30);
     list._rect = rect(0, 0, 160, 80);
     menu.open();
-    assert.equal(list.style.top, '134px');
+    assert.equal(list.style.top, '138px');
     assert.equal(list.style.left, '170px');
 });
 
@@ -65,33 +65,33 @@ test('the menu list flips above the button near the bottom and stays inside a 37
     globalThis.innerHeight = 600;
     var menu = createOverflowMenu({ items: [{ label: 'Edit' }], align: 'start' });
     dom.document.body.appendChild(menu.element);
-    var button = menu.element.querySelector('.jpk-menu-button');
-    var list = menu.element.querySelector('.jpk-menu-list');
+    var button = menu.element.querySelector('.base-menu-button');
+    var list = menu.element.querySelector('.base-menu-list');
     button._rect = rect(330, 560, 30, 30);
     list._rect = rect(0, 0, 160, 120);
     menu.open();
-    assert.equal(parseFloat(list.style.top), 560 - 4 - 120);
+    assert.equal(parseFloat(list.style.top), 560 - 8 - 120);
     assert.equal(parseFloat(list.style.left), 375 - 160 - 8);
     assert.ok(parseFloat(list.style.left) + 160 <= 375);
 });
 
 test('an open menu follows a scroll of any container and a resize, and stops listening once closed', function () {
-    var panel = dom.el('div', { class: 'jpk-panel' });
+    var panel = dom.el('div', { class: 'base-panel' });
     dom.document.body.appendChild(panel);
     var menu = createOverflowMenu({ items: [{ label: 'Edit' }] });
     panel.appendChild(menu.element);
-    var button = menu.element.querySelector('.jpk-menu-button');
-    var list = menu.element.querySelector('.jpk-menu-list');
+    var button = menu.element.querySelector('.base-menu-button');
+    var list = menu.element.querySelector('.base-menu-list');
     list._rect = rect(0, 0, 100, 50);
     button._rect = rect(300, 100, 30, 30);
     menu.open();
-    assert.equal(list.style.top, '134px');
+    assert.equal(list.style.top, '138px');
     button._rect = rect(300, 200, 30, 30);
     panel.dispatch('scroll');
-    assert.equal(list.style.top, '234px');
+    assert.equal(list.style.top, '238px');
     button._rect = rect(300, 250, 30, 30);
     dom.dispatchWindow('resize');
-    assert.equal(list.style.top, '284px');
+    assert.equal(list.style.top, '288px');
     menu.close();
     assert.equal(dom.windowListeners('scroll'), 0);
     assert.equal(dom.windowListeners('resize'), 0);
@@ -100,8 +100,8 @@ test('an open menu follows a scroll of any container and a resize, and stops lis
 test('the menu list and help bubble are fixed to the viewport, so a panel cannot clip them', function () {
     var menuCss = readFileSync(new URL('../../src/css/overflow-menu.css', import.meta.url), 'utf8');
     var helpCss = readFileSync(new URL('../../src/css/help-hint.css', import.meta.url), 'utf8');
-    assert.match(menuCss, /\.jpk-menu-list \{[^}]*position: fixed/);
-    assert.match(helpCss, /\.jpk-help-tip \{[^}]*position: fixed/);
+    assert.match(menuCss, /\.base-menu-list \{[^}]*position: fixed/);
+    assert.match(helpCss, /\.base-help-tip \{[^}]*position: fixed/);
 });
 
 test('the help bubble is placed on a tap and stays inside a 375 pixel viewport', function () {
@@ -109,12 +109,12 @@ test('the help bubble is placed on a tap and stays inside a 375 pixel viewport',
     var hint = createHelpHint({ text: 'Seconds between checks.' });
     dom.document.body.appendChild(hint.element);
     var button = hint.element.querySelector('button');
-    var tip = hint.element.querySelector('.jpk-help-tip');
+    var tip = hint.element.querySelector('.base-help-tip');
     button._rect = rect(340, 100, 20, 20);
     tip._rect = rect(0, 0, 200, 40);
     button.click();
     assert.equal(parseFloat(tip.style.left), 375 - 200 - 8);
-    assert.equal(parseFloat(tip.style.top), 126);
+    assert.equal(parseFloat(tip.style.top), 128);
     hint.hide();
     assert.equal(dom.windowListeners('scroll'), 0);
 });
@@ -123,14 +123,14 @@ test('the help bubble is placed on hover and focus too, follows a scroll, and fl
     var hint = createHelpHint({ text: 'Hint.' });
     dom.document.body.appendChild(hint.element);
     var button = hint.element.querySelector('button');
-    var tip = hint.element.querySelector('.jpk-help-tip');
+    var tip = hint.element.querySelector('.base-help-tip');
     tip._rect = rect(0, 0, 100, 40);
     button._rect = rect(100, 100, 20, 20);
     hint.element.dispatch('mouseenter');
-    assert.equal(parseFloat(tip.style.top), 126);
+    assert.equal(parseFloat(tip.style.top), 128);
     button._rect = rect(100, 740, 20, 20);
     dom.document.body.dispatch('scroll');
-    assert.equal(parseFloat(tip.style.top), 740 - 6 - 40);
+    assert.equal(parseFloat(tip.style.top), 740 - 8 - 40);
     hint.element.dispatch('mouseleave');
     assert.equal(dom.windowListeners('scroll'), 0);
     hint.element.dispatch('focusin');
@@ -140,7 +140,7 @@ test('the help bubble is placed on hover and focus too, follows a scroll, and fl
 });
 
 function tooltipFor(rectOfTarget, extra) {
-    var target = dom.el('button', { 'data-jpk-tip': 'Tip.' });
+    var target = dom.el('button', { 'data-base-tip': 'Tip.' });
     target._rect = rectOfTarget;
     dom.document.body.appendChild(target);
     var tips = bindTooltips(dom.document.body, extra);
@@ -177,9 +177,19 @@ test('a scroll of a container hides the tooltip, since the scroll event does not
 });
 
 test('the tooltip and the toast stack sit above a dialog, and the menu and help bubble stay inside it', function () {
-    function z(file) { return parseInt(readFileSync(new URL('../../src/css/' + file, import.meta.url), 'utf8').match(/z-index: (\d+)/)[1], 10); }
-    var dialog = z('dialog.css');
-    assert.ok(z('tooltip.css') > dialog);
-    assert.ok(z('toast.css') > dialog);
-    assert.ok(z('tooltip.css') > z('toast.css'));
+    function css(file) { return readFileSync(new URL('../../src/css/' + file, import.meta.url), 'utf8'); }
+    var tokens = css('design-tokens.css');
+    function layer(name) { return parseInt(tokens.match(new RegExp('--base-layer-' + name + ': (\\d+);'))[1], 10); }
+    // A z-index is a layer token, plus an optional step: calc(var(--base-layer-dialog) + 2).
+    function z(file, selector) {
+        var rule = css(file).split(selector + ' {')[1];
+        var m = rule.match(/z-index: (?:calc\()?var\(--base-layer-(\w+)\)(?: \+ (\d+))?/);
+        return layer(m[1]) + (m[2] ? parseInt(m[2], 10) : 0);
+    }
+    var dialog = z('dialog.css', '.base-dialog');
+    var float = z('utility-classes.css', '.base-float');
+    assert.ok(z('tooltip.css', '.base-tooltip.base-float') > dialog);
+    assert.ok(z('toast.css', '.base-toaster') > dialog);
+    assert.ok(z('tooltip.css', '.base-tooltip.base-float') > z('toast.css', '.base-toaster'));
+    assert.ok(float < dialog);
 });

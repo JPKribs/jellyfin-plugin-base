@@ -1,4 +1,4 @@
-import { make } from './dom-util.js';
+import { make } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
 
 /** What createDivider takes. A divider without a label is a plain rule. */
@@ -21,13 +21,13 @@ export interface DividerHandle extends ComponentHandle {
  */
 export function createDivider(options?: DividerOptions): DividerHandle {
     options = options || {};
-    var root = make('div', 'jpk-divider', { role: 'separator' });
-    var text = make('span', 'jpk-divider-label');
+    var root = make('div', 'base-divider', { role: 'separator' });
+    var text = make('span', 'base-divider-label');
     root.appendChild(text);
 
     function setValue(label: string | undefined): void {
         text.textContent = label || '';
-        root.classList.toggle('jpk-divider-plain', !label);
+        root.classList.toggle('base-divider-plain', !label);
     }
 
     setValue(options.label);

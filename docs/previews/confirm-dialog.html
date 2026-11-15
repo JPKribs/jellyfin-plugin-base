@@ -1,15 +1,27 @@
 <!-- title: Confirm Dialog -->
 <!-- min-height: 360 -->
-<button type="button" id="btnRemove" class="raised jpk-button-destructive"><span>Remove Server</span></button>
-<span id="confirmStatus" class="jpk-status-text"></span>
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    <button type="button" id="btnRemove" class="raised base-button destructive"><span>Remove Server</span></button>
+    <button type="button" id="btnDelete" class="raised base-button destructive"><span>Delete Database</span></button>
+</div>
+<span id="confirmStatus" class="base-status-text"></span>
 <script type="module">
-const JPK = await window.__jpkReady;
-const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const base = await window.__baseReady;
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
 shared.bindClick('btnRemove', () => {
-    JPK.confirmDialog('Remove this server? Its links stop playing.', {
+    base.confirmDialog('Remove this server? Its links stop playing.', {
         title: 'Remove Server',
         confirmText: 'Remove',
         destructive: true
     }).then((confirmed) => shared.setStatus('confirmStatus', confirmed ? 'Removed.' : 'Kept.', !confirmed, { timeout: 0 }));
+});
+// A typed confirm keeps Delete off until the field holds the exact text.
+shared.bindClick('btnDelete', () => {
+    base.confirmDialog('This deletes the sync database and every link in it. It cannot be undone.', {
+        title: 'Delete Database',
+        confirmText: 'Delete',
+        destructive: true,
+        typeToConfirm: 'Database'
+    }).then((confirmed) => shared.setStatus('confirmStatus', confirmed ? 'Deleted.' : 'Kept.', !confirmed, { timeout: 0 }));
 });
 </script>

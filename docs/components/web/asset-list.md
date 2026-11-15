@@ -13,31 +13,49 @@ Rows for uploaded files, with a thumbnail, a name and reference, and action butt
 ## Usage
 
 ```html
-<div class="jpk-asset-list">
-    <div class="jpk-asset-item">
-        <img class="jpk-asset-thumb" src="logo.png" alt="">
-        <div class="jpk-asset-info">
-            <div class="jpk-asset-name">logo.png</div>
-            <div class="jpk-asset-ref">asset://logo</div>
+<div class="base-asset-list">
+    <div class="base-asset-item">
+        <img class="base-asset-thumb" src="logo.png" alt="">
+        <div class="base-asset-info">
+            <div class="base-asset-name">logo.png</div>
+            <div class="base-asset-ref">asset://logo</div>
         </div>
-        <div class="jpk-asset-actions">
-            <button type="button" class="jpk-asset-btn" title="Copy"><span class="material-icons">content_copy</span></button>
-            <button type="button" class="jpk-asset-btn danger" title="Remove"><span class="material-icons">delete</span></button>
+        <div class="base-asset-actions">
+            <button type="button" class="base-row-btn" title="Copy" aria-label="Copy"><span class="material-icons" aria-hidden="true">content_copy</span></button>
+            <button type="button" class="base-row-btn destructive" title="Delete" aria-label="Delete"><span class="material-icons" aria-hidden="true">delete</span></button>
         </div>
     </div>
 </div>
 ```
 
-Classes: `jpk-asset-list`, `jpk-asset-item`, `jpk-asset-thumb`, `jpk-asset-info`, `jpk-asset-name`, `jpk-asset-ref`, `jpk-asset-actions`, `jpk-asset-btn`.
+Classes: `base-asset-list`, `base-asset-item`, `base-asset-thumb`, `base-asset-info`, `base-asset-name`, `base-asset-ref`, `base-asset-actions`. Its buttons are [Row Buttons](row-button.md), `base-row-btn`.
 
 ## States and Modifiers
 
-* `danger` on a `jpk-asset-btn` turns the hover red with a light red icon.
-* The thumbnail is contained on a dark checkerboard of fixed dark grays.
+* `destructive` on a `base-row-btn` turns its hover red, for a button that deletes the file.
+* The thumbnail is contained on a checkerboard of the surface and a wash of the text color, so it follows the theme.
 
 ## Gotchas
 
-* There is no JavaScript. Give icon buttons a `title` or `aria-label`.
+* There is no JavaScript. Give each row button a `title` and an `aria-label`.
+
+## Reference
+
+Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this section.
+
+<!-- reference:start -->
+
+| Class | What it looks like |
+| :--- | :--- |
+| `base-asset-list` | Vertical list of uploaded asset rows |
+| `base-asset-item` | One asset row with thumbnail, info, and actions |
+| `base-asset-thumb` | Square checkerboard thumbnail so transparent images stay visible |
+| `base-asset-info` | Column holding the asset name and its reference |
+| `base-asset-name` | Bold asset name that clips with an ellipsis |
+| `base-asset-ref` | Small dimmed mono reference that breaks anywhere |
+| `base-asset-actions` | Row of action buttons at the end of an asset row |
+
+<!-- reference:end -->
 
 ## Used By
 
@@ -45,7 +63,7 @@ Custom Pages uses it.
 
 ## Example
 
-<iframe class="jpk-preview" src="../../../assets/previews/asset-list.html" title="Asset List example" loading="lazy"></iframe>
+<iframe class="base-preview" src="../../../assets/previews/asset-list.html" title="Asset List example" loading="lazy"></iframe>
 
 ## Example Code
 

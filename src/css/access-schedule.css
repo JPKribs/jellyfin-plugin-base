@@ -1,0 +1,57 @@
+/* List of time windows with a heading, column labels, rows of day, start, and end selects, and an add button */
+/* Example: <div class="base-access-schedule" role="group"><div class="base-access-schedule-label">Access Schedule</div><div class="base-access-schedule-rows"></div></div> */
+.base-access-schedule {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+    align-items: flex-start;
+}
+.base-access-schedule > .base-access-schedule-head,
+.base-access-schedule > .base-access-schedule-rows { align-self: stretch; }
+
+/* Heading and the sentence under it */
+/* Example: <div class="base-access-schedule-label">Access Schedule</div><div class="base-access-schedule-description">Times when the user may sign in.</div> */
+.base-access-schedule-label { font-weight: 500; }
+.base-access-schedule-description { opacity: 0.7; font-size: 0.9em; }
+
+/* Column labels over the day, start, and end columns */
+/* Example: <div class="base-access-schedule-head"><span>Day</span><span>Start</span><span>End</span></div> */
+.base-access-schedule-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) var(--base-size-medium);
+    gap: var(--base-gap-narrow);
+    font-size: 0.85em;
+    opacity: 0.7;
+}
+
+/* Rows of windows, each with its day select, its start and end time boxes, and its remove button, with the times' message under them */
+/* Example: <div class="base-access-schedule-rows"><div class="base-access-schedule-row"><div class="base-access-schedule-fields"><select></select><div class="base-time-range base-access-schedule-range"></div><button class="base-row-btn"></button></div></div></div> */
+.base-access-schedule-rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+}
+.base-access-schedule-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) var(--base-size-medium);
+    gap: var(--base-gap-narrow);
+    align-items: start;
+}
+.base-access-schedule-fields > select { width: 100%; min-width: 0; box-sizing: border-box; }
+.base-access-schedule-fields > .base-access-schedule-range { grid-column: 2 / 4; }
+
+/* Sentence shown while there is no window */
+/* Example: <div class="base-list-empty outside base-access-schedule-empty">No windows. Access is allowed at any time.</div> */
+/* It is built as the list's own empty sentence, base-list-empty outside */
+
+@media (max-width: 600px) {
+    .base-access-schedule-head { display: none; }
+    .base-access-schedule-row {
+        padding-bottom: var(--base-gap-narrow);
+        border-bottom: 1px solid var(--base-border);
+    }
+    .base-access-schedule-fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) var(--base-size-medium); }
+    .base-access-schedule-fields > .base-access-schedule-day { grid-column: 1 / 3; grid-row: 1; }
+    .base-access-schedule-fields > .base-access-schedule-remove { grid-column: 3; grid-row: 1; }
+    .base-access-schedule-fields > .base-access-schedule-range { grid-column: 1 / 3; grid-row: 2; }
+}

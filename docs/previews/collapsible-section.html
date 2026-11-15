@@ -1,30 +1,82 @@
 <!-- title: Collapsible Section -->
-<div class="jpk-collapsible-section">
-    <button type="button" class="jpk-collapsible-header" aria-expanded="true" data-target="generalBody">
-        <span class="jpk-collapsible-title">General</span>
-        <span class="jpk-collapsible-icon">&#9660;</span>
+<div class="base-collapsible-section">
+    <button type="button" class="base-collapsible-header" aria-expanded="true" data-target="generalBody">
+        <span class="base-collapsible-title">General</span>
+        <span class="base-collapsible-icon"></span>
     </button>
-    <div id="generalBody" class="jpk-collapsible-content">
+    <div id="generalBody" class="base-collapsible-content">
         <div class="inputContainer">
             <label for="txtName">Name</label>
             <input is="emby-input" type="text" id="txtName" value="Living room" />
         </div>
-        <div class="jpk-collapsible-actions">
-            <button is="emby-button" type="button" class="raised jpk-button-submit jpk-button-small"><span>Save</span></button>
+        <div class="base-collapsible-actions">
+            <button is="emby-button" type="button" class="raised base-button primary small"><span>Save</span></button>
         </div>
     </div>
 </div>
-<div class="jpk-collapsible-section">
-    <button type="button" class="jpk-collapsible-header collapsed" aria-expanded="false" data-target="advancedBody">
-        <span class="jpk-collapsible-title">Advanced</span>
-        <span class="jpk-collapsible-icon">&#9660;</span>
+<div class="base-collapsible-section">
+    <button type="button" class="base-collapsible-header collapsed" aria-expanded="false" data-target="advancedBody">
+        <span class="base-collapsible-title">Advanced</span>
+        <span class="base-collapsible-icon"></span>
     </button>
-    <div id="advancedBody" class="jpk-collapsible-content collapsed">
+    <div id="advancedBody" class="base-collapsible-content collapsed">
         <p>Hidden until the header is pressed.</p>
     </div>
 </div>
+<p class="fieldDescription">Numbered sections, for a form in ordered steps.</p>
+<div class="base-collapsible-section numbered">
+    <button type="button" class="base-collapsible-header" aria-expanded="true" data-target="stepConnection">
+        <span class="base-collapsible-title">Connection</span>
+        <span class="base-collapsible-icon"></span>
+    </button>
+    <div id="stepConnection" class="base-collapsible-content"><p>Fields for the first step.</p></div>
+</div>
+<div class="base-collapsible-section numbered">
+    <button type="button" class="base-collapsible-header collapsed" aria-expanded="false" data-target="stepLibraries">
+        <span class="base-collapsible-title">Libraries</span>
+        <span class="base-collapsible-icon"></span>
+    </button>
+    <div id="stepLibraries" class="base-collapsible-content collapsed"><p>Fields for the second step.</p></div>
+</div>
+<p class="fieldDescription">A badge or a status dot in the header.</p>
+<div id="badged"></div>
+<p class="fieldDescription">A fixed panel with an icon, a route under its title, and a badge on the right.</p>
+<div id="panels"></div>
+<p class="fieldDescription">A collapsible header with a button on the right, beside its chevron.</p>
+<div id="asided"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
-const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const base = await window.__baseReady;
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
 shared.initCollapsibles();
+const badged = document.getElementById('badged');
+badged.appendChild(base.createCollapsibleSection({ title: 'Certificate', badge: { label: 'Expires Soon', color: 'orange' }, content: '<p>The certificate expires in 9 days.</p>', collapsed: true }).element);
+badged.appendChild(base.createCollapsibleSection({ title: 'Relay', badge: { label: 'Connected', color: 'green', dot: true }, content: '<p>The relay is connected.</p>', collapsed: true }).element);
+function route(from, to) {
+    const line = document.createElement('span');
+    line.className = 'base-icon-text small';
+    line.appendChild(document.createTextNode(from));
+    const arrow = document.createElement('span');
+    arrow.className = 'material-icons';
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.textContent = 'arrow_forward';
+    line.appendChild(arrow);
+    line.appendChild(document.createTextNode(to));
+    return line;
+}
+function badge(label, color) {
+    const el = document.createElement('span');
+    el.className = 'base-badge ' + color;
+    el.textContent = label;
+    return el;
+}
+const panels = document.getElementById('panels');
+panels.appendChild(base.createCollapsibleSection({ title: 'Movies', icon: 'video_library', subtitle: route('Main Server Movies', 'Movies'), aside: badge('Copy', 'gray'), collapsible: false, content: '<p>Storage settings for this library.</p>' }).element);
+panels.appendChild(base.createCollapsibleSection({ title: 'A Very Long Library Name That Ends in an Ellipsis', icon: 'music_note', iconColor: 'purple', subtitle: 'Main Server to This Server', aside: badge('Link', 'blue'), collapsible: false, content: '<p>The title ends in an ellipsis, and at phone width the badge goes under it.</p>' }).element);
+const test = document.createElement('button');
+test.setAttribute('is', 'emby-button');
+test.type = 'button';
+test.className = 'raised base-button small';
+test.textContent = 'Test';
+test.addEventListener('click', function () { test.textContent = 'Tested'; });
+document.getElementById('asided').appendChild(base.createCollapsibleSection({ title: 'Relay', icon: 'hub', subtitle: 'relay.example.com', aside: test, collapsed: true, content: '<p>The relay settings.</p>' }).element);
 </script>

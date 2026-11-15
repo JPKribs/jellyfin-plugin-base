@@ -1,0 +1,14 @@
+<!-- title: Image Picker -->
+<div id="mount" style="display: flex; flex-direction: column; gap: 1.5em;"></div>
+<div id="imageStatus" class="base-status-text"></div>
+<script type="module">
+const base = await window.__baseReady;
+const mount = document.getElementById('mount');
+const status = document.getElementById('imageStatus');
+const report = (value) => { status.textContent = value ? value.name + ', ' + value.size + ' bytes.' : 'Removed.'; };
+mount.appendChild(base.createImagePicker({ label: 'Logo', maxBytes: 1048576, onChange: report }).element);
+mount.appendChild(base.createImagePicker({ label: 'Poster', shape: 'portrait', value: window.__gallery.rect(120, 180, '#9b59b6', 'P'), onChange: report }).element);
+mount.appendChild(base.createImagePicker({ label: 'Backdrop', shape: 'wide', description: 'A wide image behind the title.', onChange: report }).element);
+mount.appendChild(base.createImagePicker({ label: 'Avatar', description: 'Cropped square and scaled to 256 pixels. Empty, it shows the initials.', crop: true, maxSize: 256, fallback: { text: 'Ada Lovelace', color: 'purple' }, onChange: report }).element);
+mount.appendChild(base.createImagePicker({ label: 'Server Icon', fallback: { icon: 'dns', color: 'teal' }, onChange: report }).element);
+</script>

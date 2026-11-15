@@ -15,7 +15,7 @@ namespace JPKribs.Jellyfin.Base.Tests;
 /// <summary>Verifies that <see cref="StableSecretProtection"/> builds one launch independent key ring per plugin that keeps encrypted secrets readable.</summary>
 public sealed class StableSecretProtectionTests : IDisposable
 {
-    private readonly string _dir = Path.Combine(Path.GetTempPath(), "jpk-stable-" + Guid.NewGuid().ToString("N"));
+    private readonly string _dir = Path.Combine(Path.GetTempPath(), "base-stable-" + Guid.NewGuid().ToString("N"));
 
     public StableSecretProtectionTests() => Directory.CreateDirectory(_dir);
 

@@ -1,0 +1,13 @@
+/* Hours, minutes, and seconds number boxes on one line, each with its unit inside before its arrows, and the message under them */
+/* Example: <div class="base-duration"><div class="base-duration-row" role="group"><span class="base-adorned base-adorned-number base-adorned-with-unit"><input type="number" data-base-unit="h"></span></div></div> */
+.base-duration {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.base-duration-row {
+    display: flex;
+    gap: var(--base-gap-narrow);
+}
+.base-duration-row > input,
+.base-duration-row > .base-adorned { flex: 1 1 0; min-width: 0; box-sizing: border-box; }

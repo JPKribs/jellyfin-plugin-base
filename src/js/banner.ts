@@ -1,4 +1,5 @@
-import { make, icon, iconButton, listen, runAll, has } from './dom-util.js';
+import { make, icon, listen, runAll, has } from './lib/dom.js';
+import { MESSAGE_ICONS, dismissButton } from './lib/message.js';
 import type { ComponentHandle } from './types.js';
 
 /** The tone of a banner, which picks its tint and glyph. */
@@ -39,7 +40,7 @@ export interface BannerHandle extends ComponentHandle {
     destroy(): void;
 }
 
-var GLYPHS: Record<BannerKind, string> = { info: 'info', success: 'check_circle', warn: 'warning', error: 'error', neutral: 'info' };
+var GLYPHS: Record<BannerKind, string> = { info: MESSAGE_ICONS.info, success: MESSAGE_ICONS.success, warn: MESSAGE_ICONS.warn, error: MESSAGE_ICONS.error, neutral: MESSAGE_ICONS.neutral };
 
 /**
  * A callout with a Dismiss button. It remembers a dismissal only when the caller gives a key and a storage object, so Base never touches browser storage on its own.
@@ -65,21 +66,21 @@ export function createBanner(options?: BannerOptions): BannerHandle {
     var dismissed: boolean = false;
     var cleanups: Array<() => void> = [];
 
-    var root = make('div', 'jpk-banner');
+    var root = make('div', 'base-banner base-icon-text');
     var glyph = icon('');
-    var body = make('div', 'jpk-banner-body');
-    var titleEl = make('div', 'jpk-banner-title');
-    var textEl = make('div', 'jpk-banner-text');
+    var body = make('div', 'base-banner-body');
+    var titleEl = make('div', 'base-banner-title');
+    var textEl = make('div', 'base-banner-text');
     body.appendChild(titleEl);
     body.appendChild(textEl);
     root.appendChild(glyph);
     root.appendChild(body);
-    var close = iconButton('jpk-row-btn jpk-banner-close', 'close', options.dismissLabel || 'Dismiss');
+    var close = dismissButton('base-banner-close', options.dismissLabel || 'Dismiss');
     close.hidden = options.dismissible === false;
     root.appendChild(close);
 
     function reflect(): void {
-        root.className = 'jpk-banner jpk-' + kind;
+        root.className = 'base-banner base-icon-text base-' + kind + (close.hidden ? '' : ' dismissible');
         glyph.textContent = GLYPHS[kind];
         titleEl.textContent = title;
         titleEl.hidden = !title;

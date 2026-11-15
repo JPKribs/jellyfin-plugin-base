@@ -1,15 +1,16 @@
 <!-- title: Count Cards -->
 <div id="statusRow"></div>
-<div class="jpk-cards jpk-cards-rows" style="--jpk-cards-per-row: 4">
-    <div class="jpk-card pink"><span class="jpk-card-count">4</span><span class="jpk-card-label">Pink</span></div>
-    <div class="jpk-card teal"><span class="jpk-card-count">9</span><span class="jpk-card-label">Teal</span></div>
-    <div class="jpk-card yellow"><span class="jpk-card-count">2</span><span class="jpk-card-label">Yellow</span></div>
-    <div class="jpk-card blue"><span class="jpk-card-count">6</span><span class="jpk-card-label">Blue</span></div>
-    <div class="jpk-card gray"><span class="jpk-card-count">1</span><span class="jpk-card-label">Gray</span></div>
+<div class="base-cards compact" style="--base-balance-max: 4">
+    <div class="base-card pink"><span class="base-card-count">4</span><span class="base-card-label">Pink</span></div>
+    <div class="base-card teal"><span class="base-card-count">9</span><span class="base-card-label">Teal</span></div>
+    <div class="base-card yellow"><span class="base-card-count">2</span><span class="base-card-label">Yellow</span></div>
+    <div class="base-card blue"><span class="base-card-count">6</span><span class="base-card-label">Blue</span></div>
+    <div class="base-card gray"><span class="base-card-count">1</span><span class="base-card-label">Gray</span></div>
 </div>
 <script type="module">
-const JPK = await window.__jpkReady;
-const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const base = await window.__baseReady;
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+base.bindBalancedRows(document.getElementById('view'));
 shared.renderCards('statusRow', [
     { label: 'Queued', count: 12, color: 'orange' },
     { label: 'Synced', count: 340, color: 'green' },

@@ -7,14 +7,14 @@
     <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" id="chkEnabled" /><span class="checkboxLabel">Enabled</span></label>
 </div>
 <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-    <button type="button" id="btnSave" class="raised jpk-button-submit jpk-button-small"><span>Save</span></button>
-    <span id="saveStatus" class="jpk-status-text"></span>
+    <button type="button" id="btnSave" class="raised base-button primary small"><span>Save</span></button>
+    <span id="saveStatus" class="base-status-text"></span>
 </div>
 <div id="out" style="margin-top: 14px;"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
-const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
-const out = JPK.createDefinitionList({ items: [] });
+const base = await window.__baseReady;
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const out = base.createDefinitionList({ items: [] });
 document.getElementById('out').appendChild(out.element);
 const show = () => out.setItems([
     { label: 'getValue', value: JSON.stringify(shared.getValue('txtName', 'none')), mono: true },

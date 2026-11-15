@@ -1,0 +1,99 @@
+/* Design tokens for the accent, surface, border, washes, status colors, and the mono font stack */
+/* Example: color: var(--base-accent); */
+:root {
+    --base-accent: var(--jf-palette-primary-main, #00a4dc);
+    --base-accent-hover: #0088cc;
+    --base-border: #555;
+    --base-surface: var(--jf-palette-background-paper, #181818);
+    /* The theme text color, for a wash on an element that fades its own color, where currentColor is already faded. */
+    --base-fg: var(--jf-palette-text-primary, #fff);
+    /* Text on an accent or status fill. It stays white in every theme, since the fill never follows the theme text color. */
+    --base-on-accent: #fff;
+    /* Text on a light status fill such as green, orange, yellow, gray, and blue, where white falls below 3 to 1. */
+    --base-on-warning: #1a1a1a;
+    /* Washes of the accent and of the text color, plain here and upgraded below. */
+    --base-accent-wash: rgba(0, 164, 220, 0.12);
+    --base-wash: rgba(255, 255, 255, 0.06);
+    --base-wash-strong: rgba(255, 255, 255, 0.12);
+
+    /* The two spacings between objects. Wide sits between components and under a title. Narrow sits inside a component. */
+    --base-gap-narrow: 8px;
+    --base-gap-wide: 16px;
+
+    --base-error: #d9534f;
+    --base-error-hover: #c9302c;
+    --base-success: #5cb85c;
+    --base-warning: #f0ad4e;
+
+    --base-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+
+    /* The size scale every field, button, pill, badge, and tag takes, as small, medium, or large. Medium matches a text field. */
+    --base-size-small: 24px;
+    --base-size-medium: 32px;
+    --base-size-large: 40px;
+    --base-font-small: 12px;
+    --base-font-medium: 14px;
+    --base-font-large: 16px;
+    --base-pad-small: 8px;
+    --base-pad-medium: 12px;
+    --base-pad-large: 16px;
+    --base-icon-small: 16px;
+    --base-icon-medium: 18px;
+    --base-icon-large: 20px;
+    --base-line-small: 16px;
+    --base-line-medium: 20px;
+    --base-line-large: 24px;
+
+    /* Corner rounding: small for fields, buttons, badges, and rows, medium for cards and panels, large for sections and dialogs, round for pills and dots. */
+    --base-radius-small: 4px;
+    --base-radius-medium: 6px;
+    --base-radius-large: 8px;
+    --base-radius-round: 999px;
+
+    /* The shadow a floating box casts, such as a menu, a dropdown, a tooltip, or a toast, and the stronger one a dialog casts. */
+    --base-shadow-float: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --base-shadow-dialog: 0 4px 16px rgba(0, 0, 0, 0.5);
+
+    /* The stacking layers: a floating box over the page, and a dialog with its overlay over everything. */
+    --base-layer-float: 1000;
+    --base-layer-dialog: 10000;
+
+    /* A field's height, text, and side padding. A field, or anything around it, at another size sets these. */
+    --base-field-height: var(--base-size-medium);
+    --base-field-font: var(--base-font-medium);
+    --base-field-pad: var(--base-pad-medium);
+
+    /* The two chevron sizes. Primary opens a section, card, or dropdown. Secondary moves an item or separates a trail. */
+    --base-chevron-primary: 24px;
+    --base-chevron-secondary: 18px;
+
+    --base-green-bg: rgba(92, 184, 92, 0.2);   --base-green-fg: #5cb85c;
+    --base-red-bg: rgba(217, 83, 79, 0.2);     --base-red-fg: #d9534f;
+    --base-orange-bg: rgba(240, 173, 78, 0.2); --base-orange-fg: #f0ad4e;
+    --base-purple-bg: rgba(155, 89, 182, 0.2); --base-purple-fg: #9b59b6;
+    --base-blue-bg: rgba(52, 152, 219, 0.2);   --base-blue-fg: #3498db;
+    --base-gray-bg: rgba(153, 153, 153, 0.2);  --base-gray-fg: #999;
+    --base-yellow-bg: rgba(224, 200, 78, 0.2); --base-yellow-fg: #e0c84e;
+    --base-pink-bg: rgba(232, 93, 154, 0.2);   --base-pink-fg: #e85d9a;
+    --base-teal-bg: rgba(38, 166, 154, 0.2);   --base-teal-fg: #26a69a;
+}
+/* A custom color from a hex code, which applyColor sets as --base-custom with --base-custom-on for text on its fill */
+/* Example: <span class="base-badge custom" style="--base-custom: #e91e63; --base-custom-on: #fff">VIP</span> */
+.custom {
+    --base-custom-fg: var(--base-custom, #999);
+    --base-custom-bg: rgba(153, 153, 153, 0.2);
+}
+@supports (color: color-mix(in srgb, red, blue)) {
+    .custom { --base-custom-bg: color-mix(in srgb, var(--base-custom, #999) 20%, transparent); }
+}
+
+/* A token holding color-mix() fails where it is used, not where it is parsed, so each starts plain and upgrades here. */
+@supports (color: color-mix(in srgb, red, blue)) {
+    :root {
+        --base-accent-hover: color-mix(in srgb, var(--base-accent) 82%, #000);
+        --base-border: color-mix(in srgb, currentColor 30%, transparent);
+        --base-accent-wash: color-mix(in srgb, var(--base-accent) 12%, transparent);
+        --base-wash: color-mix(in srgb, currentColor 6%, transparent);
+        --base-wash-strong: color-mix(in srgb, currentColor 12%, transparent);
+    }
+}

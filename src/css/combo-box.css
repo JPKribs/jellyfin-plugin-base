@@ -1,0 +1,32 @@
+/* Text input wrapper with a floating results dropdown */
+/* Example: <div class="base-combo"><input class="base-edit-input" /><div class="base-combo-dropdown" hidden></div></div> */
+.base-combo {
+    position: relative;
+    width: 100%;
+}
+
+/* Floating list of options on the base-float surface, fixed to the viewport and as wide as the input, placed by the typeahead under the input, or above it with no room */
+/* Example: <div class="base-combo-dropdown base-float"><div class="base-combo-option">value</div></div> */
+.base-combo-dropdown {
+    position: fixed;
+    width: var(--base-combo-width, auto);
+    max-width: calc(100vw - 2 * var(--base-gap-narrow));
+    max-height: calc(var(--base-field-height) * 6);
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+.base-combo-dropdown[hidden] { display: none; }
+
+/* One option row that tints in the accent on hover or when active */
+/* Example: <div class="base-combo-option active">value</div> */
+.base-combo-option {
+    padding: calc(var(--base-gap-narrow) / 2) var(--base-pad-small);
+    cursor: pointer;
+    font-size: var(--base-field-font);
+    line-height: var(--base-line-medium);
+}
+.base-combo-option:hover,
+.base-combo-option.active {
+    background: var(--base-wash);
+    color: var(--base-accent);
+}

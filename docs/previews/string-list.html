@@ -1,10 +1,10 @@
 <!-- title: String List -->
 <div id="mount"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
+const base = await window.__baseReady;
 const view = document.getElementById('view');
 const mount = document.getElementById('mount');
-mount.appendChild(JPK.createStringList({
+mount.appendChild(base.createStringList({
     values: ['one.example.test', 'two.example.test'],
     reorder: true,
     placeholder: 'host.example.test',

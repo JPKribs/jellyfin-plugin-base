@@ -1,12 +1,12 @@
 <!-- title: Unsaved Indicator -->
-<h3 style="margin: 0 0 12px;">Settings <span class="jpk-unsaved" id="indicator"><span class="jpk-unsaved-dot"></span>Unsaved changes</span></h3>
+<h3 style="margin: 0 0 12px;">Settings <span class="base-unsaved" id="indicator"><span class="base-unsaved-dot"></span>Unsaved changes</span></h3>
 <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-    <button type="button" id="btnShow" class="raised jpk-button-small"><span>Show</span></button>
-    <button type="button" id="btnHide" class="raised jpk-secondary jpk-button-small"><span>Hide</span></button>
-    <button type="button" id="btnSaved" class="raised jpk-secondary jpk-button-small"><span>Saved Look</span></button>
+    <button type="button" id="btnShow" class="raised base-button small"><span>Show</span></button>
+    <button type="button" id="btnHide" class="raised base-button secondary small"><span>Hide</span></button>
+    <button type="button" id="btnSaved" class="raised base-button secondary small"><span>Saved Look</span></button>
 </div>
 <script type="module">
-await window.__jpkReady;
+await window.__baseReady;
 const indicator = document.getElementById('indicator');
 document.getElementById('btnShow').addEventListener('click', () => indicator.classList.add('visible'));
 document.getElementById('btnHide').addEventListener('click', () => indicator.classList.remove('visible', 'save-success'));

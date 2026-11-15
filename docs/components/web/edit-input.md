@@ -1,6 +1,6 @@
 # Edit Input
 
-A compact input on the surface color. The combo box, chip select, checkbox list search, and prompt dialog build with it.
+A compact input on the surface color, at the field height. The [Combo Box](combo-box.md), the [Chip Select](chip-select.md), and the text boxes of the [Confirm Dialog](confirm-dialog.md) and the [Prompt Dialog](prompt-dialog.md) build with it.
 
 ## When to Use
 
@@ -13,22 +13,34 @@ A compact input on the surface color. The combo box, chip select, checkbox list 
 ## Usage
 
 ```html
-<input class="jpk-edit-input" value="name" aria-label="Name" />
+<input class="base-edit-input" value="name" aria-label="Name" />
 ```
 
-Class: `jpk-edit-input`.
+Class: `base-edit-input`.
 
 ## States and Modifiers
 
 * Inside a page or dialog the field look from [Form Fields](form-fields.md) has higher specificity, so an edit input matches the other fields there. Outside them it is the compact look.
 
+## Reference
+
+Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this section.
+
+<!-- reference:start -->
+
+| Class | What it looks like |
+| :--- | :--- |
+| `base-edit-input` | Input on the same surface and at the same height as the page fields, for inline and combo use outside a form |
+
+<!-- reference:end -->
+
 ## Used By
 
-Requests, Scripts, User Management, and YouTube Audio use it.
+User Management and YouTube Audio use it.
 
 ## Example
 
-<iframe class="jpk-preview" src="../../../assets/previews/edit-input.html" title="Edit Input example" loading="lazy"></iframe>
+<iframe class="base-preview" src="../../../assets/previews/edit-input.html" title="Edit Input example" loading="lazy"></iframe>
 
 ## Example Code
 

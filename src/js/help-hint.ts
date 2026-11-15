@@ -1,4 +1,5 @@
-import { make, icon, nextId, listen, runAll, claimEscape, placeBox, viewport } from './dom-util.js';
+import { make, iconButton, nextId, listen, runAll } from './lib/dom.js';
+import { anchorPopover } from './lib/popover.js';
 import type { ComponentHandle } from './types.js';
 
 /** What createHelpHint takes. text is the plain text explanation the bubble shows. */
@@ -31,69 +32,58 @@ export function createHelpHint(options: HelpHintOptions): HelpHintHandle {
     options = options || {} as HelpHintOptions;
     if (typeof options.text !== 'string') throw new Error('createHelpHint needs a text string');
     var cleanups: Array<() => void> = [];
-    var docCleanups: Array<() => void> = [];
-    var followCleanups: Array<() => void> = [];
+    var pinned: boolean = false;
     var hovered: boolean = false;
     var focused: boolean = false;
 
-    var root = make('span', 'jpk-help');
-    var button = make('button', 'jpk-help-button', { type: 'button', title: options.label || 'Help', 'aria-label': options.label || 'Help' });
-    button.appendChild(icon(options.icon || 'help_outline'));
-    var bubble = make('span', 'jpk-help-tip', { role: 'tooltip' }, options.text);
+    var root = make('span', 'base-help');
+    var button = iconButton('base-row-btn base-help-button', options.icon || 'help_outline', options.label || 'Help');
+    var bubble = make('span', 'base-help-tip', { role: 'tooltip' }, options.text);
     bubble.id = nextId('help');
+    bubble.hidden = true;
     button.setAttribute('aria-describedby', bubble.id);
     root.appendChild(button);
     root.appendChild(bubble);
 
-    // Fixed to the viewport so a panel or a scrolling area never clips it and a narrow screen keeps it on screen.
-    function place(): void {
-        bubble.style.top = '0px';
-        bubble.style.left = '0px';
-        var box = bubble.getBoundingClientRect();
-        var spot = placeBox(button.getBoundingClientRect(), { width: box.width, height: box.height }, viewport(), { align: 'start', gap: 6 });
-        bubble.style.top = spot.top + 'px';
-        bubble.style.left = spot.left + 'px';
-    }
+    var popover = anchorPopover(button, bubble, {
+        align: 'start',
+        inside: [root],
+        returnFocus: false,
+        onDismiss: function (): void { pinned = false; root.classList.remove('open'); }
+    });
 
-    // Tracks the scroll and the size of the window while the bubble is showing, by hover, focus, or a tap.
-    function follow(): void {
-        if (followCleanups.length) return;
-        place();
-        followCleanups.push(listen(window, 'scroll', place, true));
-        followCleanups.push(listen(window, 'resize', place));
-    }
-
-    function hide(): void {
-        root.classList.remove('open');
-        claimEscape(root, false);
-        runAll(docCleanups);
-        if (!hovered && !focused) runAll(followCleanups);
-    }
-
-    function show(): void {
-        if (root.classList.contains('open')) return;
+    function reveal(): void {
+        popover.open();
         root.classList.add('open');
-        claimEscape(root, true);
-        follow();
-        docCleanups.push(listen(document, 'click', function (e: MouseEvent): void { if (!root.contains(e.target as Node)) hide(); }));
+    }
+
+    function conceal(): void {
+        popover.close();
+        root.classList.remove('open');
+    }
+
+    // Hover and focus show the bubble only while they last, and a click pins it until a second click.
+    function settle(): void {
+        if (pinned || hovered || focused) reveal();
+        else conceal();
     }
 
     cleanups.push(listen(button, 'click', function (): void {
-        if (root.classList.contains('open')) hide();
-        else show();
+        pinned = !pinned;
+        if (pinned) reveal();
+        else conceal();
     }));
-    cleanups.push(listen(root, 'mouseenter', function (): void { hovered = true; follow(); }));
-    cleanups.push(listen(root, 'mouseleave', function (): void { hovered = false; if (!focused && !root.classList.contains('open')) runAll(followCleanups); }));
-    cleanups.push(listen(root, 'focusin', function (): void { focused = true; follow(); }));
-    cleanups.push(listen(root, 'focusout', function (): void { focused = false; if (!hovered && !root.classList.contains('open')) runAll(followCleanups); }));
-    cleanups.push(listen(root, 'keydown', function (e: KeyboardEvent): void { if (e.key === 'Escape') hide(); }));
+    cleanups.push(listen(root, 'mouseenter', function (): void { hovered = true; settle(); }));
+    cleanups.push(listen(root, 'mouseleave', function (): void { hovered = false; settle(); }));
+    cleanups.push(listen(root, 'focusin', function (): void { focused = true; settle(); }));
+    cleanups.push(listen(root, 'focusout', function (): void { focused = false; settle(); }));
 
     return {
         element: root,
         getValue: function (): string { return bubble.textContent; },
         setValue: function (text: string): void { bubble.textContent = text || ''; },
-        show: show,
-        hide: hide,
-        destroy: function (): void { hide(); runAll(followCleanups); runAll(cleanups); }
+        show: function (): void { pinned = true; reveal(); },
+        hide: function (): void { pinned = false; conceal(); },
+        destroy: function (): void { pinned = false; conceal(); runAll(cleanups); }
     };
 }

@@ -1,0 +1,80 @@
+/* One checkbox with its text beside it, the box and text centered on one line, with no row padding or hover wash. Small is the plain box most pages use */
+/* Example: <label class="base-check-row base-checkbox small"><input type="checkbox" class="base-check-row-input base-checkbox-input" checked><span class="base-check-text"><span class="base-check-label">Enabled</span></span></label> */
+.base-check-row.base-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    max-width: 100%;
+    min-height: var(--base-size-small);
+    padding: 0;
+    font-size: var(--base-field-font);
+    border-radius: 0;
+    background: none;
+    vertical-align: middle;
+}
+.base-check-row.base-checkbox:hover { background: none; }
+.base-checkbox > .base-check-text { flex: 0 1 auto; }
+.base-checkbox .base-check-label,
+.base-checkbox .base-check-sub { white-space: normal; }
+
+/* A medium checkbox, a size up: the medium button's height, the large box, and the large text */
+/* Example: <label class="base-check-row base-checkbox medium"><input type="checkbox" class="base-check-row-input base-checkbox-input"><span class="base-check-text"><span class="base-check-label">Sync ratings</span></span></label> */
+.base-check-row.base-checkbox.medium {
+    min-height: var(--base-size-medium);
+    font-size: var(--base-font-large);
+}
+/* The rule outranks the page-wide box size that every checkbox on a config page takes */
+.base-check-row.base-checkbox.medium > input.base-check-row-input,
+.base-check-row.base-checkbox.large > input.base-check-row-input {
+    width: var(--base-icon-large);
+    height: var(--base-icon-large);
+}
+
+/* A large checkbox: a bordered tile that fills the room its row has, its box beside a bold label and a dimmed line,
+   outlined and washed in the accent while on. Tiles in one row share it and wrap when it runs out */
+/* Example: <label class="base-check-row base-checkbox large checked"><input type="checkbox" class="base-check-row-input base-checkbox-input" checked><span class="base-check-text"><span class="base-check-label">Sync watched state</span><span class="base-check-sub">Played and resume points follow you.</span></span></label> */
+.base-check-row.base-checkbox.large {
+    display: flex;
+    flex: 1 1 calc(var(--base-size-large) * 6);
+    box-sizing: border-box;
+    gap: var(--base-pad-medium);
+    min-height: calc(var(--base-size-large) * 1.5);
+    padding: var(--base-pad-medium) var(--base-pad-large);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-large);
+    background: var(--base-surface);
+    transition: border-color 0.15s, background-color 0.15s;
+}
+.base-check-row.base-checkbox.large:hover { border-color: var(--base-accent); }
+.base-check-row.base-checkbox.large.checked {
+    border-color: var(--base-accent);
+    background: var(--base-accent-wash);
+}
+.base-checkbox.large > .base-check-text { flex: 1 1 auto; gap: calc(var(--base-gap-narrow) / 2); }
+.base-checkbox.large .base-check-label { font-size: var(--base-font-large); font-weight: 600; }
+.base-checkbox.large .base-check-sub { font-size: var(--base-font-medium); opacity: 0.7; }
+
+/* A checkbox a field tall, so it lines up with the text boxes and selects beside it */
+/* Example: <label class="base-check-row base-checkbox small field"><input type="checkbox" class="base-check-row-input base-checkbox-input" aria-label="Enabled"></label> */
+.base-check-row.base-checkbox.field { min-height: var(--base-field-height); }
+
+/* A boxed checkbox: its box and text in a frame drawn like a text box, a field tall with the field's border, corners,
+   surface, and inset, so it matches the fields beside it edge for edge */
+/* Example: <label class="base-check-row base-checkbox small field boxed"><input type="checkbox" class="base-check-row-input base-checkbox-input" checked><span class="base-check-text"><span class="base-check-label">Enabled</span></span></label> */
+.base-check-row.base-checkbox.boxed {
+    box-sizing: border-box;
+    height: var(--base-field-height);
+    padding: 0 var(--base-field-pad);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-small);
+    background: var(--base-surface);
+    transition: border-color 0.15s;
+}
+.base-check-row.base-checkbox.boxed:hover { border-color: var(--base-accent); }
+.base-check-row.base-checkbox.boxed.disabled:hover { border-color: var(--base-border); }
+
+/* A disabled checkbox, dimmed and taking no clicks */
+/* Example: <label class="base-check-row base-checkbox small disabled"><input type="checkbox" class="base-check-row-input base-checkbox-input" disabled><span class="base-check-text"><span class="base-check-label">Locked</span></span></label> */
+.base-check-row.base-checkbox.disabled { opacity: 0.5; cursor: default; }
+.base-check-row.base-checkbox.disabled > .base-check-row-input { cursor: default; }
+.base-check-row.base-checkbox.large.disabled:hover { border-color: var(--base-border); }

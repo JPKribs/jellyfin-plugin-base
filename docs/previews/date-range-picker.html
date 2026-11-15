@@ -1,0 +1,22 @@
+<!-- title: Date Range Picker -->
+<div class="base-field"><label>History</label><div id="history"></div></div>
+<div class="base-field" style="margin-top: 16px;"><label>Report</label><div id="report"></div></div>
+<div class="base-field" style="margin-top: 16px;"><label>Activity</label><div id="list"></div></div>
+<script type="module">
+const base = await window.__baseReady;
+const note = document.createElement('div');
+note.className = 'base-status-text';
+const history = base.createDateRangePicker({ onChange: (v) => { note.textContent = JSON.stringify(v); } });
+document.getElementById('history').appendChild(history.element);
+document.getElementById('history').appendChild(note);
+const report = base.createDateRangePicker({ value: { from: '2026-03-20', to: '2026-03-01' }, presets: [] });
+document.getElementById('report').appendChild(report.element);
+report.isValid();
+const day = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString(); };
+const list = base.createFilteredList({
+    items: [0, 2, 5, 12, 40].map((n, i) => ({ id: i, name: 'Synced ' + n + ' days ago', at: day(n) })),
+    render: (item) => item.name,
+    filters: [{ name: 'at', label: 'Synced', kind: 'daterange' }]
+});
+document.getElementById('list').appendChild(list.element);
+</script>

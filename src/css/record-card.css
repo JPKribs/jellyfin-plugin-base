@@ -1,0 +1,24 @@
+/* Detail card showing label and value rows for a single item, on the panel's surface and padding from panel.css */
+/* Example: <div class="base-record-card"><div class="base-record-row"><span class="base-record-label">Last result</span><span>OK</span></div></div> */
+.base-record-card { display: block; }
+/* Label and value pair on one line */
+/* Example: <div class="base-record-row"><span class="base-record-label">Status</span><span>OK</span></div> */
+.base-record-row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--base-gap-wide);
+    font-size: 0.9em;
+}
+.base-record-row + .base-record-row {
+    margin-top: var(--base-gap-narrow);
+}
+/* Dimmed label that keeps its natural width */
+/* Example: <span class="base-record-label">Status</span> */
+.base-record-label { flex: 0 0 auto; }
+/* Right aligned value that breaks anywhere rather than running past the card */
+/* Example: <div class="base-record-row"><span class="base-record-label">ID</span><span class="base-mono">2f40d5d8</span></div> */
+.base-record-row > :last-child:not(.base-record-label) {
+    min-width: 0;
+    text-align: right;
+    overflow-wrap: anywhere;
+}

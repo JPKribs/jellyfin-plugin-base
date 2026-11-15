@@ -1,4 +1,5 @@
-import { make, icon, nextId, addToken, removeToken, has } from './dom-util.js';
+import { make, icon, nextId, addToken, removeToken, has } from './lib/dom.js';
+import { MESSAGE_ICONS } from './lib/message.js';
 import type { ComponentHandle } from './types.js';
 
 /** A message state, such as 'error', 'warn', 'success', 'info', or '' for none, and its sentence. */
@@ -25,7 +26,9 @@ export interface FieldMessageHandle extends ComponentHandle {
     destroy(): void;
 }
 
-var GLYPHS: Record<string, string> = { error: 'error', warn: 'warning', success: 'check_circle', info: 'info' };
+/** The icon each message state shows, shared by field messages and status lines. */
+export var STATE_ICONS: Record<string, string> = { error: MESSAGE_ICONS.error, warn: MESSAGE_ICONS.warn, success: MESSAGE_ICONS.success, info: MESSAGE_ICONS.info };
+var GLYPHS = STATE_ICONS;
 var fieldMessages: WeakMap<Element, FieldMessageHandle> | null = typeof WeakMap === 'function' ? new WeakMap() : null;
 
 /**
@@ -47,18 +50,18 @@ export function createFieldMessage(options?: FieldMessageOptions): FieldMessageH
     var input: Element | null = null;
 
     // The element is the live region and stays in the page, since a region that appears with its text is often not announced. An empty message hides its parts instead.
-    var el = make('div', 'jpk-field-message', { 'aria-live': 'polite' });
+    var el = make('div', 'base-field-message base-icon-text', { 'aria-live': 'polite' });
     el.id = options.id || nextId('message');
     var glyph = icon('');
     glyph.hidden = true;
-    var textEl = make('span', 'jpk-field-message-text');
+    var textEl = make('span', 'base-field-message-text');
     el.appendChild(glyph);
     el.appendChild(textEl);
 
     // Draws the current state and keeps the bound input's aria attributes in step.
     function reflect(): void {
         var shown = !!(state && text);
-        el.className = 'jpk-field-message' + (shown ? ' ' + state : '');
+        el.className = 'base-field-message base-icon-text' + (shown ? ' ' + state : '');
         glyph.hidden = !shown;
         textEl.hidden = !shown;
         glyph.textContent = shown && has(GLYPHS, state) ? GLYPHS[state] : '';
@@ -110,8 +113,35 @@ export function setFieldState(input: Element, state: string, text?: string): Fie
     if (!handle) {
         handle = createFieldMessage({ input: input });
         if (fieldMessages) fieldMessages.set(input, handle);
-        if (input.parentNode) input.parentNode.insertBefore(handle.element, input.nextSibling || null);
     }
+    placeMessage(input, handle.element);
     handle.set(state, text);
     return handle;
+}
+
+/**
+ * The message setFieldState made for an input, or null when it has none yet.
+ * Internal to the web components.
+ */
+export function fieldMessageOf(input: Element): FieldMessageHandle | null {
+    return (fieldMessages && fieldMessages.get(input)) || null;
+}
+
+// The element a field's message follows: the box Base adorned it with, the label a checkbox sits in, or the field itself.
+function messageAnchor(input: Element): Element {
+    var parent = input.parentNode as HTMLElement | null;
+    if (parent && parent.classList && parent.classList.contains('base-adorned')) return parent;
+    if (parent && parent.tagName === 'LABEL') return parent;
+    return input;
+}
+
+/**
+ * Puts a field's message right after the field, or after the box or label the field sits in, and moves it there again
+ * when the field was wrapped after the message was made.
+ * Internal to the web components.
+ */
+export function placeMessage(input: Element, message: Element): void {
+    var anchor = messageAnchor(input);
+    if (!anchor.parentNode || anchor.nextSibling === message) return;
+    anchor.parentNode.insertBefore(message, anchor.nextSibling || null);
 }

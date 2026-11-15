@@ -1,4 +1,4 @@
-import { make, listen, runAll, clear, fill } from './dom-util.js';
+import { make, listen, runAll, clear, fill, fillAll, applyFieldSize } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
 
 /** Where the pager stands, with the skip and take to request that page. */
@@ -25,6 +25,7 @@ export interface PaginationOptions {
     pageLabel?: string;
     totalText?: string;
     emptyText?: string;
+    size?: 'small' | 'medium' | 'large';
     onChange?(value: PaginationValue): void;
 }
 
@@ -71,6 +72,7 @@ function pageWindow(page: number, count: number, size: number): Array<number | n
  *   pageLabel    : aria-label of a page number button, where {value} is the number (default 'Page {value}')
  *   totalText    : summary where {from}, {to}, and {total} are filled in (default '{from} to {to} of {total}')
  *   emptyText    : summary when the total is 0 (default 'No items.')
+ *   size         : 'small', 'medium', or 'large' for its fields (default 'medium')
  *   onChange     : function({ page, pageSize, skip, take, total, pageCount }) called when the user changes the page or the size [optional]
  * }
  * @returns { element, getValue, setValue, setTotal, setResult, destroy }. getValue returns { page, pageSize, skip, take, total, pageCount }. setResult(result) reads TotalCount, or totalCount, from a PagedResult.
@@ -82,13 +84,14 @@ export function createPagination(options?: PaginationOptions): PaginationHandle 
     var sizes = (options.pageSizes || [10, 25, 50, 100]).slice();
     var cleanups: Array<() => void> = [];
 
-    var root = make('nav', 'jpk-pager', { 'aria-label': options.navLabel || 'Pagination' });
-    var summary = make('span', 'jpk-pager-total');
-    var sizeWrap = make('label', 'jpk-pager-size');
+    var root = make('nav', 'base-pager', { 'aria-label': options.navLabel || 'Pagination' });
+    applyFieldSize(root, options.size);
+    var summary = make('span', 'base-pager-total');
+    var sizeWrap = make('label', 'base-pager-size');
     sizeWrap.appendChild(make('span', '', null, options.pageSizeLabel || 'Page Size'));
     var select = make('select', '');
     sizeWrap.appendChild(select);
-    var buttons = make('div', 'jpk-pager-pages');
+    var buttons = make('div', 'base-pager-pages');
     root.appendChild(summary);
     root.appendChild(sizeWrap);
     root.appendChild(buttons);
@@ -100,7 +103,7 @@ export function createPagination(options?: PaginationOptions): PaginationHandle 
     }
 
     function pageButton(className: string, label: string, text: string, target: number, disabled: boolean, current: boolean, kind: string): HTMLButtonElement {
-        var btn = make('button', 'jpk-pager-button ' + className, { type: 'button' });
+        var btn = make('button', 'base-pager-button ' + className, { type: 'button' });
         if (label) btn.setAttribute('aria-label', label);
         if (current) { btn.classList.add('active'); btn.setAttribute('aria-current', 'page'); }
         btn.disabled = !!disabled;
@@ -113,7 +116,7 @@ export function createPagination(options?: PaginationOptions): PaginationHandle 
         state.page = Math.min(Math.max(1, state.page), pageCount());
         var from = state.total ? (state.page - 1) * state.pageSize + 1 : 0;
         var to = Math.min(state.total, state.page * state.pageSize);
-        summary.textContent = state.total ? String(options!.totalText || '{from} to {to} of {total}').replace('{from}', from as unknown as string).replace('{to}', to as unknown as string).replace('{total}', state.total as unknown as string) : (options!.emptyText || 'No items.');
+        summary.textContent = state.total ? fillAll(options!.totalText || '{from} to {to} of {total}', { from: from, to: to, total: state.total }) : (options!.emptyText || 'No items.');
         clear(select);
         if (sizes.indexOf(state.pageSize) === -1) sizes.push(state.pageSize);
         sizes.sort(function (a: number, b: number) { return a - b; }).forEach(function (n: number) {
@@ -124,18 +127,18 @@ export function createPagination(options?: PaginationOptions): PaginationHandle 
         select.value = String(state.pageSize);
         clear(buttons);
         var count = pageCount();
-        buttons.appendChild(pageButton('jpk-pager-prev', '', options!.previousText || 'Previous', state.page - 1, state.page <= 1, false, 'prev'));
+        buttons.appendChild(pageButton('base-pager-prev', '', options!.previousText || 'Previous', state.page - 1, state.page <= 1, false, 'prev'));
         pageWindow(state.page, count, options!.windowSize || 5).forEach(function (n) {
-            if (n === null) buttons.appendChild(make('span', 'jpk-pager-gap', { 'aria-hidden': 'true' }));
-            else buttons.appendChild(pageButton('jpk-pager-number', fill(options!.pageLabel || 'Page {value}', n), String(n), n, false, n === state.page, 'number'));
+            if (n === null) buttons.appendChild(make('span', 'base-pager-gap', { 'aria-hidden': 'true' }));
+            else buttons.appendChild(pageButton('base-pager-number', fill(options!.pageLabel || 'Page {value}', n), String(n), n, false, n === state.page, 'number'));
         });
-        buttons.appendChild(pageButton('jpk-pager-next', '', options!.nextText || 'Next', state.page + 1, state.page >= count, false, 'next'));
+        buttons.appendChild(pageButton('base-pager-next', '', options!.nextText || 'Next', state.page + 1, state.page >= count, false, 'next'));
     }
 
     // Gives focus back after a render replaced the button, to the same role, or the current page when that button is now disabled.
     function refocus(kind: string) {
-        var wanted = buttons.querySelector<HTMLButtonElement>('.jpk-pager-' + (kind === 'number' ? 'number.active' : kind));
-        if (!wanted || wanted.disabled) wanted = buttons.querySelector<HTMLButtonElement>('.jpk-pager-number.active');
+        var wanted = buttons.querySelector<HTMLButtonElement>('.base-pager-' + (kind === 'number' ? 'number.active' : kind));
+        if (!wanted || wanted.disabled) wanted = buttons.querySelector<HTMLButtonElement>('.base-pager-number.active');
         if (wanted) wanted.focus();
     }
 

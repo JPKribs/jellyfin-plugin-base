@@ -12,7 +12,7 @@ namespace JPKribs.Jellyfin.Base.Tests;
 /// <summary>Verifies that <see cref="DatabaseSchema"/> versions a database, migrates it safely, and moves an unreadable file aside.</summary>
 public sealed class DatabaseSchemaTests : IDisposable
 {
-    private readonly string _dir = Path.Combine(Path.GetTempPath(), "jpk-schema-" + Guid.NewGuid().ToString("N"));
+    private readonly string _dir = Path.Combine(Path.GetTempPath(), "base-schema-" + Guid.NewGuid().ToString("N"));
 
     public DatabaseSchemaTests() => Directory.CreateDirectory(_dir);
 

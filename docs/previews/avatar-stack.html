@@ -1,0 +1,19 @@
+<!-- title: Avatar Stack -->
+<div id="mount" style="display: grid; gap: 16px;"></div>
+<script type="module">
+const base = await window.__baseReady;
+const G = window.__gallery;
+const mount = document.getElementById('mount');
+base.bindTooltips(document.body);
+const people = [
+    { name: 'Ada', src: G.svg(64, 64, '#3498db', 'A') },
+    { name: 'Bob', color: 'green' },
+    { name: 'Cy', src: G.svg(64, 64, '#9b59b6', 'C') },
+    { name: 'Dee', color: 'orange' },
+    { name: 'Eve', src: G.svg(64, 64, '#e91e63', 'E') },
+    { name: 'Finn', color: 'teal' }
+];
+mount.appendChild(base.createAvatarStack({ users: people.slice(0, 3), label: 'Watched by' }).element);
+mount.appendChild(base.createAvatarStack({ users: people, max: 4, label: 'Watched by' }).element);
+mount.appendChild(base.createAvatarStack({ users: people, max: 3, size: 'medium', label: 'Synced to' }).element);
+</script>

@@ -1,0 +1,67 @@
+/* A world map that shades countries by their counts, with a layer toggle per kind of count above it */
+/* Example: <div class="base-world-map"><div class="base-world-layers"></div><div class="base-world-frame"><svg viewBox="0 0 1000 394"></svg></div></div> */
+.base-world-map {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+}
+
+/* The layer toggles: on is filled with the layer's color and shows a check, off is an outline with an empty dot */
+/* Example: <button class="raised base-button small base-world-layer" aria-pressed="true" style="--base-layer: var(--base-green-fg)"><span class="material-icons">check</span><span class="base-world-layer-dot"></span><span>People</span></button> */
+.base-world-layers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--base-gap-narrow);
+}
+.base-world-layer.base-button[aria-pressed="true"] {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: inset 0 0 0 1px var(--base-layer);
+    color: inherit !important;
+    opacity: 1;
+}
+@supports (color: color-mix(in srgb, red, blue)) {
+    .base-world-layer.base-button[aria-pressed="true"] { background-color: color-mix(in srgb, var(--base-layer) 28%, transparent) !important; }
+}
+.base-world-layer.base-button[aria-pressed="false"] {
+    background-color: transparent !important;
+    box-shadow: inset 0 0 0 1px var(--base-border);
+    color: inherit !important;
+    opacity: 0.6;
+}
+.base-world-layer[aria-pressed="false"] > .material-icons { display: none; }
+.base-world-layer-dot {
+    width: var(--base-gap-narrow);
+    height: var(--base-gap-narrow);
+    border-radius: var(--base-radius-round);
+    background: var(--base-layer);
+}
+.base-world-layer[aria-pressed="true"] > .base-world-layer-dot { display: none; }
+
+/* The map itself, which scales to its width, with uncounted countries in a faint wash */
+/* Example: <div class="base-world-frame"><svg viewBox="0 0 1000 394"><path class="base-world-country counted selected"></path></svg></div> */
+.base-world-frame {
+    position: relative;
+}
+.base-world-frame > svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.base-world-country {
+    fill: var(--base-wash-strong);
+    stroke: var(--base-surface);
+    stroke-width: 0.5;
+    transition: fill-opacity 0.2s;
+}
+.base-world-country.counted {
+    fill: var(--base-world-fill, var(--base-accent));
+    cursor: pointer;
+}
+.base-world-country.counted:hover { stroke: currentColor; stroke-width: 1; }
+.base-world-country:focus { outline: none; }
+.base-world-country.counted:focus-visible { stroke: var(--base-accent); stroke-width: 1.5; }
+.base-world-country.selected {
+    stroke: currentColor;
+    stroke-width: 1.8;
+    fill-opacity: 1 !important;
+}

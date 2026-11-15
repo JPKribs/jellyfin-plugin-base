@@ -51,7 +51,12 @@ export class FakeElement extends FakeNode {
         this.attributes = {};
         this.children = [];
         this.parentNode = null;
-        this.style = {};
+        // Custom properties are stored under their own name, as a browser reads them back.
+        this.style = Object.defineProperties({}, {
+            setProperty: { value: function (name, value) { this[name] = String(value); }, enumerable: false, writable: true, configurable: true },
+            removeProperty: { value: function (name) { delete this[name]; }, enumerable: false, writable: true, configurable: true },
+            getPropertyValue: { value: function (name) { return this[name] === undefined ? '' : this[name]; }, enumerable: false, writable: true, configurable: true }
+        });
         this.listeners = {};
         this._text = '';
         this._value = undefined;
@@ -316,7 +321,7 @@ export function all(root, selector) {
 
 // Tells whether a field message shows its text. The message element itself stays in the page as a live region.
 export function shown(message) {
-    return !message.querySelector('.jpk-field-message-text').hidden;
+    return !message.querySelector('.base-field-message-text').hidden;
 }
 
 export function installFakeDom(opts) {

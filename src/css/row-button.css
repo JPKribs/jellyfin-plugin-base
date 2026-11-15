@@ -1,27 +1,52 @@
 /* Low emphasis icon button for table and list rows, with save, success, and dirty states */
-/* Example: <button class="jpk-row-btn"><span class="material-icons">edit</span></button> */
-.jpk-row-btn {
+/* Example: <button class="base-row-btn"><span class="material-icons">edit</span></button> */
+.base-row-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    width: var(--base-size-small);
+    height: var(--base-size-small);
+    margin: 0;
     background: transparent;
     border: none;
     cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
+    padding: 0;
+    border-radius: var(--base-radius-small);
     color: inherit;
     opacity: 0.6;
     transition: opacity 0.2s, background 0.2s;
 }
-.jpk-row-btn:hover {
+.base-row-btn:hover {
     opacity: 1;
-    background: rgba(255, 255, 255, 0.1);
-    background: color-mix(in srgb, currentColor 10%, transparent);
+    background: var(--base-wash-strong);
 }
-.jpk-row-btn .material-icons { font-size: 20px; }
-.jpk-row-btn.save:hover { color: var(--jpk-accent); }
-.jpk-row-btn.success {
-    color: var(--jpk-success) !important;
+.base-row-btn .material-icons { font-size: var(--base-icon-large); line-height: 1; }
+.base-row-btn:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 1px; }
+.base-row-btn:disabled { opacity: 0.25; cursor: default; background: none; }
+.base-row-btn.save:hover { color: var(--base-accent); }
+.base-row-btn.success {
+    color: var(--base-success) !important;
     opacity: 1 !important;
 }
-.jpk-row-btn.dirty {
-    color: var(--jpk-warning) !important;
+.base-row-btn.dirty {
+    color: var(--base-warning) !important;
     opacity: 1 !important;
+}
+
+/* A row button that destroys data, red on hover, as the destructive button variant */
+/* Example: <button class="base-row-btn destructive" title="Delete" aria-label="Delete"><span class="material-icons" aria-hidden="true">delete</span></button> */
+.base-row-btn.destructive:hover { color: var(--base-error); }
+
+/* Up or down row button that moves its row, with a secondary chevron */
+/* Example: <button class="base-row-btn move" data-move="-1"><span class="material-icons">keyboard_arrow_up</span></button> */
+.base-row-btn.move .material-icons { font-size: var(--base-chevron-secondary); }
+
+/* Up and down row buttons side by side at the end of a row */
+/* Example: <div class="base-row-arrows"><button class="base-row-btn move" data-move="-1"></button><button class="base-row-btn move" data-move="1"></button></div> */
+.base-row-arrows {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
 }

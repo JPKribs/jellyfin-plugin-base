@@ -148,7 +148,7 @@ await ConcurrentTaskRunner.RunAsync(
 * Progress is reported from worker threads. A `Progress<double>` posts to the captured context, so reports can arrive out of order. Use a synchronous `IProgress<double>` when order matters.
 * A `maxParallelism` below 1 becomes 1. An empty collection reports 100 and returns.
 
-## Registration
+## ServiceCollectionExtensions
 
 `ServiceCollectionExtensions` registers the two helpers a plugin's `IPluginServiceRegistrator` would otherwise wire by hand. `AddActivityLogger` adds the `ActivityLogger` singleton, and `AddPluginSecretProtector` adds a `SecretProtector` built by `StableSecretProtection.CreateProtector` under the plugin name.
 

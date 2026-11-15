@@ -1,0 +1,26 @@
+/* Stacked dropdown and action row for picking a record */
+/* Example: <div class="base-selector"><select class="base-selector-dropdown"></select><div class="base-selector-actions"></div></div> */
+.base-selector {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+    margin-bottom: var(--base-gap-wide);
+}
+
+/* Full width dropdown for the picker, styled by the shared field rules in form.css */
+/* Example: <select class="base-selector-dropdown"><option>One</option></select> */
+.base-selector-dropdown {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Wrapping row of action buttons under the dropdown */
+/* Example: <div class="base-selector-actions"><button class="base-button"></button></div> */
+.base-selector-actions {
+    display: flex;
+    gap: var(--base-gap-narrow);
+    flex-wrap: wrap;
+}
+.base-selector-actions .base-button {
+    flex: 0 0 auto;
+}

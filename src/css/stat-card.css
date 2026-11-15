@@ -1,14 +1,65 @@
-/* Status card that adds a trend line under its count and label, built by createStatCard */
-/* Example: <div class="jpk-card jpk-stat blue"><span class="jpk-card-count">1,204</span><span class="jpk-card-label">Items</span><span class="jpk-stat-trend good"><span class="material-icons" aria-hidden="true">arrow_upward</span><span>12%</span></span></div> */
-.jpk-stat-trend {
-    display: inline-flex;
-    align-items: center;
+/* Status card that adds a trend line under its count and label, built by createStatCard, the trend built as small base-icon-text */
+/* Example: <div class="base-card base-stat blue"><span class="base-card-count">1,204</span><span class="base-card-label">Items</span><span class="base-stat-trend base-icon-text small good"><span class="material-icons" aria-hidden="true">arrow_upward</span><span>12%</span></span></div> */
+.base-stat-trend {
     justify-content: center;
-    gap: 2px;
-    margin-top: 6px;
-    font-size: 0.8em;
+    margin-top: var(--base-gap-narrow);
 }
-.jpk-stat-trend .material-icons { font-size: 16px; }
-.jpk-stat-trend.good { color: var(--jpk-green-fg); }
-.jpk-stat-trend.bad { color: var(--jpk-red-fg); }
-.jpk-stat-trend.flat { opacity: 0.7; }
+.base-stat-trend.good { color: var(--base-green-fg); }
+.base-stat-trend.bad { color: var(--base-red-fg); }
+.base-stat-trend.flat { opacity: 0.7; }
+
+/* A stat card whose value is text, which wraps between words at full size and is as wide as its longest word, never wider than its row */
+/* Example: <div class="base-card base-stat text"><span class="base-card-count">Delivered 3m ago</span><span class="base-card-label">Peer</span></div> */
+.base-stat .base-card-count {
+    overflow-wrap: break-word;
+}
+.base-stat.text {
+    min-width: auto;
+    max-width: 100%;
+}
+
+/* Dimmed detail line under a stat card's value, cut with an ellipsis and titled with its full text */
+/* Example: <div class="base-card base-stat"><span class="base-card-count">7</span><span class="base-card-label">Errors</span><span class="base-stat-detail" title="Last at 14:02">Last at 14:02</span></div> */
+.base-stat-detail {
+    display: block;
+    margin-top: calc(var(--base-gap-narrow) / 2);
+    font-size: var(--base-font-small);
+    line-height: var(--base-line-small);
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 0;
+    min-width: 100%;
+}
+
+/* Stat card laid out label first, a small label over a text status and its details, aligned to the start */
+/* Example: <div class="base-card base-stat label-top"><span class="base-card-label">Last Sync</span><span class="base-card-count orange">Paused until 14:00</span></div> */
+.base-stat.label-top {
+    text-align: left;
+}
+.base-stat.label-top .base-card-label {
+    opacity: 0.7;
+    margin-bottom: calc(var(--base-gap-narrow) / 2);
+}
+.base-stat.label-top .base-card-count {
+    font-size: var(--base-font-large);
+    line-height: var(--base-line-large);
+    margin-bottom: 0;
+}
+.base-stat.label-top .base-stat-trend {
+    justify-content: flex-start;
+}
+
+/* Status color modifiers for a stat card's value text, set by valueColor through the color core */
+/* Example: <span class="base-card-count orange">Paused until 14:00</span> */
+.base-stat .base-card-count.green { color: var(--base-green-fg); }
+.base-stat .base-card-count.red { color: var(--base-red-fg); }
+.base-stat .base-card-count.orange { color: var(--base-orange-fg); }
+.base-stat .base-card-count.purple { color: var(--base-purple-fg); }
+.base-stat .base-card-count.blue { color: var(--base-blue-fg); }
+.base-stat .base-card-count.gray { color: var(--base-gray-fg); }
+.base-stat .base-card-count.yellow { color: var(--base-yellow-fg); }
+.base-stat .base-card-count.pink { color: var(--base-pink-fg); }
+.base-stat .base-card-count.teal { color: var(--base-teal-fg); }
+.base-stat .base-card-count.custom { color: var(--base-custom-fg); }

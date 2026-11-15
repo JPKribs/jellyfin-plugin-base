@@ -1,0 +1,58 @@
+/* A field's Placeholders hint, under the field where Jellyfin puts a field's help */
+/* Example: <div class="base-placeholder-hint"><button class="base-hint-button" data-base-hint>Placeholders</button></div> */
+.base-placeholder-hint { margin-top: var(--base-gap-narrow); font-size: 0.85em; }
+/* The field container margin reset would put the hint against the box, so it keeps a small gap there. */
+.pluginConfigurationPage .inputContainer > .base-placeholder-hint,
+.base-dialog .inputContainer > .base-placeholder-hint { margin-top: var(--base-gap-narrow) !important; }
+
+/* The hint's toggle, a text button built as small base-icon-text whose color shows its state: secondary gray while its list is hidden, accent while it shows and on hover */
+/* Example: <button class="base-hint-button base-icon-text small collapsed" aria-expanded="false" aria-controls="list"><span class="material-icons" aria-hidden="true">help_outline</span><span>Placeholders</span></button> */
+.base-hint-button {
+    background: none;
+    border: 0;
+    padding: 0;
+    color: inherit;
+    font-family: inherit;
+    cursor: pointer;
+    opacity: 0.7;
+}
+.base-hint-button.base-icon-text { display: inline-flex; }
+.base-hint-button:hover,
+.base-hint-button[aria-expanded="true"] {
+    opacity: 1;
+    color: var(--base-accent);
+}
+.base-hint-button:focus-visible {
+    outline: 2px solid var(--base-accent);
+    outline-offset: 2px;
+    border-radius: var(--base-radius-small);
+}
+
+/* List of placeholder tags that a hint shows */
+/* Example: <div class="base-placeholders"><span class="base-tags"><button class="base-tag base-tag-button">{title}</button></span></div> */
+.base-placeholders { margin-top: var(--base-gap-narrow); }
+.base-placeholders .base-tags { margin: 0; gap: var(--base-gap-narrow); }
+
+/* A tag that is a button, such as a placeholder to put in */
+/* Example: <button class="base-tag base-tag-button">{title}</button> */
+.base-tag-button {
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    font-family: var(--base-mono);
+    font-size: 0.9em;
+    padding: calc(var(--base-gap-narrow) / 4) var(--base-pad-small);
+}
+.base-tag-button:hover { background: rgba(0, 164, 220, 0.25); }
+/* The accent mix sits in @supports because a var() value is accepted when parsed and would wipe the fallback. */
+@supports (color: color-mix(in srgb, red, blue)) {
+    .base-tag-button:hover { background: color-mix(in srgb, var(--base-accent) 25%, transparent); }
+}
+
+/* A placeholder just copied in a hint in copy mode, green for a moment as a copy that worked */
+/* Example: <button class="base-tag base-tag-button copied">{{title}}</button> */
+.base-tag-button.copied,
+.base-tag-button.copied:hover {
+    background: var(--base-green-bg);
+    color: var(--base-green-fg);
+}

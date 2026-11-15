@@ -1,11 +1,22 @@
 <!-- title: Stat Card -->
-<div id="mount"></div>
+<div id="mount" class="base-cards"></div>
+<div id="status" class="base-cards" style="margin-top: 16px;"></div>
+<p><button type="button" class="raised base-button secondary small" id="resume">Resume Office</button></p>
 <script type="module">
-const JPK = await window.__jpkReady;
-const view = document.getElementById('view');
+const base = await window.__baseReady;
 const mount = document.getElementById('mount');
-mount.className = 'jpk-cards';
-mount.appendChild(JPK.createStatCard({ value: '1,204', label: 'Items', color: 'blue', trend: 12, trendSuffix: '%', trendLabel: 'vs last week' }).element);
-mount.appendChild(JPK.createStatCard({ value: 7, label: 'Errors', color: 'red', trend: 3, positiveIsGood: false }).element);
-mount.appendChild(JPK.createStatCard({ value: 4, label: 'Servers', trend: 0 }).element);
+mount.appendChild(base.createStatCard({ value: '1,204', label: 'Items', color: 'blue', trend: 12, trendSuffix: '%', trendLabel: 'vs last week' }).element);
+mount.appendChild(base.createStatCard({ value: 7, label: 'Errors', color: 'red', trend: 3, positiveIsGood: false }).element);
+mount.appendChild(base.createStatCard({ value: 4, label: 'Servers', trend: 0 }).element);
+mount.appendChild(base.createStatCard({ value: 'Failing', valueColor: '#e91e63', label: 'Custom Color', detail: 'Last error at 14:02' }).element);
+
+const status = document.getElementById('status');
+status.appendChild(base.createStatCard({ layout: 'label-top', label: 'Last Sync', value: 'Delivered 3m ago', valueColor: 'green', detail: 'Sends files, users, and watch history to this server' }).element);
+const office = base.createStatCard({ layout: 'label-top', label: 'Office', value: 'Paused until 14:00', valueColor: 'orange', detail: ['Sends files and users', 'The server asked to pause while it rebuilds its library.'] });
+status.appendChild(office.element);
+status.appendChild(base.createStatCard({ layout: 'label-top', label: 'Cabin', value: 'Nothing sent yet', valueColor: 'gray', detail: 'Sends nothing, since every module is off there' }).element);
+
+document.getElementById('resume').addEventListener('click', () => {
+    office.setValue({ value: 'Delivered just now', valueColor: 'green', detail: 'Sends files and users' });
+});
 </script>

@@ -1,0 +1,18 @@
+<!-- title: Record List -->
+<div id="list"></div>
+<script type="module">
+const base = await window.__baseReady;
+const unblock = document.createElement('button');
+unblock.className = 'raised base-button secondary small';
+unblock.type = 'button';
+unblock.textContent = 'Unblock';
+const list = base.createRecordList({
+    items: [
+        { id: 'discord', title: 'Discord', secondary: 'Every sync result', tags: [{ label: 'Movies', icon: 'movie' }, { label: 'Shows', icon: 'tv' }, { label: 'Music', icon: 'album', off: true }] },
+        { id: 'email', title: 'Email', secondary: 'Failures only', tags: [{ label: 'All Libraries', icon: 'video_library' }] },
+        { id: 'blocked', title: '203.0.113.7', secondary: 'Blocked after 5 failed sign ins', aside: unblock }
+    ],
+    onOpen: function () {}
+});
+document.getElementById('list').appendChild(list.element);
+</script>

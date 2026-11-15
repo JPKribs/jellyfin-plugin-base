@@ -1,0 +1,21 @@
+/* A setup checklist, its progress summary above a numbered run of collapsible steps */
+/* Example: <div class="base-setup-checklist"><div class="base-setup-summary"></div><div class="base-setup-steps"></div></div> */
+.base-setup-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-wide);
+    min-width: 0;
+}
+
+/* The progress summary, its count above a bar of one segment per step that opens the step it stands for */
+/* Example: <div class="base-setup-summary"><div class="base-setup-count">3 of 6 done</div><nav class="base-stepper segments"></nav></div> */
+.base-setup-summary {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+}
+.base-setup-count { font-weight: 600; }
+
+/* The numbered run of steps, counted from one in each checklist */
+/* Example: <div class="base-setup-steps"><div class="base-collapsible-section numbered base-setup-step"></div></div> */
+.base-setup-steps { counter-reset: base-collapsible-step; }

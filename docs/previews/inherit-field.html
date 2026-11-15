@@ -1,0 +1,10 @@
+<!-- title: Inherit Field -->
+<div class="base-field"><label for="lang">Metadata Language</label><select id="lang"><option value="en">English</option><option value="fr">French</option><option value="de">German</option></select></div>
+<div class="base-field" style="margin-top: 16px;"><label for="workers">Workers</label><input id="workers" type="number" min="1" max="16"></div>
+<div class="base-field" style="margin-top: 16px;"><label><input id="art" type="checkbox"><span>Save Artwork</span></label></div>
+<script type="module">
+const base = await window.__baseReady;
+base.createInheritField({ field: document.getElementById('lang'), inheritedValue: 'en', value: { inherit: true, value: 'fr' } });
+base.createInheritField({ field: document.getElementById('workers'), inheritedValue: 4, value: { inherit: false, value: 8 } });
+base.createInheritField({ field: document.getElementById('art'), inheritedValue: true, toggle: 'checkbox' });
+</script>

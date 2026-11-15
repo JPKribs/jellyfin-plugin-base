@@ -1,9 +1,9 @@
-/* Indented group with a left border for sub fields under a toggle */
-/* Example: <div class="jpk-indent"></div> */
-.jpk-indent {
-    margin-left: 1.85em;
-    padding-left: 1em;
-    margin-top: 4px;
+/* Indented group with a thin rule under a toggle's checkbox, so its fields line up with the toggle's label */
+/* Example: <div class="base-indent"></div> */
+.base-indent {
+    margin-left: var(--base-gap-narrow);
+    padding-left: var(--base-gap-wide);
+    margin-top: var(--base-gap-narrow);
     border-left: 2px solid rgba(255, 255, 255, 0.12);
     border-left: 2px solid color-mix(in srgb, currentColor 12%, transparent);
 }

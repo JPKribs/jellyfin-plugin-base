@@ -1,0 +1,30 @@
+/* Pill that shows a short status label in a status color */
+/* Example: <span class="base-badge green">Active</span> */
+.base-badge,
+.base-table-status-badge {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: var(--base-size-small);
+    padding: 0 var(--base-pad-small);
+    border-radius: var(--base-radius-small);
+    font-size: var(--base-font-small);
+    line-height: 1;
+    white-space: nowrap;
+    border: none;
+}
+.base-badge.green, .base-table-status-badge.Active, .base-table-status-badge.Synced, .base-table-status-badge.Downloaded, .base-table-status-badge.Completed, .base-table-status-badge.Enabled { background: var(--base-green-bg); color: var(--base-green-fg); }
+.base-badge.red, .base-table-status-badge.Disabled, .base-table-status-badge.Errored, .base-table-status-badge.Error, .base-table-status-badge.Deleting, .base-table-status-badge.Pending-Deletion, .base-table-status-badge.Failed { background: var(--base-red-bg); color: var(--base-red-fg); }
+.base-badge.orange, .base-table-status-badge.Expired, .base-table-status-badge.Queued, .base-table-status-badge.Paused { background: var(--base-orange-bg); color: var(--base-orange-fg); }
+.base-badge.purple, .base-table-status-badge.Locked, .base-table-status-badge.Running, .base-table-status-badge.Downloading, .base-table-status-badge.Pending, .base-table-status-badge.Pending-Download { background: var(--base-purple-bg); color: var(--base-purple-fg); }
+.base-badge.blue, .base-table-status-badge.Admin, .base-table-status-badge.Imported, .base-table-status-badge.Pending-Replacement { background: var(--base-blue-bg); color: var(--base-blue-fg); }
+.base-badge.gray, .base-table-status-badge.Ignored, .base-table-status-badge.Group, .base-table-status-badge.Skipped, .base-table-status-badge.Unknown { background: var(--base-gray-bg); color: var(--base-gray-fg); }
+.base-badge.yellow { background: var(--base-yellow-bg); color: var(--base-yellow-fg); }
+.base-badge.pink { background: var(--base-pink-bg); color: var(--base-pink-fg); }
+.base-badge.teal { background: var(--base-teal-bg); color: var(--base-teal-fg); }
+.base-badge.custom { background: var(--base-custom-bg); color: var(--base-custom-fg); }
+
+/* A badge at the medium or large size of the scale */
+/* Example: <span class="base-badge green medium">Synced</span> */
+.base-badge.medium { height: var(--base-size-medium); padding: 0 var(--base-pad-medium); font-size: var(--base-font-medium); }
+.base-badge.large { height: var(--base-size-large); padding: 0 var(--base-pad-large); font-size: var(--base-font-large); }

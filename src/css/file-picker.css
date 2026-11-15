@@ -1,45 +1,32 @@
 /* Drop zone that is also a button, with a list of the chosen files under it */
-/* Example: <div class="jpk-file-picker"><div class="jpk-file-zone" role="button" tabindex="0"><span class="material-icons">upload_file</span><span class="jpk-file-text">Drop files here or click to choose.</span></div></div> */
-.jpk-file-picker {
+/* Example: <div class="base-file-picker"><div class="base-file-zone base-icon-text" role="button" tabindex="0"><span class="material-icons" aria-hidden="true">upload_file</span><span class="base-file-text">Drop files here or click to select.</span></div></div> */
+.base-file-picker {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--base-gap-narrow);
 }
-.jpk-file-zone {
-    display: flex;
-    align-items: center;
+.base-file-zone {
     justify-content: center;
-    gap: 8px;
-    padding: 20px 16px;
-    border: 2px dashed var(--jpk-border);
-    border-radius: 8px;
+    padding: var(--base-gap-wide);
+    border: 2px dashed var(--base-border);
+    border-radius: var(--base-radius-large);
     text-align: center;
     cursor: pointer;
 }
-.jpk-file-zone:hover,
-.jpk-file-zone.dragover { border-color: var(--jpk-accent); background: var(--jpk-accent-wash); }
-.jpk-file-zone:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 2px; }
+.base-file-zone:hover,
+.base-file-zone.dragover { border-color: var(--base-accent); background: var(--base-accent-wash); }
+.base-file-zone:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 2px; }
 
 /* One chosen file with its name, size, and remove button */
-/* Example: <li class="jpk-file-item"><span class="jpk-file-name">poster.png</span><span class="jpk-file-size">1.2 MB</span></li> */
-.jpk-file-list {
+/* Example: <li class="base-file-item base-item-row"><span class="base-item-row-text base-item-row-parts"><span class="base-item-row-primary base-file-name">poster.png</span><span class="base-item-row-secondary base-file-size">1.2 MB</span></span></li> */
+.base-file-list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: var(--base-gap-narrow);
 }
-.jpk-file-list:empty { display: none; }
-.jpk-file-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 4px 4px 4px 10px;
-    background: var(--jpk-surface);
-    border: 1px solid var(--jpk-border);
-    border-radius: 6px;
-}
-.jpk-file-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-.jpk-file-size { opacity: 0.7; font-size: 0.85em; white-space: nowrap; }
-.jpk-file-item .jpk-row-btn:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 1px; }
+.base-file-list:empty { display: none; }
+/* A file row is built as base-item-row, with its name as the row text */
+.base-file-size { opacity: 0.7; font-size: 0.85em; white-space: nowrap; }

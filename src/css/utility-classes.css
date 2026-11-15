@@ -1,0 +1,117 @@
+/* Hides an element outright */
+/* Example: <div class="hidden"></div> */
+.hidden { display: none !important; }
+
+/* Makes the hidden attribute win over a component's own display rule (a flex row, a grid) */
+/* Example: <div class="base-field-row" hidden></div> */
+[hidden] { display: none !important; }
+
+/* Applies the mono font stack */
+/* Example: <span class="base-mono">10.0.0.1</span> */
+.base-mono { font-family: var(--base-mono); }
+
+/* Success colored text */
+/* Example: <span class="base-ok">OK</span> */
+.base-ok { color: var(--base-success); }
+
+/* Error colored text */
+/* Example: <span class="base-bad">Failed</span> */
+.base-bad { color: var(--base-error); }
+
+/* Monospace, dimmed line for showing a URL or path with an accent link */
+/* Example: <div class="base-url">URL: <a href="#">/pages/home</a></div> */
+.base-url {
+    font-family: var(--base-mono);
+    opacity: 0.85;
+}
+.base-url a {
+    color: var(--base-accent);
+}
+
+/* Visually hidden text that screen readers still read, such as a label for an icon only control */
+/* Example: <button><span class="material-icons" aria-hidden="true">delete</span><span class="base-sr-only">Delete</span></button> */
+.base-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* An artwork frame that holds a placeholder icon under its image, shared by media cards, media picker rows, checkbox list rows, and the image picker, which each set the size */
+/* Example: <span class="base-thumb"><span class="base-thumb-placeholder" aria-hidden="true"><span class="material-icons">movie</span></span><img class="base-thumb-image" alt="" src="poster.jpg"></span> */
+.base-thumb {
+    position: relative;
+    display: block;
+    flex: 0 0 auto;
+    overflow: hidden;
+    background: var(--base-wash);
+}
+
+/* The icon that fills the frame while there is no image, or until it loads */
+/* Example: <span class="base-thumb-placeholder" aria-hidden="true"><span class="material-icons">image</span></span> */
+.base-thumb-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.35;
+}
+.base-thumb-placeholder[hidden] { display: none; }
+
+/* The image that covers the frame, hidden when it fails to load */
+/* Example: <img class="base-thumb-image" alt="" src="poster.jpg"> */
+.base-thumb-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+.base-thumb-image[hidden] { display: none; }
+.base-thumb-image.pending { visibility: hidden; }
+
+/* An icon beside text that may wrap, with the icon centered on the first line of text, medium unless small or large */
+/* Example: <div class="base-icon-text"><span class="material-icons" aria-hidden="true">error</span><span>Enter a port from 1 to 65535.</span></div> */
+.base-icon-text {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--base-gap-narrow);
+    font-size: var(--base-font-medium);
+    line-height: var(--base-line-medium);
+}
+.base-icon-text > .material-icons {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--base-line-medium);
+    font-size: var(--base-icon-medium);
+    line-height: 1;
+}
+.base-icon-text.small { font-size: var(--base-font-small); line-height: var(--base-line-small); }
+.base-icon-text.small > .material-icons { height: var(--base-line-small); font-size: var(--base-icon-small); }
+.base-icon-text.large { font-size: var(--base-font-large); line-height: var(--base-line-large); }
+.base-icon-text.large > .material-icons { height: var(--base-line-large); font-size: var(--base-icon-large); }
+
+/* The surface every floating box shares, a menu, a filter panel, a help bubble, a tooltip, a dropdown, or a toast, over the page. anchorPopover adds it to the box it places */
+/* Example: <div class="base-menu-list base-float" role="menu"></div> */
+.base-float {
+    z-index: var(--base-layer-float);
+    background: var(--base-surface);
+    color: var(--base-fg);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-medium);
+    box-shadow: var(--base-shadow-float);
+}

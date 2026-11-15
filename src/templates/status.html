@@ -12,33 +12,33 @@
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;color:#f2f2f2;background:radial-gradient(1200px 600px at 50% -10%,rgba(0,164,220,0.12),transparent 60%),#101010;font-family:'Noto Sans','Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
-.jpk-status-card{width:100%;max-width:420px;text-align:center;background:#1c1c1f;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:40px 32px;box-shadow:0 24px 60px rgba(0,0,0,0.45)}
-.jpk-logo{width:72px;height:72px;margin:0 auto 20px;display:block;border-radius:16px}
-.jpk-spinner{width:38px;height:38px;margin:8px auto 0;border:3px solid rgba(255,255,255,0.15);border-top-color:#00a4dc;border-radius:50%;animation:jpk-spin 0.8s linear infinite}
-@keyframes jpk-spin{to{transform:rotate(360deg)}}
+.base-status-card{width:100%;max-width:420px;text-align:center;background:#1c1c1f;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:40px 32px;box-shadow:0 24px 60px rgba(0,0,0,0.45)}
+.base-logo{width:72px;height:72px;margin:0 auto 20px;display:block;border-radius:16px}
+.base-spinner{width:38px;height:38px;margin:8px auto 0;border:3px solid rgba(255,255,255,0.15);border-top-color:#00a4dc;border-radius:50%;animation:base-spin 0.8s linear infinite}
+@keyframes base-spin{to{transform:rotate(360deg)}}
 h1{font-size:1.4rem;font-weight:600;margin:0 0 8px}
 p{margin:0;color:rgba(255,255,255,0.55);font-size:0.95rem;line-height:1.5}
-.jpk-btn{display:inline-block;margin-top:22px;padding:0.7em 1.6em;border-radius:8px;background:#00a4dc;color:#fff;font-size:0.95rem;font-weight:600;text-decoration:none}
-.jpk-btn:hover{background:#0095c8}
-.jpk-fields{text-align:left;margin-top:4px}
-.jpk-fields label{display:block;font-size:0.82rem;color:rgba(255,255,255,0.55);margin:14px 0 4px}
-.jpk-fields label .jpk-hint{opacity:0.7}
-.jpk-fields input{width:100%;padding:10px 12px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#f2f2f2;font-size:0.95rem}
-.jpk-fields input:focus{outline:none;border-color:#00a4dc}
-.jpk-field-pair{display:flex;gap:12px}
-.jpk-field-pair>div{flex:1}
-.jpk-submit{width:100%;margin-top:22px;padding:0.8em;border:none;border-radius:8px;background:#00a4dc;color:#fff;font-size:0.95rem;font-weight:600;cursor:pointer}
-.jpk-submit:hover{background:#0095c8}
-.jpk-submit:disabled{opacity:0.5;cursor:not-allowed}
-.jpk-note{margin-top:18px;font-size:0.8rem;color:rgba(255,255,255,0.55);line-height:1.4}
+.base-btn{display:inline-block;margin-top:22px;padding:0.7em 1.6em;border-radius:8px;background:#00a4dc;color:#fff;font-size:0.95rem;font-weight:600;text-decoration:none}
+.base-btn:hover{background:#0095c8}
+.base-fields{text-align:left;margin-top:4px}
+.base-fields label{display:block;font-size:0.82rem;color:rgba(255,255,255,0.55);margin:14px 0 4px}
+.base-fields label .base-hint{opacity:0.7}
+.base-fields input{width:100%;padding:10px 12px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#f2f2f2;font-size:0.95rem}
+.base-fields input:focus{outline:none;border-color:#00a4dc}
+.base-field-pair{display:flex;gap:12px}
+.base-field-pair>div{flex:1}
+.base-submit{width:100%;margin-top:22px;padding:0.8em;border:none;border-radius:8px;background:#00a4dc;color:#fff;font-size:0.95rem;font-weight:600;cursor:pointer}
+.base-submit:hover{background:#0095c8}
+.base-submit:disabled{opacity:0.5;cursor:not-allowed}
+.base-note{margin-top:18px;font-size:0.8rem;color:rgba(255,255,255,0.55);line-height:1.4}
 .hidden{display:none}
 </style>
 </head>
 <body>
 <!-- card -->
-<div class="jpk-status-card">
+<div class="base-status-card">
 <!-- logo -->
-<img class="jpk-logo" src="../web/favicons/touchicon.png" alt="" />
+<img class="base-logo" src="../web/favicons/touchicon.png" alt="" />
 <!-- heading -->
 <h1>{{HEADING}}</h1>
 <!-- message -->

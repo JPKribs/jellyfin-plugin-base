@@ -1,0 +1,27 @@
+/* A small line with no axes, one line of text tall, that fills its width, in the accent or a status color */
+/* Example: <span class="base-sparkline green" role="img" aria-label="Trend, from 3 to 9, low 2, high 9"><svg viewBox="0 0 100 24" preserveAspectRatio="none"></svg></span> */
+.base-sparkline {
+    --base-sparkline-color: var(--base-accent);
+    display: block;
+    width: 100%;
+    min-width: calc(var(--base-size-large) * 1.5);
+    height: var(--base-line-large);
+    color: var(--base-sparkline-color);
+}
+.base-sparkline > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.base-sparkline-line { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.base-sparkline-area { fill: currentColor; opacity: 0.15; stroke: none; }
+.base-sparkline.green { --base-sparkline-color: var(--base-green-fg); }
+.base-sparkline.red { --base-sparkline-color: var(--base-red-fg); }
+.base-sparkline.orange { --base-sparkline-color: var(--base-orange-fg); }
+.base-sparkline.purple { --base-sparkline-color: var(--base-purple-fg); }
+.base-sparkline.blue { --base-sparkline-color: var(--base-blue-fg); }
+.base-sparkline.gray { --base-sparkline-color: var(--base-gray-fg); }
+.base-sparkline.yellow { --base-sparkline-color: var(--base-yellow-fg); }
+.base-sparkline.pink { --base-sparkline-color: var(--base-pink-fg); }
+.base-sparkline.teal { --base-sparkline-color: var(--base-teal-fg); }
+.base-sparkline.custom { --base-sparkline-color: var(--base-custom); }
+
+/* A sparkline under a stat card's label, in the card's own color */
+/* Example: <div class="base-card base-stat blue"><span class="base-card-count">12</span><span class="base-card-label">Syncs</span><span class="base-sparkline base-stat-sparkline"></span></div> */
+.base-stat-sparkline { margin-top: var(--base-gap-narrow); color: inherit; --base-sparkline-color: currentColor; }

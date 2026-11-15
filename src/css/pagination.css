@@ -1,47 +1,49 @@
 /* Footer for a list read a page at a time, with a total, a page size select, and page buttons */
-/* Example: <nav class="jpk-pager" aria-label="Pagination"><span class="jpk-pager-total">1 to 25 of 90</span></nav> */
-.jpk-pager {
+/* Example: <nav class="base-pager" aria-label="Pagination"><span class="base-pager-total">1 to 25 of 90</span></nav> */
+.base-pager {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 8px 16px;
-    font-size: 0.9em;
+    gap: var(--base-gap-narrow) var(--base-gap-wide);
+    font-size: var(--base-field-font);
 }
-.jpk-pager-total { opacity: 0.8; }
-.jpk-pager-size { display: inline-flex; align-items: center; gap: 8px; }
-.jpk-pager-size select { width: auto; }
-.jpk-pager-pages { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.base-pager-total { opacity: 0.8; }
+.base-pager-size { display: inline-flex; align-items: center; gap: var(--base-gap-narrow); }
+.base-pager-size select { width: auto; }
+.base-pager-pages { display: flex; flex-wrap: wrap; align-items: center; gap: var(--base-gap-narrow); }
 
 /* One page button or number, filled with the accent when it is the current page */
-/* Example: <button type="button" class="jpk-pager-button jpk-pager-number active" aria-current="page">2</button> */
-.jpk-pager-button {
-    min-width: 32px;
-    padding: 5px 10px;
-    border: 1px solid var(--jpk-border);
-    border-radius: 4px;
+/* Example: <button type="button" class="base-pager-button base-pager-number active" aria-current="page">2</button> */
+.base-pager-button {
+    box-sizing: border-box;
+    min-width: var(--base-field-height);
+    height: var(--base-field-height);
+    padding: 0 var(--base-pad-small);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-small);
     background: transparent;
     color: inherit;
     font: inherit;
     cursor: pointer;
 }
-.jpk-pager-button:hover:not(:disabled) { border-color: var(--jpk-accent); }
-.jpk-pager-button:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 2px; }
-.jpk-pager-button:disabled { opacity: 0.4; cursor: default; }
-.jpk-pager-button.active {
-    background: var(--jpk-accent);
-    border-color: var(--jpk-accent);
-    color: var(--jpk-on-accent);
+.base-pager-button:hover:not(:disabled) { border-color: var(--base-accent); }
+.base-pager-button:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 2px; }
+.base-pager-button:disabled { opacity: 0.4; cursor: default; }
+.base-pager-button.active {
+    background: var(--base-accent);
+    border-color: var(--base-accent);
+    color: var(--base-on-accent);
 }
 
 /* Gap between page numbers, drawn as three dots */
-/* Example: <span class="jpk-pager-gap" aria-hidden="true"></span> */
-.jpk-pager-gap::before { content: "\00b7\00b7\00b7"; opacity: 0.6; padding: 0 4px; }
+/* Example: <span class="base-pager-gap" aria-hidden="true"></span> */
+.base-pager-gap::before { content: "\00b7\00b7\00b7"; opacity: 0.6; padding: 0 calc(var(--base-gap-narrow) / 2); }
 
 @media (max-width: 600px) {
-    .jpk-pager { flex-direction: column; align-items: stretch; }
-    .jpk-pager-pages { justify-content: center; }
-    .jpk-pager-total, .jpk-pager-size { justify-content: center; text-align: center; }
-    .jpk-pager-number { display: none; }
-    .jpk-pager-number.active { display: inline-block; }
+    .base-pager { flex-direction: column; align-items: stretch; }
+    .base-pager-pages { justify-content: center; }
+    .base-pager-total, .base-pager-size { justify-content: center; text-align: center; }
+    .base-pager-number { display: none; }
+    .base-pager-number.active { display: inline-block; }
 }

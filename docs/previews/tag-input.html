@@ -1,8 +1,8 @@
 <!-- title: Tag Input -->
 <div id="mount"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
+const base = await window.__baseReady;
 const view = document.getElementById('view');
 const mount = document.getElementById('mount');
-mount.appendChild(JPK.createTagInput({ values: ['news', 'movies'], placeholder: 'music' }).element);
+mount.appendChild(base.createTagInput({ values: ['news', 'movies'], placeholder: 'music' }).element);
 </script>

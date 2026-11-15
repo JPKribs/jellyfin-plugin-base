@@ -1,42 +1,39 @@
 /* Log viewer with a toolbar over a scrolling mono output area */
-/* Example: <div class="jpk-log"><div class="jpk-log-toolbar"></div><div class="jpk-log-output" role="log" tabindex="0"></div></div> */
-.jpk-log {
+/* Example: <div class="base-log"><div class="base-log-toolbar"></div><div class="base-log-output" role="log" tabindex="0"></div></div> */
+.base-log {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--base-gap-narrow);
 }
-.jpk-log-toolbar {
+.base-log-toolbar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: var(--base-gap-narrow);
 }
-.jpk-log-toggle {
+.base-log-toggle {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--base-gap-narrow);
     margin-right: auto;
     cursor: pointer;
 }
 
-/* Scrolling area of lines in the mono font */
-/* Example: <div class="jpk-log-output" role="log"><div class="jpk-log-line error"><span class="jpk-log-text">Failed</span></div></div> */
-.jpk-log-output {
+/* Area of lines in the mono font, given its height and scrolling by createList */
+/* Example: <div class="base-log-output" role="log"><div class="base-log-line error"><span class="base-log-text">Failed</span></div></div> */
+.base-log-output {
     box-sizing: border-box;
-    height: 280px;
-    overflow: auto;
-    padding: 8px 10px;
-    background: var(--jpk-surface);
-    border: 1px solid var(--jpk-border);
-    border-radius: 4px;
-    font-family: var(--jpk-mono);
+    padding: var(--base-gap-narrow) var(--base-pad-medium);
+    background: var(--base-surface);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-small);
+    font-family: var(--base-mono);
     font-size: 0.85em;
     line-height: 1.5;
 }
-.jpk-log-output:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 2px; }
-.jpk-log-line { white-space: pre-wrap; overflow-wrap: anywhere; }
-.jpk-log-time { opacity: 0.6; margin-right: 0.75em; }
-.jpk-log-line.debug { opacity: 0.65; }
-.jpk-log-line.warn { color: var(--jpk-orange-fg); }
-.jpk-log-line.error { color: var(--jpk-red-fg); }
-.jpk-log-empty { opacity: 0.6; font-family: inherit; }
+.base-log-output:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 2px; }
+.base-log-line { white-space: pre-wrap; overflow-wrap: anywhere; }
+.base-log-time { opacity: 0.6; margin-right: var(--base-gap-wide); }
+.base-log-line.debug { opacity: 0.65; }
+.base-log-line.warn { color: var(--base-orange-fg); }
+.base-log-line.error { color: var(--base-red-fg); }

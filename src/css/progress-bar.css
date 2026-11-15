@@ -1,0 +1,28 @@
+/* Thin progress bar in the accent over a faint track, such as a download in a table row */
+/* Example: <div class="base-progress"><div class="base-progress-bar" style="width: 40%"></div></div> */
+.base-progress {
+    height: 4px;
+    border-radius: calc(var(--base-radius-small) / 2);
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.15);
+    background: color-mix(in srgb, currentColor 15%, transparent);
+}
+
+/* Accent fill whose width is the progress */
+/* Example: <div class="base-progress-bar" style="width: 40%"></div> */
+.base-progress-bar {
+    height: 100%;
+    background: var(--base-accent);
+    transition: width 0.3s ease;
+}
+
+/* A progress bar along the bottom edge of a button, which the task progress button draws, thin and starting empty */
+/* Example: <button class="base-button base-btn-progress-host"><span>Run</span><div class="base-progress-bar base-btn-progress" style="width: 40%"></div></button> */
+.base-progress-bar.base-btn-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    pointer-events: none;
+}

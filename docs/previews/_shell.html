@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>{{TITLE}}</title>
 <meta name="robots" content="noindex" />
-<meta name="jpk-preview-min-height" content="{{MIN_HEIGHT}}" />
+<meta name="base-preview-min-height" content="{{MIN_HEIGHT}}" />
 
-<!-- The Material Icons font, which the kit icons use through the material-icons class -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+<!-- The icon font Jellyfin ships, material-design-icons-iconfont. Its per-icon classes, such as expand_more, draw the icons that have no text. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/material-design-icons-iconfont@6.7.0/dist/material-design-icons.min.css" />
 <!-- The real bundled kit stylesheet -->
 <link rel="stylesheet" href="./base/jpkribs_shared.css" />
 
@@ -19,39 +19,40 @@
         --jf-palette-primary-main: #00a4dc;
         --jf-palette-background-paper: #181818;
         --jf-palette-text-primary: #fff;
-        --jpk-preview-page: #101010;
+        --base-preview-page: #101010;
     }
     :root[data-theme="light"] {
         color-scheme: light;
         --jf-palette-primary-main: #0088cc;
         --jf-palette-background-paper: #fff;
         --jf-palette-text-primary: rgba(0, 0, 0, 0.87);
-        --jpk-preview-page: #f4f4f4;
+        --base-preview-page: #f4f4f4;
     }
-    html { background: var(--jpk-preview-page); }
+    html { background: var(--base-preview-page); }
     body {
         margin: 0;
-        background: var(--jpk-preview-page);
+        background: var(--base-preview-page);
         color: var(--jf-palette-text-primary);
         font-family: 'Noto Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         -webkit-font-smoothing: antialiased;
     }
-    #jpk-preview-root { padding: 16px 16px 20px; position: relative; }
-    #jpk-preview-theme {
+    /* The top padding is a strip for the theme toggle, so it never sits over a component's top-right buttons */
+    #base-preview-root { padding: 36px 16px 20px; position: relative; }
+    #base-preview-theme {
         position: absolute; top: 4px; right: 6px; z-index: 1;
         width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%;
         background: transparent; color: inherit; opacity: 0.45; cursor: pointer;
         font: 16px/28px 'Material Icons'; overflow: hidden;
     }
-    #jpk-preview-theme:hover, #jpk-preview-theme:focus-visible { opacity: 1; }
+    #base-preview-theme:hover, #base-preview-theme:focus-visible { opacity: 1; }
 </style>
 </head>
 
 <body>
-<!-- The wrapper carries pluginConfigurationPage so the form rules and token aliases apply as on a config page -->
+<!-- The wrapper carries pluginConfigurationPage so the form rules apply as on a config page -->
 <div class="pluginConfigurationPage">
-<div id="jpk-preview-root">
-<button id="jpk-preview-theme" type="button" title="Switch between light and dark" aria-label="Switch between light and dark">brightness_6</button>
+<div id="base-preview-root">
+<button id="base-preview-theme" type="button" title="Switch between light and dark" aria-label="Switch between light and dark">brightness_6</button>
 <div id="view">
 {{BODY}}
 </div>
@@ -64,11 +65,13 @@
 <script>
 (function () {
     var root = document.documentElement;
-    var min = parseInt((document.querySelector('meta[name="jpk-preview-min-height"]') || {}).content, 10) || 0;
+    var min = parseInt((document.querySelector('meta[name="base-preview-min-height"]') || {}).content, 10) || 0;
     var params = new URLSearchParams(location.search);
 
-    // Loads the real bundle once. A snippet awaits it: const JPK = await window.__jpkReady;
-    window.__jpkReady = import('./base/jpkribs_shared.js');
+    // Loads the real bundle once. A snippet awaits it: const base = await window.__baseReady;
+    window.__baseReady = import('./base/jpkribs_shared.js');
+    // Adorns number, date, and time fields as a config page does.
+    window.__baseReady.then(function (base) { base.bindFieldAdornments(document.body); });
 
     function setTheme(theme) {
         root.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark');
@@ -79,32 +82,32 @@
         (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
     setTheme(initial);
 
-    document.getElementById('jpk-preview-theme').addEventListener('click', function () {
+    document.getElementById('base-preview-theme').addEventListener('click', function () {
         setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
     });
 
     window.addEventListener('message', function (e) {
-        if (e.origin !== location.origin || !e.data || e.data.type !== 'jpk-preview-theme') { return; }
+        if (e.origin !== location.origin || !e.data || e.data.type !== 'base-preview-theme') { return; }
         setTheme(e.data.theme);
     });
 
     // Reports the content height to the docs page, which sizes the frame to it.
     var last = 0;
     function report() {
-        var h = Math.max(Math.ceil(document.getElementById('jpk-preview-root').getBoundingClientRect().height), min);
+        var h = Math.max(Math.ceil(document.getElementById('base-preview-root').getBoundingClientRect().height), min);
         if (h === last) { return; }
         last = h;
         if (window.parent !== window) {
-            window.parent.postMessage({ type: 'jpk-preview-height', height: h }, location.origin);
+            window.parent.postMessage({ type: 'base-preview-height', height: h }, location.origin);
         }
     }
     if (window.ResizeObserver) {
-        new ResizeObserver(report).observe(document.getElementById('jpk-preview-root'));
+        new ResizeObserver(report).observe(document.getElementById('base-preview-root'));
     }
     window.addEventListener('load', function () {
         report();
         if (window.parent !== window) {
-            window.parent.postMessage({ type: 'jpk-preview-ready' }, location.origin);
+            window.parent.postMessage({ type: 'base-preview-ready' }, location.origin);
         }
     });
 })();

@@ -1,0 +1,30 @@
+<!-- title: Preview Frame -->
+<div style="display: grid; gap: 16px;">
+    <div class="inputContainer">
+        <label class="inputLabel" for="previewTitle">Title</label>
+        <input is="emby-input" type="text" id="previewTitle" value="Example Movie" />
+    </div>
+    <div id="mount"></div>
+    <div id="failing"></div>
+</div>
+<script type="module">
+const base = await window.__baseReady;
+const input = document.getElementById('previewTitle');
+// A poster drawn on a canvas after a short wait, as a server render would take.
+const frame = base.createPreviewFrame({
+    label: 'Poster preview',
+    background: 'checker',
+    render: () => new Promise((resolve) => setTimeout(() => {
+        const c = document.createElement('canvas');
+        c.width = 240; c.height = 360;
+        const g = c.getContext('2d');
+        g.fillStyle = '#3498db'; g.fillRect(16, 16, 208, 328);
+        g.fillStyle = '#101010'; g.font = '600 22px sans-serif'; g.textAlign = 'center';
+        g.fillText(input.value || 'Untitled', 120, 190);
+        resolve(c);
+    }, 600))
+});
+input.addEventListener('input', () => frame.update());
+document.getElementById('mount').appendChild(frame.element);
+document.getElementById('failing').appendChild(base.createPreviewFrame({ label: 'Broken render', backgrounds: false, render: () => Promise.reject(new Error('timeout')) }).element);
+</script>

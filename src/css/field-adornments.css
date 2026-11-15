@@ -1,0 +1,116 @@
+/* A field in a box with Base's controls at its trailing end, laid out by adornField */
+/* Example: <span class="base-adorned base-adorned-number"><input type="number"><span class="base-adorned-steps"></span></span> */
+.base-adorned {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+.base-adorned > input {
+    width: 100% !important;
+    padding-right: calc(var(--base-field-pad) + var(--base-chevron-primary)) !important;
+}
+
+/* Up and down buttons that step a number, stacked at the field's trailing end in place of the browser's spinner */
+/* Example: <span class="base-adorned-steps"><button class="base-adorned-step"></button><button class="base-adorned-step"></button></span> */
+.base-adorned-steps {
+    position: absolute;
+    top: 1px;
+    bottom: 1px;
+    right: 1px;
+    display: flex;
+    flex-direction: column;
+    width: var(--base-chevron-primary);
+    border-left: 1px solid var(--base-border);
+}
+.base-adorned-step {
+    flex: 1 1 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    opacity: 0.7;
+    cursor: pointer;
+}
+.base-adorned-step + .base-adorned-step { border-top: 1px solid var(--base-border); }
+.base-adorned-step:hover { opacity: 1; background: var(--base-wash-strong); }
+.base-adorned-step .material-icons { font-size: var(--base-chevron-secondary); line-height: 1; }
+.base-adorned-number > input::-webkit-inner-spin-button,
+.base-adorned-number > input::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+.base-adorned-number > input { -moz-appearance: textfield; appearance: textfield; }
+
+/* The trailing icon of a date, time, or search field. A date or time field's own picker button sits invisible over it */
+/* Example: <span class="base-adorned base-adorned-picker"><input type="date"><span class="material-icons base-adorned-icon">calendar_today</span></span> */
+.base-adorned-icon {
+    position: absolute;
+    top: 50%;
+    right: var(--base-field-pad);
+    transform: translateY(-50%);
+    font-size: var(--base-icon-medium);
+    opacity: 0.7;
+    pointer-events: none;
+}
+.base-adorned-picker > input { position: relative; }
+.base-adorned-picker > input::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: calc(var(--base-field-pad) * 2 + var(--base-icon-medium));
+    height: auto;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* A search box with a search icon at its trailing end, and none of the browser's own clear or search marks */
+/* Example: <span class="base-adorned base-adorned-search"><input type="search"><span class="material-icons base-adorned-icon">search</span></span> */
+.base-adorned-search > input { -webkit-appearance: none; appearance: none; }
+.base-adorned-search > input::-webkit-search-cancel-button,
+.base-adorned-search > input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+
+/* An eye at a secret field's trailing end that shows and hides the value, added only when the page opts in */
+/* Example: <span class="base-adorned base-adorned-reveal"><input type="password" data-base-reveal><button type="button" class="base-adorned-eye" aria-pressed="false"></button></span> */
+.base-adorned-eye {
+    position: absolute;
+    top: 50%;
+    right: calc(var(--base-field-pad) / 2);
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--base-chevron-primary);
+    height: var(--base-chevron-primary);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--base-radius-small);
+    background: transparent;
+    color: inherit;
+    opacity: 0.7;
+    cursor: pointer;
+}
+.base-adorned-eye:hover { opacity: 1; }
+.base-adorned-eye:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 1px; }
+.base-adorned-eye .material-icons { font-size: var(--base-icon-medium); line-height: 1; }
+
+/* A unit such as % or h inside a number's box, dimmed and never typed, just before the up and down buttons */
+/* Example: <span class="base-adorned base-adorned-number base-adorned-with-unit"><input type="number" data-base-unit="%"><span class="base-adorned-steps"></span><span class="base-adorned-unit" aria-hidden="true">%</span></span> */
+.base-adorned-with-unit > input {
+    padding-right: calc(var(--base-field-pad) + var(--base-chevron-primary) + var(--base-adorned-unit-room, 1.5em)) !important;
+    text-align: right;
+}
+.base-adorned-unit {
+    position: absolute;
+    top: 50%;
+    right: calc(var(--base-chevron-primary) + var(--base-gap-narrow));
+    transform: translateY(-50%);
+    font-size: var(--base-field-font);
+    opacity: 0.7;
+    pointer-events: none;
+}

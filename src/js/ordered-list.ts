@@ -1,15 +1,23 @@
+import { createList, fillRowParts } from './list.js';
+import type { ItemRowParts } from './list.js';
+import { moveButtons, refocusAfterMove } from './lib/row-editor.js';
+import type { RowLabel } from './lib/row-editor.js';
+import type { ListHeight } from './list.js';
 import type { ComponentHandle } from './types.js';
 
 /** What createOrderedList takes. render draws each row, and onMove runs after a move so the caller can save. */
 export interface OrderedListOptions<T = any> {
     items?: T[];
-    render(item: T, index: number): Node | string;
+    render(item: T, index: number): Node | string | ItemRowParts;
     label?(item: T, index: number): string;
     onMove?(fromIndex: number, toIndex: number, items: T[]): void;
     moveUpTitle?: string;
     moveDownTitle?: string;
-    moveUpLabel?(name: string): string;
-    moveDownLabel?(name: string): string;
+    moveUpLabel?: RowLabel;
+    moveDownLabel?: RowLabel;
+    height?: ListHeight;
+    maxHeight?: number | string | null;
+    minHeight?: number | string | null;
 }
 
 /** What createOrderedList returns. getItems gives a copy of the items in their current order. */
@@ -17,6 +25,7 @@ export interface OrderedListHandle<T = any> extends ComponentHandle {
     element: HTMLOListElement;
     setItems(next: T[] | null): void;
     getItems(): T[];
+    setHeight(height: ListHeight, maxHeight?: number | string | null): void;
     destroy(): void;
 }
 
@@ -30,10 +39,13 @@ export interface OrderedListHandle<T = any> extends ComponentHandle {
  *   onMove        : function(fromIndex, toIndex, items) called after a move, so the caller can save [optional]
  *   moveUpTitle   : tooltip of the up button (default 'Move Up')
  *   moveDownTitle : tooltip of the down button (default 'Move Down')
- *   moveUpLabel   : function(name) returning the up button's aria-label (default "Move Name up")
- *   moveDownLabel : function(name) returning the down button's aria-label (default "Move Name down")
+ *   moveUpLabel   : the up button's aria-label, where {value} is the row's name, or a function(name) returning it (default 'Move {value} up')
+ *   moveDownLabel : the down button's aria-label, where {value} is the row's name, or a function(name) returning it (default 'Move {value} down')
+ *   height        : height of the list, as createList takes it (default 'auto')
+ *   maxHeight     : height past which the list scrolls [optional]
+ *   minHeight     : least height of a filling list [optional]
  * }
- * @returns { element, setItems, getItems, destroy }.
+ * @returns { element, setItems, getItems, setHeight, destroy }.
  * The first row's up button and the last row's down button are disabled. A move that leaves the pressed button disabled puts focus on the other button of the row.
  */
 export function createOrderedList<T = any>(options: OrderedListOptions<T>): OrderedListHandle<T> {
@@ -44,51 +56,50 @@ export function createOrderedList<T = any>(options: OrderedListOptions<T>): Orde
     var destroyed = false;
 
     var list = document.createElement('ol');
-    list.className = 'jpk-ordered-list';
+    list.className = 'base-ordered-list';
 
     function nameOf(item: T, index: number): string {
         return options.label ? options.label(item, index) : 'Item ' + (index + 1);
     }
 
-    // Builds one row button for a direction, with its title, label, and click.
-    function moveButton(item: T, index: number, delta: number): HTMLButtonElement {
-        var up = delta < 0;
-        var name = nameOf(item, index);
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'jpk-row-btn jpk-ordered-' + (up ? 'up' : 'down');
-        btn.title = up ? (options.moveUpTitle || 'Move Up') : (options.moveDownTitle || 'Move Down');
-        var label = up ? options.moveUpLabel : options.moveDownLabel;
-        btn.setAttribute('aria-label', label ? label(name) : 'Move ' + name + (up ? ' up' : ' down'));
-        btn.disabled = up ? index === 0 : index === items.length - 1;
-        var icon = document.createElement('span');
-        icon.className = 'material-icons';
-        icon.setAttribute('aria-hidden', 'true');
-        icon.textContent = up ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
-        btn.appendChild(icon);
-        btn.addEventListener('click', function () { move(index, index + delta); });
-        return btn;
+    // Draws one row from an item.
+    function renderRow(item: T, index: number): HTMLLIElement {
+        var row = document.createElement('li');
+        row.className = 'base-ordered-item base-item-row';
+        var main = document.createElement('div');
+        main.className = 'base-ordered-main base-item-row-text';
+        var content = options.render(item, index);
+        if (content instanceof Node) main.appendChild(content);
+        else if (typeof content === 'string') main.innerHTML = content;
+        else if (content && typeof content === 'object') fillRowParts(main, content);
+        var arrows = document.createElement('div');
+        arrows.className = 'base-ordered-arrows base-row-arrows';
+        moveButtons({
+            index: index, count: items.length, name: nameOf(item, index), className: 'base-ordered',
+            upTitle: options.moveUpTitle, downTitle: options.moveDownTitle,
+            upLabel: options.moveUpLabel, downLabel: options.moveDownLabel,
+            onMove: move
+        }).forEach(function (btn) { arrows.appendChild(btn); });
+        row.appendChild(main);
+        row.appendChild(arrows);
+        return row;
     }
+
+    var rows = createList<T>({
+        element: list,
+        layout: 'plain',
+        wrap: false,
+        role: null,
+        emptyText: null,
+        height: options.height,
+        maxHeight: options.maxHeight,
+        minHeight: options.minHeight,
+        render: renderRow
+    });
 
     // Redraws every row from the items.
     function render(): void {
-        list.innerHTML = '';
-        items.forEach(function (item, index) {
-            var row = document.createElement('li');
-            row.className = 'jpk-ordered-item';
-            var main = document.createElement('div');
-            main.className = 'jpk-ordered-main';
-            var content = options.render(item, index);
-            if (content instanceof Node) main.appendChild(content);
-            else if (typeof content === 'string') main.innerHTML = content;
-            var arrows = document.createElement('div');
-            arrows.className = 'jpk-ordered-arrows';
-            arrows.appendChild(moveButton(item, index, -1));
-            arrows.appendChild(moveButton(item, index, 1));
-            row.appendChild(main);
-            row.appendChild(arrows);
-            list.appendChild(row);
-        });
+        rows.setItems(items);
     }
 
     // Moves one item, redraws, reports it, and refocuses the pressed button of the moved row.
@@ -97,11 +108,7 @@ export function createOrderedList<T = any>(options: OrderedListOptions<T>): Orde
         var moved = items.splice(from, 1)[0];
         items.splice(to, 0, moved);
         render();
-        var row = list.children[to];
-        var pressed = row && row.querySelector<HTMLButtonElement>(to < from ? '.jpk-ordered-up' : '.jpk-ordered-down');
-        var other = row && row.querySelector<HTMLButtonElement>(to < from ? '.jpk-ordered-down' : '.jpk-ordered-up');
-        var target = pressed && !pressed.disabled ? pressed : other;
-        if (target && !target.disabled) target.focus();
+        refocusAfterMove(list, from, to);
         if (options.onMove) options.onMove(from, to, items.slice());
     }
 
@@ -111,6 +118,7 @@ export function createOrderedList<T = any>(options: OrderedListOptions<T>): Orde
         element: list,
         setItems: function (next: T[] | null) { items = (next || []).slice(); render(); },
         getItems: function () { return items.slice(); },
-        destroy: function () { destroyed = true; list.innerHTML = ''; }
+        setHeight: function (height: ListHeight, maxHeight?: number | string | null) { rows.setHeight(height, maxHeight); },
+        destroy: function () { destroyed = true; rows.destroy(); list.innerHTML = ''; }
     };
 }

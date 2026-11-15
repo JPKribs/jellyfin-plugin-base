@@ -1,0 +1,76 @@
+<!-- title: Media Card -->
+<div id="rows"></div>
+<div id="tiles"></div>
+<span id="cardStatus" class="base-status-text"></span>
+<script type="module">
+const base = await window.__baseReady;
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const G = window.__gallery;
+const report = (text) => shared.setStatus('cardStatus', text, false, { timeout: 0 });
+const discard = [{ label: 'Discard', icon: 'close', value: 'discard' }];
+
+const late = base.createMediaCard({
+    shape: base.mediaShape('Movie'),
+    title: 'Example Movie',
+    subtitle: 'The image arrives a moment later.',
+    status: { label: 'Received', color: 'purple' },
+    onClick: () => report('Opened Example Movie.')
+});
+setTimeout(() => late.setValue({ imageUrl: G.rect(120, 180, '#5cb85c', 'M') }), 800);
+
+base.createList({
+    element: document.getElementById('rows'),
+    layout: 'rows',
+    items: [
+        {
+            shape: base.mediaShape('Episode'),
+            imageUrl: G.rect(192, 108, '#3498db', 'E'),
+            title: 'Example Show',
+            titleSuffix: 'S1, E1, Pilot',
+            user: { name: 'viewer', imageUrl: G.svg(32, 32, '#9b59b6', 'V') },
+            subtitle: 'watch history to source-b',
+            badges: [{ label: 'History', color: 'blue' }],
+            status: { label: 'Pending', color: 'orange' },
+            meta: 'waiting for delivery',
+            actions: discard,
+            onAction: (value) => report('Clicked ' + value + '.')
+        },
+        {
+            shape: base.mediaShape('Person'),
+            title: 'Example Person',
+            subtitle: 'biography and images from source-a',
+            badges: [{ label: 'People', color: 'purple' }, { label: 'Provider', color: 'gray' }],
+            status: { label: 'Failed', color: 'red' },
+            meta: 'Could not reach the server.',
+            metaIsError: true,
+            actions: discard
+        },
+        late
+    ],
+    render: (item) => (item.element ? item : base.createMediaCard(item))
+});
+
+const tiles = base.createList({
+    element: document.getElementById('tiles'),
+    layout: 'grid',
+    items: [
+        { type: 'Movie', name: 'Example Movie', color: '#0088cc' },
+        { type: 'Episode', name: 'Example Episode', color: '#f0ad4e' },
+        { type: 'MusicAlbum', name: 'Example Album', color: '#d9534f' },
+        { type: 'Series', name: 'No Image', color: '' }
+    ],
+    render: (item) => {
+        const shape = base.mediaShape(item.type);
+        const size = shape === 'wide' ? [192, 108] : shape === 'square' ? [150, 150] : [120, 180];
+        return base.createMediaCard({
+            layout: 'card',
+            shape: shape,
+            imageUrl: item.color ? G.rect(size[0], size[1], item.color, item.name[8]) : null,
+            title: item.name,
+            subtitle: item.type,
+            onClick: () => report('Opened ' + item.name + '.')
+        });
+    }
+});
+tiles.element.style.marginTop = '16px';
+</script>

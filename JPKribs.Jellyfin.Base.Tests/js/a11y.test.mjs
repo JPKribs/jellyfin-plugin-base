@@ -15,7 +15,7 @@ beforeEach(function () {
 
 function css(file) { return readFileSync(new URL('../../src/css/' + file, import.meta.url), 'utf8'); }
 
-test('an initials only avatar is an image named by the person, and aria-hidden stays off', function () {
+test('an avatar with no picture is an image named by the person, and aria-hidden stays off', function () {
     var a = createAvatar({ name: 'Ada Lovelace' });
     assert.equal(a.element.getAttribute('role'), 'img');
     assert.equal(a.element.getAttribute('aria-label'), 'Ada Lovelace');
@@ -29,7 +29,7 @@ test('an avatar with a picture has no label of its own, and gets one when the pi
     var img = a.element.querySelector('img');
     img.dispatch('error');
     assert.equal(a.element.getAttribute('role'), 'img');
-    assert.equal(a.element.querySelector('.jpk-avatar-initials').textContent, 'AL');
+    assert.equal(a.element.querySelector('.base-avatar-icon').textContent, 'person');
 });
 
 test('a late image error from an earlier draw does not wipe the new content', function () {
@@ -39,22 +39,23 @@ test('a late image error from an earlier draw does not wipe the new content', fu
     var current = a.element.querySelector('img');
     old.dispatch('error');
     assert.equal(a.element.querySelector('img'), current);
-    assert.equal(a.element.querySelector('.jpk-avatar-initials'), null);
+    assert.equal(a.element.querySelector('.base-avatar-icon'), null);
     a.setValue({ name: 'Cy Young' });
     old.dispatch('error');
-    assert.equal(a.element.querySelector('.jpk-avatar-initials').textContent, 'CY');
+    assert.equal(a.element.querySelector('.base-avatar-icon').textContent, 'person');
+    assert.equal(a.element.getAttribute('aria-label'), 'Cy Young');
 });
 
 test('a user chip leaves the name to its text, so the avatar has no label of its own', function () {
     var chip = createUserChip({ name: 'Ada Lovelace' });
-    var avatar = chip.element.querySelector('.jpk-avatar');
+    var avatar = chip.element.querySelector('.base-avatar');
     assert.equal(avatar.hasAttribute('role'), false);
     assert.equal(avatar.hasAttribute('aria-label'), false);
 });
 
-// Reads a token such as --jpk-green-fg from tokens.css and returns its hex value.
+// Reads a token such as --base-green-fg from design-tokens.css and returns its hex value.
 function token(name) {
-    var hex = css('tokens.css').match(new RegExp(name + ': (#[0-9a-fA-F]{3,6})'))[1];
+    var hex = css('design-tokens.css').match(new RegExp(name + ': (#[0-9a-fA-F]{3,6})'))[1];
     return hex.length === 4 ? '#' + hex.slice(1).split('').map(function (c) { return c + c; }).join('') : hex;
 }
 
@@ -74,43 +75,43 @@ function contrast(a, b) {
 
 test('white on green, orange, yellow, and gray falls below 3 to 1, and the dark on-warning token clears it', function () {
     ['green', 'orange', 'yellow', 'gray'].forEach(function (color) {
-        assert.ok(contrast('#ffffff', token('--jpk-' + color + '-fg')) < 3, color);
-        assert.ok(contrast(token('--jpk-on-warning'), token('--jpk-' + color + '-fg')) >= 3, color);
+        assert.ok(contrast('#ffffff', token('--base-' + color + '-fg')) < 3, color);
+        assert.ok(contrast(token('--base-on-warning'), token('--base-' + color + '-fg')) >= 3, color);
     });
-    assert.ok(contrast(token('--jpk-on-warning'), token('--jpk-blue-fg')) >= 4.5);
+    assert.ok(contrast(token('--base-on-warning'), token('--base-blue-fg')) >= 4.5);
 });
 
 test('the stepper check, the pill, and the light timeline markers use the dark token', function () {
-    assert.match(css('stepper.css'), /\.completed \.jpk-stepper-number \{[^}]*color: var\(--jpk-on-warning\)/);
-    assert.match(css('tags.css'), /\.jpk-tag\.jpk-tag-pill \{[^}]*color: var\(--jpk-on-warning\)/);
+    assert.match(css('stepper.css'), /\.completed \.base-stepper-number \{[^}]*color: var\(--base-on-warning\)/);
+    assert.match(css('tags.css'), /\.base-tag\.base-tag-pill \{[^}]*color: var\(--base-on-warning\)/);
     ['green', 'orange', 'yellow'].forEach(function (c) {
-        assert.match(css('timeline.css'), new RegExp('\\.' + c + ' \\.jpk-timeline-marker \\{[^}]*color: var\\(--jpk-on-warning\\)'));
+        assert.match(css('timeline.css'), new RegExp('\\.' + c + ' \\.base-timeline-marker \\{[^}]*color: var\\(--base-on-warning\\)'));
     });
-    assert.match(css('timeline.css'), /\.jpk-timeline-marker \{[^}]*color: var\(--jpk-on-warning\)/);
+    assert.match(css('timeline.css'), /\.base-timeline-marker \{[^}]*color: var\(--base-on-warning\)/);
 });
 
 test('a timeline status shows an icon and a hidden word, not color alone', function () {
     var t = createTimeline({ items: [{ title: 'Synced', status: 'green' }, { title: 'Late', status: 'orange', icon: 'alarm' }, { title: 'Plain' }] });
-    var items = t.element.querySelectorAll('.jpk-timeline-item');
-    assert.equal(items[0].querySelector('.jpk-timeline-marker .material-icons').textContent, 'check_circle');
-    assert.equal(items[0].querySelector('.jpk-sr-only').textContent, 'Done');
-    assert.equal(items[1].querySelector('.jpk-timeline-marker .material-icons').textContent, 'alarm');
-    assert.equal(items[1].querySelector('.jpk-sr-only').textContent, 'Waiting');
-    assert.equal(items[2].querySelector('.jpk-sr-only'), null);
-    assert.equal(items[2].querySelector('.jpk-timeline-marker .material-icons'), null);
+    var items = t.element.querySelectorAll('.base-timeline-item');
+    assert.equal(items[0].querySelector('.base-timeline-marker .material-icons').textContent, 'check_circle');
+    assert.equal(items[0].querySelector('.base-sr-only').textContent, 'Done');
+    assert.equal(items[1].querySelector('.base-timeline-marker .material-icons').textContent, 'alarm');
+    assert.equal(items[1].querySelector('.base-sr-only').textContent, 'Waiting');
+    assert.equal(items[2].querySelector('.base-sr-only'), null);
+    assert.equal(items[2].querySelector('.base-timeline-marker .material-icons'), null);
 });
 
 test('timeline status words can be replaced, and an inherited name such as constructor adds nothing', function () {
     var t = createTimeline({ statusLabels: { green: 'Finished' }, items: [{ title: 'a', status: 'green' }, { title: 'b', status: 'constructor' }, { title: 'c', status: '__proto__' }] });
-    var items = t.element.querySelectorAll('.jpk-timeline-item');
-    assert.equal(items[0].querySelector('.jpk-sr-only').textContent, 'Finished');
-    assert.equal(items[1].querySelector('.jpk-sr-only'), null);
-    assert.equal(items[2].querySelector('.jpk-sr-only'), null);
+    var items = t.element.querySelectorAll('.base-timeline-item');
+    assert.equal(items[0].querySelector('.base-sr-only').textContent, 'Finished');
+    assert.equal(items[1].querySelector('.base-sr-only'), null);
+    assert.equal(items[2].querySelector('.base-sr-only'), null);
 });
 
 test('the toaster makes its polite and assertive live regions once, and toasts carry no role of their own', function () {
     var t = createToaster({ timeout: 0 });
-    var regions = t.element.querySelectorAll('.jpk-toaster-live');
+    var regions = t.element.querySelectorAll('.base-toaster-live');
     assert.equal(regions.length, 2);
     var polite = regions[1];
     var assertive = regions[0];
@@ -119,13 +120,13 @@ test('the toaster makes its polite and assertive live regions once, and toasts c
     var first = t.info('One.');
     t.error('Two.');
     t.warn('Three.');
-    assert.equal(t.element.querySelectorAll('.jpk-toaster-live')[1], polite);
+    assert.equal(t.element.querySelectorAll('.base-toaster-live')[1], polite);
     assert.equal(first.element.parentNode, polite);
     assert.equal(polite.children.length, 2);
     assert.equal(assertive.children.length, 1);
     assert.equal(first.element.hasAttribute('role'), false);
     t.clear();
-    assert.equal(t.element.querySelectorAll('.jpk-toaster-live')[0], assertive);
+    assert.equal(t.element.querySelectorAll('.base-toaster-live')[0], assertive);
 });
 
 test('an error toast stays until dismissed unless a timeout is set, and the others still close', function () {
@@ -179,12 +180,12 @@ test('a field message keeps one live region element, never hidden, and only its 
     assert.equal(m.element, el);
     assert.equal(el.hidden, false);
     assert.equal(shown(el), true);
-    assert.equal(el.querySelector('.jpk-field-message-text').textContent, 'Enter a number.');
+    assert.equal(el.querySelector('.base-field-message-text').textContent, 'Enter a number.');
     assert.equal(el.querySelector('.material-icons').textContent, 'error');
     m.clear();
     assert.equal(el.hidden, false);
     assert.equal(shown(el), false);
-    assert.equal(el.querySelector('.jpk-field-message-text').textContent, '');
+    assert.equal(el.querySelector('.base-field-message-text').textContent, '');
     assert.equal(el.getAttribute('aria-live'), 'polite');
 });
 
@@ -197,7 +198,7 @@ test('a field message state that is not a known name shows no glyph', function (
 test('a skeleton is busy until destroyed or done, and its label is a live region announced after insertion', function () {
     var s = createSkeleton({ label: 'Loading servers' });
     dom.document.body.appendChild(s.element);
-    var label = s.element.querySelector('.jpk-sr-only');
+    var label = s.element.querySelector('.base-sr-only');
     assert.equal(s.element.getAttribute('aria-busy'), 'true');
     assert.equal(label.getAttribute('aria-live'), 'polite');
     assert.equal(label.textContent, 'Loading servers');

@@ -1,0 +1,59 @@
+/* Grid of equal radio cards, three across and one per row on a phone */
+/* Example: <div class="base-choice-group" role="radiogroup"><label class="base-choice selected">...</label></div> */
+.base-choice-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--base-gap-narrow);
+}
+
+/* One radio card holding a hidden input, a name, and a sentence, outlined in the accent when selected */
+/* Example: <label class="base-choice"><input type="radio" name="mode" value="Scan"><span class="base-choice-name">Scan</span><span class="base-choice-text">Pull on a schedule.</span></label> */
+.base-choice {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+    padding: var(--base-pad-medium);
+    border-radius: var(--base-radius-large);
+    cursor: pointer;
+    background: var(--base-surface);
+    border: 1px solid var(--base-border);
+    transition: border-color 0.15s, background 0.15s;
+}
+.base-choice:hover { background: var(--base-wash); }
+/* Two rules rather than one list, since an engine without :has() drops the whole rule and would lose .selected too. */
+.base-choice.selected {
+    border-color: var(--base-accent);
+    background: var(--base-accent-wash);
+}
+.base-choice:has(input:checked) {
+    border-color: var(--base-accent);
+    background: var(--base-accent-wash);
+}
+/* The card is the control, so its input stays hidden, outranking the shared checkbox and radio look */
+label.base-choice > input[type="radio"],
+label.base-choice > input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+    border: 0;
+    pointer-events: none;
+}
+
+/* Bold name of a choice */
+/* Example: <span class="base-choice-name">Scan</span> */
+.base-choice-name { font-weight: 600; }
+
+/* Small dimmed sentence under the name */
+/* Example: <span class="base-choice-text">Pull on a schedule.</span> */
+.base-choice-text {
+    font-size: 0.85em;
+    opacity: 0.75;
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .base-choice-group { grid-template-columns: 1fr; }
+}

@@ -15,7 +15,7 @@ await StreamUtilities.CopyWithSpeedLimitAsync(from, to, speed, token).ConfigureA
 
 **Gotchas**
 
-* The limit of `CopyWithSpeedLimitAsync` is an average over the whole copy, not per second. After a stall the copy can burst to catch up, and the first block is not delayed. A limit of zero or less is a plain copy.
+* The limit of `CopyWithSpeedLimitAsync` is an average over the whole copy, not per second. After a stall the copy can burst to catch up, and the first block is not delayed. A pause of 10 milliseconds or less is skipped, and a limit of zero or less is a plain copy.
 * `CopyThrottledAsync` reads the `rate` function at the start and again after `recheck`, 30 seconds by default. A value above zero is set on the bucket, and zero or less lifts the limit until the next check.
 * The bucket decides the burst. A bucket made with no burst holds the copy to its rate from the first block.
 * `CopyWithSpeedLimitAsync` does not null-check its arguments, and `CopyThrottledAsync` does. Neither flushes or disposes a stream.
@@ -114,4 +114,4 @@ MaxDownloadSpeed = RateUtilities.ToMbps(MaxDownloadSpeed, DownloadSpeedUnit);
 
 * `MbpsToBytesPerSecond` returns 0 for zero or less, which means no limit. 40 gives 5,000,000.
 * `ToMbps` converts an older speed in binary KB, MB, or GB per second. It rounds up and returns at least 1 for a positive value, so a limit never becomes "no limit". 10 MB gives 84.
-* The unit is case-insensitive. A null or unknown unit counts as MB, and the result is capped at `int.MaxValue`.
+* The unit is case-insensitive. A value already in `Mbps` is returned as it is. A null or unknown unit counts as MB, and the result is capped at `int.MaxValue`.

@@ -1,12 +1,10 @@
 /* Callout row with an icon, a message, and a dismiss button, which takes its colors from the callout classes */
-/* Example: <div class="jpk-banner jpk-warn"><span class="material-icons" aria-hidden="true">warning</span><div class="jpk-banner-body"><div class="jpk-banner-text">Back up first.</div></div></div> */
-.jpk-banner {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-}
-.jpk-banner > .material-icons { font-size: 20px; flex: 0 0 auto; }
-.jpk-banner-body { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-.jpk-banner-title { font-weight: 600; }
-.jpk-banner-close { flex: 0 0 auto; margin: -2px -4px -2px 0; }
-.jpk-banner-close:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 1px; }
+/* Example: <div class="base-banner base-icon-text base-warn"><span class="material-icons" aria-hidden="true">warning</span><div class="base-banner-body"><div class="base-banner-text">Back up first.</div></div></div> */
+/* It is built as base-icon-text, which lines its icon up with the first line */
+/* Its dismiss button is pinned to the top right corner, inset by the callout's padding, and the text leaves room for it */
+.base-banner { position: relative; }
+.base-banner-body { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.base-banner-title { font-weight: 600; }
+.base-banner-close { position: absolute; top: var(--base-pad-small); right: var(--base-pad-medium); }
+.base-banner.dismissible .base-banner-body { padding-right: calc(var(--base-size-small) + var(--base-gap-narrow)); }
+.base-banner-close:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 1px; }

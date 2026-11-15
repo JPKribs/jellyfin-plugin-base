@@ -1,0 +1,9 @@
+<!-- title: Save Bar -->
+<div id="mount" style="display: grid; gap: 24px;"></div>
+<script type="module">
+const base = await window.__baseReady;
+const mount = document.getElementById('mount');
+['pending', 'saving', 'saved', 'failed'].forEach((state) => {
+    mount.appendChild(base.createSaveBar({ state, savedMs: 3600000 }).element);
+});
+</script>

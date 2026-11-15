@@ -21,14 +21,22 @@ A date carries no meaning about the change. Compatibility is judged by [code.md]
     git log --oneline "$(git describe --tags --abbrev=0)"..HEAD
     ```
 
-2. **Tests.** Both suites pass. CI runs only the first, so run the second yourself.
+2. **Checks and tests.** Run what the workflow runs, in its order, and read each result. The workflow refuses to pack when one fails.
 
     ```bash
-    dotnet test JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Release
+    npm run bundle
+    ```
+
+    ```bash
+    node scripts/check-bundle.mjs && bash scripts/check-types.sh && node scripts/build-docs.mjs --check
     ```
 
     ```bash
     node --import ./JPKribs.Jellyfin.Base.Tests/js/register.mjs --test JPKribs.Jellyfin.Base.Tests/js/*.test.mjs
+    ```
+
+    ```bash
+    dotnet test JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Release
     ```
 
 3. **Bundle and pack.** Make a local package the way the workflow does.
@@ -41,11 +49,12 @@ A date carries no meaning about the change. Compatibility is judged by [code.md]
 
 4. **Consumer build.** Build at least one plugin that uses the changed components against the local pack, per [testing.md](testing.md#consumer-build). Build one with strict analyzers.
 5. **Docs.** The README and the [component pages](documentation.md#the-component-pages) describe this release, and `mkdocs build --strict` passes.
-6. **Branch.** The commit to release is pushed to the default branch, since the workflow releases the commit it starts on.
+6. **Gallery.** Every component changed since the last tag looks right in the [gallery](testing.md#the-gallery) at desktop, tablet, and phone width.
+7. **Branch.** The commit to release is pushed to `main`, since the workflow releases the commit it starts on and refuses to run from any other branch.
 
 ## Start the Release
 
-1. Open the repository's **Actions** tab, select **Release**, and choose **Run workflow** on the default branch.
+1. Open the repository's **Actions** tab, select **Release**, and choose **Run workflow** on `main`.
 2. Leave the version blank to release today's date. Type a version only to override it, such as to re-release a specific date.
 
 The `.github/workflows/release.yaml` run does the whole release, in this order.
@@ -53,8 +62,10 @@ The `.github/workflows/release.yaml` run does the whole release, in this order.
 | Step | What it does |
 | :--- | :--- |
 | Resolve version | Takes the date, or the override, and adds `.1`, `.2` until neither nuget.org nor a tag has it. A requested version that exists is refused. A tag on this commit with no package behind it is resumed. |
-| Test | Runs `dotnet test` on the test project in Release. |
-| Bundle and pack | Runs `scripts/bundle.sh`, then `dotnet pack` with `-p:Version=<version>`. |
+| Bundle | Runs `scripts/bundle.sh`, which installs the pinned dev tools, type checks, and bundles. |
+| Check | Runs `scripts/check-bundle.mjs`, `scripts/check-types.sh`, and `scripts/build-docs.mjs --check`. |
+| Test | Runs the JavaScript tests, then `dotnet test` on the test project in Release. |
+| Pack | Runs `dotnet pack` with `-p:Version=<version>`. |
 | Tag and release | Pushes `v<version>`, then creates the GitHub release with the package attached and generated notes. Each is skipped when an earlier run made it. |
 | Log in to nuget.org | Uses Trusted Publishing, so no key is stored. The publishing policy on nuget.org names this repository and `release.yaml`. |
 | Push to nuget.org | Pushes the package with `--skip-duplicate`. |
@@ -75,20 +86,6 @@ A plugin raises the `JPKribs.Jellyfin.Base` version in its project file.
 <PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.10.28" />
 ```
 
-For several plugins at once, `scripts/sync-plugins.sh` writes the plugin template into each checkout, pinned to one release. It takes the full commit SHA of the release tag, the version, and the plugin folders.
-
-```bash
-scripts/sync-plugins.sh --check "$(git rev-parse v2026.10.28)" 2026.10.28 ../../jellyfin-plugin-*
-```
-
-```bash
-scripts/sync-plugins.sh "$(git rev-parse v2026.10.28)" 2026.10.28 ../../jellyfin-plugin-*
-```
-
-* `--check` changes nothing, lists what differs, and exits 1 when anything does. Run it first.
-* The second form rewrites each plugin's `build.sh`, its `.github/workflows` callers, and the `PackageReference` version. It prints each file it changes and commits nothing.
-* The script lives in Base and does the plugin side, so the plugin author reviews the diff and commits it in the plugin.
-
 After the raise, each plugin:
 
 1. Deletes any local copy of a type Base now provides, since the same name is ambiguous.
@@ -106,9 +103,9 @@ Never commit a plugin against an unreleased pack.
 
 * [ ] The version is a date, and the workflow resolved it.
 * [ ] Nothing public was removed or renamed without approval.
-* [ ] `dotnet test` and the JS tests pass.
+* [ ] `npm run bundle`, the golden copy, typings, and docs checks, the JS tests, and `dotnet test` pass.
 * [ ] A plugin built against the local pack with no warning.
 * [ ] The README and the inventories describe this release.
-* [ ] The release ran from the default branch, with the version blank unless an override was approved.
+* [ ] The release ran from `main`, with the version blank unless an override was approved.
 * [ ] The GitHub release and the nuget.org version both exist.
 * [ ] Each plugin raised its reference, or was told to.

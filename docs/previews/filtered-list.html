@@ -1,0 +1,65 @@
+<!-- title: Filtered List -->
+<div id="mount"></div>
+<script type="module">
+const base = await window.__baseReady;
+const kinds = ['Movie', 'Episode', 'MusicAlbum', 'Series'];
+const titles = ['Alien', 'Brazil', 'Cosmos', 'Dune', 'Eraserhead', 'Fargo', 'Gattaca', 'Heat', 'Inception', 'Jaws', 'Kill Bill', 'Logan', 'Memento', 'Nope', 'Oldboy', 'Psycho'];
+const peers = [{ value: 'den', label: 'Den' }, { value: 'cabin', label: 'Cabin' }, { value: 'office', label: 'Office' }];
+const stateColor = { Synced: 'green', Queued: 'orange', Errored: 'red', Ignored: 'gray' };
+const poster = (i) => 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 3"><rect width="2" height="3" fill="hsl(' + (i * 47 % 360) + ',45%,42%)"/></svg>');
+const states = ['Synced', 'Queued', 'Synced', 'Errored', 'Synced', 'Ignored', 'Synced', 'Queued'];
+const make = (i, state) => ({
+    id: 'item-' + i,
+    name: titles[i % titles.length] + ' ' + (Math.floor(i / titles.length) + 1),
+    type: kinds[i % kinds.length],
+    dir: i % 3 ? 'out' : 'in',
+    peer: peers[i % peers.length].value,
+    state,
+    size: 300000000 + (i * 7919 % 40) * 97000000,
+    image: i % 5 ? poster(i) : ''
+});
+let all = Array.from({ length: 260 }, (_, i) => make(i, states[i % states.length]));
+const detailOf = (item) => item.state === 'Queued' ? 'Pending, retry in 2m' : item.state === 'Synced' ? 'Sent to ' + item.peer : item.state === 'Ignored' ? 'Ignored by an administrator' : null;
+const setState = (ids, state) => { all = all.map((item) => ids.indexOf(item.id) !== -1 ? Object.assign({}, item, { state }) : item); list.setItems(all); };
+const list = base.createFilteredList({
+    items: all,
+    rowKey: 'id',
+    render: (item) => base.createMediaCard({
+        title: item.name,
+        subtitle: item.type + ', ' + (item.dir === 'in' ? 'from ' : 'to ') + item.peer,
+        shape: base.mediaShape(item.type),
+        imageUrl: item.image,
+        status: { label: item.state, color: stateColor[item.state] },
+        detail: detailOf(item),
+        error: item.state === 'Errored' ? 'Could not reach the server at 10.0.0.12. The connection timed out after 30 seconds.' : null,
+        size: item.size
+    }),
+    search: { keys: ['name'], placeholder: 'Search titles' },
+    filters: [
+        { name: 'state', label: 'States', kind: 'cards', options: [{ value: 'Synced', label: 'Synced', color: 'green' }, { value: 'Queued', label: 'Queued', color: 'orange' }, { value: 'Errored', label: 'Errored', color: 'red' }, { value: 'Ignored', label: 'Ignored', color: 'gray' }] },
+        { name: 'dir', label: 'Directions', kind: 'pills', options: [{ value: 'out', label: 'Outgoing' }, { value: 'in', label: 'Incoming' }] },
+        { name: 'peer', label: 'Servers', kind: 'pills', clearable: true, options: [] }
+    ],
+    selectable: 'multiple',
+    bulkActions: [
+        { id: 'ignore', label: 'Ignore', icon: 'block', onClick: (items) => { setState(items.map((i) => i.id), 'Ignored'); list.clearSelection(); } },
+        { id: 'queue', label: 'Queue', icon: 'playlist_add', variant: 'primary', onClick: (items) => { setState(items.map((i) => i.id), 'Queued'); list.clearSelection(); } }
+    ],
+    actions: [{ id: 'retry', label: 'Retry Errors', icon: 'refresh', onClick: () => setState(all.filter((i) => i.state === 'Errored').map((i) => i.id), 'Queued'), visible: () => all.some((i) => i.state === 'Errored') }],
+    limit: 200,
+    limitText: 'Showing the latest {shown} of {total}. Filter by state or server to see more.',
+    onOpen: (item) => base.openDialog({ title: item.name, body: '<p>' + base.escapeHtml(item.type + ', ' + item.state + ', ' + (detailOf(item) || 'no detail')) + '</p>', buttons: [{ text: 'Done', className: 'base-button primary' }] }),
+    height: 420
+});
+// The servers arrive after the first load, as Server Sync's peer pills do.
+setTimeout(() => list.setFilterOptions('peer', peers), 600);
+// A poll every 3 seconds changes one item's state, and only that row draws again.
+let tick = 0;
+setInterval(() => {
+    tick++;
+    const at = (tick * 13) % 40;
+    all = all.map((item, i) => i === at ? Object.assign({}, item, { state: item.state === 'Synced' ? 'Queued' : 'Synced' }) : item);
+    list.setItems(all);
+}, 3000);
+document.getElementById('mount').appendChild(list.element);
+</script>

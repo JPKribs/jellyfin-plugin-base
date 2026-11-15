@@ -1,4 +1,4 @@
-import { make } from './dom-util.js';
+import { make } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
 
 /** What createSpinner takes. label is the text a screen reader reads. */
@@ -26,9 +26,9 @@ export interface SpinnerHandle extends ComponentHandle {
 export function createSpinner(options?: SpinnerOptions): SpinnerHandle {
     options = options || {};
     var size = options.size === 'small' || options.size === 'large' ? options.size : 'medium';
-    var root = make('span', 'jpk-loading jpk-loading-' + size, { role: 'status' });
-    var text = make('span', 'jpk-sr-only', null, options.label || 'Loading');
-    root.appendChild(make('span', 'jpk-loading-ring', { 'aria-hidden': 'true' }));
+    var root = make('span', 'base-loading base-loading-' + size, { role: 'status' });
+    var text = make('span', 'base-sr-only', null, options.label || 'Loading');
+    root.appendChild(make('span', 'base-loading-ring', { 'aria-hidden': 'true' }));
     root.appendChild(text);
     return {
         element: root,

@@ -15,7 +15,7 @@ namespace JPKribs.Jellyfin.Base.Tests;
 /// <summary>Verifies that <see cref="PluginBase{TPlugin, TConfiguration}"/> guards the configuration with one lock and registers the shared asset pages.</summary>
 public sealed class PluginBaseTests : IDisposable
 {
-    private readonly string _dir = Path.Combine(Path.GetTempPath(), "jpk-plugin-" + Guid.NewGuid().ToString("N"));
+    private readonly string _dir = Path.Combine(Path.GetTempPath(), "base-plugin-" + Guid.NewGuid().ToString("N"));
 
     public PluginBaseTests() => Directory.CreateDirectory(_dir);
 

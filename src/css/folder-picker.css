@@ -1,0 +1,66 @@
+/* A path field with a Browse button beside it, a label above, and a description below */
+/* Example: <div class="base-folder-picker"><label class="base-folder-picker-label" for="p">Media Folder</label><div class="base-folder-picker-field"><input type="text" id="p" class="base-mono"><button type="button" class="raised base-button field">Browse</button></div></div> */
+.base-folder-picker {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+}
+.base-folder-picker[hidden] { display: none; }
+.base-folder-picker-field {
+    display: flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+}
+.base-folder-picker-field > input {
+    flex: 1 1 auto;
+    min-width: 0;
+    box-sizing: border-box;
+}
+.base-folder-picker-field > button { flex: 0 0 auto; }
+.base-folder-picker-description { opacity: 0.7; font-size: 0.9em; }
+
+/* Dialog body with the editable path, the list of folders with its loading line, the list's empty sentence, and the error */
+/* Example: <div class="base-folder-picker-browser"><input type="text" class="base-mono base-folder-picker-path"><ul class="base-folder-picker-list"></ul></div> */
+.base-folder-picker-browser {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+}
+.base-folder-picker-path {
+    width: 100%;
+    box-sizing: border-box;
+}
+.base-folder-picker-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-medium);
+}
+.base-folder-picker-list:empty { display: none; }
+.base-folder-picker-list.base-list.plain > .base-list-loading {
+    padding: var(--base-gap-narrow) var(--base-field-pad);
+    text-align: center;
+}
+
+/* One folder, drive, or file in the list as a full width button built as base-icon-text, with the up row first */
+/* Example: <li><button type="button" class="base-folder-picker-entry base-icon-text"><span class="material-icons" aria-hidden="true">folder</span><span class="base-folder-picker-name">Movies</span></button></li> */
+.base-folder-picker-entry {
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--base-gap-narrow) var(--base-field-pad);
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.base-folder-picker-entry:hover { background: var(--base-wash); }
+.base-folder-picker-entry:focus-visible { outline: 2px solid var(--base-accent); outline-offset: -2px; }
+.base-folder-picker-entry.selected { background: var(--base-accent-wash); }
+.base-folder-picker-entry .material-icons { opacity: 0.7; }
+.base-folder-picker-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.base-folder-picker-up .base-folder-picker-name { opacity: 0.8; }

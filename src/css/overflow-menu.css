@@ -1,44 +1,35 @@
 /* Wrapper that places a menu button and its floating list */
-/* Example: <div class="jpk-menu"><button type="button" class="jpk-row-btn jpk-menu-button" aria-haspopup="menu"></button><div class="jpk-menu-list" role="menu" hidden></div></div> */
-.jpk-menu {
+/* Example: <div class="base-menu"><button type="button" class="base-row-btn base-menu-button" aria-haspopup="menu"></button><div class="base-menu-list" role="menu" hidden></div></div> */
+.base-menu {
     position: relative;
     display: inline-block;
 }
 
-/* Floating list of actions fixed to the viewport, placed by the menu under the button, or above it with no room, and aligned to its right edge or its left with jpk-menu-start */
-/* Example: <div class="jpk-menu-list" role="menu"><button type="button" class="jpk-menu-item" role="menuitem">Edit</button></div> */
-.jpk-menu-list {
+/* Floating list of actions on the base-float surface, fixed to the viewport, placed by the menu under the button, or above it with no room, and aligned to its right edge or its left with base-menu-start */
+/* Example: <div class="base-menu-list base-float" role="menu"><button type="button" class="base-menu-item base-icon-text" role="menuitem">Edit</button></div> */
+.base-menu-list {
     position: fixed;
-    z-index: 1000;
-    min-width: 160px;
-    max-width: calc(100vw - 32px);
+    min-width: calc(var(--base-size-large) * 4);
+    max-width: calc(100vw - 2 * var(--base-gap-wide));
     margin: 0;
-    padding: 4px;
-    background: var(--jpk-surface);
-    border: 1px solid var(--jpk-border);
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    padding: calc(var(--base-gap-narrow) / 2);
 }
 
-/* One action row, which tints on hover and focus, and shows red as destructive */
-/* Example: <button type="button" class="jpk-menu-item destructive" role="menuitem">Remove</button> */
-.jpk-menu-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+/* One action row built as base-icon-text, which tints on hover and focus, and shows red as destructive */
+/* Example: <button type="button" class="base-menu-item base-icon-text destructive" role="menuitem"><span class="material-icons" aria-hidden="true">delete</span><span>Remove</span></button> */
+.base-menu-item {
     width: 100%;
-    padding: 8px 10px;
+    padding: var(--base-gap-narrow) var(--base-pad-small);
     border: 0;
-    border-radius: 4px;
+    border-radius: var(--base-radius-small);
     background: transparent;
     color: inherit;
     font: inherit;
     text-align: left;
     cursor: pointer;
 }
-.jpk-menu-item .material-icons { font-size: 18px; }
-.jpk-menu-item:hover,
-.jpk-menu-item:focus { background: var(--jpk-wash-strong); outline: none; }
-.jpk-menu-item:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: -2px; }
-.jpk-menu-item.destructive { color: var(--jpk-error); }
-.jpk-menu-item:disabled { opacity: 0.5; cursor: default; background: transparent; }
+.base-menu-item:hover,
+.base-menu-item:focus { background: var(--base-wash); outline: none; }
+.base-menu-item:focus-visible { outline: 2px solid var(--base-accent); outline-offset: -2px; }
+.base-menu-item.destructive { color: var(--base-error); }
+.base-menu-item:disabled { opacity: 0.5; cursor: default; background: transparent; }

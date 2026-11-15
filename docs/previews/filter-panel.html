@@ -1,0 +1,21 @@
+<!-- title: Filter Panel -->
+<!-- min-height: 380 -->
+<div id="mount"></div>
+<p id="note"></p>
+<script type="module">
+const base = await window.__baseReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+const note = document.getElementById('note');
+const show = (value) => { note.textContent = 'Status ' + (value.status.join(', ') || 'any') + ', kind ' + (value.kind[0] || 'any') + '.'; };
+const filter = base.createFilterPanel({
+    groups: [
+        { name: 'status', label: 'Status', options: [{ value: 'active', label: 'Active' }, { value: 'paused', label: 'Paused' }, { value: 'failed', label: 'Failed' }] },
+        { name: 'kind', label: 'Kind', single: true, options: [{ value: 'movie', label: 'Movies' }, { value: 'show', label: 'Shows' }] }
+    ],
+    value: { status: ['active', 'failed'], kind: ['movie'] },
+    onChange: show
+});
+mount.appendChild(filter.element);
+show(filter.getValue());
+</script>

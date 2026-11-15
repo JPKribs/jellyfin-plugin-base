@@ -33,7 +33,7 @@ test('the field is a read-only input with the value and a copy button with the d
     assert.equal(field.input.hasAttribute('readonly'), true);
     assert.equal(field.getValue(), 'https://example.test/hook');
     assert.equal(field.input.getAttribute('aria-label'), 'Value');
-    var button = field.element.querySelector('.jpk-copy-button');
+    var button = field.element.querySelector('.base-copy-button');
     assert.equal(button.getAttribute('aria-label'), 'Copy');
     assert.equal(button.title, 'Copy');
 });
@@ -45,7 +45,7 @@ test('a copy sends the value to the clipboard, shows Copied. and calls onCopy', 
     assert.equal(ok, true);
     assert.deepEqual(copied, ['abc']);
     assert.deepEqual(seen, [['abc', true]]);
-    var button = field.element.querySelector('.jpk-copy-button');
+    var button = field.element.querySelector('.base-copy-button');
     assert.equal(button.title, 'Copied.');
     assert.ok(button.classList.contains('success'));
     assert.equal(field.element.querySelector('[role="status"]').textContent, 'Copied.');
@@ -57,7 +57,7 @@ test('the feedback returns to the copy label after the delay', async function ()
         var field = createCopyField({ value: 'abc', feedbackMs: 500 });
         await field.copy();
         mock.timers.tick(500);
-        var button = field.element.querySelector('.jpk-copy-button');
+        var button = field.element.querySelector('.base-copy-button');
         assert.equal(button.title, 'Copy');
         assert.equal(button.classList.contains('success'), false);
     } finally {
@@ -72,25 +72,25 @@ test('a failed copy shows Copy failed. and every feedback label can be replaced'
     setClipboard(null);
     var field = createCopyField({ value: 'a', failedText: 'Nope.', copyLabel: 'Copy Link' });
     assert.equal(await field.copy(), false);
-    assert.equal(field.element.querySelector('.jpk-copy-button').title, 'Nope.');
-    assert.equal(field.element.querySelector('.jpk-copy-button').getAttribute('aria-label'), 'Copy Link');
+    assert.equal(field.element.querySelector('.base-copy-button').title, 'Nope.');
+    assert.equal(field.element.querySelector('.base-copy-button').getAttribute('aria-label'), 'Copy Link');
     setClipboard(function () { return Promise.resolve(); });
     var custom = createCopyField({ value: 'a', copiedText: 'Done.' });
     await custom.copy();
-    assert.equal(custom.element.querySelector('.jpk-copy-button').title, 'Done.');
+    assert.equal(custom.element.querySelector('.base-copy-button').title, 'Done.');
 });
 
 test('a clicked copy button copies the current value, and setValue changes it', async function () {
     var field = createCopyField({ value: 'one' });
     field.setValue('two');
-    field.element.querySelector('.jpk-copy-button').click();
+    field.element.querySelector('.base-copy-button').click();
     await new Promise(function (r) { setImmediate(r); });
     assert.deepEqual(copied, ['two']);
 });
 
-test('a secret is masked, the reveal button toggles it, and its labels can be replaced', function () {
-    var field = createCopyField({ value: 's3cret', secret: true, revealLabel: 'Reveal', hideLabel: 'Conceal' });
-    var reveal = field.element.querySelector('.jpk-copy-reveal');
+test('a secret is masked, allowExpose adds an eye inside the box that toggles it, and its labels can be replaced', function () {
+    var field = createCopyField({ value: 's3cret', secret: true, allowExpose: true, revealLabel: 'Reveal', hideLabel: 'Conceal' });
+    var reveal = field.element.querySelector('.base-copy-reveal');
     assert.equal(field.input.type, 'password');
     assert.equal(reveal.title, 'Reveal');
     assert.equal(reveal.getAttribute('aria-pressed'), 'false');
@@ -100,12 +100,29 @@ test('a secret is masked, the reveal button toggles it, and its labels can be re
     assert.equal(reveal.getAttribute('aria-pressed'), 'true');
     reveal.click();
     assert.equal(field.input.type, 'password');
-    assert.equal(createCopyField({ value: 'a' }).element.querySelector('.jpk-copy-reveal'), null);
+    assert.equal(reveal.parentNode.classList.contains('base-adorned'), true);
+    assert.equal(createCopyField({ value: 'a' }).element.querySelector('.base-copy-reveal'), null);
+    assert.equal(createCopyField({ value: 'a', secret: true }).element.querySelector('.base-copy-reveal'), null);
 });
 
 test('destroy removes the button listeners', function () {
-    var field = createCopyField({ value: 'a', secret: true });
+    var field = createCopyField({ value: 'a', secret: true, allowExpose: true });
+    var eye = field.element.querySelector('.base-copy-reveal');
     field.destroy();
-    assert.equal(field.element.querySelector('.jpk-copy-button').listeners.click.length, 0);
-    assert.equal(field.element.querySelector('.jpk-copy-reveal').listeners.click.length, 0);
+    assert.equal(field.element.querySelector('.base-copy-button').listeners.click.length, 0);
+    assert.equal(eye.listeners.click.length, 0);
+    assert.equal(field.input.type, 'password');
+});
+
+test('createCopyField puts size small or large on data-base-size, and leaves it off for medium or no size', function () {
+    function build(size) { return createCopyField({ size: size }); }
+    assert.equal(build('small').element.getAttribute('data-base-size'), 'small');
+    assert.equal(build('large').element.getAttribute('data-base-size'), 'large');
+    assert.equal(build('medium').element.hasAttribute('data-base-size'), false);
+    assert.equal(build(undefined).element.hasAttribute('data-base-size'), false);
+    var handle = build('small');
+    handle.setSize('large');
+    assert.equal(handle.element.getAttribute('data-base-size'), 'large');
+    handle.setSize('medium');
+    assert.equal(handle.element.hasAttribute('data-base-size'), false);
 });

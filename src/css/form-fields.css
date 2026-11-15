@@ -1,0 +1,478 @@
+/* Bottom gap of one field gap under every field container and kit block, on a config page and in a dialog */
+/* Example: <div class="inputContainer"><label for="x">Name</label><input is="emby-input" id="x"></div> */
+.pluginConfigurationPage .inputContainer,
+.base-dialog .inputContainer,
+.pluginConfigurationPage .selectContainer,
+.base-dialog .selectContainer,
+.pluginConfigurationPage .checkboxContainer,
+.base-dialog .checkboxContainer,
+.pluginConfigurationPage .base-selector,
+.base-dialog .base-selector,
+.pluginConfigurationPage .base-cards,
+.base-dialog .base-cards,
+.pluginConfigurationPage .base-card-list,
+.base-dialog .base-card-list,
+.pluginConfigurationPage .base-choice-group,
+.base-dialog .base-choice-group,
+.pluginConfigurationPage .base-warn,
+.base-dialog .base-warn,
+.pluginConfigurationPage .base-info,
+.base-dialog .base-info,
+.pluginConfigurationPage .base-success,
+.base-dialog .base-success,
+.pluginConfigurationPage .base-error,
+.base-dialog .base-error,
+.pluginConfigurationPage .base-neutral,
+.base-dialog .base-neutral,
+.pluginConfigurationPage .base-record-card,
+.base-dialog .base-record-card,
+.pluginConfigurationPage .base-asset-list,
+.base-dialog .base-asset-list,
+.pluginConfigurationPage .base-field-row,
+.base-dialog .base-field-row,
+.pluginConfigurationPage .base-panel,
+.base-dialog .base-panel,
+.pluginConfigurationPage .base-static-table-scroll,
+.base-dialog .base-static-table-scroll,
+.pluginConfigurationPage .base-pill-group,
+.base-dialog .base-pill-group,
+.pluginConfigurationPage .base-ordered-list,
+.base-dialog .base-ordered-list,
+.pluginConfigurationPage .base-section,
+.base-dialog .base-section,
+.pluginConfigurationPage .base-collapsible-section,
+.base-dialog .base-collapsible-section,
+.pluginConfigurationPage .base-copy-field,
+.base-dialog .base-copy-field,
+.pluginConfigurationPage .base-string-list,
+.base-dialog .base-string-list,
+.pluginConfigurationPage .base-kv-editor,
+.base-dialog .base-kv-editor,
+.pluginConfigurationPage .base-file-picker,
+.base-dialog .base-file-picker,
+.pluginConfigurationPage .base-folder-picker,
+.base-dialog .base-folder-picker,
+.pluginConfigurationPage .base-image-picker,
+.base-dialog .base-image-picker,
+.pluginConfigurationPage .base-access-schedule,
+.base-dialog .base-access-schedule,
+.pluginConfigurationPage .base-mapping-table,
+.base-dialog .base-mapping-table,
+.pluginConfigurationPage .base-media-picker,
+.base-dialog .base-media-picker,
+.pluginConfigurationPage .base-number-unit,
+.base-dialog .base-number-unit,
+.pluginConfigurationPage .base-slider,
+.base-dialog .base-slider,
+.pluginConfigurationPage .base-schedule,
+.base-dialog .base-schedule,
+.pluginConfigurationPage .base-tag-input,
+.base-dialog .base-tag-input,
+.pluginConfigurationPage .base-log,
+.base-dialog .base-log,
+.pluginConfigurationPage .base-subtabs,
+.base-dialog .base-subtabs,
+.pluginConfigurationPage .base-defs,
+.base-dialog .base-defs,
+.pluginConfigurationPage .base-timeline-wrap,
+.base-dialog .base-timeline-wrap,
+.pluginConfigurationPage .base-stepper,
+.base-dialog .base-stepper {
+    margin: 0 0 var(--base-gap-wide) 0 !important;
+}
+
+/* The last block in a record card or a panel body sits on the padding, with no gap below it */
+/* Example: <div class="base-record-card"><div class="base-field-row"></div></div> */
+.pluginConfigurationPage .base-record-card > :last-child,
+.base-dialog .base-record-card > :last-child,
+.pluginConfigurationPage .base-panel-body > :last-child,
+.base-dialog .base-panel-body > :last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Field containers with no padding so every field starts on the same left edge */
+/* Example: <div class="inputContainer"><input is="emby-input"></div> */
+.pluginConfigurationPage .inputContainer,
+.base-dialog .inputContainer,
+.pluginConfigurationPage .selectContainer,
+.base-dialog .selectContainer,
+.pluginConfigurationPage .checkboxContainer,
+.base-dialog .checkboxContainer {
+    padding: 0 !important;
+}
+
+/* Field container children with no margin, so only the container sets spacing, matching kit classes by prefix */
+/* Example: <div class="inputContainer"><label>Name</label><input is="emby-input"><div class="base-selector"></div></div> */
+.pluginConfigurationPage .inputContainer > label,
+.pluginConfigurationPage .inputContainer > input,
+.pluginConfigurationPage .inputContainer > textarea,
+.pluginConfigurationPage .inputContainer > select,
+.pluginConfigurationPage .inputContainer > button,
+.pluginConfigurationPage .inputContainer > .emby-input,
+.pluginConfigurationPage .inputContainer > .emby-textarea,
+.pluginConfigurationPage .inputContainer > .emby-select-wrapper,
+.pluginConfigurationPage .inputContainer > [class^="base-"],
+.pluginConfigurationPage .inputContainer > [class*=" base-"],
+.pluginConfigurationPage .selectContainer > label,
+.pluginConfigurationPage .selectContainer > input,
+.pluginConfigurationPage .selectContainer > textarea,
+.pluginConfigurationPage .selectContainer > select,
+.pluginConfigurationPage .selectContainer > button,
+.pluginConfigurationPage .selectContainer > .emby-input,
+.pluginConfigurationPage .selectContainer > .emby-textarea,
+.pluginConfigurationPage .selectContainer > .emby-select-wrapper,
+.pluginConfigurationPage .selectContainer > [class^="base-"],
+.pluginConfigurationPage .selectContainer > [class*=" base-"],
+.pluginConfigurationPage .checkboxContainer > label,
+.pluginConfigurationPage .checkboxContainer > input,
+.pluginConfigurationPage .checkboxContainer > textarea,
+.pluginConfigurationPage .checkboxContainer > select,
+.pluginConfigurationPage .checkboxContainer > button,
+.pluginConfigurationPage .checkboxContainer > .emby-input,
+.pluginConfigurationPage .checkboxContainer > .emby-textarea,
+.pluginConfigurationPage .checkboxContainer > .emby-select-wrapper,
+.pluginConfigurationPage .checkboxContainer > [class^="base-"],
+.pluginConfigurationPage .checkboxContainer > [class*=" base-"],
+.base-dialog .inputContainer > label,
+.base-dialog .inputContainer > input,
+.base-dialog .inputContainer > textarea,
+.base-dialog .inputContainer > select,
+.base-dialog .inputContainer > button,
+.base-dialog .inputContainer > .emby-input,
+.base-dialog .inputContainer > .emby-textarea,
+.base-dialog .inputContainer > .emby-select-wrapper,
+.base-dialog .inputContainer > [class^="base-"],
+.base-dialog .inputContainer > [class*=" base-"],
+.base-dialog .selectContainer > label,
+.base-dialog .selectContainer > input,
+.base-dialog .selectContainer > textarea,
+.base-dialog .selectContainer > select,
+.base-dialog .selectContainer > button,
+.base-dialog .selectContainer > .emby-input,
+.base-dialog .selectContainer > .emby-textarea,
+.base-dialog .selectContainer > .emby-select-wrapper,
+.base-dialog .selectContainer > [class^="base-"],
+.base-dialog .selectContainer > [class*=" base-"],
+.base-dialog .checkboxContainer > label,
+.base-dialog .checkboxContainer > input,
+.base-dialog .checkboxContainer > textarea,
+.base-dialog .checkboxContainer > select,
+.base-dialog .checkboxContainer > button,
+.base-dialog .checkboxContainer > .emby-input,
+.base-dialog .checkboxContainer > .emby-textarea,
+.base-dialog .checkboxContainer > .emby-select-wrapper,
+.base-dialog .checkboxContainer > [class^="base-"],
+.base-dialog .checkboxContainer > [class*=" base-"] {
+    margin: 0 !important;
+}
+
+/* Last child of a field container with no space below it, other than a description that carries its own gap */
+/* Example: <div class="inputContainer"><input is="emby-input"><button class="raised">Clear</button></div> */
+.pluginConfigurationPage .inputContainer > :last-child:not(.fieldDescription),
+.pluginConfigurationPage .selectContainer > :last-child:not(.fieldDescription),
+.pluginConfigurationPage .checkboxContainer > :last-child:not(.fieldDescription),
+.base-dialog .inputContainer > :last-child:not(.fieldDescription),
+.base-dialog .selectContainer > :last-child:not(.fieldDescription),
+.base-dialog .checkboxContainer > :last-child:not(.fieldDescription) {
+    margin-bottom: 0 !important;
+}
+
+/* Helper text with a small gap above and a full gap below */
+/* Example: <div class="fieldDescription">Used to sign in.</div> */
+.pluginConfigurationPage .fieldDescription,
+.base-dialog .fieldDescription {
+    margin: var(--base-gap-narrow) 0 var(--base-gap-wide) 0 !important;
+}
+
+/* Field label with a small gap above its control, as a plain label or as inputLabel and selectLabel */
+/* Example: <div class="selectContainer"><label class="selectLabel">Mode</label><select is="emby-select"></select></div> */
+.pluginConfigurationPage .inputContainer > label,
+.base-dialog .inputContainer > label,
+.pluginConfigurationPage .selectContainer > label,
+.base-dialog .selectContainer > label,
+.pluginConfigurationPage .inputLabel,
+.base-dialog .inputLabel,
+.pluginConfigurationPage .selectLabel,
+.base-dialog .selectLabel {
+    display: block !important;
+    margin: 0 0 var(--base-gap-narrow) 0 !important;
+}
+
+/* Inputs, text areas, and selects that fill the row so every field shares one left and right edge */
+/* Example: <div class="inputContainer"><input is="emby-input" type="text"></div> */
+.pluginConfigurationPage .inputContainer input,
+.base-dialog .inputContainer input,
+.pluginConfigurationPage .inputContainer textarea,
+.base-dialog .inputContainer textarea,
+.pluginConfigurationPage .selectContainer select,
+.base-dialog .selectContainer select {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Dropdown with one chevron in the text color, drawn from two thin gradient strokes to match Jellyfin's keyboard_arrow_down */
+/* Example: <select is="emby-select"><option>One</option></select> */
+.pluginConfigurationPage select,
+.base-dialog select {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-image: linear-gradient(45deg, transparent 42%, currentColor 42%, currentColor 58%, transparent 58%), linear-gradient(-45deg, transparent 42%, currentColor 42%, currentColor 58%, transparent 58%) !important;
+    background-repeat: no-repeat !important;
+    background-size: calc(var(--base-chevron-primary) / 4) calc(var(--base-chevron-primary) / 4), calc(var(--base-chevron-primary) / 4) calc(var(--base-chevron-primary) / 4) !important;
+    background-position: calc(100% - 14px - var(--base-chevron-primary) / 4) 50%, calc(100% - 14px) 50% !important;
+    padding-right: 34px !important;
+}
+
+/* Hides the second chevron that emby-select adds for emby-select-withcolor, so a dropdown shows only one */
+/* Example: <div class="selectContainer"><select is="emby-select" class="emby-select-withcolor"></select></div> */
+.pluginConfigurationPage .selectArrowContainer,
+.base-dialog .selectArrowContainer {
+    display: none !important;
+}
+
+/* One field look for text inputs, text areas, and selects, with the same surface, border, and radius */
+/* Example: <input is="emby-input" type="text"> and <select class="base-selector-dropdown"> render alike */
+.pluginConfigurationPage input[type="text"],
+.base-dialog input[type="text"],
+.pluginConfigurationPage input[type="number"],
+.base-dialog input[type="number"],
+.pluginConfigurationPage input[type="password"],
+.base-dialog input[type="password"],
+.pluginConfigurationPage input[type="search"],
+.base-dialog input[type="search"],
+.pluginConfigurationPage input[type="url"],
+.base-dialog input[type="url"],
+.pluginConfigurationPage input[type="email"],
+.base-dialog input[type="email"],
+.pluginConfigurationPage input[type="date"],
+.base-dialog input[type="date"],
+.pluginConfigurationPage input[type="time"],
+.base-dialog input[type="time"],
+.pluginConfigurationPage textarea,
+.base-dialog textarea,
+.pluginConfigurationPage select,
+.base-dialog select {
+    box-sizing: border-box !important;
+    background-color: var(--base-surface) !important;
+    color: inherit !important;
+    border: 1px solid var(--base-border) !important;
+    border-radius: var(--base-radius-small) !important;
+    font-size: var(--base-field-font) !important;
+    padding: 0 var(--base-field-pad);
+}
+
+/* Every single line field at one height, medium unless the field or something around it is small or large */
+/* Example: <input is="emby-input" type="text" class="small"> */
+.pluginConfigurationPage input[type="text"],
+.base-dialog input[type="text"],
+.pluginConfigurationPage input[type="number"],
+.base-dialog input[type="number"],
+.pluginConfigurationPage input[type="password"],
+.base-dialog input[type="password"],
+.pluginConfigurationPage input[type="search"],
+.base-dialog input[type="search"],
+.pluginConfigurationPage input[type="url"],
+.base-dialog input[type="url"],
+.pluginConfigurationPage input[type="email"],
+.base-dialog input[type="email"],
+.pluginConfigurationPage input[type="date"],
+.base-dialog input[type="date"],
+.pluginConfigurationPage input[type="time"],
+.base-dialog input[type="time"],
+.pluginConfigurationPage select,
+.base-dialog select {
+    height: var(--base-field-height) !important;
+    min-height: 0 !important;
+    line-height: normal !important;
+}
+
+/* A text area keeps its own height and takes the field's text size and padding */
+/* Example: <textarea is="emby-textarea"></textarea> */
+.pluginConfigurationPage textarea,
+.base-dialog textarea {
+    padding: var(--base-pad-small) var(--base-field-pad);
+}
+
+/* A field, or everything inside a component, at the small or large size of the scale */
+/* Example: <div class="base-search" data-base-size="small"></div> */
+[data-base-size="small"],
+input.small,
+select.small,
+textarea.small {
+    --base-field-height: var(--base-size-small);
+    --base-field-font: var(--base-font-small);
+    --base-field-pad: var(--base-pad-small);
+}
+[data-base-size="large"],
+input.large,
+select.large,
+textarea.large {
+    --base-field-height: var(--base-size-large);
+    --base-field-font: var(--base-font-large);
+    --base-field-pad: var(--base-pad-large);
+}
+
+/* Focused field with an accent border and no outline */
+/* Example: <input is="emby-input" type="text"> while it has focus */
+.pluginConfigurationPage input[type="text"]:focus,
+.base-dialog input[type="text"]:focus,
+.pluginConfigurationPage input[type="number"]:focus,
+.base-dialog input[type="number"]:focus,
+.pluginConfigurationPage input[type="password"]:focus,
+.base-dialog input[type="password"]:focus,
+.pluginConfigurationPage input[type="search"]:focus,
+.base-dialog input[type="search"]:focus,
+.pluginConfigurationPage input[type="url"]:focus,
+.base-dialog input[type="url"]:focus,
+.pluginConfigurationPage input[type="email"]:focus,
+.base-dialog input[type="email"]:focus,
+.pluginConfigurationPage textarea:focus,
+.base-dialog textarea:focus,
+.pluginConfigurationPage select:focus,
+.base-dialog select:focus {
+    outline: none !important;
+    border-color: var(--base-accent) !important;
+}
+
+/* Date input in a field container, which takes the field look while a compact date input keeps its own */
+/* Example: <div class="inputContainer"><label>Starts on</label><input type="date"></div> */
+.pluginConfigurationPage .inputContainer input[type="date"],
+.base-dialog .inputContainer input[type="date"] {
+    background-color: var(--base-surface) !important;
+    color: inherit !important;
+    border: 1px solid var(--base-border) !important;
+    border-radius: var(--base-radius-small) !important;
+    padding: 0.55em 0.7em;
+}
+.pluginConfigurationPage .inputContainer input[type="date"]:focus,
+.base-dialog .inputContainer input[type="date"]:focus {
+    outline: none !important;
+    border-color: var(--base-accent) !important;
+}
+
+/* Dropdown options on the field surface in the theme text color */
+/* Example: <select is="emby-select"><option>One</option></select> */
+.pluginConfigurationPage select option,
+.base-dialog select option {
+    background-color: var(--base-surface);
+    color: var(--base-fg);
+}
+
+/* Checkbox container whose description wraps onto its own line under the checkbox */
+/* Example: <div class="checkboxContainer"><label class="emby-checkbox-label"></label><div class="fieldDescription">Help</div></div> */
+.pluginConfigurationPage .checkboxContainer,
+.base-dialog .checkboxContainer {
+    flex-wrap: wrap;
+}
+.pluginConfigurationPage .checkboxContainer > .fieldDescription,
+.base-dialog .checkboxContainer > .fieldDescription {
+    flex: 0 0 100%;
+    width: 100%;
+}
+
+/* Empty label that emby-select and emby-input add when a control has no label, hidden so it takes no room */
+/* Example: <label class="selectLabel"></label> */
+.pluginConfigurationPage label.selectLabel:empty,
+.base-dialog label.selectLabel:empty,
+.pluginConfigurationPage label.inputLabel:empty,
+.base-dialog label.inputLabel:empty { display: none !important; }
+
+/* One checkbox and radio look for every box Base draws or a page writes, an accent fill with a drawn check while on.
+   Jellyfin's upgraded emby-checkbox draws its own box and is left alone. */
+/* Example: <label class="base-check-row"><input type="checkbox" class="base-check-row-input" checked><span>Movies</span></label> */
+.pluginConfigurationPage input[type="checkbox"]:not(.emby-checkbox),
+.base-dialog input[type="checkbox"]:not(.emby-checkbox),
+.pluginConfigurationPage input[type="radio"],
+.base-dialog input[type="radio"],
+input[type="checkbox"].base-check-row-input,
+input[type="radio"].base-check-row-input {
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    width: var(--base-icon-medium);
+    height: var(--base-icon-medium);
+    margin: 0;
+    border: 2px solid var(--base-border);
+    border-radius: var(--base-radius-small);
+    background: transparent;
+    color: var(--base-on-accent);
+    cursor: pointer;
+    vertical-align: middle;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+.pluginConfigurationPage input[type="radio"],
+.base-dialog input[type="radio"],
+input[type="radio"].base-check-row-input { border-radius: var(--base-radius-round); }
+.pluginConfigurationPage input[type="checkbox"]:not(.emby-checkbox):hover,
+.base-dialog input[type="checkbox"]:not(.emby-checkbox):hover,
+.pluginConfigurationPage input[type="radio"]:hover,
+.base-dialog input[type="radio"]:hover,
+input.base-check-row-input:hover { border-color: var(--base-accent); }
+.pluginConfigurationPage input[type="checkbox"]:not(.emby-checkbox):checked,
+.base-dialog input[type="checkbox"]:not(.emby-checkbox):checked,
+.pluginConfigurationPage input[type="checkbox"]:not(.emby-checkbox):indeterminate,
+.base-dialog input[type="checkbox"]:not(.emby-checkbox):indeterminate,
+.pluginConfigurationPage input[type="radio"]:checked,
+.base-dialog input[type="radio"]:checked,
+input.base-check-row-input:checked,
+input[type="checkbox"].base-check-row-input:indeterminate {
+    background: var(--base-accent);
+    border-color: var(--base-accent);
+}
+
+/* The check mark, the bar of a partly checked box, and a radio's dot, drawn in CSS so no icon font is needed */
+/* Example: <input type="checkbox" class="base-check-row-input" checked> */
+.pluginConfigurationPage input[type="checkbox"]:not(.emby-checkbox):checked::after,
+.base-dialog input[type="checkbox"]:not(.emby-checkbox):checked::after,
+input[type="checkbox"].base-check-row-input:checked::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    width: 30%;
+    height: 55%;
+    border: solid currentColor;
+    border-width: 0 2px 2px 0;
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+.pluginConfigurationPage input[type="checkbox"]:not(.emby-checkbox):indeterminate::after,
+.base-dialog input[type="checkbox"]:not(.emby-checkbox):indeterminate::after,
+input[type="checkbox"].base-check-row-input:indeterminate::after {
+    content: '';
+    position: absolute;
+    left: 20%;
+    right: 20%;
+    top: 50%;
+    height: 2px;
+    margin-top: -1px;
+    background: currentColor;
+}
+.pluginConfigurationPage input[type="radio"]:checked::after,
+.base-dialog input[type="radio"]:checked::after,
+input[type="radio"].base-check-row-input:checked::after {
+    content: '';
+    position: absolute;
+    inset: 25%;
+    border-radius: var(--base-radius-round);
+    background: currentColor;
+}
+.pluginConfigurationPage input[type="checkbox"]:not(.emby-checkbox):focus-visible,
+.base-dialog input[type="checkbox"]:not(.emby-checkbox):focus-visible,
+.pluginConfigurationPage input[type="radio"]:focus-visible,
+.base-dialog input[type="radio"]:focus-visible,
+input.base-check-row-input:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 2px; }
+.pluginConfigurationPage input[type="checkbox"]:not(.emby-checkbox):disabled,
+.base-dialog input[type="checkbox"]:not(.emby-checkbox):disabled,
+.pluginConfigurationPage input[type="radio"]:disabled,
+.base-dialog input[type="radio"]:disabled,
+input.base-check-row-input:disabled { opacity: 0.4; cursor: default; }
+
+/* A label beside a Base drawn checkbox sits a narrow gap away and centered on it, where Jellyfin's own upgrade does not lay it out */
+/* Example: <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox"><span class="checkboxLabel">Poster</span></label> */
+.pluginConfigurationPage .emby-checkbox-label > input[type="checkbox"]:not(.emby-checkbox),
+.base-dialog .emby-checkbox-label > input[type="checkbox"]:not(.emby-checkbox) { margin-right: var(--base-gap-narrow); }
+.pluginConfigurationPage .emby-checkbox-label,
+.base-dialog .emby-checkbox-label { display: inline-flex; align-items: center; }

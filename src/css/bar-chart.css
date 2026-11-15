@@ -1,0 +1,101 @@
+/* A chart on the shared chart core: an inline SVG plot that fills its width, a legend under it when there are several series, and a hidden table of the numbers */
+/* Example: <figure class="base-chart base-bar-chart"><div class="base-chart-plot" tabindex="0"><svg></svg></div><div class="base-chart-legend"></div><table class="base-sr-only"></table></figure> */
+.base-chart {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+    min-width: 0;
+    margin: 0;
+    color: var(--base-fg);
+}
+.base-chart-plot { min-width: 0; border-radius: var(--base-radius-small); }
+.base-chart-plot:focus { outline: none; }
+.base-chart-plot:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 2px; }
+.base-chart-plot > svg { display: block; overflow: visible; }
+
+/* The gridlines, the ticks, and the labels, in the text color and the small font, so they never scale with the plot */
+/* Example: <g class="base-chart-grid"><line class="base-chart-zero"></line><text class="base-chart-tick">50</text><text class="base-chart-label">Mon</text></g> */
+.base-chart-grid line { stroke: var(--base-border); stroke-width: 1; shape-rendering: crispEdges; }
+.base-chart-grid line.base-chart-zero { stroke: var(--base-wash-strong); }
+.base-chart text {
+    fill: currentColor;
+    font-size: var(--base-font-small);
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+}
+.base-chart-tick,
+.base-chart-label { opacity: 0.7; }
+.base-chart-value { font-weight: 600; }
+
+/* One series of marks in its status color, or a hex color through --base-custom, the accent when it names none */
+/* Example: <g class="base-chart-series green"><rect class="base-chart-mark"></rect></g> */
+.base-chart-series { --base-chart-color: var(--base-accent); color: var(--base-chart-color); }
+.base-chart-series.green { --base-chart-color: var(--base-green-fg); }
+.base-chart-series.red { --base-chart-color: var(--base-red-fg); }
+.base-chart-series.orange { --base-chart-color: var(--base-orange-fg); }
+.base-chart-series.purple { --base-chart-color: var(--base-purple-fg); }
+.base-chart-series.blue { --base-chart-color: var(--base-blue-fg); }
+.base-chart-series.gray { --base-chart-color: var(--base-gray-fg); }
+.base-chart-series.yellow { --base-chart-color: var(--base-yellow-fg); }
+.base-chart-series.pink { --base-chart-color: var(--base-pink-fg); }
+.base-chart-series.teal { --base-chart-color: var(--base-teal-fg); }
+.base-chart-series.custom { --base-chart-color: var(--base-custom); }
+.base-chart-series rect.base-chart-mark { fill: var(--base-chart-color); }
+.base-chart-series .base-chart-value { fill: var(--base-fg); }
+
+/* A mark under the pointer or the arrow keys, drawn stronger than the rest */
+/* Example: <rect class="base-chart-mark"></rect> */
+.base-chart-mark { cursor: default; outline: none; }
+.base-chart-plot:hover rect.base-chart-mark { opacity: 0.75; }
+.base-chart-plot rect.base-chart-mark:hover { opacity: 1; }
+
+/* Bars grow up from the axis as they draw, except under reduced motion */
+/* Example: <figure class="base-chart base-bar-chart"></figure> */
+.base-bar-chart rect.base-chart-mark {
+    transform-box: fill-box;
+    transform-origin: bottom;
+    animation: base-chart-grow 0.4s ease-out;
+}
+@keyframes base-chart-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) {
+    .base-chart .base-chart-mark,
+    .base-chart .base-chart-line,
+    .base-chart .base-chart-area { animation: none; transition: none; }
+}
+
+/* The legend under a chart with several series: a swatch and a name per series, wrapping as a row */
+/* Example: <div class="base-chart-legend"><span class="base-chart-key"><span class="base-chart-swatch blue"></span><span>Movies</span></span></div> */
+.base-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--base-gap-narrow) var(--base-gap-wide);
+    font-size: var(--base-font-small);
+}
+.base-chart-legend[hidden] { display: none; }
+.base-chart-key { display: inline-flex; align-items: center; gap: var(--base-gap-narrow); min-width: 0; }
+
+/* A small square in a series color, in the legend and the tooltip */
+/* Example: <span class="base-chart-swatch green"></span> */
+.base-chart-swatch {
+    flex: 0 0 auto;
+    width: calc(var(--base-gap-narrow) * 1.25);
+    height: calc(var(--base-gap-narrow) * 1.25);
+    border-radius: calc(var(--base-radius-small) / 2);
+    background: var(--base-accent);
+}
+.base-chart-swatch.green { background: var(--base-green-fg); }
+.base-chart-swatch.red { background: var(--base-red-fg); }
+.base-chart-swatch.orange { background: var(--base-orange-fg); }
+.base-chart-swatch.purple { background: var(--base-purple-fg); }
+.base-chart-swatch.blue { background: var(--base-blue-fg); }
+.base-chart-swatch.gray { background: var(--base-gray-fg); }
+.base-chart-swatch.yellow { background: var(--base-yellow-fg); }
+.base-chart-swatch.pink { background: var(--base-pink-fg); }
+.base-chart-swatch.teal { background: var(--base-teal-fg); }
+.base-chart-swatch.custom { background: var(--base-custom); }
+
+/* The tooltip of a mark, on the shared tooltip surface: the label over the value */
+/* Example: <div class="base-tooltip base-chart-tip base-float" role="tooltip"><div class="base-chart-tip-label">Mon</div><div class="base-chart-tip-value"><strong>42</strong></div></div> */
+.base-chart-tip[hidden] { display: none; }
+.base-chart-tip-label { opacity: 0.7; }
+.base-chart-tip-value { display: flex; align-items: center; gap: var(--base-gap-narrow); font-variant-numeric: tabular-nums; }

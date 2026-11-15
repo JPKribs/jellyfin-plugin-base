@@ -1,51 +1,65 @@
 /* Vertical list of events joined by a line, each with a colored marker */
-/* Example: <ol class="jpk-timeline"><li class="jpk-timeline-item green"><span class="jpk-timeline-marker"></span><div class="jpk-timeline-body"><div class="jpk-timeline-title">Synced</div></div></li></ol> */
-.jpk-timeline {
+/* Example: <ol class="base-timeline"><li class="base-timeline-item green"><span class="base-timeline-marker"></span><div class="base-timeline-body"><div class="base-timeline-title">Synced</div></div></li></ol> */
+.base-timeline {
     list-style: none;
     margin: 0;
     padding: 0;
 }
-.jpk-timeline-item {
+.base-timeline-item {
     position: relative;
     display: flex;
-    gap: 12px;
-    padding-bottom: 16px;
+    gap: var(--base-gap-wide);
+    padding-bottom: var(--base-gap-wide);
 }
-.jpk-timeline-item:last-child { padding-bottom: 0; }
-.jpk-timeline-item:not(:last-child)::before {
+.base-timeline-item:last-child { padding-bottom: 0; }
+.base-timeline-item:not(:last-child)::before {
     content: "";
     position: absolute;
-    top: 20px;
+    top: var(--base-icon-large);
     bottom: 0;
-    left: 9px;
-    border-left: 2px solid var(--jpk-border);
+    left: calc(var(--base-icon-large) / 2 - 1px);
+    border-left: 2px solid var(--base-border);
 }
 
 /* Round marker in the status color, with an optional icon in it */
-/* Example: <span class="jpk-timeline-marker" aria-hidden="true"></span> */
-.jpk-timeline-marker {
+/* Example: <span class="base-timeline-marker" aria-hidden="true"></span> */
+.base-timeline-marker {
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: var(--base-icon-large);
+    height: var(--base-icon-large);
     box-sizing: border-box;
-    border-radius: 50%;
-    background: var(--jpk-gray-fg);
-    color: var(--jpk-on-warning);
+    border-radius: var(--base-radius-round);
+    background: var(--base-gray-fg);
+    color: var(--base-on-warning);
 }
-.jpk-timeline-marker .material-icons { font-size: 14px; }
-.jpk-timeline-item.green .jpk-timeline-marker { background: var(--jpk-green-fg); color: var(--jpk-on-warning); }
-.jpk-timeline-item.red .jpk-timeline-marker { background: var(--jpk-red-fg); }
-.jpk-timeline-item.orange .jpk-timeline-marker { background: var(--jpk-orange-fg); color: var(--jpk-on-warning); }
-.jpk-timeline-item.purple .jpk-timeline-marker { background: var(--jpk-purple-fg); }
-.jpk-timeline-item.blue .jpk-timeline-marker { background: var(--jpk-blue-fg); }
-.jpk-timeline-item.yellow .jpk-timeline-marker { background: var(--jpk-yellow-fg); color: var(--jpk-on-warning); }
-.jpk-timeline-item.pink .jpk-timeline-marker { background: var(--jpk-pink-fg); }
-.jpk-timeline-item.teal .jpk-timeline-marker { background: var(--jpk-teal-fg); }
-.jpk-timeline-body { min-width: 0; overflow-wrap: anywhere; }
-.jpk-timeline-time { display: block; font-size: 0.8em; opacity: 0.7; }
-.jpk-timeline-title { font-weight: 600; }
-.jpk-timeline-text { font-size: 0.9em; opacity: 0.85; margin-top: 2px; }
-.jpk-timeline-empty { opacity: 0.7; font-size: 0.9em; }
+.base-timeline-marker .material-icons { font-size: var(--base-icon-small); }
+.base-timeline-item.green .base-timeline-marker { background: var(--base-green-fg); color: var(--base-on-warning); }
+.base-timeline-item.red .base-timeline-marker { background: var(--base-red-fg); }
+.base-timeline-item.orange .base-timeline-marker { background: var(--base-orange-fg); color: var(--base-on-warning); }
+.base-timeline-item.purple .base-timeline-marker { background: var(--base-purple-fg); }
+.base-timeline-item.blue .base-timeline-marker { background: var(--base-blue-fg); }
+.base-timeline-item.yellow .base-timeline-marker { background: var(--base-yellow-fg); color: var(--base-on-warning); }
+.base-timeline-item.pink .base-timeline-marker { background: var(--base-pink-fg); }
+.base-timeline-item.teal .base-timeline-marker { background: var(--base-teal-fg); }
+.base-timeline-item.custom .base-timeline-marker { background: var(--base-custom-fg); color: var(--base-custom-on, var(--base-on-accent)); }
+.base-timeline-body { min-width: 0; overflow-wrap: anywhere; }
+.base-timeline-time { display: block; font-size: 0.8em; opacity: 0.7; }
+.base-timeline-title { font-weight: 600; }
+.base-timeline-text { font-size: 0.9em; opacity: 0.85; margin-top: 2px; }
+
+/* A block of mono text kept as written under an event's body, such as a log or a stack trace, which scrolls sideways inside itself */
+/* Example: <pre class="base-timeline-pre base-mono">Error: timeout</pre> */
+.base-timeline-pre {
+    margin: var(--base-gap-narrow) 0 0;
+    padding: var(--base-pad-small) var(--base-pad-medium);
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+    white-space: pre;
+    font-size: var(--base-font-small);
+    background: var(--base-wash);
+    border-radius: var(--base-radius-small);
+}

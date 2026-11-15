@@ -1,0 +1,27 @@
+/* Inline indicator that fades in to flag unsaved changes */
+/* Example: <span class="base-unsaved visible"><span class="base-unsaved-dot"></span>Unsaved</span> */
+.base-unsaved {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    margin-left: var(--base-gap-wide);
+    font-size: 0.9em;
+    color: var(--base-warning);
+    vertical-align: middle;
+    opacity: 0;
+    /* Hidden from screen readers until it applies, while still fading. */
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s;
+}
+.base-unsaved.visible { opacity: 1; visibility: visible; }
+.base-unsaved.save-success { color: var(--base-success); }
+
+/* Small dot before the unsaved label in the current color */
+/* Example: <span class="base-unsaved-dot"></span> */
+.base-unsaved-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--base-radius-round);
+    background: currentColor;
+    display: inline-block;
+}

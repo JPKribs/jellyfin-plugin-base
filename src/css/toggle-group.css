@@ -1,0 +1,28 @@
+/* A wrapping row of on and off pills, for choosing any number, in the base-toggle-group row the pill group shares. One pill: dim when off, accent tinted when its aria-pressed is true */
+/* Example: <button class="base-toggle" aria-pressed="false"><span class="material-icons">forum</span>Discord</button> */
+.base-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    box-sizing: border-box;
+    height: var(--base-size-medium);
+    padding: 0 var(--base-pad-medium) 0 var(--base-pad-small);
+    line-height: 1;
+    border-radius: var(--base-radius-round);
+    border: 1px solid var(--base-border);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    opacity: 0.75;
+}
+.base-toggle .material-icons { font-size: var(--base-icon-medium); }
+.base-toggle[aria-pressed="true"] {
+    opacity: 1;
+    background: rgba(0, 164, 220, 0.2);
+    border-color: var(--base-accent);
+}
+/* The accent mix sits in @supports because a var() value is accepted when parsed and would wipe the fallback. */
+@supports (color: color-mix(in srgb, red, blue)) {
+    .base-toggle[aria-pressed="true"] { background: color-mix(in srgb, var(--base-accent) 20%, transparent); }
+}

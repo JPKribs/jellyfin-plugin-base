@@ -1,0 +1,8 @@
+<!-- title: Color Picker -->
+<div class="base-field"><label>Accent</label><div id="rgb"></div></div>
+<div class="base-field" style="margin-top: 16px;"><label>Overlay</label><div id="rgba"></div></div>
+<script type="module">
+const base = await window.__baseReady;
+document.getElementById('rgb').appendChild(base.createColorPicker({ value: '#3498db', label: 'Accent' }).element);
+document.getElementById('rgba').appendChild(base.createColorPicker({ value: '#e91e6380', alpha: true, label: 'Overlay' }).element);
+</script>

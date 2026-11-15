@@ -1,7 +1,6 @@
 // Stubs of the Jellyfin dashboard globals (Dashboard, ApiClient) with mock users and mock paged rows.
-// The docs preview shell loads this before the bundle. It is a copy of the stub block in
-// JPKribs.Jellyfin.Base.Tests/gallery/index.html, so the gallery can load this file instead of its own copy.
-// Names that a preview snippet may use: window.__gallery (svg, rect) and window.__galleryData (USERS, ITEMS, COLORS, STATUSES).
+// The docs preview shell and the gallery both load this before the bundle, so they share one set of mock data.
+// Names that a preview snippet may use: window.__gallery (svg, rect) and window.__galleryData (USERS, ITEMS, COLORS, STATUSES, MEDIA).
 (function () {
     function svg(w, h, bg, label) {
         var s = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '">' +
@@ -40,10 +39,26 @@
         });
     }
 
+    // Mock library items for the media card and media picker, with artwork drawn by getImageUrl.
+    var MEDIA = [
+        { Id: 'media-1', Name: 'Example Movie', Type: 'Movie', ProductionYear: 2010, ImageTags: { Primary: 'p1' } },
+        { Id: 'media-2', Name: 'Example Series', Type: 'Series', ProductionYear: 2015, ImageTags: { Primary: 'p2' } },
+        { Id: 'media-3', Name: 'Example Episode', Type: 'Episode', ProductionYear: 2016, ImageTags: { Primary: 'p3' } },
+        { Id: 'media-4', Name: 'Example Album', Type: 'MusicAlbum', ProductionYear: 2019, ImageTags: { Primary: 'p4' } },
+        { Id: 'media-5', Name: 'Example Without Art', Type: 'Movie', ProductionYear: 2021, ImageTags: {} },
+        { Id: 'media-6', Name: 'Second Example Movie', Type: 'Movie', ProductionYear: 2022, ImageTags: { Primary: 'p6' } }
+    ];
+
     window.Dashboard = { alert: function (m) { window.alert(typeof m === 'string' ? m : (m && m.message) || 'alert'); } };
 
     var config = { Demo: true, Count: 1 };
     window.ApiClient = {
+        getImageUrl: function (id, o) {
+            var m = MEDIA.filter(function (x) { return x.Id === id; })[0];
+            var type = m ? m.Type : 'Movie';
+            var wide = type === 'Episode' || type === 'Video', square = type === 'MusicAlbum' || type === 'Audio';
+            return rect(wide ? 192 : square ? 150 : 120, wide ? 108 : square ? 150 : 180, COLORS[MEDIA.indexOf(m) % COLORS.length] || COLORS[0], m ? m.Name.charAt(8) : '?');
+        },
         getUsers: function () { return Promise.resolve(USERS.slice()); },
         getUserImageUrl: function (id, o) {
             var u = USERS.filter(function (x) { return x.Id === id; })[0];
@@ -65,5 +80,5 @@
             return Promise.resolve({ Items: filtered.slice(skip, skip + take), TotalCount: filtered.length });
         }
     };
-    window.__galleryData = { USERS: USERS, ITEMS: ITEMS, COLORS: COLORS, STATUSES: STATUSES };
+    window.__galleryData = { USERS: USERS, ITEMS: ITEMS, COLORS: COLORS, STATUSES: STATUSES, MEDIA: MEDIA };
 })();

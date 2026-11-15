@@ -1,0 +1,238 @@
+/* Flat collapsible section so its fields align with the rest of the form */
+/* Example: <div class="base-collapsible-section"></div> */
+.base-collapsible-section,
+.base-section {
+    overflow: visible;
+}
+
+/* Clickable header row that toggles the section, flush with the form left edge */
+/* Example: <button class="base-collapsible-header" data-target="body"><span class="base-collapsible-title">Title</span><span class="base-collapsible-icon"></span></button> */
+.base-collapsible-header,
+.base-section-title {
+    width: 100%;
+    padding: var(--base-pad-small) 0;
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: inherit;
+    /* A button does not take the page font on its own. */
+    font: inherit;
+    font-size: 1.1em;
+    font-weight: 500;
+    text-align: left;
+}
+.base-collapsible-header:hover {
+    color: var(--base-fg);
+}
+
+/* Capitalized header title that takes the free width */
+/* Example: <span class="base-collapsible-title">Title</span> */
+.base-collapsible-title {
+    flex: 1;
+    text-transform: capitalize;
+}
+/* A badge or status dot in the header, between the title and the chevron, that keeps its own size */
+/* Example: <span class="base-badge green base-collapsible-badge">Done</span> */
+.base-collapsible-badge {
+    flex: 0 0 auto;
+    margin: 0 var(--base-gap-narrow);
+    font-weight: normal;
+}
+/* The expand_more chevron, down while collapsed and turned up while open, as Jellyfin's expanders turn. Any control with aria-expanded that holds it turns it too, such as a card head */
+/* Example: <span class="base-collapsible-icon material-icons" aria-hidden="true">expand_more</span> */
+.base-collapsible-icon {
+    font-size: var(--base-chevron-primary);
+    color: rgba(255, 255, 255, 0.5);
+    color: color-mix(in srgb, currentColor 50%, transparent);
+    transform: rotate(180deg);
+    transition: transform 0.15s;
+}
+.base-collapsible-bar.collapsed > .base-collapsible-icon,
+.base-collapsible-header.collapsed .base-collapsible-icon,
+[aria-expanded="false"] > .base-collapsible-icon {
+    transform: none;
+}
+
+/* Section body, flush left, hidden when collapsed */
+/* Example: <div id="body" class="base-collapsible-content"></div> */
+.base-collapsible-content,
+.base-section-content {
+    padding: var(--base-gap-wide) 0;
+    border-top: none;
+}
+/* The content's own padding sets the space under it, so its last block adds none, whatever that block is */
+.base-collapsible-content > :last-child,
+.base-section-content > :last-child,
+.pluginConfigurationPage .base-collapsible-content > :last-child,
+.base-dialog .base-collapsible-content > :last-child,
+.pluginConfigurationPage .base-section-content > :last-child,
+.base-dialog .base-section-content > :last-child { margin-bottom: 0 !important; }
+.base-collapsible-content.collapsed { display: none; }
+
+/* Footer action row inside a section, with a divider above, its buttons and status text centered on one line */
+/* Example: <div class="base-collapsible-actions"></div> */
+.base-collapsible-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    margin-top: var(--base-gap-wide);
+    padding-top: var(--base-gap-wide);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+}
+.base-collapsible-actions .base-status-text { margin-top: 0; }
+
+/* A footer action row with no divider or space above it, for a row that follows its fields directly */
+/* Example: <div class="base-collapsible-actions flush"></div> */
+.base-collapsible-actions.flush { border-top: none; padding-top: 0; }
+
+/* A section in a numbered run, whose title starts with a round number counted from the sections before it */
+/* Example: <div class="base-collapsible-section numbered"><button class="base-collapsible-header"><span class="base-collapsible-title">Connection</span></button></div> */
+.base-collapsible-section.numbered { counter-increment: base-collapsible-step; }
+.base-collapsible-section.numbered > .base-collapsible-header .base-collapsible-title,
+.base-collapsible-section.numbered > .base-collapsible-bar > .base-collapsible-header .base-collapsible-title {
+    display: flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    text-transform: none;
+}
+.base-collapsible-section.numbered > .base-collapsible-header .base-collapsible-title::before,
+.base-collapsible-section.numbered > .base-collapsible-bar > .base-collapsible-header .base-collapsible-title::before {
+    content: counter(base-collapsible-step);
+    flex: 0 0 auto;
+    width: 22px;
+    height: 22px;
+    border-radius: var(--base-radius-round);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8em;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.1);
+    background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+/* A Material icon in a rounded tile before the title, the size of an avatar, in the accent or a status color or hex code */
+/* Example: <span class="base-collapsible-tile" aria-hidden="true"><span class="material-icons">video_library</span></span> */
+.base-collapsible-tile {
+    flex: 0 0 auto;
+    width: var(--base-size-large);
+    height: var(--base-size-large);
+    margin-right: var(--base-gap-narrow);
+    border-radius: var(--base-radius-medium);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--base-accent-wash);
+    color: var(--base-accent);
+}
+.base-collapsible-tile .material-icons { font-size: var(--base-icon-large); }
+.base-collapsible-tile.blue { background: var(--base-blue-bg); color: var(--base-blue-fg); }
+.base-collapsible-tile.green { background: var(--base-green-bg); color: var(--base-green-fg); }
+.base-collapsible-tile.red { background: var(--base-red-bg); color: var(--base-red-fg); }
+.base-collapsible-tile.orange { background: var(--base-orange-bg); color: var(--base-orange-fg); }
+.base-collapsible-tile.purple { background: var(--base-purple-bg); color: var(--base-purple-fg); }
+.base-collapsible-tile.gray { background: var(--base-gray-bg); color: var(--base-gray-fg); }
+.base-collapsible-tile.teal { background: var(--base-teal-bg); color: var(--base-teal-fg); }
+.base-collapsible-tile.pink { background: var(--base-pink-bg); color: var(--base-pink-fg); }
+.base-collapsible-tile.yellow { background: var(--base-yellow-bg); color: var(--base-yellow-fg); }
+.base-collapsible-tile.custom { background: var(--base-custom-bg); color: var(--base-custom-fg); }
+
+/* The title and its subtitle stacked in the free width, the title ending in an ellipsis with the full text in its tooltip */
+/* Example: <span class="base-collapsible-heading"><span class="base-collapsible-title" title="Movies">Movies</span><span class="base-collapsible-subtitle">1,204 items</span></span> */
+.base-collapsible-heading {
+    flex: 1 1 0%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+.base-collapsible-heading > .base-collapsible-title {
+    flex: 0 0 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* A dimmed line under the title, as text that ends in an ellipsis or a node such as a route */
+/* Example: <span class="base-collapsible-subtitle">Main Server to This Server</span> */
+.base-collapsible-subtitle {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--base-font-small);
+    line-height: var(--base-line-small);
+    font-weight: normal;
+    opacity: 0.7;
+}
+
+/* A node at the right of the header, such as a badge, a button, or a toggle, centered on the header's line */
+/* Example: <span class="base-collapsible-aside"><span class="base-badge gray">Copy</span></span> */
+.base-collapsible-aside {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    margin-left: var(--base-gap-narrow);
+    font-size: var(--base-font-medium);
+    font-weight: normal;
+}
+
+/* The row of a collapsible header that has an aside: the header button, the aside beside it, and the chevron, since a button cannot hold a control */
+/* Example: <div class="base-collapsible-bar"><button type="button" class="base-collapsible-header" data-target="body"><span class="base-collapsible-heading"><span class="base-collapsible-title">Movies</span></span></button><span class="base-collapsible-aside"></span><span class="base-collapsible-icon"></span></div> */
+.base-collapsible-bar {
+    display: flex;
+    align-items: center;
+    padding: var(--base-pad-small) 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+    cursor: pointer;
+}
+.base-collapsible-bar > .base-collapsible-header {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    padding: 0;
+    border-bottom: none;
+}
+.base-collapsible-bar > .base-collapsible-icon { flex: 0 0 auto; margin-left: var(--base-gap-narrow); }
+
+/* A narrow section, chosen by its own width, puts its aside on a line of its own under the title */
+/* Example: <div class="base-collapsible-section compact"></div> */
+.base-collapsible-section.compact > .base-collapsible-header,
+.base-collapsible-section.compact > .base-collapsible-bar { flex-wrap: wrap; }
+.base-collapsible-section.compact > .base-collapsible-header > .base-collapsible-aside,
+.base-collapsible-section.compact > .base-collapsible-bar > .base-collapsible-aside {
+    order: 1;
+    flex: 1 1 100%;
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
+    margin: var(--base-gap-narrow) 0 0;
+}
+.base-collapsible-section.compact.has-tile > .base-collapsible-header > .base-collapsible-aside,
+.base-collapsible-section.compact.has-tile > .base-collapsible-bar > .base-collapsible-aside { padding-left: calc(var(--base-size-large) + var(--base-gap-narrow)); }
+
+/* A fixed panel, always open, whose header is a plain heading with no chevron */
+/* Example: <div class="base-collapsible-section fixed base-panel"><div class="base-collapsible-header"><span class="base-collapsible-heading"><span class="base-collapsible-title">Movies</span></span></div><div class="base-collapsible-content"></div></div> */
+.base-collapsible-section.fixed > .base-collapsible-header { cursor: default; }
+.base-collapsible-section.fixed > .base-collapsible-header:hover { color: inherit; }
+
+/* A section on the panel surface, its header and body inset by the panel's padding, collapsible or fixed */
+/* Example: <div class="base-collapsible-section base-panel"></div> */
+.base-collapsible-section.base-panel > .base-collapsible-header,
+.base-collapsible-section.base-panel > .base-collapsible-bar {
+    box-sizing: border-box;
+    padding: var(--base-pad-medium) var(--base-pad-large);
+    border-bottom: 1px solid var(--base-border);
+}
+.base-collapsible-section.base-panel > .base-collapsible-bar > .base-collapsible-header { padding: 0; border-bottom: none; }
+.base-collapsible-section.base-panel > .base-collapsible-header.collapsed,
+.base-collapsible-section.base-panel > .base-collapsible-bar.collapsed { border-bottom: none; }
+.base-collapsible-section.base-panel > .base-collapsible-content { padding: var(--base-pad-medium) var(--base-pad-large); }

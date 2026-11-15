@@ -43,18 +43,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22'
           cache: npm
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           dotnet-version: 10.0.3xx
 
@@ -95,19 +95,28 @@ jobs:
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "Releasing ${VERSION}"
 
+      # The same checks the build job runs, in the same order: the bundle (which installs the tools and type
+      # checks), then the golden copy, typings, and docs, then both test suites, so a release never ships
+      # what the build would have failed.
+      - name: Bundle shared assets
+        run: bash scripts/bundle.sh
+
+      - name: Check bundle, typings, and docs
+        run: |
+          node scripts/check-bundle.mjs
+          bash scripts/check-types.sh
+          node scripts/build-docs.mjs --check
+
       - name: Test JavaScript
         run: node --import ./JPKribs.Jellyfin.Base.Tests/js/register.mjs --test JPKribs.Jellyfin.Base.Tests/js/*.test.mjs
 
       - name: Test
         run: dotnet test JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Release
 
-      - name: Bundle and pack
+      - name: Pack
         env:
           VERSION: ${{ steps.ver.outputs.version }}
         run: |
-          bash scripts/bundle.sh
-          node scripts/check-bundle.mjs
-          bash scripts/check-types.sh
           dotnet pack JPKribs.Jellyfin.Base.csproj -c Release -o nupkg -p:Version="${VERSION}"
           ls -l nupkg
 

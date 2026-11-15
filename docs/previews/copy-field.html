@@ -1,11 +1,11 @@
 <!-- title: Copy Field -->
 <div id="mount"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
+const base = await window.__baseReady;
 const view = document.getElementById('view');
 const mount = document.getElementById('mount');
-mount.appendChild(JPK.createCopyField({ value: 'https://example.test/hooks/abc123' }).element);
-const secret = JPK.createCopyField({ value: 'sk-demo-secret-0123456789', secret: true }).element;
+mount.appendChild(base.createCopyField({ value: 'https://example.test/hooks/abc123' }).element);
+const secret = base.createCopyField({ value: 'sk-demo-secret-0123456789', secret: true, allowExpose: true }).element;
 secret.style.marginTop = '12px';
 mount.appendChild(secret);
 </script>

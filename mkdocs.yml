@@ -78,12 +78,12 @@ nav:
               - Panel: components/web/panel.md
               - Subsection Title: components/web/subsection-title.md
               - Collapsible Section: components/web/collapsible-section.md
-              - Step: components/web/step.md
               - Indent: components/web/indent.md
               - Reset Group: components/web/reset-group.md
               - Sub Tabs: components/web/sub-tabs.md
               - Breadcrumbs: components/web/breadcrumbs.md
               - Stepper: components/web/stepper.md
+              - Setup Checklist: components/web/setup-checklist.md
           - Forms and Inputs:
               - Form Fields: components/web/form-fields.md
               - Field and Field Row: components/web/field.md
@@ -99,14 +99,28 @@ nav:
               - Record Selector: components/web/record-selector.md
           - Selection:
               - Chip Select: components/web/chip-select.md
+              - Media Picker: components/web/media-picker.md
               - Tags: components/web/tags.md
               - Combo Box: components/web/combo-box.md
+              - Checkbox: components/web/checkbox.md
               - Checkbox List: components/web/checkbox-list.md
+              - Filter Panel: components/web/filter-panel.md
               - User Selector: components/web/user-selector.md
               - User Multi Selector: components/web/user-multi-selector.md
               - Choice Group: components/web/choice-group.md
+              - Field Adornments: components/web/field-adornments.md
           - Lists and Tables:
+              - List: components/web/list.md
+              - Record List: components/web/record-list.md
+              - Tree View: components/web/tree-view.md
+              - Compare Table: components/web/compare-table.md
+              - Matrix Grid: components/web/matrix-grid.md
+              - Balanced Rows: components/web/balanced-rows.md
+              - Media Card: components/web/media-card.md
               - Paginated Table: components/web/paginated-table.md
+              - Filtered List: components/web/filtered-list.md
+              - Data Table: components/web/data-table.md
+              - World Map: components/web/world-map.md
               - Sortable Card List: components/web/sortable-card-list.md
               - Ordered List: components/web/ordered-list.md
               - Record Card: components/web/record-card.md
@@ -119,6 +133,7 @@ nav:
               - Count Cards: components/web/count-cards.md
               - Callout: components/web/callout.md
               - Status Text: components/web/status-text.md
+              - Save Bar: components/web/save-bar.md
               - Unsaved Indicator: components/web/unsaved-indicator.md
               - Empty State: components/web/empty-state.md
               - Status Page: components/web/status-page.md
@@ -126,6 +141,7 @@ nav:
               - Banner: components/web/banner.md
               - Status Dot: components/web/status-dot.md
           - Dialogs and Menus:
+              - Detail Drawer: components/web/detail-drawer.md
               - Dialog: components/web/dialog.md
               - Confirm Dialog: components/web/confirm-dialog.md
               - Prompt Dialog: components/web/prompt-dialog.md
@@ -135,29 +151,49 @@ nav:
               - Tooltip: components/web/tooltip.md
               - Help Hint: components/web/help-hint.md
           - Editors:
+              - Repeater: components/web/repeater.md
+              - Rule Builder: components/web/rule-builder.md
+              - Time Range Field: components/web/time-range-field.md
+              - Duration Field: components/web/duration-field.md
+              - Date Range Picker: components/web/date-range-picker.md
+              - Inherit Field: components/web/inherit-field.md
               - String List: components/web/string-list.md
               - Key Value Editor: components/web/key-value-editor.md
               - Tag Input: components/web/tag-input.md
               - File Picker: components/web/file-picker.md
+              - Folder Picker: components/web/folder-picker.md
+              - Image Picker: components/web/image-picker.md
               - Number Unit Field: components/web/number-unit-field.md
               - Slider Field: components/web/slider-field.md
+              - Color Picker: components/web/color-picker.md
               - Schedule Picker: components/web/schedule-picker.md
+              - Access Schedule: components/web/access-schedule.md
+              - Mapping Table: components/web/mapping-table.md
               - Search Field: components/web/search-field.md
               - Copy Field: components/web/copy-field.md
               - Field Message: components/web/field-message.md
           - Data Display:
+              - Bar Chart: components/web/bar-chart.md
+              - Line Chart: components/web/line-chart.md
+              - Sparkline: components/web/sparkline.md
+              - Usage Meter: components/web/usage-meter.md
+              - Relative Time: components/web/relative-time.md
+              - Avatar Stack: components/web/avatar-stack.md
+              - QR Code: components/web/qr-code.md
+              - Audio Player: components/web/audio-player.md
+              - Preview Frame: components/web/preview-frame.md
               - Definition List: components/web/definition-list.md
               - Log Viewer: components/web/log-viewer.md
               - Stat Card: components/web/stat-card.md
               - Avatar and User Chip: components/web/avatar.md
               - Timeline: components/web/timeline.md
+              - Flow Diagram: components/web/flow-diagram.md
               - Divider: components/web/divider.md
           - Loading:
               - Spinner: components/web/spinner.md
               - Skeleton: components/web/skeleton.md
               - Progress Ring: components/web/progress-ring.md
               - Progress Bar: components/web/progress-bar.md
-          - Deprecated: components/web/deprecated.md
       - C#:
           - Overview: components/csharp/index.md
           - Plugin and Tasks: components/csharp/plugin-and-tasks.md

@@ -5,38 +5,62 @@ Small classes for visibility, fonts, and text color.
 ## When to Use
 
 * Use `hidden` or the `[hidden]` attribute to show and hide a block. `shared.setVisible` toggles `hidden` for you.
-* Use `jpk-mono` for paths, ids, and addresses.
-* Use `jpk-sr-only` for the label of an icon only control.
+* Use `base-mono` for paths, ids, and addresses.
+* Use `base-sr-only` for the label of an icon only control.
 
 ## When Not to Use
 
-* Never use `jpk-ok` and `jpk-bad` as the only signal. Pair the color with a word.
+* Never use `base-ok` and `base-bad` as the only signal. Pair the color with a word.
 
 ## Usage
 
 ```html
 <div class="hidden">Hidden</div>
-<span class="jpk-mono">10.0.0.1</span>
-<span class="jpk-ok">OK</span> <span class="jpk-bad">Failed</span>
-<div class="jpk-url">URL: <a href="#">/pages/home</a></div>
-<button type="button"><span class="material-icons" aria-hidden="true">delete</span><span class="jpk-sr-only">Remove the record</span></button>
+<span class="base-mono">10.0.0.1</span>
+<span class="base-ok">OK</span> <span class="base-bad">Failed</span>
+<div class="base-url">URL: <a href="#">/pages/home</a></div>
+<button type="button"><span class="material-icons" aria-hidden="true">delete</span><span class="base-sr-only">Remove the record</span></button>
 ```
 
-Classes: `hidden`, `jpk-mono`, `jpk-ok`, `jpk-bad`, `jpk-url`, `jpk-sr-only`.
+Classes: `hidden`, `base-mono`, `base-ok`, `base-bad`, `base-url`, `base-sr-only`, `base-icon-text`, `base-thumb`, `base-float`.
 
 ## States and Modifiers
 
 * `hidden` is `display: none`, forced. It is a Jellyfin class the kit also styles.
 * The `[hidden]` attribute hides too, even on a component with its own `display` rule such as a flex row or a grid.
-* `jpk-url` is mono at 85 percent opacity, with links in the accent color.
+* `base-url` is mono at 85 percent opacity, with links in the accent color.
+* `base-icon-text` sets an icon beside text that may wrap, with the icon centered on the first line. It is medium by default and takes `small` or `large`.
+* `base-thumb` is an artwork frame that holds a `base-thumb-placeholder` icon under a `base-thumb-image`. The frame sets no size, so the component that uses it does. The image takes `hidden` when it fails to load, and `pending` while it loads.
+* `base-float` is the surface every floating box shares, such as a menu, a tooltip, a dropdown, or a toast. The popover helper adds it to the box it places.
+
+## Reference
+
+Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this section.
+
+<!-- reference:start -->
+
+| Class | What it looks like |
+| :--- | :--- |
+| `base-mono` | Applies the mono font stack |
+| `base-ok` | Success colored text |
+| `base-bad` | Error colored text |
+| `base-url` | Monospace, dimmed line for showing a URL or path with an accent link |
+| `base-sr-only` | Visually hidden text that screen readers still read, such as a label for an icon only control |
+| `base-thumb` | An artwork frame that holds a placeholder icon under its image, shared by media cards, media picker rows, checkbox list rows, and the image picker, which each set the size |
+| `base-thumb-placeholder` | The icon that fills the frame while there is no image, or until it loads |
+| `base-thumb-image` | The image that covers the frame, hidden when it fails to load |
+| `base-icon-text` | An icon beside text that may wrap, with the icon centered on the first line of text, medium unless small or large |
+| `base-float` | The surface every floating box shares, a menu, a filter panel, a help bubble, a tooltip, a dropdown, or a toast, over the page. anchorPopover adds it to the box it places |
+
+<!-- reference:end -->
 
 ## Used By
 
-Remote Access uses `jpk-ok`. Remote Access and Requests use `jpk-bad`. Custom Pages, Requests, and YouTube Audio use `jpk-url`. No plugin uses `jpk-sr-only` yet.
+Remote Access uses `base-ok`. Remote Access and Requests use `base-bad`. Custom Pages, Requests, and YouTube Audio use `base-url`. No plugin uses `base-sr-only`, `base-icon-text`, `base-thumb`, or `base-float`.
 
 ## Example
 
-<iframe class="jpk-preview" src="../../../assets/previews/utility-classes.html" title="Utility Classes example" loading="lazy"></iframe>
+<iframe class="base-preview" src="../../../assets/previews/utility-classes.html" title="Utility Classes example" loading="lazy"></iframe>
 
 ## Example Code
 

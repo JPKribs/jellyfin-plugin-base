@@ -1,0 +1,134 @@
+/* Dims the rows while the first page loads, with the search and filters still usable */
+/* Example: <div class="base-table-loading"><div class="base-table-wrapper"></div></div> */
+.base-table-loading .base-table-body { opacity: 0.6; pointer-events: none; }
+
+/* A status badge from the bag's statusBadge inside a bare button that opens the row */
+/* Example: <button type="button" class="base-table-status-btn"><span class="base-table-status-badge Active">Active</span></button> */
+.base-table-status-btn {
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+.base-table-status-btn:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 2px; }
+
+/* Flexible gap that pushes the controls after it to the end of the header */
+/* Example: <span class="base-table-header-spacer"></span> */
+.base-table-header-spacer { flex: 1; }
+
+/* The reload row button, whose icon turns while the table reloads */
+/* Example: <button class="base-row-btn base-table-reload-btn spinning" title="Reload"><span class="material-icons" aria-hidden="true">refresh</span></button> */
+.base-table-reload-btn.spinning .material-icons { animation: base-spin 0.8s linear infinite; }
+
+/* The rows, a list of bordered rows */
+/* Example: <div class="base-table-body base-list rows" role="list"><div class="base-table-row base-list-item" role="listitem"></div></div> */
+.base-table-body { min-width: 0; }
+
+/* Single table row */
+/* Example: <div class="base-table-row"><div class="base-table-cell"></div></div> */
+.base-table-row {
+    display: flex;
+    align-items: center;
+    padding: var(--base-gap-narrow);
+    border-bottom: 1px solid var(--base-border);
+    transition: background-color 0.15s;
+}
+.base-table-row:last-child { border-bottom: none; }
+
+/* A row inside a list, where the list draws the dividers */
+/* Example: <div class="base-list rows"><div class="base-table-row base-list-item"></div></div> */
+.base-list.rows > .base-table-row { border-bottom: none; }
+
+
+/* Single cell within a row */
+/* Example: <div class="base-table-cell">value</div> */
+.base-table-cell { flex: 1; padding: 0 var(--base-gap-narrow); min-width: 0; }
+
+/* Narrow cell for a row checkbox */
+/* Example: <div class="base-table-cell base-table-cell-checkbox"><input class="base-table-row-checkbox" type="checkbox"></div> */
+.base-table-cell.base-table-cell-checkbox { flex: 0 0 auto; }
+
+/* Fixed width cell that right aligns a status badge */
+/* Example: <div class="base-table-cell base-table-cell-status"><button class="base-table-status-btn"></button></div> */
+.base-table-cell.base-table-cell-status { flex: 0 0 calc(var(--base-size-large) * 3); text-align: right; }
+
+/* Checkbox that selects one row */
+/* Example: <input class="base-table-row-checkbox" type="checkbox"> */
+.base-table-row-checkbox { margin: 0; cursor: pointer; }
+
+/* Title over sub text block for a row cell */
+/* Example: <div class="base-table-item-info"><div class="base-table-item-title">Name</div><div class="base-table-item-sub">path</div></div> */
+.base-table-item-info, .base-table-cell .base-table-item-info { flex: 1; min-width: 0; }
+
+/* Medium weight title that clips with an ellipsis */
+/* Example: <div class="base-table-item-title">Name</div> */
+.base-table-item-title {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Small dimmed sub line that clips with an ellipsis */
+/* Example: <div class="base-table-item-sub">path</div> */
+.base-table-item-sub {
+    font-size: var(--base-font-small);
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Truncated error subline shown under a row item when it failed */
+/* Example: <div class="base-table-item-error">download failed</div> */
+.base-table-item-error {
+    font-size: var(--base-font-small);
+    color: var(--base-error);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Footer line showing the loaded and total counts */
+/* Example: <div class="base-table-footer"><span class="base-table-item-count"></span></div> */
+.base-table-footer { display: flex; align-items: center; gap: var(--base-gap-wide); padding: var(--base-gap-narrow); font-size: var(--base-font-small); }
+
+/* Dimmed count of the loaded and total rows */
+/* Example: <span class="base-table-item-count">20/85 items</span> */
+.base-table-item-count { opacity: 0.7; }
+
+/* The Load More and Load All buttons, shown in the footer while more rows remain */
+/* Example: <span class="base-table-footer-actions"><button class="raised base-button secondary small base-table-load-more">Load More</button><button class="raised base-button secondary small base-table-load-all">Load All</button></span> */
+.base-table-footer-actions { display: flex; gap: var(--base-gap-narrow); }
+.base-table-footer-actions[hidden] { display: none; }
+
+/* Cell that lines a thumbnail up beside its text */
+/* Example: <div class="base-table-cell base-table-cell-with-thumb"><span class="base-thumb base-table-thumb portrait"></span></div> */
+.base-table-cell.base-table-cell-with-thumb { display: flex; align-items: center; gap: var(--base-gap-narrow); }
+
+/* A row thumbnail, a base-thumb frame in the column's imageShape, portrait by default */
+/* Example: <span class="base-thumb base-table-thumb portrait"><span class="base-thumb-placeholder"><span class="material-icons">movie</span></span><img class="base-thumb-image" alt="" src="poster.jpg"></span> */
+.base-table-thumb {
+    width: var(--base-size-large);
+    height: calc(var(--base-size-large) * 1.5);
+    border-radius: var(--base-radius-small);
+}
+.base-table-thumb.wide { width: calc(var(--base-size-large) * 8 / 3); }
+.base-table-thumb.square { width: calc(var(--base-size-large) * 1.5); }
+.base-table-thumb.round { width: calc(var(--base-size-medium) * 1.5); height: calc(var(--base-size-medium) * 1.5); border-radius: var(--base-radius-round); }
+
+@media (max-width: 768px) {
+    /* A fixed width, so every row's columns line up whatever its badge says. */
+    .base-table-cell.base-table-cell-status { flex: 0 0 calc(var(--base-size-large) * 2.75); }
+}
+
+/* On a phone the first column after any checkbox keeps 60% of the row and the other columns wrap beneath it */
+@media (max-width: 600px) {
+    .base-table-row { flex-wrap: wrap; }
+    .base-table-cell { flex-basis: auto; }
+    .base-table-row > .base-table-cell:first-child:not(.base-table-cell-checkbox),
+    .base-table-row > .base-table-cell-checkbox + .base-table-cell { flex: 1 0 60%; }
+    .base-table-row > .base-table-cell.base-table-cell-status { margin-left: auto; }
+}

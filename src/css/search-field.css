@@ -1,26 +1,26 @@
-/* Search input with a leading icon and a clear button that shows while it has text */
-/* Example: <div class="jpk-search"><span class="material-icons" aria-hidden="true">search</span><input type="search" aria-label="Search"><button type="button" class="jpk-row-btn jpk-search-clear"></button></div> */
-.jpk-search {
+/* Search input with a search icon at its trailing end, which a clear button replaces while it has text */
+/* Example: <div class="base-search"><input type="search" aria-label="Search"><span class="material-icons" aria-hidden="true">search</span><button type="button" class="base-row-btn base-search-clear"></button></div> */
+.base-search {
     position: relative;
     display: flex;
     align-items: center;
 }
-.jpk-search > .material-icons {
+.base-search > .material-icons {
     position: absolute;
-    left: 8px;
-    font-size: 20px;
-    opacity: 0.6;
+    right: var(--base-field-pad);
+    font-size: var(--base-icon-medium);
+    opacity: 0.7;
     pointer-events: none;
 }
-.jpk-search > input {
+.base-search > .material-icons[hidden] { display: none; }
+.base-search > input {
     width: 100%;
     box-sizing: border-box;
-    padding-left: 34px !important;
-    padding-right: 34px !important;
+    padding-right: calc(var(--base-field-pad) + var(--base-chevron-primary)) !important;
     -webkit-appearance: none;
     appearance: none;
 }
-.jpk-search > input::-webkit-search-cancel-button,
-.jpk-search > input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
-.jpk-search-clear { position: absolute; right: 4px; }
-.jpk-search-clear:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 1px; }
+.base-search > input::-webkit-search-cancel-button,
+.base-search > input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+.base-search-clear { position: absolute; right: 4px; }
+.base-search-clear:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 1px; }

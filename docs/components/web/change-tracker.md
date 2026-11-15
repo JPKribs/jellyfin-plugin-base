@@ -34,7 +34,7 @@ page.guardUnsaved(tracker, 'Leave without saving your settings?');
 ## Gotchas
 
 * `serialize()` must return a stable string of the tracked state. The snapshot is taken when the tracker is created.
-* No plugin passes `savedText` yet.
+* `flashSaved` without `savedText` pulses the indicator with its own label.
 
 ## Used By
 
@@ -42,7 +42,7 @@ Artwork Generator, Live Channels, Requests, and Scripts use it. Artwork Generato
 
 ## Example
 
-<iframe class="jpk-preview" src="../../../assets/previews/change-tracker.html" title="Change Tracker example" loading="lazy"></iframe>
+<iframe class="base-preview" src="../../../assets/previews/change-tracker.html" title="Change Tracker example" loading="lazy"></iframe>
 
 ## Example Code
 

@@ -1,4 +1,4 @@
-// Behavior tests for the helpers in core.js, run with the node test runner and the stub DOM in fake-dom.mjs.
+// Behavior tests for the config page, shared bag, and browser helpers, run with the node test runner and the stub DOM in fake-dom.mjs.
 import { test, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -37,11 +37,29 @@ test('setStatus gives the element role status, and role alert for an error', fun
     var el = dom.el('span');
     shared.setStatus(el, 'Saved.', false, { timeout: 0 });
     assert.equal(el.getAttribute('role'), 'status');
-    assert.equal(el.textContent, 'Saved.');
+    assert.equal(el.querySelector('.base-status-message').textContent, 'Saved.');
     shared.setStatus(el, 'Could not save.', true, { timeout: 0 });
     assert.equal(el.getAttribute('role'), 'alert');
     shared.setStatus(el, 'Saved.', false, { timeout: 0 });
     assert.equal(el.getAttribute('role'), 'status');
+});
+
+test('setStatus shows the icon of its state beside the text, as base-icon-text, and a clear removes both', function () {
+    var el = dom.el('div');
+    shared.setStatus(el, 'Saved.', false, { timeout: 0 });
+    assert.equal(el.classList.contains('base-icon-text'), true);
+    assert.equal(el.classList.contains('success'), true);
+    assert.equal(el.querySelector('.material-icons').textContent, 'check_circle');
+    shared.setStatus(el, 'Could not save.', true, { timeout: 0 });
+    assert.equal(el.classList.contains('error'), true);
+    assert.equal(el.classList.contains('success'), false);
+    assert.equal(el.querySelector('.material-icons').textContent, 'error');
+    shared.setStatus(el, 'Checking.', false, { timeout: 0, state: 'info' });
+    assert.equal(el.querySelector('.material-icons').textContent, 'info');
+    assert.equal(el.getAttribute('role'), 'status');
+    shared.setStatus(el, '', false, { timeout: 0 });
+    assert.equal(el.querySelector('.material-icons'), null);
+    assert.equal(el.classList.contains('base-icon-text'), false);
 });
 
 test('setStatus sets the role once and leaves it alone on a clear', function () {
@@ -75,7 +93,7 @@ test('toDateInput keeps a date only string and gives an empty string for nothing
 });
 
 test('createChangeTracker gives the indicator role status', function () {
-    var indicator = dom.el('span', { class: 'jpk-unsaved' });
+    var indicator = dom.el('span', { class: 'base-unsaved' });
     shared.createChangeTracker({ indicator: indicator });
     assert.equal(indicator.getAttribute('role'), 'status');
 });
@@ -83,7 +101,7 @@ test('createChangeTracker gives the indicator role status', function () {
 test('flashSaved shows savedText on the label and restores the original after the pulse', function () {
     mock.timers.enable({ apis: ['setTimeout'] });
     try {
-        var indicator = dom.el('span', { class: 'jpk-unsaved' }, [dom.el('span', { class: 'jpk-unsaved-dot' })]);
+        var indicator = dom.el('span', { class: 'base-unsaved' }, [dom.el('span', { class: 'base-unsaved-dot' })]);
         var label = { nodeType: 3, nodeValue: 'Unsaved changes' };
         indicator.childNodes = [indicator.children[0], label];
         var tracker = shared.createChangeTracker({ indicator: indicator, savedText: 'Saved' });
@@ -216,12 +234,12 @@ test('BADGE_STATES names Locked, Expired, and the extra state names, and lists p
     assert.ok(BADGE_STATES.colors.indexOf('teal') >= 0);
 });
 
-test('every BADGE_STATES name and color has a rule in badges.css', function () {
-    var css = readFileSync(new URL('../../src/css/badges.css', import.meta.url), 'utf8');
+test('every BADGE_STATES name and color has a rule in badge.css', function () {
+    var css = readFileSync(new URL('../../src/css/badge.css', import.meta.url), 'utf8');
     BADGE_STATES.names.forEach(function (name) {
-        assert.ok(css.indexOf('.jpk-table-status-badge.' + name + ',') >= 0 || css.indexOf('.jpk-table-status-badge.' + name + ' {') >= 0, name);
+        assert.ok(css.indexOf('.base-table-status-badge.' + name + ',') >= 0 || css.indexOf('.base-table-status-badge.' + name + ' {') >= 0, name);
     });
     BADGE_STATES.colors.forEach(function (color) {
-        assert.ok(css.indexOf('.jpk-badge.' + color + ',') >= 0 || css.indexOf('.jpk-badge.' + color + ' {') >= 0, color);
+        assert.ok(css.indexOf('.base-badge.' + color + ',') >= 0 || css.indexOf('.base-badge.' + color + ' {') >= 0, color);
     });
 });

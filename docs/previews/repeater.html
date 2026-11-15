@@ -1,0 +1,36 @@
+<!-- title: Repeater -->
+<div style="display: grid; gap: 24px;">
+<div id="inline"></div>
+<div id="cards"></div>
+</div>
+<script type="module">
+const base = await window.__baseReady;
+const inline = base.createRepeater({
+    fields: [
+        { key: 'name', label: 'Name', required: true, placeholder: 'Living Room' },
+        { key: 'port', label: 'Port', type: 'number', min: 1, max: 65535, placeholder: '8096' },
+        { key: 'kind', label: 'Kind', type: 'select', options: [{ value: 'main', label: 'Main' }, { value: 'backup', label: 'Backup' }] },
+        { key: 'on', label: 'Enabled', type: 'toggle' }
+    ],
+    value: [{ name: 'Living Room', port: 8096, kind: 'main', on: true }, { name: 'Office', port: 8920, kind: 'backup', on: false }],
+    reorder: true,
+    minRows: 1,
+    maxRows: 5,
+    addText: 'Add Server'
+});
+document.getElementById('inline').appendChild(inline.element);
+const cards = base.createRepeater({
+    layout: 'card',
+    titleText: 'Webhook {index}',
+    fields: [
+        { key: 'url', label: 'Address', required: true, placeholder: 'https://hooks.example.com/sync' },
+        { key: 'token', label: 'Token', type: 'secret', allowExpose: true },
+        { key: 'events', label: 'Events', type: 'tags', placeholder: 'sync.done' },
+        { key: 'at', label: 'Quiet From', type: 'time' }
+    ],
+    value: [{ url: 'https://hooks.example.com/sync', token: base.SECRET_KEPT, events: ['sync.done', 'sync.failed'], at: '22:00' }],
+    addText: 'Add Webhook',
+    emptyText: 'No webhooks yet.'
+});
+document.getElementById('cards').appendChild(cards.element);
+</script>

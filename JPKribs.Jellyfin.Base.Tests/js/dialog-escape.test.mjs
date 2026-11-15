@@ -11,7 +11,7 @@ beforeEach(function () {
 });
 
 function open() {
-    return dom.document.querySelectorAll('.jpk-dialog').length > 0;
+    return dom.document.querySelectorAll('.base-dialog').length > 0;
 }
 
 // Opens a dialog around the element and runs prepare so the component is in its open state with focus inside.
@@ -23,9 +23,9 @@ function around(element, prepare) {
 
 test('Escape inside an open overflow menu closes the menu only, and a second Escape closes the dialog', function () {
     var menu = createOverflowMenu({ items: [{ label: 'Edit' }, { label: 'Copy' }] });
-    around(menu.element, function () { menu.element.querySelector('.jpk-menu-button').click(); });
+    around(menu.element, function () { menu.element.querySelector('.base-menu-button').click(); });
     assert.equal(menu.isOpen(), true);
-    assert.equal(dom.document.activeElement.className.indexOf('jpk-menu-item') !== -1, true);
+    assert.equal(dom.document.activeElement.className.indexOf('base-menu-item') !== -1, true);
     dom.document.key('Escape');
     assert.equal(menu.isOpen(), false);
     assert.equal(open(), true);
@@ -74,9 +74,9 @@ test('Escape in a string list input with text clears it, and the next Escape clo
 test('Escape in a string list input that shows an error clears the message first', function () {
     var list = createStringList({ values: ['a'] });
     around(list.element, function () { list.input.focus(); list.add('a'); });
-    assert.equal(list.element.querySelector('.jpk-field-message-text').textContent, 'Already in the list.');
+    assert.equal(list.element.querySelector('.base-field-message-text').textContent, 'Already in the list.');
     dom.document.key('Escape');
-    assert.equal(list.element.querySelector('.jpk-field-message-text').textContent, '');
+    assert.equal(list.element.querySelector('.base-field-message-text').textContent, '');
     assert.equal(open(), true);
     dom.document.key('Escape');
     assert.equal(open(), false);
@@ -116,60 +116,60 @@ test('a focused control that is merely expanded does not stop Escape from closin
 
 test('a dialog with a title is named by it, and a dialog with no title is named by ariaLabel', function () {
     var titled = openDialog({ title: 'Edit', body: '<p>Body.</p>' });
-    var panel = titled.element.querySelector('.jpk-dialog-content');
-    assert.equal(panel.getAttribute('aria-labelledby'), titled.element.querySelector('.jpk-modal-title').id);
+    var panel = titled.element.querySelector('.base-dialog-content');
+    assert.equal(panel.getAttribute('aria-labelledby'), titled.element.querySelector('.base-modal-title').id);
     assert.equal(panel.hasAttribute('aria-label'), false);
     titled.close();
     var named = openDialog({ ariaLabel: 'Pick a server', body: '<p>Body.</p>' });
-    assert.equal(named.element.querySelector('.jpk-dialog-content').getAttribute('aria-label'), 'Pick a server');
+    assert.equal(named.element.querySelector('.base-dialog-content').getAttribute('aria-label'), 'Pick a server');
     named.close();
 });
 
 test('a dialog with no title and no ariaLabel is named by its body text, else Dialog', function () {
     var textual = openDialog({ body: dom.el('p', {}, []) });
-    assert.equal(textual.element.querySelector('.jpk-dialog-content').getAttribute('aria-label'), 'Dialog');
+    assert.equal(textual.element.querySelector('.base-dialog-content').getAttribute('aria-label'), 'Dialog');
     textual.close();
     var p = dom.el('p');
     p.textContent = 'Remove the server from the pool.';
     var withText = openDialog({ body: p });
-    assert.equal(withText.element.querySelector('.jpk-dialog-content').getAttribute('aria-label'), 'Remove the server from the pool.');
+    assert.equal(withText.element.querySelector('.base-dialog-content').getAttribute('aria-label'), 'Remove the server from the pool.');
     withText.close();
 });
 
 test('confirmDialog with no title is named by its message, truncated, and with a title by the title', async function () {
     var promise = confirmDialog('Remove this server and every link it holds from the pool right now, with no way to undo that later on?');
-    var panel = dom.document.querySelector('.jpk-dialog-content');
+    var panel = dom.document.querySelector('.base-dialog-content');
     var name = panel.getAttribute('aria-label');
     assert.equal(name.length, 80);
     assert.equal(name.indexOf('Remove this server'), 0);
     assert.equal(panel.getAttribute('role'), 'dialog');
-    dom.document.querySelectorAll('.jpk-modal-button')[1].click();
+    dom.document.querySelectorAll('.base-modal-button')[1].click();
     assert.equal(await promise, true);
     var titled = confirmDialog('Sure?', { title: 'Remove Server' });
-    var titledPanel = dom.document.querySelector('.jpk-dialog-content');
+    var titledPanel = dom.document.querySelector('.base-dialog-content');
     assert.equal(titledPanel.hasAttribute('aria-label'), false);
     assert.ok(titledPanel.getAttribute('aria-labelledby'));
-    dom.document.querySelectorAll('.jpk-modal-button')[0].click();
+    dom.document.querySelectorAll('.base-modal-button')[0].click();
     assert.equal(await titled, false);
 });
 
 test('confirmDialog with html strips the tags for its name', function () {
     confirmDialog('<p>Remove <b>this</b> server.</p>', { html: true });
-    assert.equal(dom.document.querySelector('.jpk-dialog-content').getAttribute('aria-label'), 'Remove this server.');
+    assert.equal(dom.document.querySelector('.base-dialog-content').getAttribute('aria-label'), 'Remove this server.');
 });
 
 test('confirmDialog buttons default to Cancel and Confirm, are replaceable, and Escape resolves false', async function () {
     var p = confirmDialog('Sure?');
-    var labels = dom.document.querySelectorAll('.jpk-modal-button');
+    var labels = dom.document.querySelectorAll('.base-modal-button');
     assert.equal(labels[0].textContent, 'Cancel');
     assert.equal(labels[1].textContent, 'Confirm');
     dom.document.key('Escape');
     assert.equal(await p, false);
     var q = confirmDialog('Sure?', { confirmText: 'Remove', cancelText: 'Keep', destructive: true });
-    var custom = dom.document.querySelectorAll('.jpk-modal-button');
+    var custom = dom.document.querySelectorAll('.base-modal-button');
     assert.equal(custom[0].textContent, 'Keep');
     assert.equal(custom[1].textContent, 'Remove');
-    assert.ok(custom[1].classList.contains('jpk-button-destructive'));
+    assert.ok(custom[1].classList.contains('base-button') && custom[1].classList.contains('destructive'));
     custom[1].click();
     assert.equal(await q, true);
 });

@@ -1,0 +1,78 @@
+/* Hub and lanes picture that shrinks to fit its container and stays centered */
+/* Example: <div class="base-flow-diagram" role="img" aria-label="Pool, Home"><svg viewBox="-60 -29 120 58" width="120"></svg></div> */
+.base-flow-diagram svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+
+/* The node in the middle, a raised surface box with a neutral border, never a lane color, and a bold label */
+/* Example: <g class="base-flow-diagram-hub"><rect class="base-flow-diagram-hub-box" /><text class="base-flow-diagram-hub-label">Home</text></g> */
+.base-flow-diagram-hub-box {
+    fill: var(--base-wash-strong);
+    stroke: var(--base-fg);
+    stroke-opacity: 0.55;
+    stroke-width: 1.6;
+}
+.base-flow-diagram-hub-label {
+    font-size: var(--base-font-small);
+    font-weight: 600;
+    fill: var(--base-fg);
+    text-anchor: middle;
+}
+
+/* One lane, whose lines and arrows take the lane's color */
+/* Example: <g class="base-flow-diagram-lane blue"><path class="base-flow-diagram-line base-flow-diagram-stub" /></g> */
+.base-flow-diagram-lane { color: var(--base-gray-fg); }
+.base-flow-diagram-lane.green { color: var(--base-green-fg); }
+.base-flow-diagram-lane.red { color: var(--base-red-fg); }
+.base-flow-diagram-lane.orange { color: var(--base-orange-fg); }
+.base-flow-diagram-lane.purple { color: var(--base-purple-fg); }
+.base-flow-diagram-lane.blue { color: var(--base-blue-fg); }
+.base-flow-diagram-lane.yellow { color: var(--base-yellow-fg); }
+.base-flow-diagram-lane.pink { color: var(--base-pink-fg); }
+.base-flow-diagram-lane.teal { color: var(--base-teal-fg); }
+.base-flow-diagram-lane.custom { color: var(--base-custom-fg); }
+.base-flow-diagram-line,
+.base-flow-diagram-arrow {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+/* An arrowhead is drawn in its marker's own units, which scale with the line, so its stroke stays in proportion */
+.base-flow-diagram-arrow { stroke-width: 1.8; }
+
+/* A pill in a lane, a surface box with a status dot and a label, and an accent ring while focused */
+/* Example: <g class="base-flow-diagram-item"><rect class="base-flow-diagram-pill" /><circle class="base-flow-diagram-dot green" /><text class="base-flow-diagram-label">NAS</text></g> */
+.base-flow-diagram-pill {
+    fill: var(--base-surface);
+    stroke: var(--base-border);
+    stroke-width: 1;
+}
+.base-flow-diagram-label {
+    font-size: var(--base-font-small);
+    fill: var(--base-fg);
+}
+.base-flow-diagram-item[role="button"] { cursor: pointer; outline: none; }
+.base-flow-diagram-item[role="button"]:focus .base-flow-diagram-pill {
+    stroke: var(--base-accent);
+    stroke-width: 2;
+}
+.base-flow-diagram-item[role="button"]:focus:not(:focus-visible) .base-flow-diagram-pill { stroke: var(--base-border); stroke-width: 1; }
+.base-flow-diagram-item[role="button"]:hover .base-flow-diagram-pill { stroke: var(--base-accent); }
+
+/* Round status dot inside a pill, in a status color */
+/* Example: <circle class="base-flow-diagram-dot orange" r="4" /> */
+.base-flow-diagram-dot { fill: var(--base-gray-fg); }
+.base-flow-diagram-dot.green { fill: var(--base-green-fg); }
+.base-flow-diagram-dot.red { fill: var(--base-red-fg); }
+.base-flow-diagram-dot.orange { fill: var(--base-orange-fg); }
+.base-flow-diagram-dot.purple { fill: var(--base-purple-fg); }
+.base-flow-diagram-dot.blue { fill: var(--base-blue-fg); }
+.base-flow-diagram-dot.yellow { fill: var(--base-yellow-fg); }
+.base-flow-diagram-dot.pink { fill: var(--base-pink-fg); }
+.base-flow-diagram-dot.teal { fill: var(--base-teal-fg); }
+.base-flow-diagram-dot.custom { fill: var(--base-custom-fg); }

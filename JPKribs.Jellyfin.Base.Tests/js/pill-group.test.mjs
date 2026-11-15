@@ -12,11 +12,11 @@ beforeEach(function () {
 
 function group(selectedIndex) {
     var pills = ['Daily', 'Weekly', 'Monthly'].map(function (label, i) {
-        var p = dom.el('button', { type: 'button', class: 'jpk-pill' + (i === selectedIndex ? ' selected' : ''), 'data-value': label.toLowerCase() });
+        var p = dom.el('button', { type: 'button', class: 'base-pill' + (i === selectedIndex ? ' selected' : ''), 'data-value': label.toLowerCase() });
         p.textContent = label;
         return p;
     });
-    var el = dom.document.body.appendChild(dom.el('div', { class: 'jpk-pill-group', role: 'group' }, pills));
+    var el = dom.document.body.appendChild(dom.el('div', { class: 'base-pill-group', role: 'group' }, pills));
     return { el: el, pills: pills };
 }
 
@@ -58,9 +58,9 @@ test('set chooses a pill by value without calling onChange, and an unknown value
 });
 
 test('a pill without data-value uses its text, and a pre-pressed pill counts as chosen', function () {
-    var pill = dom.el('button', { type: 'button', class: 'jpk-pill', 'aria-pressed': 'true' });
+    var pill = dom.el('button', { type: 'button', class: 'base-pill', 'aria-pressed': 'true' });
     pill.textContent = 'Plain';
-    var el = dom.document.body.appendChild(dom.el('div', { class: 'jpk-pill-group' }, [pill]));
+    var el = dom.document.body.appendChild(dom.el('div', { class: 'base-pill-group' }, [pill]));
     assert.equal(createPillGroup(el).get(), 'Plain');
 });
 

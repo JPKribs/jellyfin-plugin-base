@@ -1,9 +1,13 @@
-import { make, clear, has } from './dom-util.js';
+import { make, clear, has } from './lib/dom.js';
+import { applyColor } from './lib/color.js';
+import { onImageError, resolveThumbSource } from './lib/thumb.js';
+import type { ThumbSource } from './lib/thumb.js';
 import type { ComponentHandle } from './types.js';
 
 /** What createAvatar takes, and what its getValue returns as drawn. */
 export interface AvatarOptions {
     src?: string;
+    image?: ThumbSource;
     name?: string;
     size?: 'small' | 'medium' | 'large' | string;
     color?: string;
@@ -36,36 +40,22 @@ interface BuiltAvatar {
     root: HTMLSpanElement;
     redraw(next: AvatarOptions): void;
     get(): AvatarOptions;
+    release(): void;
 }
 
-var COLORS: string[] = ['blue', 'purple', 'teal', 'pink', 'orange', 'green'];
 var STATUS_LABELS: Record<string, string> = { green: 'Active', red: 'Error', orange: 'Waiting', purple: 'Working', blue: 'Info', gray: 'Off' };
-
-// Takes up to two initials from a name.
-function initialsOf(name: unknown): string {
-    var words = String(name || '').trim().split(/\s+/).filter(Boolean);
-    if (!words.length) return '';
-    var first = words[0].charAt(0);
-    var last = words.length > 1 ? words[words.length - 1].charAt(0) : '';
-    return (first + last).toUpperCase();
-}
-
-// Picks the same color for the same name every time.
-function colorOf(name: string): string {
-    var sum = 0;
-    for (var i = 0; i < name.length; i++) sum = (sum + name.charCodeAt(i) * (i + 1)) % 9973;
-    return COLORS[sum % COLORS.length];
-}
 
 // Builds the avatar element and the function that redraws it, for createAvatar and createUserChip.
 function buildAvatar(spec: AvatarOptions, quiet?: boolean): BuiltAvatar {
-    var root = make('span', 'jpk-avatar');
+    var root = make('span', 'base-avatar');
     var state: AvatarOptions = {};
     // A late image error from an earlier draw must not wipe what a newer draw put in.
     var drawn = 0;
+    var release: () => void = function () { /* nothing to free yet */ };
 
     function redraw(next: AvatarOptions): void {
         var mine = ++drawn;
+        release();
         state = {
             src: next.src || '',
             name: next.name || '',
@@ -74,50 +64,64 @@ function buildAvatar(spec: AvatarOptions, quiet?: boolean): BuiltAvatar {
             status: has(STATUS_LABELS, next.status) ? next.status! : '',
             statusLabel: next.statusLabel || ''
         };
+        if (next.image) state.image = next.image;
         clear(root);
         root.removeAttribute('role');
         root.removeAttribute('aria-label');
-        var color = state.color || colorOf(state.name!);
-        root.className = 'jpk-avatar jpk-avatar-' + state.size + ' ' + color;
-        var initials = initialsOf(state.name);
-        function showInitials(): void {
+        root.className = 'base-avatar base-avatar-' + state.size;
+        applyColor(root, state.color);
+        // With no picture, the person icon Jellyfin shows for a user without one.
+        function showPlaceholder(): void {
             clear(root);
+            root.classList.add('placeholder');
             if (state.name && !quiet) {
                 root.setAttribute('role', 'img');
                 root.setAttribute('aria-label', state.name);
             }
-            root.appendChild(make('span', 'jpk-avatar-initials', { 'aria-hidden': 'true' }, initials));
+            root.appendChild(make('span', 'base-avatar-icon material-icons', { 'aria-hidden': 'true' }, 'person'));
             addDot();
         }
         function addDot(): void {
             if (!state.status) return;
             var label = state.statusLabel || STATUS_LABELS[state.status];
-            root.appendChild(make('span', 'jpk-avatar-status ' + state.status, { role: 'img', title: label, 'aria-label': label }));
+            root.appendChild(make('span', 'base-avatar-status ' + state.status, { role: 'img', title: label, 'aria-label': label }));
         }
-        if (state.src) {
-            var img = make('img', 'jpk-avatar-image', { src: state.src, alt: state.name });
-            img.addEventListener('error', function () { if (mine === drawn) showInitials(); });
+        function showImage(url: string): void {
+            if (mine !== drawn) return;
+            if (!url) { showPlaceholder(); return; }
+            clear(root);
+            root.classList.remove('placeholder');
+            root.removeAttribute('role');
+            root.removeAttribute('aria-label');
+            var img = make('img', 'base-avatar-image', { src: url, alt: state.name });
+            onImageError(img, function () { if (mine === drawn) showPlaceholder(); });
             root.appendChild(img);
             addDot();
+        }
+        // A function source shows the person icon until its picture arrives.
+        if (typeof next.image === 'function') {
+            showPlaceholder();
+            release = resolveThumbSource(next.image, showImage);
         } else {
-            showInitials();
+            showImage(next.image || state.src || '');
         }
         if (state.name) root.setAttribute('title', state.name);
         else root.removeAttribute('title');
     }
 
     redraw(spec);
-    return { root: root, redraw: redraw, get: function () { return state; } };
+    return { root: root, redraw: redraw, get: function () { return state; }, release: function () { drawn++; release(); } };
 }
 
 /**
- * A round picture of a person or thing. It shows the image, and shows initials from the name when there is no image or the image fails to load. A status color adds a dot with a name.
+ * A round picture of a person or thing. It shows the image, and shows Jellyfin's person icon when there is no image or the image fails to load. A status color adds a dot with a name.
  *
  * @param options {
  *   src         : image address [optional]
- *   name        : the person's name, for the initials, the alt text, the title, and the label of an initials only avatar [optional]
+ *   image       : image address, or a function returning an address, a Blob, or a promise of one, which wins over src [optional]
+ *   name        : the person's name, for the alt text, the title, and the label of an avatar with no picture [optional]
  *   size        : 'small', 'medium', or 'large' (default 'medium')
- *   color       : status color name for the initials background (default one chosen from the name)
+ *   color       : color name for the circle behind the person icon (default gray)
  *   status      : 'green', 'red', 'orange', 'purple', 'blue', or 'gray' for a status dot [optional]
  *   statusLabel : name of the state (default the color's meaning, such as 'Active' for green)
  * }
@@ -129,7 +133,7 @@ export function createAvatar(options?: AvatarOptions): AvatarHandle {
         element: built.root,
         getValue: function () { return Object.assign({}, built.get()); },
         setValue: function (next) { built.redraw(next || {}); },
-        destroy: function () { if (built.root.parentNode) built.root.parentNode.removeChild(built.root); }
+        destroy: function () { built.release(); if (built.root.parentNode) built.root.parentNode.removeChild(built.root); }
     };
 }
 
@@ -141,11 +145,11 @@ export function createAvatar(options?: AvatarOptions): AvatarHandle {
  */
 export function createUserChip(options?: UserChipOptions): UserChipHandle {
     options = options || {};
-    var root = make('span', 'jpk-user-chip');
+    var root = make('span', 'base-user-chip');
     var built = buildAvatar(options, true);
-    var body = make('span', 'jpk-user-chip-body');
-    var nameEl = make('span', 'jpk-user-chip-name');
-    var textEl = make('span', 'jpk-user-chip-text');
+    var body = make('span', 'base-user-chip-body');
+    var nameEl = make('span', 'base-user-chip-name');
+    var textEl = make('span', 'base-user-chip-text');
     body.appendChild(nameEl);
     body.appendChild(textEl);
     root.appendChild(built.root);
@@ -160,6 +164,8 @@ export function createUserChip(options?: UserChipOptions): UserChipHandle {
         nameEl.textContent = next.name || '';
         textEl.textContent = text;
         textEl.hidden = !text;
+        // With a second line the avatar grows to span both lines.
+        root.classList.toggle('two-line', !!text);
     }
 
     setValue(options);
@@ -167,6 +173,6 @@ export function createUserChip(options?: UserChipOptions): UserChipHandle {
         element: root,
         getValue: function () { return Object.assign({ text: text }, built.get()); },
         setValue: setValue,
-        destroy: function () { if (root.parentNode) root.parentNode.removeChild(root); }
+        destroy: function () { built.release(); if (root.parentNode) root.parentNode.removeChild(root); }
     };
 }

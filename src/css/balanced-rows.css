@@ -1,0 +1,13 @@
+/* Tiles in rows of even size, so no row holds a single tile, laid out by balanceRows */
+/* Example: <div class="base-cards base-balanced"><div class="base-card"></div></div> */
+.base-balanced {
+    display: grid !important;
+    grid-template-columns: repeat(var(--base-balance-columns, 1), minmax(0, 1fr)) !important;
+}
+
+.base-balanced > * {
+    grid-column: span var(--base-balance-span, 1);
+    min-width: 0;
+}
+
+.base-balanced > [hidden] { display: none; }

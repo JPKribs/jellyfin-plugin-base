@@ -1,5 +1,7 @@
-import { make, listen, runAll, clear, nextId } from './dom-util.js';
+import { make, listen, runAll, clear, nextId, applyFieldSize, toText } from './lib/dom.js';
+import { bindValidation } from './lib/validate.js';
 import { createFieldMessage } from './field-message.js';
+import { adornField } from './field-adornments.js';
 import type { ComponentHandle } from './types.js';
 
 /** One unit choice. factor is how many base units one of this unit holds. */
@@ -29,6 +31,8 @@ export interface NumberUnitFieldOptions {
     rangeText?: string;
     minText?: string;
     maxText?: string;
+    size?: 'small' | 'medium' | 'large';
+    validate?(value: NumberUnitValue): string | null | undefined;
     onChange?(value: NumberUnitValue): void;
 }
 
@@ -40,11 +44,12 @@ export interface NumberUnitFieldHandle extends ComponentHandle {
     setValue(next?: { value?: number | string | null; unit?: string }): void;
     setBaseValue(base: number): void;
     isValid(): boolean;
+    setSize(size?: 'small' | 'medium' | 'large'): void;
     destroy(): void;
 }
 
 /**
- * A number input beside a unit select, such as 512 MB or 2 GB. The value is checked against min and max, and a unit may carry a factor so the field can also report and take a base value.
+ * A number input beside a unit select, such as 512 MB or 2 GB. The value is checked against min and max through the validation core, and a unit may carry a factor so the field can also report and take a base value.
  *
  * @param options {
  *   value     : first number [optional]
@@ -52,15 +57,17 @@ export interface NumberUnitFieldHandle extends ComponentHandle {
  *   units     : array of strings, or of { value, label, factor } where factor is how many base units one of this unit holds [required]
  *   min       : lowest number allowed, and a min above max swaps the two [optional]
  *   max       : highest number allowed [optional]
- *   step      : step of the number input (default 1)
+ *   step      : step of the number input, and a given step is also a rule, so 0.5 refuses 0.25 (default 1, which the arrows use and typing may leave)
  *   valueLabel: aria-label of the number input (default 'Value')
  *   unitLabel : aria-label of the unit select (default 'Unit')
  *   rangeText : message for a number out of range, where {min} and {max} are filled in (default 'Enter a number from {min} to {max}.')
  *   minText   : message when only min is set (default 'Enter {min} or more.')
  *   maxText   : message when only max is set (default 'Enter {max} or less.')
+ *   size      : 'small', 'medium', or 'large' for its fields (default 'medium')
+ *   validate  : function({ value, unit, base }) returning an error sentence, or an empty value when valid, after the range passes [optional]
  *   onChange  : function({ value, unit, base }) [optional]
  * }
- * @returns { element, input, select, getValue, setValue, setBaseValue, isValid, destroy }. getValue returns { value, unit, base }, where value is null while the input is empty and base is value times the unit's factor, or null with no factor.
+ * @returns { element, input, select, getValue, setValue, setBaseValue, isValid, setSize, destroy }. getValue returns { value, unit, base }, where value is null while the input is empty and base is value times the unit's factor, or null with no factor.
  * setBaseValue(base) picks the largest unit that divides the base evenly, so 2048 with MB and GB units shows 2 GB. It ignores a base that is not a finite number.
  */
 export function createNumberUnitField(options: NumberUnitFieldOptions): NumberUnitFieldHandle {
@@ -75,15 +82,18 @@ export function createNumberUnitField(options: NumberUnitFieldOptions): NumberUn
     var max: number | undefined = isFinite(parseFloat(options.max as string)) ? parseFloat(options.max as string) : undefined;
     if (min !== undefined && max !== undefined && min > max) { var swap = min; min = max; max = swap; }
 
-    var root = make('div', 'jpk-number-unit');
+    var root = make('div', 'base-number-unit');
+    applyFieldSize(root, options.size);
     var input = make('input', '', { type: 'number', 'aria-label': options.valueLabel || 'Value', step: String(options.step || 1) });
     if (min !== undefined) input.setAttribute('min', String(min));
     if (max !== undefined) input.setAttribute('max', String(max));
     var select = make('select', '', { 'aria-label': options.unitLabel || 'Unit' });
     units.forEach(function (u) { select.appendChild(make('option', '', { value: u.value }, u.label)); });
-    var wrap = make('div', 'jpk-number-unit-row');
+    var wrap = make('div', 'base-number-unit-row');
     wrap.appendChild(input);
     wrap.appendChild(select);
+    var adorned = adornField(input);
+    cleanups.push(function () { adorned.destroy(); });
     var message = createFieldMessage({ input: input, id: nextId('range') });
     root.appendChild(wrap);
     root.appendChild(message.element);
@@ -102,29 +112,25 @@ export function createNumberUnitField(options: NumberUnitFieldOptions): NumberUn
         return { value: n, unit: u.value, base: n !== null && u.factor !== null ? n * u.factor! : null };
     }
 
-    // Shows the range message when the number is outside min and max, and returns whether it is valid.
-    function check(): boolean {
-        var n = number();
-        var low = min !== undefined && n !== null && n < min;
-        var high = max !== undefined && n !== null && n > max;
-        var text = '';
-        if (low || high) {
-            if (min !== undefined && max !== undefined) text = options.rangeText || 'Enter a number from {min} to {max}.';
-            else if (min !== undefined) text = options.minText || 'Enter {min} or more.';
-            else text = options.maxText || 'Enter {max} or less.';
-            text = (text as any).replace('{min}', function () { return min; }).replace('{max}', function () { return max; });
-        }
-        message.set(text ? 'error' : '', text);
-        return !text;
-    }
-
     function changed(): void {
-        check();
         if (options.onChange) options.onChange(value());
     }
 
     cleanups.push(listen(input, 'input', changed));
-    cleanups.push(listen(select, 'change', changed));
+    cleanups.push(listen(select, 'change', function () { if (message.getValue().state) check(); changed(); }));
+    var messages: Record<string, string> = {};
+    if (options.rangeText) messages.range = options.rangeText;
+    if (options.minText) messages.min = options.minText;
+    if (options.maxText) messages.max = options.maxText;
+    // The default step only moves the arrows, so typing 1.5 stays allowed unless the caller sets a step.
+    var validation = bindValidation(input, {
+        message: message,
+        messages: messages,
+        rules: { step: options.step ? options.step : 'any' },
+        validate: function () { return options.validate ? options.validate(value()) : ''; }
+    });
+    cleanups.push(validation.destroy);
+    function check(): boolean { return validation.check(); }
 
     select.value = unitOf(options.unit).value;
     if (options.value !== undefined && options.value !== null) input.value = String(options.value);
@@ -138,7 +144,7 @@ export function createNumberUnitField(options: NumberUnitFieldOptions): NumberUn
         setValue: function (next?: { value?: number | string | null; unit?: string }) {
             next = next || {};
             if (next.unit !== undefined) select.value = unitOf(next.unit).value;
-            if (next.value !== undefined) input.value = next.value === null ? '' : String(next.value);
+            if (next.value !== undefined) input.value = toText(next.value);
             check();
         },
         setBaseValue: function (base: number) {
@@ -151,6 +157,7 @@ export function createNumberUnitField(options: NumberUnitFieldOptions): NumberUn
             check();
         },
         isValid: check,
+        setSize: function (size?: 'small' | 'medium' | 'large') { applyFieldSize(root, size); },
         destroy: function () { runAll(cleanups); message.destroy(); clear(wrap); }
     };
 }

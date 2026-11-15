@@ -1,6 +1,6 @@
 /* Circular progress with its percent in the middle, in three sizes and any status color */
-/* Example: <span class="jpk-ring jpk-ring-medium green" role="progressbar" aria-valuenow="40"><svg viewBox="0 0 36 36"></svg><span class="jpk-ring-value">40%</span></span> */
-.jpk-ring {
+/* Example: <span class="base-ring base-ring-medium green" role="progressbar" aria-valuenow="40"><svg viewBox="0 0 36 36"></svg><span class="base-ring-value">40%</span></span> */
+.base-ring {
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -9,22 +9,31 @@
     height: 56px;
     vertical-align: middle;
 }
-.jpk-ring-small { width: 32px; height: 32px; font-size: 0.65em; }
-.jpk-ring-large { width: 96px; height: 96px; font-size: 1.3em; }
-.jpk-ring > svg {
+.base-ring-small { width: 32px; height: 32px; font-size: 0.65em; }
+.base-ring-large { width: 96px; height: 96px; font-size: 1.3em; }
+.base-ring > svg {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     transform: rotate(-90deg);
 }
-.jpk-ring-track { stroke: var(--jpk-wash-strong); stroke-width: 3.5; }
-.jpk-ring-arc { stroke: var(--jpk-accent); stroke-width: 3.5; stroke-linecap: round; transition: stroke-dasharray 0.3s ease; }
-.jpk-ring.green .jpk-ring-arc { stroke: var(--jpk-green-fg); }
-.jpk-ring.red .jpk-ring-arc { stroke: var(--jpk-red-fg); }
-.jpk-ring.orange .jpk-ring-arc { stroke: var(--jpk-orange-fg); }
-.jpk-ring.purple .jpk-ring-arc { stroke: var(--jpk-purple-fg); }
-.jpk-ring.blue .jpk-ring-arc { stroke: var(--jpk-blue-fg); }
-.jpk-ring.gray .jpk-ring-arc { stroke: var(--jpk-gray-fg); }
-.jpk-ring-value { position: relative; font-size: 0.85em; font-weight: 600; font-variant-numeric: tabular-nums; }
-.jpk-ring-small .jpk-ring-value { font-size: 0.9em; }
+.base-ring-track { stroke: var(--base-wash-strong); stroke-width: 3.5; }
+.base-ring-arc { stroke: var(--base-accent); stroke-width: 3.5; stroke-linecap: round; transition: stroke-dasharray 0.3s ease; }
+.base-ring.green .base-ring-arc { stroke: var(--base-green-fg); }
+.base-ring.red .base-ring-arc { stroke: var(--base-red-fg); }
+.base-ring.orange .base-ring-arc { stroke: var(--base-orange-fg); }
+.base-ring.purple .base-ring-arc { stroke: var(--base-purple-fg); }
+.base-ring.blue .base-ring-arc { stroke: var(--base-blue-fg); }
+.base-ring.gray .base-ring-arc { stroke: var(--base-gray-fg); }
+.base-ring.custom .base-ring-arc { stroke: var(--base-custom-fg); }
+.base-ring-value { position: relative; font-size: 0.85em; font-weight: 600; font-variant-numeric: tabular-nums; }
+.base-ring-small .base-ring-value { font-size: 0.9em; }
+
+/* A small disc that fills like a pie with no text, such as beside a small button that is running a task */
+/* Example: <span class="base-ring base-ring-small base-ring-pie" role="progressbar" aria-valuenow="40"><svg viewBox="0 0 36 36"></svg></span> */
+.base-ring-pie,
+.base-ring-pie.base-ring-small,
+.base-ring-pie.base-ring-large { width: var(--base-icon-medium); height: var(--base-icon-medium); }
+.base-ring-pie .base-ring-track,
+.base-ring-pie .base-ring-arc { stroke-width: 18; stroke-linecap: butt; }

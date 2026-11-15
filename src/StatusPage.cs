@@ -38,12 +38,12 @@ public static class StatusPage
         string? content = null)
     {
         var spinner = showSpinner
-            ? "<div class=\"jpk-spinner\" role=\"status\" aria-label=\"Loading\"></div>"
+            ? "<div class=\"base-spinner\" role=\"status\" aria-label=\"Loading\"></div>"
             : string.Empty;
 
         var button = string.IsNullOrEmpty(buttonText) || string.IsNullOrEmpty(buttonHref)
             ? string.Empty
-            : "<a class=\"jpk-btn\" href=\"" + WebUtility.HtmlEncode(buttonHref) + "\">" + WebUtility.HtmlEncode(buttonText) + "</a>";
+            : "<a class=\"base-btn\" href=\"" + WebUtility.HtmlEncode(buttonHref) + "\">" + WebUtility.HtmlEncode(buttonText) + "</a>";
 
         return TemplateLoader.Fill("status", new Dictionary<string, string>(System.StringComparer.Ordinal)
         {

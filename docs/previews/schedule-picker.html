@@ -1,11 +1,11 @@
 <!-- title: Schedule Picker -->
 <div id="mount"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
+const base = await window.__baseReady;
 const view = document.getElementById('view');
 const mount = document.getElementById('mount');
 const note = document.createElement('div');
-note.className = 'jpk-status-text';
-mount.appendChild(JPK.createSchedulePicker({ value: { time: '02:30', days: [1, 3, 5] }, onChange: (v) => { note.textContent = JSON.stringify(v); } }).element);
+note.className = 'base-status-text';
+mount.appendChild(base.createSchedulePicker({ value: { time: '02:30', days: [1, 3, 5] }, onChange: (v) => { note.textContent = JSON.stringify(v); } }).element);
 mount.appendChild(note);
 </script>

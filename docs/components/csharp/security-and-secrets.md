@@ -6,7 +6,7 @@ These types are defense in depth, not a vault. The key ring is stored as unencry
 
 ## SecretProtector
 
-Encrypts and decrypts plugin secrets with ASP.NET Core Data Protection. Stored values carry the prefix `enc:v1:`. A value without the prefix is plaintext from before encryption was added, and `Unprotect` returns it unchanged.
+Encrypts and decrypts plugin secrets with ASP.NET Core Data Protection. Stored values carry the prefix `enc:v1:`. A value without the prefix is plaintext, and `Unprotect` returns it unchanged. `Protect` encrypts it on the next save.
 
 Get one per plugin through `AddPluginSecretProtector` or `StableSecretProtection.CreateProtector`. Construct it directly only when you supply your own provider.
 
@@ -29,7 +29,7 @@ var apiKey = _secrets.Unprotect(server.ApiKey);
 
 * `ResolveIncoming` always returns the value to store. The kept sentinel returns the stored value, a new value is encrypted, and an empty value clears the secret.
 * A plaintext secret that begins with `enc:v1:` is read as already encrypted. `Protect` leaves it alone and `Unprotect` returns an empty string.
-* Without a provider, `Protect` stores plaintext and `ResolveIncoming` still honors the sentinel. Check `IsAvailable` when a plugin must refuse to store plaintext.
+* Without a provider, `Protect` stores plaintext, `Unprotect` returns an empty string for an encrypted value, and `ResolveIncoming` still honors the sentinel. Check `IsAvailable` when a plugin must refuse to store plaintext.
 * A value that cannot be decrypted, for example after the key changed, logs a warning and returns an empty string.
 * `HasSecret` is true for any non-empty string and does not check that the value is encrypted. Use it to decide whether a page shows its "saved" placeholder.
 * The class holds no mutable state, so it is safe to share.
@@ -69,7 +69,8 @@ var token = SecretCompare.NewTokenBase64Url(32);
 **Gotchas**
 
 * A null or empty value never matches, not even another empty one, so an unset secret cannot be satisfied by an empty input.
-* The comparison is constant time over the UTF-16 code units, so strings that differ only in a lone surrogate are not equal,, but values of different lengths are refused at once, so it leaks the length. That is fine for tokens of a fixed size.
+* The comparison is constant time over the UTF-16 code units, so strings that differ only in a lone surrogate are not equal.
+* Values of different lengths are refused at once, so the comparison shows the length. That is fine for tokens of a fixed size.
 * The overload with a `StringComparison` accepts only `Ordinal` and `OrdinalIgnoreCase`. The ignore case form upper cases both sides with the invariant culture first, which suits a hex token written in either case.
 * `NewTokenHex(bytes)` gives lowercase hex of twice as many characters. `NewTokenBase64Url(bytes)` gives unpadded URL safe base 64, 43 characters for 32 bytes. A size below 1 throws.
 

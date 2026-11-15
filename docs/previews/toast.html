@@ -2,14 +2,14 @@
 <!-- min-height: 300 -->
 <div id="mount"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
+const base = await window.__baseReady;
 const view = document.getElementById('view');
 const mount = document.getElementById('mount');
-const toaster = JPK.createToaster({ parent: view, timeout: 4000 });
+const toaster = base.createToaster({ parent: view, timeout: 4000 });
 ['info', 'success', 'warn', 'error'].forEach((kind) => {
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = 'raised jpk-button-small';
+    button.className = 'raised base-button small';
     button.style.marginRight = '8px';
     button.textContent = kind;
     button.addEventListener('click', () => toaster[kind]('This is a ' + kind + ' message.'));

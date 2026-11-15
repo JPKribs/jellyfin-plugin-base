@@ -1,0 +1,34 @@
+/* Library search over a list of picked media rows, built by createMediaPicker */
+/* Example: <div class="base-media-picker"><div class="base-combo"><div class="base-search"></div><div class="base-combo-dropdown" hidden></div></div><div class="base-media-picker-items base-list rows" role="list"></div><div class="base-list-empty outside base-media-picker-empty">No items selected.</div></div> */
+.base-media-picker {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+}
+.base-media-picker[hidden] { display: none; }
+.base-media-picker > label.inputLabel { margin: 0; }
+.base-media-picker > div.fieldDescription { margin: 0; }
+
+/* Results dropdown tall enough for several rows with artwork */
+/* Example: <div class="base-combo-dropdown base-media-picker-results"><div class="base-combo-option base-media-picker-option"></div></div> */
+.base-combo-dropdown.base-media-picker-results { max-height: calc(var(--base-size-large) * 8); }
+
+/* One result, a borderless media row with small artwork */
+/* Example: <div class="base-combo-option base-media-picker-option"><div class="base-media-card base-media-card-row"></div></div> */
+.base-combo-option.base-media-picker-option { padding: calc(var(--base-gap-narrow) / 2); }
+.base-media-picker-option .base-media-card {
+    padding: 0 calc(var(--base-gap-narrow) / 2);
+    gap: var(--base-gap-narrow);
+    border: 0;
+    background: transparent;
+    color: inherit;
+}
+.base-media-picker-option .base-media-card-thumb { width: calc(var(--base-size-large) * 2 / 3); height: var(--base-size-large); }
+.base-media-picker-option .base-media-card-thumb.wide { width: calc(var(--base-size-medium) * 16 / 9); height: var(--base-size-medium); }
+.base-media-picker-option .base-media-card-thumb.square,
+.base-media-picker-option .base-media-card-thumb.round { width: var(--base-size-medium); height: var(--base-size-medium); }
+
+@media (max-width: 600px) {
+    .base-media-picker-option .base-media-card-row .base-media-card-suffix { display: inline; font-size: inherit; }
+    .base-media-picker-option .base-media-card-row .base-media-card-suffix::before { content: "\00b7\00a0"; }
+}

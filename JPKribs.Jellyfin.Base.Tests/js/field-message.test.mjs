@@ -24,7 +24,7 @@ test('each state sets its class and icon and shows the text', function () {
         assert.ok(msg.element.classList.contains(pair[0]));
         assert.equal(shown(msg.element), true);
         assert.equal(msg.element.querySelector('.material-icons').textContent, pair[1]);
-        assert.equal(msg.element.querySelector('.jpk-field-message-text').textContent, 'Text.');
+        assert.equal(msg.element.querySelector('.base-field-message-text').textContent, 'Text.');
     });
 });
 

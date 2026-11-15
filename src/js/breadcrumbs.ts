@@ -1,4 +1,4 @@
-import { make, icon, listen, runAll, clear } from './dom-util.js';
+import { make, icon, listen, runAll, clear } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
 
 /** One place in a breadcrumb trail. An item with an href is a link, and one without is a button. */
@@ -39,20 +39,20 @@ export function createBreadcrumbs(options?: BreadcrumbsOptions): BreadcrumbsHand
     var items: BreadcrumbItem[] = [];
     var cleanups: Array<() => void> = [];
 
-    var root = make('nav', 'jpk-breadcrumbs', { 'aria-label': options.navLabel || 'Breadcrumb' });
-    var list = make('ol', 'jpk-breadcrumb-list');
+    var root = make('nav', 'base-breadcrumbs', { 'aria-label': options.navLabel || 'Breadcrumb' });
+    var list = make('ol', 'base-breadcrumb-list');
     root.appendChild(list);
 
     function render(): void {
         clear(list);
         items.forEach(function (item, index) {
-            var li = make('li', 'jpk-breadcrumb');
+            var li = make('li', 'base-breadcrumb');
             if (index === items.length - 1) {
-                li.appendChild(make('span', 'jpk-breadcrumb-current', { 'aria-current': 'page' }, item.label));
+                li.appendChild(make('span', 'base-breadcrumb-current', { 'aria-current': 'page' }, item.label));
             } else {
                 var control = item.href
-                    ? make('a', 'jpk-breadcrumb-link', { href: item.href }, item.label)
-                    : make('button', 'jpk-breadcrumb-link', { type: 'button' }, item.label);
+                    ? make('a', 'base-breadcrumb-link', { href: item.href }, item.label)
+                    : make('button', 'base-breadcrumb-link', { type: 'button' }, item.label);
                 if (!item.href) control.addEventListener('click', function () { if (options!.onSelect) options!.onSelect(item.value === undefined ? item.label : item.value, item); });
                 li.appendChild(control);
                 li.appendChild(icon('chevron_right'));

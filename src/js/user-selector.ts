@@ -1,3 +1,5 @@
+import { applyFieldSize } from './lib/dom.js';
+import { idKey, loadUsers } from './lib/users.js';
 import type { ComponentHandle } from './types.js';
 
 /** A user after normalizeUser reads it, as the selectors draw it. */
@@ -25,9 +27,8 @@ export interface RawUser {
 /** Keeps everyone, hides administrators, or keeps only administrators. */
 export type AdminFilter = 'all' | 'exclude' | 'only';
 
-// UserSource
-// The options both selectors read to load the user list.
-interface UserSource {
+/** The options both selectors read to load the user list. */
+export interface UserSource {
     adminFilter?: AdminFilter;
     fetchUsers?(): RawUser[] | { Items?: RawUser[] } | Promise<RawUser[] | { Items?: RawUser[] }>;
 }
@@ -37,8 +38,8 @@ export interface UserSelectorOptions extends UserSource {
     value?: string;
     includeEmptyOption?: boolean;
     emptyLabel?: string;
-    placeholder?: string;
     showAdminBadge?: boolean;
+    size?: 'small' | 'medium' | 'large';
     onChange?(userId: string): void;
 }
 
@@ -48,98 +49,8 @@ export interface UserSelectorHandle extends ComponentHandle {
     getValue(): string;
     setValue(id: string | null): void;
     refresh(): Promise<SelectorUser[]>;
+    setSize(size?: 'small' | 'medium' | 'large'): void;
     destroy(): void;
-}
-
-/** What createUserMultiSelector takes. noteFor gives a row its pill, and onChange hears the selected ids. */
-export interface UserMultiSelectorOptions extends UserSource {
-    value?: string[];
-    disabledIds?: string[];
-    noteFor?(user: SelectorUser): string | null | undefined;
-    showSelectAll?: boolean;
-    selectAllText?: string;
-    showAvatars?: boolean;
-    emptyMessage?: string;
-    onChange?(ids: string[]): void;
-}
-
-/** What createUserMultiSelector returns. setDisabled swaps the disabled ids and re-renders without refetching. */
-export interface UserMultiSelectorHandle extends ComponentHandle {
-    ready: Promise<SelectorUser[]>;
-    getValue(): string[];
-    setValue(ids: string[] | null): void;
-    setDisabled(ids: string[] | null): void;
-    refresh(): Promise<SelectorUser[]>;
-    destroy(): void;
-}
-
-// Turns a value into text for textContent, with null and undefined as ''.
-function escapeText(value: unknown): string {
-    return value === null || value === undefined ? '' : String(value);
-}
-
-// Normalizes an id for comparison, so GUIDs that differ only by case or dashes still match, such as an "N" format id against a "D" format one.
-function idKey(id: unknown): string {
-    return String(id === null || id === undefined ? '' : id).replace(/-/g, '').toLowerCase();
-}
-
-// Normalizes a raw record from ApiClient.getUsers() or a plugin DTO to { id, name, isAdmin, imageTag }.
-function normalizeUser(raw: RawUser): SelectorUser {
-    var policy = raw.Policy || raw.policy || {};
-    var isAdmin = policy.IsAdministrator;
-    if (isAdmin === undefined) isAdmin = raw.IsAdministrator;
-    if (isAdmin === undefined) isAdmin = raw.isAdmin;
-    return {
-        id: raw.Id || raw.id || '',
-        name: raw.Name || raw.name || '',
-        isAdmin: !!isAdmin,
-        imageTag: raw.PrimaryImageTag || (raw.ImageTags && raw.ImageTags.Primary) || null
-    };
-}
-
-// Keeps every user, only non administrators for 'exclude', or only administrators for 'only'.
-function applyAdminFilter(users: SelectorUser[], mode: AdminFilter): SelectorUser[] {
-    if (mode === 'exclude') return users.filter(function (u) { return !u.isAdmin; });
-    if (mode === 'only') return users.filter(function (u) { return u.isAdmin; });
-    return users;
-}
-
-// Fetches the raw user list from options.fetchUsers, else ApiClient.getUsers, else a GET of Users, else an empty list.
-function fetchRawUsers(options: UserSource): Promise<RawUser[] | { Items?: RawUser[] }> {
-    if (typeof options.fetchUsers === 'function') {
-        return Promise.resolve(options.fetchUsers());
-    }
-    if (typeof ApiClient !== 'undefined' && ApiClient) {
-        if (typeof ApiClient.getUsers === 'function') {
-            try { return Promise.resolve(ApiClient.getUsers()); } catch (e) { /* fall through */ }
-        }
-        if (typeof ApiClient.getJSON === 'function' && typeof ApiClient.getUrl === 'function') {
-            try { return Promise.resolve(ApiClient.getJSON(ApiClient.getUrl('Users'))); } catch (e) { /* fall through */ }
-        }
-    }
-    return Promise.resolve([]);
-}
-
-// Resolves, normalizes, filters, and sorts the user list by name, giving an empty list when the fetch fails.
-function loadUsers(options: UserSource): Promise<SelectorUser[]> {
-    return fetchRawUsers(options).then(function (raw) {
-        // A source may return a plain array or a paged { Items } envelope.
-        var list = Array.isArray(raw) ? raw : (raw && raw.Items) || [];
-        var users = list.map(normalizeUser);
-        users = applyAdminFilter(users, options.adminFilter || 'all');
-        users.sort(function (a, b) { return a.name.localeCompare(b.name); });
-        return users;
-    }).catch(function () { return []; });
-}
-
-// Returns the avatar URL for a user, or null when the user has no image or ApiClient cannot build one.
-function avatarUrl(user: SelectorUser): string | null {
-    if (!user.imageTag || typeof ApiClient === 'undefined' || !ApiClient.getUserImageUrl) return null;
-    try {
-        return ApiClient.getUserImageUrl(user.id, { tag: user.imageTag, type: 'Primary', height: 56 });
-    } catch (e) {
-        return null;
-    }
 }
 
 /**
@@ -150,25 +61,26 @@ function avatarUrl(user: SelectorUser): string | null {
  *   value              : preselected user id [optional]
  *   includeEmptyOption : add a none entry (default true)
  *   emptyLabel         : label for the none entry (default 'None')
- *   placeholder        : alias for emptyLabel [optional]
  *   showAdminBadge     : append " (admin)" to administrator names (default true)
  *   fetchUsers         : function returning the user list, which replaces ApiClient.getUsers() [optional]
+ *   size               : 'small', 'medium', or 'large' for its fields (default 'medium')
  *   onChange           : function(userId) called on selection change [optional]
  * }
- * @returns { element, ready, getValue, setValue, refresh, destroy }.
+ * @returns { element, ready, getValue, setValue, refresh, setSize, destroy }.
  */
 export function createUserSelector(options?: UserSelectorOptions): UserSelectorHandle {
     options = options || {};
 
     var container = document.createElement('div');
-    container.className = 'jpk-selector jpk-user-selector';
+    container.className = 'base-selector base-user-selector';
+    applyFieldSize(container, options.size);
 
     var select = document.createElement('select');
-    select.className = 'jpk-selector-dropdown jpk-user-select';
+    select.className = 'base-selector-dropdown base-user-select';
     container.appendChild(select);
 
     var includeEmpty = options.includeEmptyOption !== false;
-    var emptyLabel = options.emptyLabel || options.placeholder || 'None';
+    var emptyLabel = options.emptyLabel || 'None';
     var showAdminBadge = options.showAdminBadge !== false;
     var pending = options.value || '';
 
@@ -214,200 +126,7 @@ export function createUserSelector(options?: UserSelectorOptions): UserSelectorH
         getValue: function () { return select.value; },
         setValue: function (id: string | null): void { pending = id || ''; selectByValue(pending); pending = select.value; },
         refresh: function (): Promise<SelectorUser[]> { return loadUsers(options).then(render); },
-        destroy: function (): void { /* no document-level listeners */ }
-    };
-}
-
-/**
- * Builds a checkbox list for picking many users from the server's user list.
- *
- * @param options {
- *   adminFilter   : 'all' | 'exclude' | 'only', to keep everyone, hide administrators, or keep only administrators (default 'all')
- *   value         : array of preselected user ids [optional]
- *   disabledIds   : array of user ids to render non-selectable, such as users already assigned elsewhere [optional]
- *   noteFor       : function(user) returning a string for a pill on the row, such as a group name [optional]
- *   showSelectAll : add a select all row (default false)
- *   selectAllText : the label of the select all row (default 'Select all')
- *   showAvatars   : render user avatars when available (default true)
- *   emptyMessage  : message shown when no users match (default 'No users available.')
- *   fetchUsers    : function returning the user list, which replaces ApiClient.getUsers() [optional]
- *   onChange      : function(idsArray) called whenever the selection changes [optional]
- * }
- * @returns { element, ready, getValue, setValue, setDisabled, refresh, destroy }.
- * setDisabled(ids) swaps the disabled ids and re-renders without refetching.
- */
-export function createUserMultiSelector(options?: UserMultiSelectorOptions): UserMultiSelectorHandle {
-    options = options || {};
-
-    var container = document.createElement('div');
-    container.className = 'jpk-user-multi';
-
-    var selectAllRow: HTMLLabelElement | null = null;
-    var selectAllCheck: HTMLInputElement | null = null;
-    if (options.showSelectAll) {
-        selectAllRow = document.createElement('label');
-        selectAllRow.className = 'jpk-user-multi-option jpk-user-multi-selectall';
-        selectAllCheck = document.createElement('input');
-        selectAllCheck.type = 'checkbox';
-        selectAllCheck.className = 'jpk-user-multi-check';
-        var selectAllName = document.createElement('span');
-        selectAllName.className = 'jpk-user-multi-name';
-        selectAllName.textContent = options.selectAllText || 'Select all';
-        selectAllRow.appendChild(selectAllCheck);
-        selectAllRow.appendChild(selectAllName);
-        container.appendChild(selectAllRow);
-        selectAllRow.classList.add('hidden');
-    }
-
-    var listEl = document.createElement('div');
-    listEl.className = 'jpk-user-multi-list';
-    container.appendChild(listEl);
-
-    // Keyed by normalized id, so a selection survives a re-render that filters a user out of view.
-    var selected: Record<string, boolean> = {};
-    (options.value || []).forEach(function (id) { selected[idKey(id)] = true; });
-
-    var disabled: Record<string, boolean> = {};
-    (options.disabledIds || []).forEach(function (id) { disabled[idKey(id)] = true; });
-
-    // Kept so setDisabled can re-render without refetching.
-    var currentUsers: SelectorUser[] = [];
-
-    var showAvatars = options.showAvatars !== false;
-
-    function rowChecks(): NodeListOf<HTMLInputElement> {
-        return listEl.querySelectorAll<HTMLInputElement>('.jpk-user-multi-check');
-    }
-
-    function getValue(): string[] {
-        var ids: string[] = [];
-        rowChecks().forEach(function (cb) {
-            if (cb.checked) ids.push(cb.getAttribute('data-id')!);
-        });
-        return ids;
-    }
-
-    // Shows the select all row only while rows exist, and sets its checked and mixed state.
-    function syncSelectAll(): void {
-        if (!selectAllCheck) return;
-        var checks = rowChecks();
-        if (!checks.length) { selectAllRow!.classList.add('hidden'); return; }
-        selectAllRow!.classList.remove('hidden');
-        var total = checks.length;
-        var on = 0;
-        checks.forEach(function (cb) { if (cb.checked) on++; });
-        selectAllCheck.checked = on === total;
-        selectAllCheck.indeterminate = on > 0 && on < total;
-    }
-
-    function emitChange(): void {
-        if (options!.onChange) options!.onChange(getValue());
-    }
-
-    // Rebuilds the rows for a user list.
-    function render(users: SelectorUser[]): SelectorUser[] {
-        currentUsers = users;
-        listEl.innerHTML = '';
-
-        if (!users.length) {
-            var empty = document.createElement('div');
-            empty.className = 'jpk-user-multi-empty';
-            empty.textContent = options!.emptyMessage || 'No users available.';
-            listEl.appendChild(empty);
-            syncSelectAll();
-            return users;
-        }
-
-        users.forEach(function (u) {
-            var isDisabled = !!disabled[idKey(u.id)];
-
-            var row = document.createElement('label');
-            row.className = 'jpk-user-multi-option' + (isDisabled ? ' jpk-user-multi-disabled' : '');
-
-            var cb = document.createElement('input');
-            cb.type = 'checkbox';
-            cb.className = 'jpk-user-multi-check';
-            cb.setAttribute('data-id', u.id);
-            cb.checked = !!selected[idKey(u.id)];
-            cb.disabled = isDisabled;
-            if (!isDisabled) {
-                cb.addEventListener('change', function () {
-                    selected[idKey(u.id)] = cb.checked;
-                    syncSelectAll();
-                    emitChange();
-                });
-            }
-            row.appendChild(cb);
-
-            if (showAvatars) {
-                var url = avatarUrl(u);
-                if (url) {
-                    var img = document.createElement('img');
-                    img.className = 'jpk-user-multi-avatar';
-                    img.src = url;
-                    img.alt = '';
-                    row.appendChild(img);
-                }
-            }
-
-            var name = document.createElement('span');
-            name.className = 'jpk-user-multi-name';
-            name.textContent = escapeText(u.name);
-            row.appendChild(name);
-
-            if (u.isAdmin) {
-                var badge = document.createElement('span');
-                badge.className = 'jpk-user-multi-admin';
-                badge.textContent = 'admin';
-                row.appendChild(badge);
-            }
-
-            var note = options!.noteFor ? options!.noteFor(u) : '';
-            if (note) {
-                var noteEl = document.createElement('span');
-                noteEl.className = 'jpk-user-multi-note';
-                noteEl.textContent = escapeText(note);
-                row.appendChild(noteEl);
-            }
-
-            listEl.appendChild(row);
-        });
-
-        syncSelectAll();
-        return users;
-    }
-
-    if (selectAllCheck) {
-        selectAllCheck.addEventListener('change', function () {
-            var checked = selectAllCheck!.checked;
-            rowChecks().forEach(function (cb) {
-                if (cb.disabled) return;
-                cb.checked = checked;
-                selected[idKey(cb.getAttribute('data-id'))] = checked;
-            });
-            selectAllCheck!.indeterminate = false;
-            emitChange();
-        });
-    }
-
-    var ready = loadUsers(options).then(render);
-
-    return {
-        element: container,
-        ready: ready,
-        getValue: getValue,
-        setValue: function (ids: string[] | null): void {
-            selected = {};
-            (ids || []).forEach(function (id) { selected[idKey(id)] = true; });
-            rowChecks().forEach(function (cb) { cb.checked = !!selected[idKey(cb.getAttribute('data-id'))]; });
-            syncSelectAll();
-        },
-        setDisabled: function (ids: string[] | null): void {
-            disabled = {};
-            (ids || []).forEach(function (id) { disabled[idKey(id)] = true; });
-            if (currentUsers.length) render(currentUsers);
-        },
-        refresh: function (): Promise<SelectorUser[]> { return loadUsers(options).then(render); },
+        setSize: function (size?: 'small' | 'medium' | 'large'): void { applyFieldSize(container, size); },
         destroy: function (): void { /* no document-level listeners */ }
     };
 }

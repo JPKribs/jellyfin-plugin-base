@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>JPKribs Base UI Gallery</title>
 
-<!-- The Material Icons font that the kit icons use through the material-icons class -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+<!-- The icon font Jellyfin ships, material-design-icons-iconfont. Its per-icon classes, such as expand_more, draw the icons that have no text. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/material-design-icons-iconfont@6.7.0/dist/material-design-icons.min.css" />
 <!-- The bundled kit stylesheet, which scripts/gallery.sh rebuilds -->
 <link rel="stylesheet" href="../../dist/jpkribs_shared.css" />
 
@@ -20,13 +20,13 @@
         -webkit-font-smoothing: antialiased;
     }
     .g-wrap { max-width: 880px; margin: 0 auto; padding: 32px 24px 120px; }
-    .g-title { font-size: 1.6rem; font-weight: 700; margin: 0 0 4px; }
-    .g-sub { opacity: 0.55; margin: 0 0 28px; font-size: 0.9rem; }
+    .g-title { font-size: 1.6rem; font-weight: 700; margin: 0 0 var(--base-gap-narrow); }
+    .g-sub { opacity: 0.55; margin: 0 0 var(--base-gap-wide); font-size: 0.9rem; }
     .g-section {
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 12px;
         padding: 18px 20px 22px;
-        margin: 0 0 22px;
+        margin: 0 0 var(--base-gap-wide);
         background: rgba(255, 255, 255, 0.015);
     }
     .g-section > h2 {
@@ -34,18 +34,20 @@
         text-transform: uppercase;
         letter-spacing: 0.08em;
         opacity: 0.55;
-        margin: 0 0 14px;
+        margin: 0 0 var(--base-gap-wide);
         font-weight: 700;
     }
-    .g-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    .g-swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+    .g-row { display: flex; flex-wrap: wrap; gap: var(--base-gap-narrow); align-items: center; }
+    .g-swatches { display: flex; flex-wrap: wrap; gap: var(--base-gap-narrow); }
     .g-swatch { width: 96px; text-align: center; font-size: 0.7rem; opacity: 0.8; }
-    .g-swatch .chip { height: 40px; border-radius: 8px; margin-bottom: 4px; border: 1px solid rgba(255,255,255,0.1); }
-    .g-note { font-size: 0.8rem; opacity: 0.5; margin: 10px 0 0; }
+    .g-swatch .chip { height: 40px; border-radius: 8px; margin-bottom: var(--base-gap-narrow); border: 1px solid rgba(255,255,255,0.1); }
+    .g-note { font-size: 0.8rem; opacity: 0.5; margin: var(--base-gap-narrow) 0 0; }
+    .g-gap-top { margin-top: var(--base-gap-wide); }
+    .g-push { margin-left: auto !important; }
 </style>
 </head>
 
-<!-- The page wrapper carries pluginConfigurationPage so the form rules and token aliases apply as on a config page -->
+<!-- The page wrapper carries pluginConfigurationPage so the form rules apply as on a config page -->
 <body>
 <div class="pluginConfigurationPage">
 <div class="g-wrap" id="view">
@@ -54,82 +56,16 @@
 </div>
 </div>
 
-<!-- Stubs of the dashboard globals with mock data, as a classic script so it runs before the module below -->
-<script>
-(function () {
-    function svg(w, h, bg, label) {
-        var s = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '">' +
-            '<rect width="' + w + '" height="' + h + '" rx="' + Math.min(w, h) / 2 + '" fill="' + bg + '"/>' +
-            '<text x="50%" y="54%" font-size="' + (h * 0.4) + '" fill="#fff" text-anchor="middle" ' +
-            'dominant-baseline="middle" font-family="sans-serif">' + label + '</text></svg>';
-        return 'data:image/svg+xml;utf8,' + encodeURIComponent(s);
-    }
-    function rect(w, h, bg, label) {
-        var s = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '">' +
-            '<rect width="' + w + '" height="' + h + '" rx="4" fill="' + bg + '"/>' +
-            '<text x="50%" y="55%" font-size="' + (h * 0.5) + '" fill="#fff" text-anchor="middle" ' +
-            'dominant-baseline="middle" font-family="sans-serif">' + label + '</text></svg>';
-        return 'data:image/svg+xml;utf8,' + encodeURIComponent(s);
-    }
-    window.__gallery = { svg: svg, rect: rect };
-
-    var COLORS = ['#0088cc', '#9b59b6', '#5cb85c', '#f0ad4e', '#d9534f', '#3498db'];
-    var USERS = [
-        { Id: 'u1', Name: 'Alice',   Policy: { IsAdministrator: true },  PrimaryImageTag: 't1' },
-        { Id: 'u2', Name: 'Bob',     Policy: { IsAdministrator: false }, PrimaryImageTag: 't2' },
-        { Id: 'u3', Name: 'Carol',   Policy: { IsAdministrator: false }, PrimaryImageTag: null },
-        { Id: 'u4', Name: 'Dave',    Policy: { IsAdministrator: true },  PrimaryImageTag: 't4' },
-        { Id: 'u5', Name: 'Eve',     Policy: { IsAdministrator: false }, PrimaryImageTag: 't5' }
-    ];
-
-    // Mock media rows for the paginated table.
-    var STATUSES = ['Synced', 'Queued', 'Errored', 'Downloading', 'Ignored', 'Imported'];
-    var ITEMS = [];
-    for (var i = 1; i <= 57; i++) {
-        ITEMS.push({
-            id: 'item-' + i,
-            name: 'Episode ' + i + ', The One With The ' + ['Cache', 'Sync', 'Retry', 'Backoff', 'Token'][i % 5],
-            sizeBytes: (i * 37 % 900 + 20) * 1024 * 1024,
-            status: STATUSES[i % STATUSES.length]
-        });
-    }
-
-    window.Dashboard = { alert: function (m) { window.alert(typeof m === 'string' ? m : (m && m.message) || 'alert'); } };
-
-    var config = { Demo: true, Count: 1 };
-    window.ApiClient = {
-        getUsers: function () { return Promise.resolve(USERS.slice()); },
-        getUserImageUrl: function (id, o) {
-            var u = USERS.filter(function (x) { return x.Id === id; })[0];
-            return svg(56, 56, COLORS[USERS.indexOf(u) % COLORS.length], (u ? u.Name[0] : '?'));
-        },
-        getPluginConfiguration: function () { return Promise.resolve(JSON.parse(JSON.stringify(config))); },
-        updatePluginConfiguration: function (id, c) { config = c; return Promise.resolve(c); },
-        getUrl: function (u) { return u; },
-        fetch: function (opts) {
-            // Serve the mock paginated table from the query string.
-            var q = {};
-            (opts.url.split('?')[1] || '').split('&').forEach(function (p) {
-                var kv = p.split('='); if (kv[0]) q[kv[0]] = decodeURIComponent(kv[1] || '');
-            });
-            var skip = parseInt(q.skip || '0', 10), take = parseInt(q.take || '50', 10);
-            var filtered = ITEMS.filter(function (it) {
-                return !q.search || it.name.toLowerCase().indexOf(q.search.toLowerCase()) !== -1;
-            });
-            return Promise.resolve({ Items: filtered.slice(skip, skip + take), TotalCount: filtered.length });
-        }
-    };
-    window.__galleryData = { USERS: USERS, ITEMS: ITEMS, COLORS: COLORS, STATUSES: STATUSES };
-})();
-</script>
+<!-- The shared stubs of the dashboard globals with mock data, as a classic script so it runs before the module below -->
+<script src="../../docs/previews/_stubs.js"></script>
 
 <script type="module">
-import * as JPK from '../../dist/jpkribs_shared.js';
+import * as base from '../../dist/jpkribs_shared.js';
 
 const view = document.getElementById('view');
 const D = window.__galleryData;
 const G = window.__gallery;
-const shared = JPK.createShared(view, 'gallery-plugin-id', 'Gallery');
+const shared = base.createShared(view, 'gallery-plugin-id', 'Gallery');
 
 // Adds a titled section card to the page and returns it.
 function section(title) {
@@ -158,10 +94,10 @@ function html(parent, markup) {
     const s = section('Palette & tokens');
     const wrap = document.createElement('div');
     wrap.className = 'g-swatches';
-    [['--jpk-accent', 'accent'], ['--jpk-success', 'success'], ['--jpk-warning', 'warning'],
-     ['--jpk-error', 'error'], ['--jpk-info', 'info'], ['--jpk-purple', 'purple'], ['--jpk-border', 'border'],
-     ['--jpk-on-accent', 'on-accent'], ['--jpk-accent-wash', 'accent-wash'], ['--jpk-wash', 'wash'], ['--jpk-wash-strong', 'wash-strong'],
-     ['--jpk-pink-fg', 'pink'], ['--jpk-teal-fg', 'teal']]
+    [['--base-accent', 'accent'], ['--base-success', 'success'], ['--base-warning', 'warning'],
+     ['--base-error', 'error'], ['--base-blue-fg', 'blue'], ['--base-purple-fg', 'purple'], ['--base-border', 'border'],
+     ['--base-on-accent', 'on-accent'], ['--base-accent-wash', 'accent-wash'], ['--base-wash', 'wash'], ['--base-wash-strong', 'wash-strong'],
+     ['--base-pink-fg', 'pink'], ['--base-teal-fg', 'teal']]
     .forEach(([v, name]) => {
         const sw = document.createElement('div');
         sw.className = 'g-swatch';
@@ -175,39 +111,52 @@ function html(parent, markup) {
     const s = section('Buttons');
     const r = row(s);
     r.innerHTML =
-        '<button class="raised jpk-button-submit">Submit</button>' +
-        '<button class="raised jpk-button-primary">Primary</button>' +
-        '<button class="raised jpk-button-destructive">Delete</button>' +
-        '<button class="raised jpk-secondary">Secondary</button>' +
-        '<button class="raised jpk-button-small">Small</button>' +
-        '<button class="jpk-icon-btn"><span class="material-icons">add</span><span>Icon button</span></button>';
+        '<button class="raised base-button primary">Submit</button>' +
+        '<button class="raised base-button destructive">Delete</button>' +
+        '<button class="raised base-button secondary">Secondary</button>' +
+
+        '<button class="base-button"><span class="material-icons">add</span><span>Icon button</span></button>';
+    const custom = document.createElement('button');
+    custom.className = 'raised base-button'; custom.textContent = 'Custom #e91e63';
+    base.applyColor(custom, '#e91e63');
+    const light = document.createElement('button');
+    light.className = 'raised base-button'; light.textContent = 'Custom #ffd54f';
+    base.applyColor(light, '#ffd54f');
+    r.appendChild(custom); r.appendChild(light);
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">The three sizes, each on its own line, since buttons on one line share a size.</p>');
+    html(s, '<div class="g-row"><button class="raised base-button primary small">Small</button></div>');
+    html(s, '<div class="g-row"><button class="raised base-button primary">Medium</button></div>');
+    html(s, '<div class="g-row"><button class="raised base-button primary large">Large</button></div>');
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">fill spans the width on a medium or large button. In a base-button-row, fill buttons share it a wide space apart.</p>');
+    html(s, '<button class="raised base-button primary fill">Save</button>');
+    html(s, '<div class="base-button-row" style="margin-top:var(--base-gap-wide)"><button class="raised base-button secondary fill">Cancel</button><button class="raised base-button primary fill">Save</button></div>');
 })();
 
 (function () {
     const s = section('Status callouts');
-    html(s, '<div class="jpk-info">jpk-info, a neutral hint or guidance.</div>').style.marginBottom = '8px';
-    html(s, '<div class="jpk-success">jpk-success, a healthy or completed state.</div>').style.marginBottom = '8px';
-    html(s, '<div class="jpk-warn">jpk-warn, a caution worth heeding.</div>').style.marginBottom = '8px';
-    html(s, '<div class="jpk-error">jpk-error, a blocking problem.</div>').style.marginBottom = '8px';
-    html(s, '<div class="jpk-neutral">jpk-neutral, a muted, inactive note.</div>').style.marginBottom = '8px';
-    html(s, '<div class="jpk-error-message">TypeError: cannot read properties of undefined (reading \'Items\')</div>');
+    html(s, '<div class="base-info">base-info, a neutral hint or guidance.</div>').style.marginBottom = '8px';
+    html(s, '<div class="base-success">base-success, a healthy or completed state.</div>').style.marginBottom = '8px';
+    html(s, '<div class="base-warn">base-warn, a caution worth heeding.</div>').style.marginBottom = '8px';
+    html(s, '<div class="base-error">base-error, a blocking problem.</div>').style.marginBottom = '8px';
+    html(s, '<div class="base-neutral">base-neutral, a muted, inactive note.</div>').style.marginBottom = '8px';
+    html(s, '<div class="base-error-message">TypeError: cannot read properties of undefined (reading \'Items\')</div>');
 })();
 
 (function () {
-    const s = section('Status text (shared.setStatus)');
+    const s = section('Status text');
     const line = document.createElement('span');
     line.id = 'demoStatus';
-    line.className = 'jpk-status-text';
+    line.className = 'base-status-text';
     const r = row(s);
-    const ok = document.createElement('button'); ok.className = 'raised jpk-button-small'; ok.textContent = 'Show success';
-    const bad = document.createElement('button'); bad.className = 'raised jpk-button-small'; bad.textContent = 'Show error';
+    const ok = document.createElement('button'); ok.className = 'raised base-button small'; ok.textContent = 'Show success';
+    const bad = document.createElement('button'); bad.className = 'raised base-button small'; bad.textContent = 'Show error';
     ok.onclick = () => shared.setStatus('demoStatus', 'Saved successfully.', false, { timeout: 0 });
     bad.onclick = () => shared.setStatus('demoStatus', 'Something went wrong.', true, { timeout: 0 });
     r.appendChild(ok); r.appendChild(bad); r.appendChild(line);
 })();
 
 (function () {
-    const s = section('Count cards (shared.renderCards)');
+    const s = section('Count cards');
     const host = document.createElement('div'); host.id = 'demoCards';
     s.appendChild(host);
     shared.renderCards('demoCards', [
@@ -215,92 +164,95 @@ function html(parent, markup) {
         { label: 'Synced', count: 340, color: 'green' },
         { label: 'Errored', count: 3, color: 'red' },
         { label: 'Ignored', count: 8, color: 'gray' },
-        { label: 'Pending', count: 21, color: 'purple' }
+        { label: 'Pending', count: 21, color: 'purple' },
+        { label: 'Custom', count: 7, color: '#e91e63' }
     ]);
-    html(s, '<div class="jpk-record-card" style="margin-top:14px">' +
-        '<div class="jpk-record-row"><span class="jpk-record-label">Last run</span><span>2 minutes ago</span></div>' +
-        '<div class="jpk-record-row"><span class="jpk-record-label">Result</span><span class="jpk-mono">OK</span></div>' +
-        '<div class="jpk-record-row"><span class="jpk-record-label">Address</span><span class="jpk-mono">203.0.113.7</span></div>' +
+    html(s, '<div class="base-record-card" style="margin-top:var(--base-gap-wide)">' +
+        '<div class="base-record-row"><span class="base-record-label">Last run</span><span>2 minutes ago</span></div>' +
+        '<div class="base-record-row"><span class="base-record-label">Result</span><span class="base-mono">OK</span></div>' +
+        '<div class="base-record-row"><span class="base-record-label">Address</span><span class="base-mono">203.0.113.7</span></div>' +
         '</div>');
 })();
 
 (function () {
-    const s = section('Badges (BADGE_STATES)');
+    const s = section('Badges');
     const r = row(s);
-    JPK.BADGE_STATES.names.forEach(n => r.insertAdjacentHTML('beforeend', shared.statusBadge(n, n) + ' '));
+    base.BADGE_STATES.names.forEach(n => r.insertAdjacentHTML('beforeend', shared.statusBadge(n, n) + ' '));
     const r2 = row(s); r2.style.marginTop = '10px';
-    JPK.BADGE_STATES.colors.forEach(c => r2.insertAdjacentHTML('beforeend', shared.badge(c, c) + ' '));
+    base.BADGE_STATES.colors.forEach(c => r2.insertAdjacentHTML('beforeend', shared.badge(c, c) + ' '));
+    ['#e91e63', '#00bcd4', '#ff9800'].forEach(c => r2.insertAdjacentHTML('beforeend', shared.badge(c, c) + ' '));
 })();
 
 (function () {
     const s = section('Tags');
-    html(s, '<div class="jpk-tags">' +
+    html(s, '<div class="base-tags">' +
         ['Action', 'Comedy', 'Drama', 'Sci-Fi'].map(t =>
-            '<span class="jpk-tag">' + t + '<span class="jpk-tag-remove">×</span></span>').join('') +
+            '<span class="base-tag">' + t + '<span class="base-tag-remove material-icons">close</span></span>').join('') +
         '</div>');
-    html(s, '<div class="jpk-tags">' +
+    html(s, '<div class="base-tags">' +
         ['Action', 'Comedy', 'Drama', 'Sci-Fi'].map(t =>
-            '<span class="jpk-tag">' + t + '<button type="button" class="jpk-tag-remove" aria-label="Remove ' + t + '">×</button></span>').join('') +
+            '<span class="base-tag">' + t + '<button type="button" class="base-tag-remove material-icons" aria-label="Remove ' + t + '">close</button></span>').join('') +
         '</div>');
-    html(s, '<div class="jpk-tags">' +
+    html(s, '<div class="base-tags">' +
         ['Action', 'Comedy', 'Drama', 'Sci-Fi'].map(t =>
-            '<span class="jpk-tag jpk-tag-pill">' + t + '<button type="button" class="jpk-tag-remove" aria-label="Remove ' + t + '">×</button></span>').join('') +
-        '<span class="jpk-tag jpk-tag-off">Off tag</span></div>');
-    s.insertAdjacentHTML('beforeend', '<p class="g-note">Row one is span removers, row two is real buttons with a focus ring, row three is jpk-tag-pill.</p>');
+            '<span class="base-tag base-tag-pill">' + t + '<button type="button" class="base-tag-remove material-icons" aria-label="Remove ' + t + '">close</button></span>').join('') +
+        '<span class="base-tag base-tag-off">Off tag</span></div>');
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">Row one is span removers, row two is real buttons with a focus ring, row three is base-tag-pill.</p>');
 })();
 
 (function () {
     const s = section('Fields & inputs');
-    html(s, '<div class="jpk-field-row">' +
-        '<div class="jpk-field"><label>Host name</label><input type="text" value="server.example.com" /></div>' +
-        '<div class="jpk-field"><label>Port</label><input type="number" value="8096" /></div>' +
+    html(s, '<div class="base-field-row">' +
+        '<div class="base-field"><label>Host name</label><input type="text" value="server.example.com" /></div>' +
+        '<div class="base-field"><label>Port</label><input type="number" value="8096" /></div>' +
         '</div>');
-    html(s, '<div class="inputContainer"><label>API key</label><input type="password" value="secret-value" /></div>');
+    html(s, '<div class="inputContainer"><label>API key</label><input type="password" class="g-fields-secret" /></div>');
+    base.bindSecretField(s.querySelector('.g-fields-secret'), true);
     html(s, '<div class="selectContainer"><label>Mode</label><select><option>Allowlist</option><option>Blocklist</option><option>None</option></select></div>');
     html(s, '<div class="inputContainer"><label>Notes</label><textarea rows="2">Multi-line text area.</textarea></div>');
 })();
 
 (function () {
-    const s = section('Record selector (jpk-selector)');
-    html(s, '<div class="jpk-selector">' +
-        '<select class="jpk-selector-dropdown"><option>Primary record</option><option>Backup record</option></select>' +
-        '<div class="jpk-selector-actions">' +
-            '<button class="jpk-icon-btn"><span class="material-icons">add</span><span>New</span></button>' +
-            '<button class="jpk-icon-btn"><span class="material-icons">delete</span><span>Delete</span></button>' +
+    const s = section('Record selector');
+    html(s, '<div class="base-selector">' +
+        '<select class="base-selector-dropdown"><option>Primary record</option><option>Backup record</option></select>' +
+        '<div class="base-selector-actions">' +
+            '<button class="base-button"><span class="material-icons">add</span><span>New</span></button>' +
+            '<button class="base-button"><span class="material-icons">delete</span><span>Delete</span></button>' +
         '</div></div>');
 })();
 
 (function () {
     const s = section('Collapsible sections');
     s.insertAdjacentHTML('beforeend',
-        '<div class="jpk-collapsible-section">' +
-          '<button type="button" class="jpk-collapsible-header" data-target="colA">' +
-            '<span class="jpk-collapsible-title">Advanced options</span>' +
-            '<span class="jpk-collapsible-icon">▼</span></button>' +
-          '<div id="colA" class="jpk-collapsible-content"><p style="opacity:.7;margin:0">Expanded content lives here.</p></div>' +
+        '<div class="base-collapsible-section">' +
+          '<button type="button" class="base-collapsible-header" data-target="colA">' +
+            '<span class="base-collapsible-title">Advanced options</span>' +
+            '<span class="base-collapsible-icon"></span></button>' +
+          '<div id="colA" class="base-collapsible-content"><p style="opacity:.7;margin:0">Expanded content lives here.</p></div>' +
         '</div>' +
-        '<div class="jpk-collapsible-section">' +
-          '<button type="button" class="jpk-collapsible-header collapsed" data-target="colB">' +
-            '<span class="jpk-collapsible-title">Starts collapsed</span>' +
-            '<span class="jpk-collapsible-icon">▼</span></button>' +
-          '<div id="colB" class="jpk-collapsible-content collapsed"><p style="opacity:.7;margin:0">Hidden until toggled.</p></div>' +
+        '<div class="base-collapsible-section">' +
+          '<button type="button" class="base-collapsible-header collapsed" data-target="colB">' +
+            '<span class="base-collapsible-title">Starts collapsed</span>' +
+            '<span class="base-collapsible-icon"></span></button>' +
+          '<div id="colB" class="base-collapsible-content collapsed"><p style="opacity:.7;margin:0">Hidden until toggled.</p></div>' +
         '</div>');
     shared.initCollapsibles();
 })();
 
 (function () {
-    const s = section('Sortable card list (createSortableCardList)');
+    const s = section('Sortable card list');
     const list = document.createElement('div');
     s.appendChild(list);
     const editor = document.createElement('div');
     editor.innerHTML = '<div class="inputContainer"><label>Name</label><input is="emby-input" type="text" value="Edited in place"></div>' +
-        '<div class="jpk-collapsible-actions"><button class="jpk-button-submit jpk-button-small">Save</button></div>';
+        '<div class="base-collapsible-actions"><button class="base-button primary small">Save</button></div>';
     const records = [
         { name: 'Living room', url: 'http://living:8096', mode: 'Both', dot: 'ok' },
         { name: 'Cabin', url: 'http://cabin:8096', mode: 'Scan', dot: 'bad' },
         { name: 'Backup', url: 'http://backup:8096', mode: 'Send', dot: 'checking', disabled: true }
     ];
-    const cards = JPK.createSortableCardList(list, {
+    const cards = base.createSortableCardList(list, {
         items: records,
         editor: editor,
         render: (r) => ({ title: r.name, subtitle: r.url, dot: r.dot, disabled: r.disabled,
@@ -308,40 +260,40 @@ function html(parent, markup) {
         onMove: (from, to) => shared.setStatus('cardListStatus', 'Moved ' + (from + 1) + ' to ' + (to + 1), true)
     });
     cards.setSelected(0);
-    html(s, '<div class="jpk-card-list-actions"><button class="jpk-icon-btn jpk-button-submit"><span class="material-icons">add</span><span>Add</span></button></div>' +
-        '<span id="cardListStatus" class="jpk-status-text"></span>');
+    html(s, '<div class="base-card-list-actions"><button class="base-button primary"><span class="material-icons">add</span><span>Add</span></button></div>' +
+        '<span id="cardListStatus" class="base-status-text"></span>');
 })();
 
 (function () {
-    const s = section('Choice cards (createChoiceGroup)');
-    const group = html(s, '<div class="jpk-choice-group" role="radiogroup">' +
-        '<label class="jpk-choice"><input type="radio" name="g-mode" value="Scan" checked><span class="jpk-choice-name">Scan</span><span class="jpk-choice-text">Pull from this server on a schedule.</span></label>' +
-        '<label class="jpk-choice"><input type="radio" name="g-mode" value="Send"><span class="jpk-choice-name">Send</span><span class="jpk-choice-text">Tell this server about changes as they happen.</span></label>' +
-        '<label class="jpk-choice"><input type="radio" name="g-mode" value="Both"><span class="jpk-choice-name">Both</span><span class="jpk-choice-text">Scan and Send together.</span></label>' +
-        '</div><span id="choiceStatus" class="jpk-status-text"></span>').querySelector('.jpk-choice-group');
-    JPK.createChoiceGroup(group, { onChange: (v) => shared.setStatus('choiceStatus', 'Chose ' + v, true) });
+    const s = section('Choice cards');
+    const group = html(s, '<div class="base-choice-group" role="radiogroup">' +
+        '<label class="base-choice"><input type="radio" name="g-mode" value="Scan" checked><span class="base-choice-name">Scan</span><span class="base-choice-text">Pull from this server on a schedule.</span></label>' +
+        '<label class="base-choice"><input type="radio" name="g-mode" value="Send"><span class="base-choice-name">Send</span><span class="base-choice-text">Tell this server about changes as they happen.</span></label>' +
+        '<label class="base-choice"><input type="radio" name="g-mode" value="Both"><span class="base-choice-name">Both</span><span class="base-choice-text">Scan and Send together.</span></label>' +
+        '</div><span id="choiceStatus" class="base-status-text"></span>').querySelector('.base-choice-group');
+    base.createChoiceGroup(group, { onChange: (v) => shared.setStatus('choiceStatus', 'Chose ' + v, true) });
 })();
 
 (function () {
-    const s = section('Step headers (jpk-step-title)');
+    const s = section('Numbered collapsible sections');
     s.insertAdjacentHTML('beforeend',
-        '<div class="jpk-collapsible-section">' +
-          '<button type="button" class="jpk-collapsible-header" data-target="stepA">' +
-            '<span class="jpk-collapsible-title jpk-step-title"><span class="jpk-step-number">1</span> Connection</span>' +
-            '<span class="jpk-collapsible-icon">▼</span></button>' +
-          '<div id="stepA" class="jpk-collapsible-content"><p style="opacity:.7;margin:0">Fields for the first step.</p></div>' +
+        '<div class="base-collapsible-section numbered">' +
+          '<button type="button" class="base-collapsible-header" data-target="stepA">' +
+            '<span class="base-collapsible-title">Connection</span>' +
+            '<span class="base-collapsible-icon"></span></button>' +
+          '<div id="stepA" class="base-collapsible-content"><p style="opacity:.7;margin:0">Fields for the first step.</p></div>' +
         '</div>' +
-        '<div class="jpk-collapsible-section">' +
-          '<button type="button" class="jpk-collapsible-header collapsed" data-target="stepB">' +
-            '<span class="jpk-collapsible-title jpk-step-title"><span class="jpk-step-number">2</span> Libraries</span>' +
-            '<span class="jpk-collapsible-icon">▼</span></button>' +
-          '<div id="stepB" class="jpk-collapsible-content collapsed"><p style="opacity:.7;margin:0">Fields for the second step.</p></div>' +
+        '<div class="base-collapsible-section numbered">' +
+          '<button type="button" class="base-collapsible-header collapsed" data-target="stepB">' +
+            '<span class="base-collapsible-title">Libraries</span>' +
+            '<span class="base-collapsible-icon"></span></button>' +
+          '<div id="stepB" class="base-collapsible-content collapsed"><p style="opacity:.7;margin:0">Fields for the second step.</p></div>' +
         '</div>');
     shared.initCollapsibles();
 })();
 
 (function () {
-    const s = section('Searchable combo box (shared.createSearchableComboBox)');
+    const s = section('Searchable combo box');
     const OPTIONS = ['Aardvark', 'Albatross', 'Beaver', 'Bison', 'Cheetah', 'Cobra', 'Dolphin', 'Eagle', 'Falcon'];
     const combo = shared.createSearchableComboBox({
         placeholder: 'Type to search animals…',
@@ -350,13 +302,13 @@ function html(parent, markup) {
         onSelect: (value) => shared.setStatus('comboStatus', 'Picked: ' + value, false, { timeout: 0 })
     });
     s.appendChild(combo.element);
-    const st = document.createElement('span'); st.id = 'comboStatus'; st.className = 'jpk-status-text';
+    const st = document.createElement('span'); st.id = 'comboStatus'; st.className = 'base-status-text';
     s.appendChild(st);
 })();
 
 (function () {
-    const s = section('Chip multi-select (createChipSelect)');
-    const chip = JPK.createChipSelect({
+    const s = section('Chip multi-select');
+    const chip = base.createChipSelect({
         placeholder: 'Add genres…',
         value: ['drama'],
         options: [
@@ -367,8 +319,8 @@ function html(parent, markup) {
         allowCreate: true
     });
     s.appendChild(chip.element);
-    s.insertAdjacentHTML('beforeend', '<p class="g-note">Type to filter, click or Enter to add, × or Backspace to remove. allowCreate lets you add a free-typed value.</p>');
-    const pills = JPK.createChipSelect({
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">Type to filter, click or Enter to add, the close button or Backspace to remove. allowCreate lets you add a free-typed value.</p>');
+    const pills = base.createChipSelect({
         pill: true,
         placeholder: 'Add genres as pills…',
         value: [{ value: 'drama', label: 'Drama' }, { value: 'scifi', label: 'Sci-Fi' }],
@@ -376,14 +328,14 @@ function html(parent, markup) {
     });
     pills.element.style.marginTop = '14px';
     s.appendChild(pills.element);
-    s.insertAdjacentHTML('beforeend', '<p class="g-note">pill: true draws each chip as jpk-tag-pill.</p>');
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">pill: true draws each chip as base-tag-pill.</p>');
 
     // A single select picker backed by an async search that stores an opaque value and shows a friendly label.
     const LANGS = [
         { value: 'eng', label: 'English' }, { value: 'fra', label: 'French' }, { value: 'deu', label: 'German' },
         { value: 'spa', label: 'Spanish' }, { value: 'jpn', label: 'Japanese' }, { value: 'kor', label: 'Korean' }
     ];
-    const lang = JPK.createChipSelect({
+    const lang = base.createChipSelect({
         placeholder: 'Search a language…',
         single: true,
         value: [{ value: 'eng', label: 'English' }],
@@ -393,19 +345,19 @@ function html(parent, markup) {
     });
     lang.element.style.marginTop = '14px';
     s.appendChild(lang.element);
-    const st = document.createElement('span'); st.id = 'langStatus'; st.className = 'jpk-status-text';
+    const st = document.createElement('span'); st.id = 'langStatus'; st.className = 'base-status-text';
     s.appendChild(st);
     s.insertAdjacentHTML('beforeend', '<p class="g-note">single: true is an async, searchable single-picker that stores an opaque value (ISO code) but keeps the label via getItems().</p>');
 })();
 
 (function () {
-    const s = section('Searchable checkbox list (createCheckboxList)');
+    const s = section('Searchable checkbox list');
     const SERIES = [];
     for (let i = 1; i <= 12; i++) {
         SERIES.push({ id: 's' + i, name: 'Series ' + i, year: 2000 + i,
             poster: G.rect(32, 32, D.COLORS[i % D.COLORS.length], String(i)) });
     }
-    const list = JPK.createCheckboxList({
+    const list = base.createCheckboxList({
         items: SERIES,
         value: ['s2', 's5'],
         disabledIds: ['s9'],
@@ -419,7 +371,7 @@ function html(parent, markup) {
 })();
 
 (function () {
-    const s = section('User selectors (createUserSelector / createUserMultiSelector)');
+    const s = section('User selectors');
     const single = shared.createUserSelector({ value: 'u2' });
     s.appendChild(single.element);
     const multi = shared.createUserMultiSelector({ value: ['u1', 'u3'], showSelectAll: true, adminFilter: 'all' });
@@ -428,128 +380,133 @@ function html(parent, markup) {
 })();
 
 (function () {
-    const s = section('Dialogs (openDialog / confirmDialog / promptDialog)');
+    const s = section('Dialogs');
     const r = row(s);
-    const b1 = document.createElement('button'); b1.className = 'raised jpk-button-submit'; b1.textContent = 'openDialog';
-    b1.onclick = () => JPK.openDialog({
+    const b1 = document.createElement('button'); b1.className = 'raised base-button primary'; b1.textContent = 'openDialog';
+    b1.onclick = () => base.openDialog({
         title: 'A modal dialog',
-        body: '<p style="opacity:.8">Backdrop click, the × button, and Escape all close it. Focus is trapped inside.</p>',
+        body: '<p style="opacity:.8">Backdrop click, the close button, and Escape all close it. Focus is trapped inside.</p>',
         buttons: [
-            { text: 'Close', className: 'jpk-secondary', action: (close) => close() },
-            { text: 'Primary', className: 'jpk-button-submit', action: (close) => close() }
+            { text: 'Close', className: 'base-button secondary', action: (close) => close() },
+            { text: 'Primary', className: 'base-button primary', action: (close) => close() }
         ]
     });
-    const b2 = document.createElement('button'); b2.className = 'raised jpk-button-destructive'; b2.textContent = 'confirmDialog';
-    b2.onclick = () => JPK.confirmDialog('Delete this record? This cannot be undone.', { title: 'Delete record', destructive: true, confirmText: 'Delete' })
+    const b2 = document.createElement('button'); b2.className = 'raised base-button destructive'; b2.textContent = 'confirmDialog';
+    b2.onclick = () => base.confirmDialog('Delete this record? This cannot be undone.', { title: 'Delete record', destructive: true, confirmText: 'Delete' })
         .then(ok => shared.setStatus('dialogStatus', 'confirm resolved: ' + ok, !ok, { timeout: 0 }));
-    const b3 = document.createElement('button'); b3.className = 'raised jpk-secondary'; b3.textContent = 'promptDialog';
-    b3.onclick = () => JPK.promptDialog(
+    const b3 = document.createElement('button'); b3.className = 'raised base-button secondary'; b3.textContent = 'promptDialog';
+    b3.onclick = () => base.promptDialog(
         [{ name: 'label', label: 'Label', value: 'My record' }, { name: 'ttl', label: 'TTL (seconds)', type: 'number', value: '300' }],
         { title: 'New record', submitText: 'Create' })
         .then(vals => shared.setStatus('dialogStatus', vals ? ('prompt: ' + JSON.stringify(vals)) : 'prompt cancelled', !vals, { timeout: 0 }));
-    const b4 = document.createElement('button'); b4.className = 'raised jpk-secondary'; b4.id = 'demoEditor'; b4.textContent = 'openEditorDialog';
+    const b4 = document.createElement('button'); b4.className = 'raised base-button secondary'; b4.id = 'demoEditor'; b4.textContent = 'openEditorDialog';
     b4.onclick = () => {
         const body = document.createElement('div');
         body.innerHTML = '<div class="inputContainer"><label>Name</label><input type="text" id="demoEditorName" value="Living room"></div>' +
             '<div class="inputContainer"><label>Starts on</label><input type="date" value="2026-03-10"></div>';
         const input = body.querySelector('input');
-        const editor = JPK.openEditorDialog({
+        const editor = base.openEditorDialog({
             title: 'Edit Record', body: body, serialize: () => input.value, cancelText: 'Cancel',
             onRemove: (close) => close('removed'),
             onDone: () => true,
             onClose: (value) => shared.setStatus('dialogStatus', 'editor closed: ' + (value || 'dismissed'), false, { timeout: 0 })
         });
     };
-    const b5 = document.createElement('button'); b5.className = 'raised jpk-secondary'; b5.id = 'demoWide'; b5.textContent = 'openDialog wide';
+    const b5 = document.createElement('button'); b5.className = 'raised base-button secondary'; b5.id = 'demoWide'; b5.textContent = 'openDialog wide';
     b5.onclick = () => {
         let more = '';
         for (let i = 1; i <= 12; i++) more += '<div class="inputContainer"><label>Field ' + i + '</label><input type="text" value="Value ' + i + '"></div>';
-        JPK.openDialog({
-            title: 'A Wide Dialog', wide: true, body: more,
+        base.openDialog({
+            title: 'A Wide Dialog', size: 'large', body: more,
             buttons: [
-                { text: 'Delete', className: 'jpk-button-destructive', action: (close) => close() },
-                { text: 'Cancel', className: 'jpk-secondary', action: (close) => close() },
-                { text: 'Done', className: 'jpk-button-submit', action: (close) => close() }
+                { text: 'Delete', className: 'base-button destructive', action: (close) => close() },
+                { text: 'Cancel', className: 'base-button secondary', action: (close) => close() },
+                { text: 'Done', className: 'base-button primary', action: (close) => close() }
             ]
         });
     };
     r.appendChild(b1); r.appendChild(b2); r.appendChild(b3); r.appendChild(b4); r.appendChild(b5);
-    const st = document.createElement('span'); st.id = 'dialogStatus'; st.className = 'jpk-status-text'; st.style.marginTop = '8px';
+    const st = document.createElement('span'); st.id = 'dialogStatus'; st.className = 'base-status-text'; st.style.marginTop = '8px';
     s.appendChild(st);
 })();
 
 (function () {
-    const s = section('Dialog in page markup (bindDialog)');
+    const s = section('Dialog in page markup');
     s.insertAdjacentHTML('beforeend',
-        '<div id="demoStaticDialog" class="jpk-dialog hidden">' +
-          '<div class="jpk-dialog-content jpk-dialog-content-narrow">' +
-            '<button type="button" class="jpk-dialog-close" aria-label="Close">&times;</button>' +
-            '<h2 class="jpk-modal-title">Session log</h2>' +
-            '<div class="jpk-modal-body"><p style="opacity:.8">This markup was in the page already. Backdrop, ×, and Escape close it.</p>' +
-            '<input id="demoStaticInput" class="jpk-edit-input" placeholder="Focus starts here" /></div>' +
-            '<div class="jpk-modal-button-row"><button type="button" id="demoStaticDone" class="raised jpk-modal-button jpk-button-submit">Done</button></div>' +
+        '<div id="demoStaticDialog" class="base-dialog hidden">' +
+          '<div class="base-dialog-content small">' +
+            '<button type="button" class="base-row-btn base-dialog-close" title="Close" aria-label="Close"><span class="material-icons" aria-hidden="true">close</span></button>' +
+            '<h2 class="base-modal-title">Session log</h2>' +
+            '<div class="base-modal-body"><p style="opacity:.8">This markup was in the page already. Backdrop, the close button, and Escape close it.</p>' +
+            '<input id="demoStaticInput" class="base-edit-input" placeholder="Focus starts here" /></div>' +
+            '<div class="base-modal-button-row"><button type="button" id="demoStaticDone" class="raised base-modal-button base-button primary">Done</button></div>' +
           '</div>' +
         '</div>');
-    const st = document.createElement('span'); st.id = 'staticDialogStatus'; st.className = 'jpk-status-text';
-    const dialog = JPK.bindDialog('demoStaticDialog', {
+    const st = document.createElement('span'); st.id = 'staticDialogStatus'; st.className = 'base-status-text';
+    const dialog = base.bindDialog('demoStaticDialog', {
         root: view,
         onClose: (value) => shared.setStatus('staticDialogStatus', 'closed: ' + (value || 'dismissed'), false, { timeout: 0 })
     });
     view.querySelector('#demoStaticDone').addEventListener('click', () => dialog.close('done'));
     const r = row(s);
-    const b = document.createElement('button'); b.className = 'raised jpk-button-submit'; b.id = 'demoStaticOpen'; b.textContent = 'Open';
+    const b = document.createElement('button'); b.className = 'raised base-button primary'; b.id = 'demoStaticOpen'; b.textContent = 'Open';
     b.onclick = () => dialog.open();
     r.appendChild(b); r.appendChild(st);
 })();
 
 (function () {
-    const s = section('Secret field (bindSecretField / readSecretField)');
+    const s = section('Secret field');
     s.insertAdjacentHTML('beforeend',
-        '<div class="inputContainer"><label>API key</label><input id="demoSecret" type="password" placeholder="Enter an API key" /></div>');
+        '<div class="inputContainer"><label>Nothing stored: help text</label><input id="demoSecretNone" type="password" placeholder="Enter an API key" /></div>' +
+        '<div class="inputContainer"><label>Stored, value not in the page: gray dots</label><input id="demoSecret" type="password" placeholder="Enter an API key" /></div>' +
+        '<div class="inputContainer"><label>Value we know: regular dots</label><input id="demoSecretKnown" type="password" placeholder="Enter an API key" /></div>');
+    shared.bindSecretField('demoSecretNone', false);
     shared.bindSecretField('demoSecret', true);
+    shared.bindSecretField('demoSecretKnown', false);
+    document.getElementById('demoSecretKnown').value = 'typed-value';
     const r = row(s);
-    const read = document.createElement('button'); read.className = 'raised jpk-button-small'; read.id = 'demoSecretRead'; read.textContent = 'Read';
-    const clear = document.createElement('button'); clear.className = 'raised jpk-secondary jpk-button-small'; clear.id = 'demoSecretClear'; clear.textContent = 'Clear stored';
-    const out = document.createElement('span'); out.id = 'demoSecretOut'; out.className = 'jpk-mono';
+    const read = document.createElement('button'); read.className = 'raised base-button small'; read.id = 'demoSecretRead'; read.textContent = 'Read';
+    const clear = document.createElement('button'); clear.className = 'raised base-button secondary small'; clear.id = 'demoSecretClear'; clear.textContent = 'Clear stored';
+    const out = document.createElement('span'); out.id = 'demoSecretOut'; out.className = 'base-mono';
     read.onclick = () => { out.textContent = JSON.stringify(shared.readSecretField('demoSecret')); };
     clear.onclick = () => shared.clearSecretField('demoSecret');
     r.appendChild(read); r.appendChild(clear); r.appendChild(out);
 })();
 
 (function () {
-    const s = section('Copy (shared.copyWithFeedback)');
+    const s = section('Copy');
     const r = row(s);
-    const b = document.createElement('button'); b.className = 'raised jpk-button-small'; b.id = 'demoCopy';
+    const b = document.createElement('button'); b.className = 'raised base-button small'; b.id = 'demoCopy';
     b.innerHTML = '<span class="material-icons">content_copy</span><span>Copy link</span>';
     b.onclick = () => shared.copyWithFeedback(b, 'https://example.test/invite/abc');
     r.appendChild(b);
 })();
 
 (function () {
-    const s = section('Unsaved indicator (shared.createChangeTracker)');
+    const s = section('Unsaved indicator');
     const wrap = document.createElement('div');
     wrap.innerHTML =
         '<div class="inputContainer"><label>Edit me ' +
-        '<span class="jpk-unsaved" id="demoUnsaved"><span class="jpk-unsaved-dot"></span>Unsaved changes</span>' +
+        '<span class="base-unsaved" id="demoUnsaved"><span class="base-unsaved-dot"></span>Unsaved changes</span>' +
         '</label><input id="demoTrack" type="text" value="initial value" /></div>';
     s.appendChild(wrap);
     const input = wrap.querySelector('#demoTrack');
     const tracker = shared.createChangeTracker({ serialize: () => input.value, indicatorId: 'demoUnsaved', savedText: 'Saved' });
     input.addEventListener('input', () => tracker.check());
     const r = row(s);
-    const save = document.createElement('button'); save.className = 'raised jpk-button-small'; save.textContent = 'Save (flash)';
+    const save = document.createElement('button'); save.className = 'raised base-button small'; save.textContent = 'Save (flash)';
     save.onclick = () => tracker.flashSaved();
     r.appendChild(save);
 })();
 
 (function () {
-    const s = section('Poller (shared.createPoller)');
-    const count = document.createElement('span'); count.className = 'jpk-mono'; count.textContent = '0 ticks';
+    const s = section('Poller');
+    const count = document.createElement('span'); count.className = 'base-mono'; count.textContent = '0 ticks';
     let n = 0;
     const poller = shared.createPoller(() => { n++; count.textContent = n + ' ticks'; }, 1000);
     const r = row(s);
-    const start = document.createElement('button'); start.className = 'raised jpk-button-small'; start.textContent = 'Start';
-    const stop = document.createElement('button'); stop.className = 'raised jpk-secondary jpk-button-small'; stop.textContent = 'Stop';
+    const start = document.createElement('button'); start.className = 'raised base-button small'; start.textContent = 'Start';
+    const stop = document.createElement('button'); stop.className = 'raised base-button secondary small'; stop.textContent = 'Stop';
     start.onclick = () => poller.start();
     stop.onclick = () => poller.stop();
     r.appendChild(start); r.appendChild(stop); r.appendChild(count);
@@ -558,27 +515,26 @@ function html(parent, markup) {
 (function () {
     const s = section('Inline & bulk edit');
     s.insertAdjacentHTML('beforeend',
-        '<div class="jpk-bulk-edit-bar">' +
-          '<div class="jpk-bulk-edit-title">Bulk edit, 3 selected</div>' +
-          '<div class="jpk-edit-line">' +
-            '<div class="jpk-field"><label>Artist</label><input type="text" placeholder="Set artist" /></div>' +
-            '<div class="jpk-field"><label>Album</label><input type="text" placeholder="Set album" /></div>' +
-            '<span class="jpk-edit-line-spacer"></span>' +
-            '<button class="raised jpk-button-small jpk-button-submit">Apply</button>' +
+        '<div class="base-bulk-edit-bar">' +
+          '<div class="base-bulk-edit-title">Bulk edit, 3 selected</div>' +
+          '<div class="base-edit-line">' +
+            '<div class="base-field"><label>Artist</label><input type="text" placeholder="Set artist" /></div>' +
+            '<div class="base-field"><label>Album</label><input type="text" placeholder="Set album" /></div>' +
+            '<button class="raised base-button primary field g-push">Apply</button>' +
           '</div>' +
         '</div>');
 })();
 
 (function () {
-    const s = section('Empty state (shared.emptySection)');
+    const s = section('Empty state');
     s.insertAdjacentHTML('beforeend', shared.emptySection('No records yet. Add one to get started.'));
 })();
 
 (function () {
-    const s = section('Paginated table (createPaginatedTable)');
+    const s = section('Paginated table');
     const host = document.createElement('div'); host.id = 'demoTable';
     s.appendChild(host);
-    JPK.createPaginatedTable(view, shared, {
+    base.createPaginatedTable(view, shared, {
         containerId: 'demoTable',
         endpoint: 'Items',
         search: { enabled: true, placeholder: 'Search episodes…' },
@@ -594,187 +550,207 @@ function html(parent, markup) {
 })();
 
 (function () {
-    const s = section('Toggle group (jpk-toggle)');
-    html(s, '<div class="jpk-toggle-group" id="demoToggles">' +
-        '<button type="button" class="jpk-toggle" aria-pressed="true"><span class="material-icons">forum</span>Discord</button>' +
-        '<button type="button" class="jpk-toggle" aria-pressed="false"><span class="material-icons">mail</span>Email</button>' +
-        '<button type="button" class="jpk-toggle" aria-pressed="true">Webhook</button></div>');
-    s.querySelectorAll('.jpk-toggle').forEach((b) => b.addEventListener('click', () =>
+    const s = section('Toggle group');
+    html(s, '<div class="base-toggle-group" id="demoToggles">' +
+        '<button type="button" class="base-toggle" aria-pressed="true"><span class="material-icons">forum</span>Discord</button>' +
+        '<button type="button" class="base-toggle" aria-pressed="false"><span class="material-icons">mail</span>Email</button>' +
+        '<button type="button" class="base-toggle" aria-pressed="true">Webhook</button></div>');
+    s.querySelectorAll('.base-toggle').forEach((b) => b.addEventListener('click', () =>
         b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true'))));
 })();
 
 (function () {
-    const s = section('Code block (jpk-code)');
-    html(s, '<textarea class="jpk-code" rows="4" spellcheck="false">{\n  "event": "Approved",\n  "user": "viewer"\n}</textarea>');
-    html(s, '<pre class="jpk-code jpk-code-block" style="margin-top:10px">{ "event": "Approved", "title": "A long title that wraps rather than scrolls sideways on a phone" }</pre>');
-    html(s, '<pre class="jpk-code jpk-code-block jpk-code-invalid" style="margin-top:10px">{ "event": </pre>');
+    const s = section('Code block');
+    html(s, '<textarea class="base-code" rows="4" spellcheck="false">{\n  "event": "Approved",\n  "user": "viewer"\n}</textarea>');
+    html(s, '<pre class="base-code base-code-block" style="margin-top:10px">{ "event": "Approved", "title": "A long title that wraps rather than scrolls sideways on a phone" }</pre>');
+    html(s, '<pre class="base-code base-code-block base-code-invalid" style="margin-top:10px">{ "event": </pre>');
 })();
 
 (function () {
-    const s = section('Asset list (jpk-asset-list)');
-    html(s, '<div class="jpk-asset-list">' +
+    const s = section('Asset list');
+    html(s, '<div class="base-asset-list">' +
         ['logo.png', 'a-very-long-asset-file-name-that-has-to-clip-with-an-ellipsis.svg'].map((n, i) =>
-            '<div class="jpk-asset-item"><img class="jpk-asset-thumb" alt="" src="' + G.rect(48, 48, D.COLORS[i], 'A') + '">' +
-            '<div class="jpk-asset-info"><div class="jpk-asset-name">' + n + '</div><div class="jpk-asset-ref">assets/' + n + '</div></div>' +
-            '<div class="jpk-asset-actions"><button type="button" class="jpk-asset-btn" title="Copy"><span class="material-icons">content_copy</span></button>' +
-            '<button type="button" class="jpk-asset-btn danger" title="Delete"><span class="material-icons">delete</span></button></div></div>').join('') +
+            '<div class="base-asset-item"><img class="base-asset-thumb" alt="" src="' + G.rect(48, 48, D.COLORS[i], 'A') + '">' +
+            '<div class="base-asset-info"><div class="base-asset-name">' + n + '</div><div class="base-asset-ref">assets/' + n + '</div></div>' +
+            '<div class="base-asset-actions"><button type="button" class="base-row-btn" title="Copy" aria-label="Copy"><span class="material-icons">content_copy</span></button>' +
+            '<button type="button" class="base-row-btn destructive" title="Delete" aria-label="Delete"><span class="material-icons">delete</span></button></div></div>').join('') +
         '</div>');
 })();
 
 (function () {
-    const s = section('Progress bar (jpk-progress)');
-    html(s, '<div class="jpk-progress"><div class="jpk-progress-bar" style="width: 40%"></div></div>');
+    const s = section('Progress bar');
+    html(s, '<div class="base-progress"><div class="base-progress-bar" style="width: 40%"></div></div>');
     const r = row(s); r.style.marginTop = '14px';
-    r.innerHTML = '<button type="button" class="raised jpk-button-submit jpk-btn-progress-host"><span>Run</span><div class="jpk-btn-progress" style="width: 55%"></div></button>' +
-        '<button type="button" class="raised jpk-button-destructive jpk-btn-progress-host"><span>Delete</span><div class="jpk-btn-progress" style="width: 55%"></div></button>' +
-        '<button type="button" class="raised jpk-btn-progress-host"><span>Plain</span><div class="jpk-btn-progress" style="width: 55%"></div></button>';
-    s.insertAdjacentHTML('beforeend', '<p class="g-note">The progress line on an accent or red button uses the on-accent color, and on a plain button it uses the accent.</p>');
+    r.innerHTML = '<button type="button" class="raised base-button primary base-btn-progress-host"><span>Run</span><div class="base-progress-bar base-btn-progress" style="width: 55%"></div></button>' +
+        '<button type="button" class="raised base-button destructive base-btn-progress-host"><span>Delete</span><div class="base-progress-bar base-btn-progress" style="width: 55%"></div></button>' +
+        '<button type="button" class="raised base-button secondary base-btn-progress-host"><span>Scan</span><div class="base-progress-bar base-btn-progress" style="width: 55%"></div></button>';
+    const small = row(s); small.style.marginTop = 'var(--base-gap-narrow)';
+    small.innerHTML = '<span style="display:inline-flex;align-items:center"><button type="button" class="raised base-button primary small"><span>Refresh</span></button></span>';
+    var pie = base.createProgressRing({ pie: true, value: 55, label: 'Refresh' });
+    pie.element.classList.add('base-btn-progress-pie');
+    small.lastChild.appendChild(pie.element);
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">Medium and large buttons fill a line along the bottom, in the on-accent color on an accent or red button. A small button is too short, so a pie beside it fills instead.</p>');
 })();
 
 (function () {
-    const s = section('Check grid (jpk-check-grid)');
-    html(s, '<div class="jpk-check-grid">' + ['Poster', 'Backdrop', 'Logo', 'Banner', 'Thumb', 'Disc'].map((n) =>
+    const s = section('Check grid');
+    html(s, '<div class="base-check-grid">' + ['Poster', 'Backdrop', 'Logo', 'Banner', 'Thumb', 'Disc'].map((n) =>
         '<label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox"' + (n === 'Poster' ? ' checked' : '') + '><span class="checkboxLabel">' + n + '</span></label>').join('') + '</div>');
 })();
 
 (function () {
-    const s = section('Layout blocks (section, subsection title, indent, reset group)');
-    html(s, '<div class="jpk-section"><div class="jpk-section-title">Authentication</div><div class="jpk-section-content">' +
-        '<h3 class="jpk-subsection-title">Credentials</h3>' +
+    const s = section('Layout blocks');
+    html(s, '<div class="base-section"><div class="base-section-title">Authentication</div><div class="base-section-content">' +
+        '<h3 class="base-subsection-title">Credentials</h3>' +
         '<div class="inputContainer"><label>Server</label><input type="text" value="server.example.com"></div>' +
-        '<div class="jpk-indent"><div class="inputContainer"><label>Indented field</label><input type="text" value="Under a toggle"></div></div>' +
+        '<div class="base-indent"><div class="inputContainer"><label>Indented field</label><input type="text" value="Under a toggle"></div></div>' +
         '</div></div>');
-    html(s, '<div class="jpk-reset-group">' +
-        '<div class="jpk-reset-row"><div class="jpk-reset-info"><div>Reset sync state</div><div class="fieldDescription">Clears the sync history.</div></div><button type="button" class="raised jpk-secondary">Reset</button></div>' +
-        '<div class="jpk-reset-row jpk-reset-row-nuclear"><div class="jpk-reset-info"><div>Reset everything</div><div class="fieldDescription">Clears every setting.</div></div><button type="button" class="raised jpk-button-destructive">Reset</button></div></div>');
+    html(s, '<div class="base-reset-group">' +
+        '<div class="base-reset-row"><div class="base-reset-info"><div>Reset sync state</div><div class="fieldDescription">Clears the sync history.</div></div><button type="button" class="raised base-button secondary">Reset</button></div>' +
+        '<div class="base-reset-row base-reset-row-nuclear"><div class="base-reset-info"><div>Reset everything</div><div class="fieldDescription">Clears every setting.</div></div><button type="button" class="raised base-button destructive">Reset</button></div></div>');
 })();
 
 (function () {
-    const s = section('Placeholder hint (placeholderHint / bindPlaceholders)');
+    const s = section('Placeholder hint');
     html(s, '<div class="inputContainer"><label>Message</label><input id="demoPlaceholderField" type="text" value="Now playing ">' +
         shared.placeholderHint([['title', 'The item name'], ['user', 'The viewer']]) + '</div>');
     shared.bindPlaceholders(s);
 })();
 
 (function () {
-    const s = section('Cards in rows (jpk-cards-rows and --jpk-cards-per-row)');
-    const cards = (extra) => '<div class="jpk-cards jpk-cards-rows"' + (extra ? ' style="' + extra + '"' : '') + '>' +
+    const s = section('Compact cards in balanced rows');
+    const cards = (extra) => '<div class="base-cards compact"' + (extra ? ' style="' + extra + '"' : '') + '>' +
         ['green', 'red', 'orange', 'purple', 'blue', 'gray', 'pink', 'teal'].map((c, i) =>
-            '<div class="jpk-card ' + c + '"><span class="jpk-card-count">' + (i + 1) + '</span><span class="jpk-card-label">' + c + '</span></div>').join('') +
-        '<div class="jpk-card hidden"></div></div>';
+            '<div class="base-card ' + c + '"><span class="base-card-count">' + (i + 1) + '</span><span class="base-card-label">' + c + '</span></div>').join('') +
+        '<div class="base-card hidden"></div></div>';
     html(s, cards(''));
-    s.insertAdjacentHTML('beforeend', '<p class="g-note">The default keeps as many columns as fit.</p>');
-    html(s, cards('--jpk-cards-per-row: 4'));
-    s.insertAdjacentHTML('beforeend', '<p class="g-note">--jpk-cards-per-row: 4 caps the row at four cards.</p>');
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">Eight cards in as many columns as fit, in even rows. The hidden ninth takes no place.</p>');
+    html(s, cards('--base-balance-max: 4'));
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">--base-balance-max: 4 caps a row at four cards.</p>');
+    base.bindBalancedRows(s);
 })();
 
 (function () {
-    const s = section('Ordered list (createOrderedList)');
+    const s = section('Ordered list');
     const names = ['Intro', 'Verse', 'Chorus', 'Outro'];
-    const list = JPK.createOrderedList({
+    const list = base.createOrderedList({
         items: names,
-        render: (item, i) => '<strong>' + shared.escapeHtml(item) + '</strong> <span style="opacity:.6">Position ' + (i + 1) + '</span>',
+        render: (item, i) => ({ primary: Object.assign(document.createElement('strong'), { textContent: item }), secondary: 'Position ' + (i + 1) }),
         label: (item) => item,
         onMove: (from, to, items) => shared.setStatus('orderedStatus', 'Moved ' + (from + 1) + ' to ' + (to + 1) + ': ' + items.join(', '), false, { timeout: 0 })
     });
     s.appendChild(list.element);
-    html(s, '<span id="orderedStatus" class="jpk-status-text"></span>');
+    html(s, '<span id="orderedStatus" class="base-status-text"></span>');
     s.insertAdjacentHTML('beforeend', '<p class="g-note">The first up and last down buttons are disabled, and focus stays on the button that moved the row.</p>');
 })();
 
 (function () {
     const s = section('Static table, panel, and pill group');
-    html(s, '<div class="jpk-static-table-scroll"><table class="jpk-static-table"><thead><tr><th>Name</th><th>Type</th><th class="jpk-static-table-num">Size</th><th class="jpk-static-table-num">Items</th></tr></thead><tbody>' +
-        '<tr><td>Poster.png</td><td>Image</td><td class="jpk-static-table-num">1,204</td><td class="jpk-static-table-num">12</td></tr>' +
-        '<tr><td>A longer row name that wraps on a narrow screen</td><td>Image</td><td class="jpk-static-table-num">98</td><td class="jpk-static-table-num">3</td></tr>' +
+    html(s, '<div class="base-static-table-scroll"><table class="base-static-table"><thead><tr><th>Name</th><th>Type</th><th class="base-static-table-num">Size</th><th class="base-static-table-num">Items</th></tr></thead><tbody>' +
+        '<tr><td>Poster.png</td><td>Image</td><td class="base-static-table-num">1,204</td><td class="base-static-table-num">12</td></tr>' +
+        '<tr><td>A longer row name that wraps on a narrow screen</td><td>Image</td><td class="base-static-table-num">98</td><td class="base-static-table-num">3</td></tr>' +
         '</tbody></table></div>');
-    html(s, '<div class="jpk-static-table-scroll"><table class="jpk-static-table" style="min-width:640px"><tbody><tr><th>Wide table</th><td>This one is wider than a phone, so its wrapper scrolls sideways.</td><td>One</td><td>Two</td><td>Three</td></tr></tbody></table></div>');
-    html(s, '<div class="jpk-panel"><div class="jpk-panel-header">Schedule</div><div class="jpk-panel-body">' +
+    html(s, '<div class="base-static-table-scroll"><table class="base-static-table" style="min-width:640px"><tbody><tr><th>Wide table</th><td>This one is wider than a phone, so its wrapper scrolls sideways.</td><td>One</td><td>Two</td><td>Three</td></tr></tbody></table></div>');
+    html(s, '<div class="base-panel"><div class="base-panel-header">Schedule</div><div class="base-panel-body">' +
         '<div class="inputContainer"><label>Starts on</label><input type="date" value="2026-03-10"></div>' +
-        '<div class="jpk-pill-group" id="demoPills" role="group" aria-label="Frequency">' +
-        '<button type="button" class="jpk-pill" data-value="daily">Daily</button>' +
-        '<button type="button" class="jpk-pill" data-value="weekly" aria-pressed="true">Weekly</button>' +
-        '<button type="button" class="jpk-pill" data-value="monthly">Monthly</button></div></div></div>');
-    html(s, '<div class="jpk-panel"><div class="jpk-panel-body">A panel with a body and no header.</div></div>');
-    const pills = JPK.createPillGroup(s.querySelector('#demoPills'), { onChange: (v) => shared.setStatus('pillStatus', 'Chose ' + v, false, { timeout: 0 }) });
+        '<div class="base-pill-group" id="demoPills" role="group" aria-label="Frequency">' +
+        '<button type="button" class="base-pill" data-value="daily">Daily</button>' +
+        '<button type="button" class="base-pill" data-value="weekly" aria-pressed="true">Weekly</button>' +
+        '<button type="button" class="base-pill" data-value="monthly">Monthly</button></div></div></div>');
+    html(s, '<div class="base-panel"><div class="base-panel-body">A panel with a body and no header.</div></div>');
+    const pills = base.createPillGroup(s.querySelector('#demoPills'), { onChange: (v) => shared.setStatus('pillStatus', 'Chose ' + v, false, { timeout: 0 }) });
     pills.set('weekly');
-    html(s, '<span id="pillStatus" class="jpk-status-text"></span>');
+    html(s, '<span id="pillStatus" class="base-status-text"></span>');
 })();
 
 (function () {
-    const s = section('Utilities (jpk-sr-only, input type date, plural)');
-    html(s, '<button type="button" class="jpk-icon-btn"><span class="material-icons" aria-hidden="true">delete</span><span class="jpk-sr-only">Delete the record</span></button>' +
+    const s = section('Utilities');
+    html(s, '<button type="button" class="base-button"><span class="material-icons" aria-hidden="true">delete</span><span class="base-sr-only">Delete the record</span></button>' +
         ' <span class="g-note">The button above has hidden text for a screen reader.</span>');
-    html(s, '<div class="inputContainer" style="margin-top:12px"><label>Date</label><input type="date" value="2026-03-10"></div>' +
+    html(s, '<div class="inputContainer" style="margin-top:var(--base-gap-wide)"><label>Date</label><input type="date" value="2026-03-10"></div>' +
         '<div class="inputContainer"><label>Text</label><input type="text" value="Beside the date"></div>' +
-        '<div id="demoCompactDates" class="g-row"><input type="date" class="jpk-edit-input" value="2026-03-10" style="width:auto"> <input type="date" value="2026-03-11" style="font-size:0.8em"></div>');
-    html(s, '<div class="jpk-mono">' + [0, 1, 2].map((n) => shared.plural(n, 'item')).join(', ') + ', ' + shared.plural(1, 'child', 'children') + ', ' + shared.plural(2, 'child', 'children') + '</div>');
+        '<div id="demoCompactDates" class="g-row"><input type="date" class="base-edit-input" value="2026-03-10" style="width:auto"> <input type="date" value="2026-03-11" style="font-size:var(--base-gap-wide)"></div>');
+    html(s, '<div class="base-mono">' + [0, 1, 2].map((n) => shared.plural(n, 'item')).join(', ') + ', ' + shared.plural(1, 'child', 'children') + ', ' + shared.plural(2, 'child', 'children') + '</div>');
 })();
 
 (function () {
-    const s = section('Badge colors (jpk-badge)');
+    const s = section('Badge colors');
     const r = row(s);
     ['green', 'red', 'orange', 'purple', 'blue', 'gray', 'yellow', 'pink', 'teal'].forEach(c => r.insertAdjacentHTML('beforeend', shared.badge(c, c.charAt(0).toUpperCase() + c.slice(1)) + ' '));
-    s.insertAdjacentHTML('beforeend', '<p class="g-note">Pink and teal use the --jpk-pink-* and --jpk-teal-* tokens.</p>');
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">Pink and teal use the --base-pink-* and --base-teal-* tokens.</p>');
 })();
 
 (function () {
     const s = section('Overflow menu, tooltip, and help hint');
     const r = row(s);
-    const menu = JPK.createOverflowMenu({
+    const menu = base.createOverflowMenu({
         items: [{ label: 'Edit', value: 'edit', icon: 'edit' }, { label: 'Duplicate', value: 'duplicate', disabled: true }, { label: 'Remove', value: 'remove', destructive: true, icon: 'delete' }],
         onSelect: (value) => shared.setStatus('menuStatus', 'Chose ' + value, false, { timeout: 0 })
     });
     r.appendChild(menu.element);
-    html(r, '<span id="menuStatus" class="jpk-status-text"></span>');
-    const tipped = JPK.setTooltip(document.createElement('button'), 'Shown on hover and focus.');
+    html(r, '<span id="menuStatus" class="base-status-text"></span>');
+    const tipped = base.setTooltip(document.createElement('button'), 'Shown on hover and focus.');
     tipped.type = 'button';
-    tipped.className = 'raised jpk-button-small';
+    tipped.className = 'raised base-button small';
     tipped.textContent = 'Hover or focus me';
     r.appendChild(tipped);
-    JPK.bindTooltips(s);
+    base.bindTooltips(s);
     html(s, '<div class="inputContainer"><label for="demoHelpInput">Check interval <span id="demoHelpSlot"></span></label><input id="demoHelpInput" type="text" value="30"></div>');
-    s.querySelector('#demoHelpSlot').appendChild(JPK.createHelpHint({ text: 'Seconds between checks. A low value adds load on the server.' }).element);
+    s.querySelector('#demoHelpSlot').appendChild(base.createHelpHint({ text: 'Seconds between checks. A low value adds load on the server.' }).element);
 
     // The same popups inside a panel that clips its overflow, and inside a dialog, where Escape closes the popup before the dialog.
-    html(s, '<div id="demoPopupPanel" class="jpk-panel" style="margin-top:14px"><div class="jpk-panel-header">Popups inside a panel</div><div id="demoPopupBody" class="jpk-panel-body g-row" style="justify-content:flex-end"></div></div>');
+    html(s, '<div id="demoPopupPanel" class="base-panel" style="margin-top:var(--base-gap-wide)"><div class="base-panel-header">Popups inside a panel</div><div id="demoPopupBody" class="base-panel-body g-row" style="justify-content:flex-end"></div></div>');
     const body = s.querySelector('#demoPopupBody');
-    body.appendChild(JPK.createHelpHint({ text: 'A longer explanation that has to stay on the screen at 375 pixels wide, even from the right edge of a panel.' }).element);
-    body.appendChild(JPK.createOverflowMenu({ items: [{ label: 'Edit', value: 'edit' }, { label: 'Remove', value: 'remove', destructive: true }] }).element);
-    const tip = JPK.setTooltip(document.createElement('button'), 'Tooltip inside a panel.');
-    tip.type = 'button'; tip.className = 'raised jpk-button-small'; tip.textContent = 'Tip';
+    body.appendChild(base.createHelpHint({ text: 'A longer explanation that has to stay on the screen at 375 pixels wide, even from the right edge of a panel.' }).element);
+    body.appendChild(base.createOverflowMenu({ items: [{ label: 'Edit', value: 'edit' }, { label: 'Remove', value: 'remove', destructive: true }] }).element);
+    const tip = base.setTooltip(document.createElement('button'), 'Tooltip inside a panel.');
+    tip.type = 'button'; tip.className = 'raised base-button small'; tip.textContent = 'Tip';
     body.appendChild(tip);
     const inDialog = document.createElement('button');
-    inDialog.type = 'button'; inDialog.id = 'demoPopupDialog'; inDialog.className = 'raised jpk-secondary'; inDialog.textContent = 'Popups in a dialog';
+    inDialog.type = 'button'; inDialog.id = 'demoPopupDialog'; inDialog.className = 'raised base-button secondary'; inDialog.textContent = 'Popups in a dialog';
     inDialog.onclick = () => {
         const wrap = document.createElement('div');
         wrap.className = 'g-row';
-        wrap.appendChild(JPK.createOverflowMenu({ items: [{ label: 'Edit', value: 'edit' }, { label: 'Remove', value: 'remove', destructive: true }] }).element);
-        wrap.appendChild(JPK.createHelpHint({ text: 'Escape closes this bubble first, then the dialog.' }).element);
-        const t = JPK.setTooltip(document.createElement('button'), 'Tooltip above the dialog.');
-        t.type = 'button'; t.className = 'raised jpk-button-small'; t.textContent = 'Tip';
+        wrap.appendChild(base.createOverflowMenu({ items: [{ label: 'Edit', value: 'edit' }, { label: 'Remove', value: 'remove', destructive: true }] }).element);
+        wrap.appendChild(base.createHelpHint({ text: 'Escape closes this bubble first, then the dialog.' }).element);
+        const t = base.setTooltip(document.createElement('button'), 'Tooltip above the dialog.');
+        t.type = 'button'; t.className = 'raised base-button small'; t.textContent = 'Tip';
         wrap.appendChild(t);
-        wrap.appendChild(JPK.createSearchField({ placeholder: 'alice' }).element);
-        JPK.bindTooltips(wrap);
-        JPK.openDialog({ title: 'Popups', body: wrap, buttons: [{ text: 'Done', className: 'jpk-button-submit' }] });
+        wrap.appendChild(base.createSearchField({ placeholder: 'alice' }).element);
+        base.bindTooltips(wrap);
+        base.openDialog({ title: 'Popups', body: wrap, buttons: [{ text: 'Done', className: 'base-button primary' }] });
     };
     s.appendChild(inDialog);
 })();
 
 (function () {
+    const s = section('Filter panel');
+    const r = row(s);
+    const groups = [
+        { name: 'status', label: 'Status', options: [{ value: 'active', label: 'Active' }, { value: 'paused', label: 'Paused' }, { value: 'failed', label: 'Failed' }] },
+        { name: 'kind', label: 'Kind', single: true, options: [{ value: 'movie', label: 'Movies' }, { value: 'show', label: 'Shows' }] }
+    ];
+    const report = (id) => (value) => shared.setStatus(id, 'Status ' + (value.status.join(', ') || 'any') + ', kind ' + (value.kind[0] || 'any'), false, { timeout: 0 });
+    r.appendChild(base.createFilterPanel({ groups: groups, value: { status: ['active', 'failed'], kind: ['movie'] }, onChange: report('filterStatus') }).element);
+    r.appendChild(base.createFilterPanel({ groups: groups, buttonText: 'Filter on Done', applyOnChange: false, onChange: report('filterStatus') }).element);
+    r.appendChild(base.createFilterPanel({ groups: groups, buttonText: 'Filter in a Dialog', asDialog: true, onChange: report('filterStatus') }).element);
+    html(s, '<span id="filterStatus" class="base-status-text"></span>');
+})();
+
+(function () {
     const s = section('Copy field and inline validation message');
-    s.appendChild(JPK.createCopyField({ value: 'https://example.test/hooks/abc123' }).element);
-    const secret = JPK.createCopyField({ value: 'sk-demo-secret-0123456789', secret: true }).element;
+    s.appendChild(base.createCopyField({ value: 'https://example.test/hooks/abc123' }).element);
+    const secret = base.createCopyField({ value: 'sk-demo-secret-0123456789', secret: true, allowExpose: true }).element;
     secret.style.marginTop = '12px';
     s.appendChild(secret);
-    html(s, '<div class="inputContainer" style="margin-top:12px"><label for="demoValid">Port</label><input id="demoValid" type="text" value="99999"></div>');
+    html(s, '<div class="inputContainer" style="margin-top:var(--base-gap-wide)"><label for="demoValid">Port</label><input id="demoValid" type="number" min="1" max="65535" value="99999"></div>');
     const input = s.querySelector('#demoValid');
-    const msg = JPK.setFieldState(input, 'error', 'Enter a port from 1 to 65535.');
+    const msg = base.setFieldState(input, 'error', 'Enter a port from 1 to 65535.');
     const r = row(s);
     ['error', 'warn', 'success', 'info', ''].forEach((state) => {
         const b = document.createElement('button');
         b.type = 'button';
-        b.className = 'raised jpk-button-small';
+        b.className = 'raised base-button small';
         b.textContent = state || 'clear';
         b.addEventListener('click', () => msg.set(state, 'This is a ' + (state || 'cleared') + ' message.'));
         r.appendChild(b);
@@ -783,30 +759,48 @@ function html(parent, markup) {
 
 (function () {
     const s = section('String list, key value editor, and tag input');
-    s.appendChild(JPK.createStringList({ values: ['one.example.test', 'two.example.test'], reorder: true, placeholder: 'host.example.test', emptyText: 'Nothing added yet.', validate: (v) => v.indexOf(' ') === -1 ? '' : 'No spaces allowed.' }).element);
+    s.appendChild(base.createStringList({ values: ['one.example.test', 'two.example.test'], reorder: true, placeholder: 'host.example.test', emptyText: 'Nothing added yet.', validate: (v) => v.indexOf(' ') === -1 ? '' : 'No spaces allowed.' }).element);
     html(s, '<p class="g-note">Duplicates are refused, and a value with a space is refused by validate.</p>');
-    s.appendChild(JPK.createKeyValueEditor({ values: [{ key: 'Accept', value: 'application/json' }, { key: 'X-Mode', value: 'fast' }], keyPlaceholder: 'Accept', valuePlaceholder: 'application/json' }).element);
+    s.appendChild(base.createKeyValueEditor({ values: [{ key: 'Accept', value: 'application/json' }, { key: 'X-Mode', value: 'fast' }], keyPlaceholder: 'Accept', valuePlaceholder: 'application/json' }).element);
     html(s, '<p class="g-note">A repeated key is an error.</p>');
-    s.appendChild(JPK.createTagInput({ values: ['news', 'movies'], placeholder: 'music' }).element);
+    s.appendChild(base.createTagInput({ values: ['news', 'movies'], placeholder: 'music' }).element);
     html(s, '<p class="g-note">Type a tag and press Enter or comma. Backspace removes the last tag.</p>');
 })();
 
 (function () {
     const s = section('File picker');
-    const picker = JPK.createFilePicker({ accept: 'image/*,.json', maxSize: 1048576, multiple: true, onChange: (files) => shared.setStatus('fileStatus', files.length + ' chosen', false, { timeout: 0 }) });
+    const picker = base.createFilePicker({ accept: 'image/*,.json', maxSize: 1048576, multiple: true, onChange: (files) => shared.setStatus('fileStatus', files.length + ' chosen', false, { timeout: 0 }) });
     s.appendChild(picker.element);
-    html(s, '<span id="fileStatus" class="jpk-status-text"></span>');
+    html(s, '<span id="fileStatus" class="base-status-text"></span>');
     s.insertAdjacentHTML('beforeend', '<p class="g-note">Accepts images and JSON up to 1 MB. Click, press Enter, or drop files.</p>');
 })();
 
 (function () {
+    const s = section('Folder picker and image picker');
+    const tree = {
+        '': [{ Name: '/', Path: '/', Type: 'Directory' }],
+        '/': [{ Name: 'media', Path: '/media', Type: 'Directory' }, { Name: 'srv', Path: '/srv', Type: 'Directory' }],
+        '/media': [{ Name: 'movies', Path: '/media/movies', Type: 'Directory' }, { Name: 'cover.jpg', Path: '/media/cover.jpg', Type: 'File' }],
+        '/media/movies': [], '/srv': []
+    };
+    const listFolders = (path) => new Promise((resolve, reject) => setTimeout(() => (path in tree ? resolve(tree[path]) : reject(new Error('missing'))), 300));
+    s.appendChild(base.createFolderPicker({ label: 'Media Folder', placeholder: '/media/movies', description: 'The folder the plugin reads from.', value: '/media', listFolders: listFolders }).element);
+    s.appendChild(base.createFolderPicker({ label: 'Cover File', title: 'Select a File', includeFiles: true, listFolders: listFolders }).element);
+    html(s, '<p class="g-note">Type /gone and press Browse to see the read error. Escape returns focus to Browse.</p>');
+    s.appendChild(base.createImagePicker({ label: 'Logo', maxBytes: 1048576 }).element);
+    s.appendChild(base.createImagePicker({ label: 'Poster', shape: 'portrait', value: window.__gallery.rect(120, 180, '#9b59b6', 'P') }).element);
+    s.appendChild(base.createImagePicker({ label: 'Backdrop', shape: 'wide' }).element);
+    html(s, '<p class="g-note">Images up to 1 MB for the logo. A text file is refused.</p>');
+})();
+
+(function () {
     const s = section('Toast');
-    const toaster = JPK.createToaster({ timeout: 4000 });
+    const toaster = base.createToaster({ timeout: 4000 });
     const r = row(s);
     [['info', 'Heads up.'], ['success', 'Saved.'], ['warn', 'Disk is almost full.'], ['error', 'Could not connect.']].forEach(([k, m]) => {
         const b = document.createElement('button');
         b.type = 'button';
-        b.className = 'raised jpk-button-small';
+        b.className = 'raised base-button small';
         b.textContent = k;
         b.addEventListener('click', () => toaster[k](m));
         r.appendChild(b);
@@ -816,34 +810,34 @@ function html(parent, markup) {
 (function () {
     const s = section('Spinner and skeleton');
     const r = row(s);
-    ['small', 'medium', 'large'].forEach((size) => r.appendChild(JPK.createSpinner({ size }).element));
-    html(s, '<div style="margin-top:14px"></div>').firstChild.appendChild(JPK.createSkeleton({ lines: 3 }).element);
+    ['small', 'medium', 'large'].forEach((size) => r.appendChild(base.createSpinner({ size }).element));
+    html(s, '<div style="margin-top:14px"></div>').firstChild.appendChild(base.createSkeleton({ lines: 3 }).element);
     const r2 = row(s);
     r2.style.marginTop = '14px';
-    r2.appendChild(JPK.createSkeleton({ type: 'circle', size: 'medium' }).element);
-    const block = JPK.createSkeleton({ type: 'block', size: 'small' }).element;
+    r2.appendChild(base.createSkeleton({ type: 'circle', size: 'medium' }).element);
+    const block = base.createSkeleton({ type: 'block', size: 'small' }).element;
     block.style.flex = '1';
     r2.appendChild(block);
 })();
 
 (function () {
     const s = section('Definition list, status dot, and divider');
-    s.appendChild(JPK.createDefinitionList({ items: [{ label: 'Version', value: '12.4.14.1' }, { label: 'Id', value: '2f40d5d8-5b6a', mono: true }, { label: 'Last Sync' }] }).element);
-    s.appendChild(JPK.createDivider({ label: 'Or' }).element);
-    s.appendChild(JPK.createDivider().element);
+    s.appendChild(base.createDefinitionList({ items: [{ label: 'Version', value: '12.4.14.1' }, { label: 'Id', value: '2f40d5d8-5b6a', mono: true }, { label: 'Last Sync' }] }).element);
+    s.appendChild(base.createDivider({ label: 'Or' }).element);
+    s.appendChild(base.createDivider().element);
     const r = row(s);
-    ['green', 'red', 'orange', 'purple', 'blue', 'gray'].forEach((color) => r.appendChild(JPK.createStatusDot({ color }).element));
+    ['green', 'red', 'orange', 'purple', 'blue', 'gray'].forEach((color) => r.appendChild(base.createStatusDot({ color }).element));
 })();
 
 (function () {
     const s = section('Log viewer');
-    const log = JPK.createLogViewer({ lines: [{ text: 'Starting the session', level: 'info', time: '10:00:01' }, { text: 'Retrying in 5 seconds', level: 'warn', time: '10:00:03' }, { text: 'Could not reach the server', level: 'error', time: '10:00:08' }, { text: 'Detail line', level: 'debug', time: '10:00:08' }], maxLines: 50 });
+    const log = base.createLogViewer({ lines: [{ text: 'Starting the session', level: 'info', time: '10:00:01' }, { text: 'Retrying in 5 seconds', level: 'warn', time: '10:00:03' }, { text: 'Could not reach the server', level: 'error', time: '10:00:08' }, { text: 'Detail line', level: 'debug', time: '10:00:08' }], maxLines: 50 });
     s.appendChild(log.element);
     const r = row(s);
     r.style.marginTop = '10px';
     const b = document.createElement('button');
     b.type = 'button';
-    b.className = 'raised jpk-button-small';
+    b.className = 'raised base-button small';
     b.textContent = 'Append Lines';
     let n = 0;
     b.addEventListener('click', () => { for (let i = 0; i < 5; i++) log.append({ text: 'Line ' + (++n), level: i === 4 ? 'warn' : 'info' }); });
@@ -852,11 +846,11 @@ function html(parent, markup) {
 
 (function () {
     const s = section('Sub tabs and stepper');
-    s.appendChild(JPK.createSubTabs({
+    s.appendChild(base.createSubTabs({
         tabs: [{ id: 'general', label: 'General', text: 'General settings live here.' }, { id: 'advanced', label: 'Advanced' }, { id: 'off', label: 'Disabled', disabled: true }, { id: 'logs', label: 'Logs' }],
         render: (tab) => tab.id === 'general' ? null : '<p style="margin:0">Built the first time ' + shared.escapeHtml(tab.label) + ' opened.</p>'
     }).element);
-    const stepper = JPK.createStepper({ steps: [{ id: 'a', label: 'Connect', description: 'Pick a server' }, { id: 'b', label: 'Choose', description: 'Select content' }, { id: 'c', label: 'Review' }], value: 'b', clickable: true, onSelect: (id) => stepper.setValue(id) });
+    const stepper = base.createStepper({ steps: [{ id: 'a', label: 'Connect', description: 'Pick a server' }, { id: 'b', label: 'Choose', description: 'Select content' }, { id: 'c', label: 'Review' }], value: 'b', clickable: true, onSelect: (id) => stepper.setValue(id) });
     stepper.element.style.marginTop = '20px';
     s.appendChild(stepper.element);
     const r = row(s);
@@ -864,7 +858,7 @@ function html(parent, markup) {
     [['Back', () => stepper.previous()], ['Next', () => stepper.next()]].forEach(([t, f]) => {
         const b = document.createElement('button');
         b.type = 'button';
-        b.className = 'raised jpk-button-small';
+        b.className = 'raised base-button small';
         b.textContent = t;
         b.addEventListener('click', f);
         r.appendChild(b);
@@ -873,27 +867,46 @@ function html(parent, markup) {
 
 (function () {
     const s = section('Pagination, search field, and breadcrumbs');
-    s.appendChild(JPK.createBreadcrumbs({ items: [{ label: 'Servers', value: 'servers' }, { label: 'Library', href: '#library' }, { label: 'Settings' }], onSelect: (v) => shared.setStatus('crumbStatus', 'Opened ' + v, false, { timeout: 0 }) }).element);
-    html(s, '<span id="crumbStatus" class="jpk-status-text"></span>');
-    const search = JPK.createSearchField({ placeholder: 'alice', onInput: (v) => shared.setStatus('searchStatus', 'Searched ' + JSON.stringify(v), false, { timeout: 0 }) });
+    s.appendChild(base.createBreadcrumbs({ items: [{ label: 'Servers', value: 'servers' }, { label: 'Library', href: '#library' }, { label: 'Settings' }], onSelect: (v) => shared.setStatus('crumbStatus', 'Opened ' + v, false, { timeout: 0 }) }).element);
+    html(s, '<span id="crumbStatus" class="base-status-text"></span>');
+    const search = base.createSearchField({ placeholder: 'alice', onInput: (v) => shared.setStatus('searchStatus', 'Searched ' + JSON.stringify(v), false, { timeout: 0 }) });
     search.element.style.margin = '14px 0';
     s.appendChild(search.element);
-    html(s, '<span id="searchStatus" class="jpk-status-text"></span>');
-    const pager = JPK.createPagination({ total: 245, pageSize: 10, page: 4, onChange: (v) => shared.setStatus('pagerStatus', 'skip ' + v.skip + ' take ' + v.take, false, { timeout: 0 }) });
+    html(s, '<span id="searchStatus" class="base-status-text"></span>');
+    const pager = base.createPagination({ total: 245, pageSize: 10, page: 4, onChange: (v) => shared.setStatus('pagerStatus', 'skip ' + v.skip + ' take ' + v.take, false, { timeout: 0 }) });
     pager.element.style.marginTop = '14px';
     s.appendChild(pager.element);
-    html(s, '<span id="pagerStatus" class="jpk-status-text"></span>');
+    html(s, '<span id="pagerStatus" class="base-status-text"></span>');
 })();
 
 (function () {
     const s = section('Number with unit, slider, and schedule picker');
-    s.appendChild(JPK.createNumberUnitField({ units: [{ value: 'MB', factor: 1 }, { value: 'GB', factor: 1024 }], value: 512, unit: 'MB', min: 1, max: 4096 }).element);
+    s.appendChild(base.createNumberUnitField({ units: [{ value: 'MB', factor: 1 }, { value: 'GB', factor: 1024 }], value: 512, unit: 'MB', min: 1, max: 4096 }).element);
     html(s, '<p class="g-note">Type 5000 to see the range message.</p>');
-    s.appendChild(JPK.createSliderField({ min: 0, max: 255, value: 128, suffix: ' of 255', label: 'Opacity' }).element);
-    const sched = JPK.createSchedulePicker({ value: { time: '02:30', days: [1, 3, 5] }, onChange: (v) => shared.setStatus('schedStatus', JSON.stringify(v), false, { timeout: 0 }) });
+    s.appendChild(base.createSliderField({ min: 0, max: 255, value: 128, suffix: ' of 255', label: 'Opacity' }).element);
+    const sched = base.createSchedulePicker({ value: { time: '02:30', days: [1, 3, 5] }, onChange: (v) => shared.setStatus('schedStatus', JSON.stringify(v), false, { timeout: 0 }) });
     sched.element.style.marginTop = '14px';
     s.appendChild(sched.element);
-    html(s, '<span id="schedStatus" class="jpk-status-text"></span>');
+    html(s, '<span id="schedStatus" class="base-status-text"></span>');
+})();
+
+(function () {
+    const s = section('Access schedule');
+    const schedule = base.createAccessSchedule({ label: 'Access Schedule', description: 'Times when the user may sign in.', value: [{ DayOfWeek: 'Weekday', StartHour: 16, EndHour: 21.5 }, { DayOfWeek: 'Weekend', StartHour: 9, EndHour: 23 }, { DayOfWeek: 'Friday', StartHour: 22, EndHour: 20 }], onChange: (v) => shared.setStatus('accessStatus', JSON.stringify(v), false, { timeout: 0 }) });
+    s.appendChild(schedule.element);
+    html(s, '<span id="accessStatus" class="base-status-text"></span>');
+    html(s, '<p class="g-note">The Friday row ends before it starts, so it shows the error. Add Window appends an Every Day window.</p>');
+    s.appendChild(base.createAccessSchedule({ value: [] }).element);
+    html(s, '<p class="g-note">An empty schedule shows its sentence.</p>');
+})();
+
+(function () {
+    const s = section('Mapping table');
+    s.appendChild(base.createMappingTable({ rows: [{ value: 'r1', label: 'Movies', description: 'source-a' }, { value: 'r2', label: 'Shows', description: 'source-a' }, { value: 'r3', label: 'Music', description: 'source-a' }], targets: [{ value: 'l1', label: 'Local Movies' }, { value: 'l2', label: 'Local Shows' }, { value: 'l3', label: 'Local Music' }], value: { r1: 'l1', r3: 'removed' }, sourceHeader: 'Remote Library', targetHeader: 'Local Library', unique: true, onChange: (v) => shared.setStatus('mapStatus', JSON.stringify(v), false, { timeout: 0 }) }).element);
+    html(s, '<span id="mapStatus" class="base-status-text"></span>');
+    html(s, '<p class="g-note">Unique is on, so a picked target is disabled in the other rows. Music points at a target that no longer exists, so it shows as None.</p>');
+    s.appendChild(base.createMappingTable({ rows: [] }).element);
+    html(s, '<p class="g-note">An empty table shows its sentence.</p>');
 })();
 
 (function () {
@@ -901,37 +914,89 @@ function html(parent, markup) {
     const wrap = document.createElement('div');
     s.appendChild(wrap);
     const mem = {};
-    ['info', 'success', 'warn', 'error', 'neutral'].forEach((kind) => wrap.appendChild(JPK.createBanner({ kind, title: kind === 'warn' ? 'Back up first' : '', text: 'This is a ' + kind + ' banner. Dismissing it remembers nothing unless a key and storage are given.', key: kind === 'info' ? 'demo-info' : undefined, storage: kind === 'info' ? { get: (k) => mem[k], set: (k, v) => { mem[k] = v; } } : undefined }).element));
+    ['info', 'success', 'warn', 'error', 'neutral'].forEach((kind) => wrap.appendChild(base.createBanner({ kind, title: kind === 'warn' ? 'Back up first' : '', text: 'This is a ' + kind + ' banner. Dismissing it remembers nothing unless a key and storage are given.', key: kind === 'info' ? 'demo-info' : undefined, storage: kind === 'info' ? { get: (k) => mem[k], set: (k, v) => { mem[k] = v; } } : undefined }).element));
 })();
 
 (function () {
     const s = section('Avatar, user chip, stat card, and progress ring');
     const r = row(s);
-    r.appendChild(JPK.createAvatar({ name: 'Ada Lovelace', size: 'small' }).element);
-    r.appendChild(JPK.createAvatar({ name: 'Bob Ross', status: 'green' }).element);
-    r.appendChild(JPK.createAvatar({ name: 'Carol', size: 'large', status: 'red', statusLabel: 'Offline' }).element);
-    r.appendChild(JPK.createAvatar({ src: G.svg(64, 64, '#0088cc', 'D'), name: 'Dave' }).element);
-    r.appendChild(JPK.createAvatar({ src: 'data:image/png;base64,AAAA', name: 'Eve Adams' }).element);
+    r.appendChild(base.createAvatar({ name: 'Ada Lovelace', size: 'small' }).element);
+    r.appendChild(base.createAvatar({ name: 'Bob Ross', status: 'green' }).element);
+    r.appendChild(base.createAvatar({ name: 'Carol', size: 'large', status: 'red', statusLabel: 'Offline' }).element);
+    r.appendChild(base.createAvatar({ src: G.svg(64, 64, '#0088cc', 'D'), name: 'Dave' }).element);
+    r.appendChild(base.createAvatar({ src: 'data:image/png;base64,AAAA', name: 'Eve Adams' }).element);
     const r2 = row(s);
     r2.style.marginTop = '12px';
-    r2.appendChild(JPK.createUserChip({ name: 'Ada Lovelace', text: 'Administrator', status: 'green' }).element);
-    r2.appendChild(JPK.createUserChip({ name: 'Bob', src: G.svg(64, 64, '#9b59b6', 'B') }).element);
+    r2.appendChild(base.createUserChip({ name: 'Ada Lovelace', text: 'Administrator', status: 'green' }).element);
+    r2.appendChild(base.createUserChip({ name: 'Bob', src: G.svg(64, 64, '#9b59b6', 'B') }).element);
     const cards = document.createElement('div');
-    cards.className = 'jpk-cards';
+    cards.className = 'base-cards';
     cards.style.marginTop = '14px';
-    cards.appendChild(JPK.createStatCard({ value: '1,204', label: 'Items', color: 'blue', trend: 12, trendSuffix: '%', trendLabel: 'vs last week' }).element);
-    cards.appendChild(JPK.createStatCard({ value: 7, label: 'Errors', color: 'red', trend: 3, positiveIsGood: false }).element);
-    cards.appendChild(JPK.createStatCard({ value: 98, label: 'Uptime', color: 'green', trend: -1, trendSuffix: '%' }).element);
-    cards.appendChild(JPK.createStatCard({ value: 4, label: 'Servers', trend: 0 }).element);
+    cards.appendChild(base.createStatCard({ value: '1,204', label: 'Items', color: 'blue', trend: 12, trendSuffix: '%', trendLabel: 'vs last week' }).element);
+    cards.appendChild(base.createStatCard({ value: 7, label: 'Errors', color: 'red', trend: 3, positiveIsGood: false }).element);
+    cards.appendChild(base.createStatCard({ value: 98, label: 'Uptime', color: 'green', trend: -1, trendSuffix: '%' }).element);
+    cards.appendChild(base.createStatCard({ value: 4, label: 'Servers', trend: 0 }).element);
     s.appendChild(cards);
     const r3 = row(s);
     r3.style.marginTop = '14px';
-    [['small', 25, ''], ['medium', 60, 'green'], ['large', 90, 'orange']].forEach(([size, value, color]) => r3.appendChild(JPK.createProgressRing({ size, value, color }).element));
+    [['small', 25, ''], ['medium', 60, 'green'], ['large', 90, 'orange']].forEach(([size, value, color]) => r3.appendChild(base.createProgressRing({ size, value, color }).element));
+})();
+
+(function () {
+    const s = section('Media card in a list and a grid');
+    const discard = [{ label: 'Discard', icon: 'close', value: 'discard' }];
+    const late = base.createMediaCard({ title: 'Late Image', subtitle: 'The image arrives after a second.', onClick: () => shared.setStatus('mediaStatus', 'Opened.', false, { timeout: 0 }) });
+    const rows = [
+        base.createMediaCard({ shape: base.mediaShape('Episode'), imageUrl: G.rect(192, 108, '#3498db', 'E'), title: 'Example Show', titleSuffix: 'S1, E1, Pilot', user: { name: 'Alice', imageUrl: ApiClient.getUserImageUrl('u1') }, subtitle: 'watch history to source-b', badges: [{ label: 'History', color: 'blue' }], status: { label: 'Pending', color: 'orange' }, meta: 'waiting for delivery', actions: discard, onAction: (v) => shared.setStatus('mediaStatus', 'Clicked ' + v + '.', false, { timeout: 0 }) }),
+        base.createMediaCard({ shape: 'round', title: 'Example Person', subtitle: 'biography and images', badges: [{ label: 'People', color: 'purple' }], status: { label: 'Failed', color: 'red' }, meta: 'Could not reach the server.', metaIsError: true, actions: discard }),
+        late,
+        base.createMediaCard({ imageUrl: 'missing.jpg', title: 'Broken Image', subtitle: 'The placeholder stays.' })
+    ];
+    s.appendChild(base.createList({ items: rows, render: (card) => card, label: 'Queue' }).element);
+    setTimeout(() => late.setValue({ imageUrl: G.rect(120, 180, '#5cb85c', 'L') }), 1000);
+    html(s, '<span id="mediaStatus" class="base-status-text"></span>');
+    const grid = base.createList({ layout: 'grid', items: D.MEDIA, render: (m) => base.createMediaCard({ layout: 'card', shape: base.mediaShape(m.Type), itemId: m.ImageTags.Primary ? m.Id : null, title: m.Name, subtitle: String(m.ProductionYear), onClick: () => {} }) });
+    grid.element.classList.add('g-gap-top');
+    s.appendChild(grid.element);
+    html(s, '<p class="g-note">Rows and tiles are both createList with a media card per item. Shapes follow mediaShape(Type). A clickable card opens on Enter and Space.</p>');
+})();
+
+(function () {
+    const s = section('Media picker');
+    s.appendChild(base.createMediaPicker({
+        label: 'Excluded Titles', description: 'Type two letters, such as ex.', itemTypes: ['Movie', 'Series', 'Episode'], value: [D.MEDIA[0]],
+        searchFn: (q) => Promise.resolve(D.MEDIA.filter((m) => m.Name.toLowerCase().indexOf(q.toLowerCase()) !== -1)),
+        onChange: (items) => shared.setStatus('mediaPickStatus', items.length + ' picked.', false, { timeout: 0 })
+    }).element);
+    html(s, '<span id="mediaPickStatus" class="base-status-text"></span>');
+    html(s, '<p class="g-note">Arrow keys and Enter pick, the first Escape closes the results, and the next clears the text. Picked items are not offered again.</p>');
+})();
+
+(function () {
+    const s = section('List heights');
+    const names = Array.from({ length: 40 }, (_, i) => 'Item ' + (i + 1));
+    const label = (t) => html(s, '<p class="g-note">' + t + '</p>');
+    label('height 180: a fixed height that scrolls inside.');
+    s.appendChild(base.createList({ items: names, render: (t) => t, height: 180 }).element);
+    label('maxHeight 180 with three items: it grows until the cap, so it stays short.');
+    s.appendChild(base.createList({ items: names.slice(0, 3), render: (t) => t, maxHeight: 180 }).element);
+    label('onEndReached in a fixed height: scroll to the end to load ten more, up to 60.');
+    let more = 20;
+    const endless = base.createList({ items: names.slice(0, 20), render: (t) => t, height: 180, onEndReached: () => {
+        if (more >= 60) return;
+        endless.setLoading(true);
+        setTimeout(() => { endless.append(Array.from({ length: 10 }, (_, i) => 'Item ' + (more + i + 1))); more += 10; endless.setLoading(false); }, 400);
+    } });
+    s.appendChild(endless.element);
+    label('An empty list shows its text.');
+    s.appendChild(base.createList({ items: [], render: (t) => t, emptyText: 'No servers.' }).element);
+    label('height fill: reaches from its top to the bottom of the window, at least 160px.');
+    s.appendChild(base.createList({ items: names, render: (t) => t, height: 'fill' }).element);
 })();
 
 (function () {
     const s = section('Timeline');
-    s.appendChild(JPK.createTimeline({ items: [
+    s.appendChild(base.createTimeline({ items: [
         { time: '10:00', datetime: '2026-03-10T10:00', title: 'Sync started', body: 'Two servers in the pool.', status: 'purple', icon: 'sync' },
         { time: '10:04', title: 'Library synced', body: '1,204 items.', status: 'green', icon: 'check' },
         { time: '10:06', title: 'One item skipped', status: 'orange' },
@@ -939,16 +1004,218 @@ function html(parent, markup) {
     ] }).element);
 })();
 
+
 (function () {
-    const s = section('Deprecated (kept for existing plugins)');
-    const r = row(s);
-    r.innerHTML = '<button class="raised jpk-button-primary">jpk-button-primary</button>' +
-        '<span class="jpk-readonly">jpk-readonly</span>' +
-        '<span class="jpk-edit-line-spacer"></span>';
-    html(s, '<div class="jpk-empty-state"><div class="jpk-empty-state-card"><span class="jpk-empty-state-icon material-icons">inbox</span>' +
-        '<div class="jpk-empty-state-title">Nothing here yet</div><div class="jpk-empty-state-subtitle">Add an item to get started.</div>' +
-        '<button type="button" class="raised jpk-empty-state-button">Add</button></div></div>').style.marginTop = '12px';
+    const s = section('Color picker');
+    const label = (t) => { const p = document.createElement('p'); p.className = 'g-note'; p.textContent = t; s.appendChild(p); };
+    label('RGB, the default: the swatch opens the picker, and the field takes hex or rgb() text.');
+    s.appendChild(base.createColorPicker({ value: '#3498db' }).element);
+    label('alpha: true adds an opacity box on the same line and gives #rrggbbaa.');
+    s.appendChild(base.createColorPicker({ value: '#e91e6380', alpha: true }).element);
 })();
+
+
+(function () {
+    const s = section('World map and data table');
+    const counts = {
+        US: { people: 42, failed: 6, blocked: 1 }, GB: { people: 12, failed: 1 }, DE: { people: 9, failed: 4 },
+        BR: { people: 5 }, IN: { people: 7, blocked: 3 }, AU: { people: 3 }, CN: { failed: 2, blocked: 8 }, RU: { blocked: 5 }
+    };
+    const map = base.createWorldMap({
+        layers: [
+            { key: 'people', label: 'People' },
+            { key: 'failed', label: 'Failed' },
+            { key: 'blocked', label: 'Blocked' }
+        ],
+        counts
+    });
+    const rows = Object.keys(counts).map((code) => Object.assign({ country: code, name: map.countryName(code) },
+        { people: counts[code].people || 0, failed: counts[code].failed || 0, blocked: counts[code].blocked || 0 }));
+    const table = base.createDataTable({
+        columns: [
+            { key: 'name', label: 'Country' },
+            { key: 'people', label: 'People', icon: 'person', align: 'end' },
+            { key: 'failed', label: 'Failed', icon: 'warning', align: 'end' },
+            { key: 'blocked', label: 'Blocked', icon: 'block', align: 'end' }
+        ],
+        rows,
+        rowKey: 'country',
+        sort: { key: 'people', dir: 'desc' },
+        search: { keys: ['name'], placeholder: 'Search countries' },
+        filters: [{ name: 'country', label: 'Countries', options: rows.map((r) => ({ value: r.country, label: r.name })) }],
+        selectable: true
+    });
+    base.linkWorldMap(map, table, 'country');
+    s.appendChild(map.element);
+    table.element.style.marginTop = 'var(--base-gap-wide)';
+    s.appendChild(table.element);
+})();
+
+(function () {
+    const s = section('Flow diagram');
+    const label = (t) => { const p = document.createElement('p'); p.className = 'g-note'; p.textContent = t; s.appendChild(p); };
+    const lanes = [
+        { key: 'pull', side: 'left', direction: 'in', color: 'green', label: 'Pull', items: [
+            { label: 'Office', status: 'green' }, { label: 'Parents', status: 'orange' }, { label: 'Archive', status: 'gray' }
+        ] },
+        { key: 'push', side: 'right', direction: 'out', color: 'blue', label: 'Push', items: [
+            { label: 'Cabin', status: 'green' }, { label: 'Backup NAS', status: 'red' }
+        ] },
+        { key: 'sync', side: 'below', direction: 'both', color: 'purple', label: 'Sync', items: [
+            { label: 'Studio', status: 'green' }, { label: 'Lake House', status: 'green' }, { label: 'Grandma', status: 'orange' },
+            { label: 'Travel Laptop Server', status: 'red' }, { label: 'Garage', status: 'gray' }
+        ] }
+    ];
+    label('Pull on the left points at the hub, push on the right at each pill, and sync below at both. Five below wrap into a second row.');
+    s.appendChild(base.createFlowDiagram({ label: 'Servers this one is set up with', hub: { label: 'Home' }, lanes }).element);
+    label('onSelect: each pill is a button. Tab to one and press Enter or Space.');
+    const picked = document.createElement('p');
+    picked.className = 'g-note';
+    s.appendChild(base.createFlowDiagram({ hub: { label: 'Home' }, lanes, onSelect: (item, lane) => { picked.textContent = 'Selected ' + item.label + ' in ' + lane.label + '.'; } }).element);
+    s.appendChild(picked);
+    label('A hex lane color, eleven pills in two columns, and the hub alone.');
+    s.appendChild(base.createFlowDiagram({ hub: { label: 'Home' }, lanes: [{ key: 'many', side: 'right', direction: 'out', color: '#e91e63', label: 'Push',
+        items: Array.from({ length: 11 }, (_, i) => ({ label: 'Server ' + (i + 1), status: i % 3 ? 'green' : '#00bcd4' })) }] }).element);
+    s.appendChild(base.createFlowDiagram({ hub: { label: 'Home' } }).element);
+})();
+
+
+(function () {
+    const s = section('Save bar');
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">Each state as an example, then a live bar: type in the box, then Save. Every third save fails.</p>');
+    const examples = document.createElement('div');
+    examples.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--base-gap-wide)';
+    ['pending', 'saving', 'saved', 'failed'].forEach((state) => examples.appendChild(base.createSaveBar({ state, savedMs: 3600000 }).element));
+    s.appendChild(examples);
+    const field = document.createElement('div');
+    field.className = 'inputContainer';
+    field.style.marginTop = 'var(--base-gap-wide)';
+    field.innerHTML = '<label for="demoSaveName">Server name</label><input id="demoSaveName" type="text" value="Home">';
+    s.appendChild(field);
+    let saves = 0;
+    const bar = base.createSaveBar({ onSave: () => new Promise((ok, fail) => setTimeout(() => (++saves % 3 ? ok() : fail(new Error('no'))), 800)) });
+    field.querySelector('input').addEventListener('input', () => bar.setDirty(true));
+    s.appendChild(bar.element);
+})();
+
+(function () {
+    const s = section('Filtered list');
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">A List with search, count cards that turn states on and off, type pills, and a sort, in a fixed 320px height that scrolls inside.</p>');
+    const states = ['Synced', 'Queued', 'Synced', 'Errored', 'Synced', 'Queued', 'Synced', 'Synced', 'Errored', 'Synced', 'Queued', 'Synced'];
+    const names = ['Alien', 'Brazil', 'Cosmos', 'Dune', 'Eraserhead', 'Fargo', 'Gattaca', 'Heat', 'Inception', 'Jaws', 'Kill Bill', 'Logan'];
+    const items = names.map((name, i) => ({ id: i + 1, name, state: states[i], type: i % 3 ? 'Movie' : 'Series', year: 1979 + i * 4 }));
+    const color = { Synced: 'green', Queued: 'orange', Errored: 'red' };
+    const list = base.createFilteredList({
+        items,
+        render: (item) => base.createMediaCard({ title: item.name, subtitle: item.type + ', ' + item.year, status: { label: item.state, color: color[item.state] } }),
+        search: { keys: ['name'], placeholder: 'Search titles' },
+        filters: [
+            { name: 'state', label: 'States', kind: 'cards', options: [{ value: 'Synced', label: 'Synced', color: 'green' }, { value: 'Queued', label: 'Queued', color: 'orange' }, { value: 'Errored', label: 'Errored', color: 'red' }] },
+            { name: 'type', label: 'Types', kind: 'pills', options: [{ value: 'Movie', label: 'Movies' }, { value: 'Series', label: 'Series' }] }
+        ],
+        sorts: [{ key: 'name', label: 'Name' }, { key: 'year', label: 'Newest', dir: 'desc' }],
+        height: 320
+    });
+    s.appendChild(list.element);
+})();
+
+(function () {
+    const s = section('Filtered list with selection and live refresh');
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">Media card items with a thumbnail, status, detail, error, and size. State cards, direction pills, server pills that arrive after load and clear on a second click, multiple selection with Ignore and Queue, Retry Errors while an item failed, a 200 item cap, and a refresh every 3 seconds that changes one item without moving the scroll. Click an item to open it.</p>');
+    const kinds = ['Movie', 'Episode', 'MusicAlbum', 'Series'];
+    const titles = ['Alien', 'Brazil', 'Cosmos', 'Dune', 'Eraserhead', 'Fargo', 'Gattaca', 'Heat', 'Inception', 'Jaws', 'Kill Bill', 'Logan', 'Memento', 'Nope', 'Oldboy', 'Psycho'];
+    const peers = [{ value: 'den', label: 'Den' }, { value: 'cabin', label: 'Cabin' }, { value: 'office', label: 'Office' }];
+    const stateColor = { Synced: 'green', Queued: 'orange', Errored: 'red', Ignored: 'gray' };
+    const poster = (i) => 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 3"><rect width="2" height="3" fill="hsl(' + (i * 47 % 360) + ',45%,42%)"/></svg>');
+    const states = ['Synced', 'Queued', 'Synced', 'Errored', 'Synced', 'Ignored', 'Synced', 'Queued'];
+    const make = (i, state) => ({
+        id: 'item-' + i,
+        name: titles[i % titles.length] + ' ' + (Math.floor(i / titles.length) + 1),
+        type: kinds[i % kinds.length],
+        dir: i % 3 ? 'out' : 'in',
+        peer: peers[i % peers.length].value,
+        state,
+        size: 300000000 + (i * 7919 % 40) * 97000000,
+        image: i % 5 ? poster(i) : ''
+    });
+    let all = Array.from({ length: 260 }, (_, i) => make(i, states[i % states.length]));
+    const detailOf = (item) => item.state === 'Queued' ? 'Pending, retry in 2m' : item.state === 'Synced' ? 'Sent to ' + item.peer : item.state === 'Ignored' ? 'Ignored by an administrator' : null;
+    const setState = (ids, state) => { all = all.map((item) => ids.indexOf(item.id) !== -1 ? Object.assign({}, item, { state }) : item); list.setItems(all); };
+    const list = base.createFilteredList({
+        items: all,
+        rowKey: 'id',
+        render: (item) => base.createMediaCard({
+            title: item.name,
+            subtitle: item.type + ', ' + (item.dir === 'in' ? 'from ' : 'to ') + item.peer,
+            shape: base.mediaShape(item.type),
+            imageUrl: item.image,
+            status: { label: item.state, color: stateColor[item.state] },
+            detail: detailOf(item),
+            error: item.state === 'Errored' ? 'Could not reach the server at 10.0.0.12. The connection timed out after 30 seconds.' : null,
+            size: item.size
+        }),
+        search: { keys: ['name'], placeholder: 'Search titles' },
+        filters: [
+            { name: 'state', label: 'States', kind: 'cards', options: [{ value: 'Synced', label: 'Synced', color: 'green' }, { value: 'Queued', label: 'Queued', color: 'orange' }, { value: 'Errored', label: 'Errored', color: 'red' }, { value: 'Ignored', label: 'Ignored', color: 'gray' }] },
+            { name: 'dir', label: 'Directions', kind: 'pills', options: [{ value: 'out', label: 'Outgoing' }, { value: 'in', label: 'Incoming' }] },
+            { name: 'peer', label: 'Servers', kind: 'pills', clearable: true, options: [] }
+        ],
+        selectable: 'multiple',
+        bulkActions: [
+            { id: 'ignore', label: 'Ignore', icon: 'block', onClick: (items) => { setState(items.map((i) => i.id), 'Ignored'); list.clearSelection(); } },
+            { id: 'queue', label: 'Queue', icon: 'playlist_add', variant: 'primary', onClick: (items) => { setState(items.map((i) => i.id), 'Queued'); list.clearSelection(); } }
+        ],
+        actions: [{ id: 'retry', label: 'Retry Errors', icon: 'refresh', onClick: () => setState(all.filter((i) => i.state === 'Errored').map((i) => i.id), 'Queued'), visible: () => all.some((i) => i.state === 'Errored') }],
+        limit: 200,
+        limitText: 'Showing the latest {shown} of {total}. Filter by state or server to see more.',
+        onOpen: (item) => base.openDialog({ title: item.name, body: '<p>' + base.escapeHtml(item.type + ', ' + item.state + ', ' + (detailOf(item) || 'no detail')) + '</p>', buttons: [{ text: 'Done', className: 'base-button primary' }] }),
+        height: 420
+    });
+    // The servers arrive after the first load, as Server Sync's peer pills do.
+    setTimeout(() => list.setFilterOptions('peer', peers), 600);
+    // A poll every 3 seconds changes one item's state, and only that row draws again.
+    let tick = 0;
+    setInterval(() => {
+        tick++;
+        const at = (tick * 13) % 40;
+        all = all.map((item, i) => i === at ? Object.assign({}, item, { state: item.state === 'Synced' ? 'Queued' : 'Synced' }) : item);
+        list.setItems(all);
+    }, 3000);
+    s.appendChild(list.element);
+})();
+
+
+// The newest components show their docs preview, the one demo each has, sized to its content.
+(function () {
+    const pages = [
+        ['Time range field', 'time-range-field'], ['Duration field', 'duration-field'], ['Date range picker', 'date-range-picker'],
+        ['Checkbox', 'checkbox'], ['Collapsible section headers and panels', 'collapsible-section'], ['Stat card status', 'stat-card'],
+        ['Definition list columns', 'definition-list'], ['Paginated table thumbnails', 'paginated-table'], ['Inherit field', 'inherit-field'], ['Repeater', 'repeater'], ['Rule builder', 'rule-builder'],
+        ['Record list', 'record-list'], ['Tree view', 'tree-view'], ['Compare table', 'compare-table'], ['Matrix grid', 'matrix-grid'],
+        ['Bar chart', 'bar-chart'], ['Line chart', 'line-chart'], ['Sparkline', 'sparkline'], ['Usage meter', 'usage-meter'],
+        ['Relative time', 'relative-time'], ['Avatar stack', 'avatar-stack'], ['QR code', 'qr-code'], ['Audio player', 'audio-player'],
+        ['Preview frame', 'preview-frame'], ['Detail drawer', 'detail-drawer'], ['Setup checklist', 'setup-checklist']
+    ];
+    const frames = [];
+    pages.forEach(([title, name]) => {
+        const s = section(title);
+        const frame = document.createElement('iframe');
+        frame.className = 'g-preview';
+        frame.title = title + ' example';
+        frame.loading = 'lazy';
+        frame.src = '../../docs/assets/previews/' + name + '.html?theme=dark';
+        frame.style.cssText = 'display:block;width:100%;border:0;min-height:120px;background:transparent';
+        s.appendChild(frame);
+        frames.push(frame);
+    });
+    window.addEventListener('message', (e) => {
+        if (e.origin !== location.origin || !e.data || e.data.type !== 'base-preview-height') return;
+        const frame = frames.find((f) => f.contentWindow === e.source);
+        if (frame && e.data.height > 0) frame.style.height = Math.ceil(e.data.height) + 'px';
+    });
+})();
+
+base.bindFieldAdornments(document.body);
 </script>
 </body>
 </html>

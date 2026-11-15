@@ -1,10 +1,14 @@
 /* Time input and day toggles, side by side where there is room and stacked where there is not */
-/* Example: <div class="jpk-schedule"><input type="time" class="jpk-schedule-time"><div class="jpk-toggle-group jpk-schedule-days" role="group"></div></div> */
-.jpk-schedule {
+/* Example: <div class="base-schedule"><input type="time" class="base-schedule-time"><div class="base-toggle-group base-schedule-days" role="group"></div></div> */
+.base-schedule {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
+    gap: var(--base-gap-wide);
 }
-.jpk-schedule-time { flex: 0 0 auto; }
-.jpk-schedule-days .jpk-toggle { padding: 6px 12px; }
+.base-schedule-time { flex: 0 0 auto; }
+.base-schedule-days .base-toggle { padding: 0 var(--base-pad-medium); }
+
+/* The time's message on its own line under the time and the days */
+/* Example: <div class="base-schedule"><input type="time"><div class="base-schedule-days"></div><div class="base-field-message"></div></div> */
+.base-schedule > .base-field-message { flex: 1 0 100%; margin-top: 0; }

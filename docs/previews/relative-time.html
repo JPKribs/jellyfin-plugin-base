@@ -1,0 +1,26 @@
+<!-- title: Relative Time -->
+<div id="mount" style="display: grid; gap: 12px;"></div>
+<script type="module">
+const base = await window.__baseReady;
+const mount = document.getElementById('mount');
+const row = (label, node) => {
+    const line = document.createElement('div');
+    line.textContent = label + ' ';
+    line.appendChild(node);
+    mount.appendChild(line);
+};
+const now = Date.now();
+row('Last sync', base.createRelativeTime({ value: now - 20 * 1000 }).element);
+row('Last error', base.createRelativeTime({ value: now - 3 * 60 * 1000 }).element);
+row('Next run', base.createRelativeTime({ value: now + 2 * 60 * 60 * 1000 }).element);
+row('Added', base.createRelativeTime({ value: now - 9 * 24 * 60 * 60 * 1000 }).element);
+row('Gathering ends in', base.createRelativeTime({ countdown: true, ring: true, start: now, value: now + 90 * 1000, doneText: 'Sending now' }).element);
+const table = base.createDataTable({
+    columns: [
+        { key: 'name', label: 'Server' },
+        { key: 'seen', label: 'Last Seen', render: base.renderRelative('seen') }
+    ],
+    rows: [{ name: 'Den', seen: now - 40 * 1000 }, { name: 'Cabin', seen: now - 26 * 60 * 1000 }, { name: 'Office', seen: now - 3 * 24 * 60 * 60 * 1000 }]
+});
+mount.appendChild(table.element);
+</script>

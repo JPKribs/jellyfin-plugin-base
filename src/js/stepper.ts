@@ -1,11 +1,15 @@
-import { make, icon, clear } from './dom-util.js';
+import { make, icon, clear } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
 
-/** One step of a stepper. */
+/** How a step is drawn. A step's own state replaces the one its place before or after the current step gives it. */
+export type StepperStepState = 'completed' | 'current' | 'upcoming' | 'attention' | 'optional';
+
+/** One step of a stepper. state sets its look on its own, whatever the current step is. */
 export interface StepperStep {
     id: string | number;
     label?: string;
     description?: string;
+    state?: StepperStepState;
 }
 
 /** What getStep returns for a step, with its index. */
@@ -20,11 +24,14 @@ export interface StepperStepInfo {
 export interface StepperOptions {
     steps?: StepperStep[];
     value?: string | number;
-    clickable?: boolean;
+    clickable?: boolean | 'all';
+    layout?: 'steps' | 'segments';
     navLabel?: string;
     completedText?: string;
     currentText?: string;
     upcomingText?: string;
+    attentionText?: string;
+    optionalText?: string;
     onSelect?(id: string | number, index: number): void;
 }
 
@@ -41,15 +48,19 @@ export interface StepperHandle extends ComponentHandle {
 
 /**
  * A row of numbered steps for a flow of several stages. Steps before the current one are completed, the current one has aria-current step, and later ones are upcoming. A step can be a button that reports itself.
+ * A step's own state draws it as completed, current, upcoming, attention, or optional wherever it sits, and the segments layout draws each step as one segment of a bar.
  *
  * @param options {
- *   steps         : array of { id, label, description } [optional]
+ *   steps         : array of { id, label, description, state } [optional]
  *   value         : the current step, where a string is an id and a number is an index, so a numeric id is given as a string (default the first step)
- *   clickable     : true makes completed and current steps buttons (default false)
+ *   clickable     : true makes completed and current steps buttons, and 'all' makes every step one (default false)
+ *   layout        : 'steps' draws numbered steps, and 'segments' draws a bar of one segment per step, its labels kept as tooltips and hidden text (default 'steps')
  *   navLabel      : aria-label of the list (default 'Progress')
  *   completedText : hidden text for a completed step (default 'Completed')
  *   currentText   : hidden text for the current step (default 'Current')
  *   upcomingText  : hidden text for a later step (default 'Not started')
+ *   attentionText : hidden text for a step that needs attention (default 'Needs attention')
+ *   optionalText  : hidden text for an optional step (default 'Optional')
  *   onSelect      : function(id, index) called when a step button is pressed [optional]
  * }
  * @returns { element, getValue, getStep, setValue, setItems, next, previous, destroy }. getValue returns the current id. setValue takes an id string or an index number. getStep(id) returns { id, index, label, description } for any id, a number included, or null. next and previous move by one and return the new id.
@@ -59,27 +70,38 @@ export function createStepper(options?: StepperOptions): StepperHandle {
     var steps: StepperStep[] = [];
     var current: number = 0;
 
-    var root = make('nav', 'jpk-stepper', { 'aria-label': options.navLabel || 'Progress' });
-    var list = make('ol', 'jpk-stepper-list');
+    var segments: boolean = options.layout === 'segments';
+    var root = make('nav', 'base-stepper' + (segments ? ' segments' : ''), { 'aria-label': options.navLabel || 'Progress' });
+    var list = make('ol', 'base-stepper-list');
     root.appendChild(list);
+
+    // The hidden text a screen reader hears for a step's state.
+    function statusText(state: StepperStepState): string {
+        if (state === 'completed') return options!.completedText || 'Completed';
+        if (state === 'current') return options!.currentText || 'Current';
+        if (state === 'attention') return options!.attentionText || 'Needs attention';
+        if (state === 'optional') return options!.optionalText || 'Optional';
+        return options!.upcomingText || 'Not started';
+    }
 
     function render(): void {
         clear(list);
         steps.forEach(function (step, index) {
-            var state = index < current ? 'completed' : (index === current ? 'current' : 'upcoming');
-            var li = make('li', 'jpk-stepper-step ' + state);
-            var control = options!.clickable && state !== 'upcoming'
-                ? make('button', 'jpk-stepper-control', { type: 'button' })
-                : make('div', 'jpk-stepper-control');
-            if (state === 'current') control.setAttribute('aria-current', 'step');
-            var badge = make('span', 'jpk-stepper-number', { 'aria-hidden': 'true' });
-            if (state === 'completed') badge.appendChild(icon('check'));
+            var state: StepperStepState = step.state || (index < current ? 'completed' : (index === current ? 'current' : 'upcoming'));
+            var li = make('li', 'base-stepper-step ' + state);
+            var control = options!.clickable && (options!.clickable === 'all' || state !== 'upcoming')
+                ? make('button', 'base-stepper-control', { type: 'button' })
+                : make('div', 'base-stepper-control');
+            if (index === current) control.setAttribute('aria-current', 'step');
+            if (segments && step.label) control.title = step.label;
+            var badge = make('span', 'base-stepper-number', { 'aria-hidden': 'true' });
+            if (segments) badge.className = 'base-stepper-segment';
+            else if (state === 'completed') badge.appendChild(icon('check'));
             else badge.textContent = String(index + 1);
-            var text = make('span', 'jpk-stepper-text');
-            text.appendChild(make('span', 'jpk-stepper-label', null, step.label));
-            if (step.description) text.appendChild(make('span', 'jpk-stepper-description', null, step.description));
-            var status = state === 'completed' ? (options!.completedText || 'Completed') : (state === 'current' ? (options!.currentText || 'Current') : (options!.upcomingText || 'Not started'));
-            text.appendChild(make('span', 'jpk-sr-only', null, status));
+            var text = make('span', segments ? 'base-stepper-text base-sr-only' : 'base-stepper-text');
+            text.appendChild(make('span', 'base-stepper-label', null, step.label));
+            if (step.description) text.appendChild(make('span', 'base-stepper-description', null, step.description));
+            text.appendChild(make('span', 'base-sr-only', null, statusText(state)));
             control.appendChild(badge);
             control.appendChild(text);
             if (control.tagName === 'BUTTON') control.addEventListener('click', function () { if (options!.onSelect) options!.onSelect(step.id, index); });

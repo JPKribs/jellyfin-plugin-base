@@ -1,4 +1,5 @@
-import { make, icon, iconButton, nextId, listen, runAll, clear, claimEscape, placeBox, viewport } from './dom-util.js';
+import { make, icon, iconButton, nextId, listen, runAll, clear } from './lib/dom.js';
+import { anchorPopover } from './lib/popover.js';
 import type { ComponentHandle } from './types.js';
 
 /** One action in an overflow menu. An item with no value reports its label. */
@@ -46,13 +47,11 @@ export function createOverflowMenu(options?: OverflowMenuOptions): OverflowMenuH
     options = options || {};
     var items: OverflowMenuItem[] = (options.items || []).slice();
     var cleanups: Array<() => void> = [];
-    var docCleanups: Array<() => void> = [];
-    var isOpen: boolean = false;
     var label: string = options.label || 'More Actions';
 
-    var root = make('div', 'jpk-menu' + (options.align === 'start' ? ' jpk-menu-start' : ''));
-    var button = iconButton('jpk-row-btn jpk-menu-button', options.icon || 'more_vert', label);
-    var list = make('div', 'jpk-menu-list', { role: 'menu', 'aria-label': label });
+    var root = make('div', 'base-menu' + (options.align === 'start' ? ' base-menu-start' : ''));
+    var button = iconButton('base-row-btn base-menu-button', options.icon || 'more_vert', label);
+    var list = make('div', 'base-menu-list', { role: 'menu', 'aria-label': label });
     list.id = nextId('menu');
     list.hidden = true;
     button.setAttribute('aria-haspopup', 'menu');
@@ -62,7 +61,7 @@ export function createOverflowMenu(options?: OverflowMenuOptions): OverflowMenuH
     root.appendChild(list);
 
     function enabled(): HTMLButtonElement[] {
-        return Array.prototype.filter.call(list.querySelectorAll<HTMLButtonElement>('.jpk-menu-item'), function (el: HTMLButtonElement): boolean { return !el.disabled; });
+        return Array.prototype.filter.call(list.querySelectorAll<HTMLButtonElement>('.base-menu-item'), function (el: HTMLButtonElement): boolean { return !el.disabled; });
     }
 
     function focusAt(index: number): void {
@@ -74,9 +73,9 @@ export function createOverflowMenu(options?: OverflowMenuOptions): OverflowMenuH
     function render(): void {
         clear(list);
         items.forEach(function (item: OverflowMenuItem): void {
-            var el = make('button', 'jpk-menu-item' + (item.destructive ? ' destructive' : ''), { type: 'button', role: 'menuitem', tabindex: '-1' });
+            var el = make('button', 'base-menu-item base-icon-text' + (item.destructive ? ' destructive' : ''), { type: 'button', role: 'menuitem', tabindex: '-1' });
             if (item.icon) el.appendChild(icon(item.icon));
-            el.appendChild(make('span', 'jpk-menu-label', null, item.label));
+            el.appendChild(make('span', 'base-menu-label', null, item.label));
             if (item.disabled) {
                 el.disabled = true;
                 el.setAttribute('aria-disabled', 'true');
@@ -90,42 +89,26 @@ export function createOverflowMenu(options?: OverflowMenuOptions): OverflowMenuH
         });
     }
 
-    // Fixed to the viewport so a panel or a scrolling area never clips it, below the button or above when there is no room.
-    function place(): void {
-        list.style.top = '0px';
-        list.style.left = '0px';
-        var box = list.getBoundingClientRect();
-        var spot = placeBox(button.getBoundingClientRect(), { width: box.width, height: box.height }, viewport(), { align: options!.align === 'start' ? 'start' : 'end', gap: 4 });
-        list.style.top = spot.top + 'px';
-        list.style.left = spot.left + 'px';
-    }
+    var popover = anchorPopover(button, list, {
+        align: options.align === 'start' ? 'start' : 'end',
+        onDismiss: function (): void { button.setAttribute('aria-expanded', 'false'); }
+    });
 
     function open(): void {
-        if (isOpen) return;
-        isOpen = true;
-        list.hidden = false;
-        claimEscape(root, true);
-        place();
-        docCleanups.push(listen(window, 'scroll', place, true));
-        docCleanups.push(listen(window, 'resize', place));
+        if (popover.isOpen()) return;
+        popover.open();
         button.setAttribute('aria-expanded', 'true');
-        docCleanups.push(listen(document, 'click', function (e: MouseEvent): void {
-            if (!root.contains(e.target as Node)) close(false);
-        }));
     }
 
     function close(refocus?: boolean): void {
-        if (!isOpen) return;
-        isOpen = false;
-        list.hidden = true;
-        claimEscape(root, false);
+        if (!popover.isOpen()) return;
+        popover.close();
         button.setAttribute('aria-expanded', 'false');
-        runAll(docCleanups);
         if (refocus) button.focus();
     }
 
     cleanups.push(listen(button, 'click', function (): void {
-        if (isOpen) close(true);
+        if (popover.isOpen()) close(true);
         else { open(); focusAt(0); }
     }));
 
@@ -134,9 +117,6 @@ export function createOverflowMenu(options?: OverflowMenuOptions): OverflowMenuH
             e.preventDefault();
             open();
             focusAt(e.key === 'ArrowDown' ? 0 : -1);
-        } else if (e.key === 'Escape' && isOpen) {
-            e.preventDefault();
-            close(true);
         }
     }));
 
@@ -147,7 +127,6 @@ export function createOverflowMenu(options?: OverflowMenuOptions): OverflowMenuH
         else if (e.key === 'ArrowUp') { e.preventDefault(); focusAt(at - 1); }
         else if (e.key === 'Home') { e.preventDefault(); focusAt(0); }
         else if (e.key === 'End') { e.preventDefault(); focusAt(-1); }
-        else if (e.key === 'Escape') { e.preventDefault(); close(true); }
         else if (e.key === 'Tab') close(false);
     }));
 
@@ -159,7 +138,7 @@ export function createOverflowMenu(options?: OverflowMenuOptions): OverflowMenuH
         getItems: function (): OverflowMenuItem[] { return items.slice(); },
         open: open,
         close: function (): void { close(false); },
-        isOpen: function (): boolean { return isOpen; },
-        destroy: function (): void { runAll(docCleanups); runAll(cleanups); clear(list); }
+        isOpen: popover.isOpen,
+        destroy: function (): void { popover.destroy(); runAll(cleanups); clear(list); }
     };
 }

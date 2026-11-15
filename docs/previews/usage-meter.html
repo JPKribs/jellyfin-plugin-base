@@ -1,0 +1,14 @@
+<!-- title: Usage Meter -->
+<div id="mount" style="display: grid; gap: 24px;"></div>
+<script type="module">
+const base = await window.__baseReady;
+const mount = document.getElementById('mount');
+const GB = 1024 * 1024 * 1024;
+mount.appendChild(base.createUsageMeter({ label: 'Cache', used: 12.4 * GB, total: 50 * GB, bytes: true }).element);
+mount.appendChild(base.createUsageMeter({ label: 'Transcodes', used: 42, total: 50, unit: 'files' }).element);
+mount.appendChild(base.createUsageMeter({ label: 'Backups', used: 97 * GB, total: 100 * GB, bytes: true }).element);
+mount.appendChild(base.createUsageMeter({
+    label: 'Media Drive', total: 4096 * GB, bytes: true,
+    parts: [{ label: 'Movies', value: 1800 * GB }, { label: 'Shows', value: 1100 * GB }, { label: 'Music', value: 210 * GB, color: 'orange' }]
+}).element);
+</script>

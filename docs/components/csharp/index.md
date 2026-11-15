@@ -6,11 +6,16 @@ The C# helpers that `JPKribs.Jellyfin.Base` compiles into every plugin. These pa
 
 Base is a NuGet package of shared helpers for the Jellyfin plugins in this family. Every type lives in one namespace, `JPKribs.Jellyfin.Base`.
 
-The package has no runtime assembly. It packs the sources instead, and its build files wire them into the plugin.
+The package has no runtime assembly. It holds these files, and its targets file wires them into the plugin.
 
-* `src/*.cs` is added to the plugin's compilation, so the helpers become part of the plugin DLL.
-* The shared CSS and JS bundles and the HTML templates are embedded as resources under the plugin's own namespace.
-* `build/JPKribs.Jellyfin.Base.props` points a plugin's `build.sh` shim at the packaging script.
+| Path in the package | What it holds | What the plugin build does with it |
+| :--- | :--- | :--- |
+| `src/*.cs` | The C# helpers | Compiles them into the plugin DLL |
+| `assets/jpkribs_shared.css` and `assets/jpkribs_shared.js` | The bundled web components | Embeds them as `<RootNamespace>.Configuration.jpkribs_shared.css` and `.js` |
+| `assets/jpkribs_shared.d.ts` | The typings of the JavaScript | Copies them to the plugin's `obj/` folder for the editor and never embeds them |
+| `templates/*.html` | The HTML templates, such as `status.html` | Embeds each as `<RootNamespace>.Templates.<name>.html` |
+| `build/JPKribs.Jellyfin.Base.targets` | The build wiring | Runs in every build of the plugin |
+| `README.md` | The package readme | Nothing |
 
 Add one reference and nothing else ships. See [Using Base](../../Usage.md) for the steps.
 
@@ -62,7 +67,7 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 | `SchemaAction` | What opening a database did or what the caller must do next. | [Data and Storage](data-and-storage.md#schemaaction) |
 | `SecretCompare` | Constant time secret comparison and random tokens. | [Security and Secrets](security-and-secrets.md#secretcompare) |
 | `SecretProtector` | Encrypts plugin secrets at rest with Data Protection. | [Security and Secrets](security-and-secrets.md#secretprotector) |
-| `ServiceCollectionExtensions` | DI registration for the activity logger and the secret protector. | [Plugin and Tasks](plugin-and-tasks.md#registration) |
+| `ServiceCollectionExtensions` | DI registration for the activity logger and the secret protector. | [Plugin and Tasks](plugin-and-tasks.md#servicecollectionextensions) |
 | `SpeedBucket` | A bytes per second rate that several streams share. | [Streams and Throttling](streams-and-throttling.md#speedbucket) |
 | `SsrfGuard` | Refuses private, loopback, link local, and other unsafe targets. | [HTTP and Resilience](http-and-resilience.md#ssrfguard) |
 | `StableSecretProtection` | Builds the provider and protector with launch-independent keys. | [Security and Secrets](security-and-secrets.md#stablesecretprotection) |
@@ -95,7 +100,7 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 1. Reference the package, and reference `Jellyfin.Controller` and `Jellyfin.Model` too.
 2. Derive the plugin class from `PluginBase`, and yield `GetSharedPages("<prefix>")` from `GetPages`.
 3. Choose one stable plugin name for secrets, use the assembly name, and never change it.
-4. In the service registrator, call `AddPluginSecretProtector(name)` and `AddActivityLogger()` as needed. See [Registration](plugin-and-tasks.md#registration).
+4. In the service registrator, call `AddPluginSecretProtector(name)` and `AddActivityLogger()` as needed. See [ServiceCollectionExtensions](plugin-and-tasks.md#servicecollectionextensions).
 5. Derive tasks from `PluginScheduledTask`.
 6. Own the dispose of any `ActivitySummary` you create, so waiting events are written on shutdown.
 7. For standalone pages, serve `StatusPage.Render` output with `PublicPage.ApplyHardeningHeaders` and a sibling `favicon.ico` route.

@@ -46,6 +46,8 @@ The page handle holds `view`, `shared`, `addCleanup(fn)`, `createPoller(fn, ms, 
 ## States and Modifiers
 
 * `viewshow` applies the tabs, adds a `beforeunload` listener, runs `bind` the first time, then runs `load`.
+* After `load`, `viewshow` runs `bindFieldAdornments` and `bindBalancedRows` on the view. The first adds the [Field Adornments](field-adornments.md) to every number, date, time, search, and revealable input and binds the [validation core](field-message.md#validation) on every field with a rule. The second balances count cards, choice cards, and check grids, as [Balanced Rows](balanced-rows.md) describes. Both watch the view, so a field or a tile added later is handled too, and both stop on `viewhide`.
+* Validation needs no call. A field with `required`, `min`, `max`, `step`, `minlength`, `maxlength`, `pattern`, or a `number`, `url`, `email`, `time`, or `date` type shows its message under it when the reader changes it and leaves it.
 * `viewbeforehide` asks `window.confirm(leaveMessage)` while something is unsaved. Declining cancels the event and sets the tabs again, because the dashboard has already moved the tab highlight.
 * `beforeunload` shows the browser warning while something is unsaved.
 * `viewhide` removes the listener, closes open editor dialogs, runs every cleanup, and then runs `onHide`.
@@ -58,13 +60,27 @@ The page handle holds `view`, `shared`, `addCleanup(fn)`, `createPoller(fn, ms, 
 * An `isDirty` that throws counts as clean.
 * Cleanup errors are swallowed, so a failing teardown never blocks the page from hiding.
 
+## Reference
+
+Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this section.
+
+<!-- reference:start -->
+
+### `createConfigPage`
+
+<code>function createConfigPage(view: HTMLElement, opts: ConfigPageOptions): PageHandle</code>
+
+Wires the config page lifecycle by building the shared bag, setting the tabs, running bind once, and running load on every viewshow. On viewhide it runs the registered cleanups and onHide.
+
+<!-- reference:end -->
+
 ## Used By
 
 Artwork Generator, Custom Pages, Live Channels, Remote Access, Requests, Scripts, User Management, and YouTube Audio use it. Server Sync writes its own handlers.
 
 ## Example
 
-<iframe class="jpk-preview" src="../../../assets/previews/config-page.html" title="Config Page example" loading="lazy"></iframe>
+<iframe class="base-preview" src="../../../assets/previews/config-page.html" title="Config Page example" loading="lazy"></iframe>
 
 ## Example Code
 

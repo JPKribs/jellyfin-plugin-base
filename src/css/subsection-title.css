@@ -1,18 +1,18 @@
 /* Small muted uppercase header for a subsection grouped inside a section or form */
-/* Example: <h3 class="jpk-subsection-title">Authentication</h3> */
-.jpk-subsection-title {
+/* Example: <h3 class="base-subsection-title">Authentication</h3> */
+.base-subsection-title {
     font-size: 0.95em;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.6);
     color: color-mix(in srgb, currentColor 60%, transparent);
-    margin: 16px 0 12px 0;
-    padding-bottom: 6px;
+    margin: var(--base-gap-wide) 0 var(--base-gap-wide) 0;
+    padding-bottom: calc(var(--base-gap-narrow) * 3 / 4);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 /* The title fades its own text, so its rule mixes the theme text color, not the faded currentColor. */
 @supports (color: color-mix(in srgb, red, blue)) {
-    .jpk-subsection-title { border-bottom-color: color-mix(in srgb, var(--jpk-fg) 8%, transparent); }
+    .base-subsection-title { border-bottom-color: color-mix(in srgb, var(--base-fg) 8%, transparent); }
 }
-.jpk-subsection-title:first-child { margin-top: 0; }
+.base-subsection-title:first-child { margin-top: 0; }

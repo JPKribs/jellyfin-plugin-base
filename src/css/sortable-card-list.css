@@ -1,0 +1,155 @@
+/* Vertical list of record cards in priority order, each with a head row and a body the open card shows */
+/* Example: <div class="base-card-list"><div class="base-card-item selected"><div class="base-card-item-head">...</div><div class="base-card-item-body">...</div></div></div> */
+.base-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+}
+
+/* One record card. selected marks the open one, collapsed folds it, disabled dims its text, dragging fades it */
+/* Example: <div class="base-card-item selected"></div> */
+.base-card-item {
+    background: var(--base-surface);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-large);
+    transition: border-color 0.15s, background 0.15s;
+}
+.base-card-item.selected { border-color: var(--base-accent); }
+.base-card-item.dragging { opacity: 0.4; }
+.base-card-item.drop-before { box-shadow: 0 -3px 0 0 var(--base-accent); }
+.base-card-item.drop-after { box-shadow: 0 3px 0 0 var(--base-accent); }
+.base-card-item.disabled .base-card-item-main { opacity: 0.55; }
+
+/* Clickable head row: grip, number, main text, arrows, and the collapsible chevron, which turns by its aria-expanded. Tinted when the card is open */
+/* Example: <div class="base-card-item-head" draggable="true" role="button" tabindex="0"></div> */
+.base-card-item-head {
+    display: flex;
+    align-items: center;
+    gap: var(--base-gap-wide);
+    padding: var(--base-pad-small) var(--base-pad-medium);
+    cursor: pointer;
+    user-select: none;
+    border-radius: var(--base-radius-large);
+}
+.base-card-item-head:hover { background: var(--base-wash); }
+.base-card-item.selected > .base-card-item-head { background: var(--base-accent-wash); border-radius: var(--base-radius-large) var(--base-radius-large) 0 0; }
+.base-card-item.selected.collapsed > .base-card-item-head { border-radius: var(--base-radius-large); }
+
+/* Drag handle icon at the left of the head */
+/* Example: <span class="base-card-item-grip material-icons">drag_indicator</span> */
+.base-card-item-grip {
+    color: rgba(255, 255, 255, 0.35);
+    color: color-mix(in srgb, currentColor 35%, transparent);
+    cursor: grab;
+    display: flex;
+}
+
+/* Round priority number, filled with the accent on the open card */
+/* Example: <span class="base-card-item-num">1</span> */
+.base-card-item-num {
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--base-radius-round);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9em;
+    background: rgba(255, 255, 255, 0.08);
+    background: color-mix(in srgb, currentColor 8%, transparent);
+    border: 1px solid var(--base-border);
+}
+.base-card-item.selected .base-card-item-num {
+    background: var(--base-accent);
+    border-color: var(--base-accent);
+    color: var(--base-on-accent);
+}
+
+/* Title line and sub line that take the remaining width and clip */
+/* Example: <div class="base-card-item-main"><div class="base-card-item-title">Name</div><div class="base-card-item-sub">detail</div></div> */
+.base-card-item-main {
+    flex: 1;
+    min-width: 0;
+}
+/* Bold title line that clips with an ellipsis */
+/* Example: <div class="base-card-item-title">Name</div> */
+.base-card-item-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+}
+/* The title's name ends in an ellipsis, and its badges wrap under it when the head is too narrow, so nothing runs under the buttons */
+/* Example: <div class="base-card-item-title"><span class="base-dot green"></span><span>Living room</span><span class="base-badge purple">Both</span></div> */
+.base-card-item-title { flex-wrap: wrap; row-gap: calc(var(--base-gap-narrow) / 2); }
+.base-card-item-title > span:not(.base-dot):not(.base-badge) {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.base-card-item-title > .base-dot,
+.base-card-item-title > .base-badge { flex: 0 0 auto; }
+.base-card-item-main > .base-item-row-primary { flex-shrink: 1; min-width: 0; }
+
+/* Small dimmed mono sub line that clips with an ellipsis */
+/* Example: <div class="base-card-item-sub">10.0.0.1</div> */
+.base-card-item-sub {
+    font-family: var(--base-mono);
+    font-size: 0.8em;
+    opacity: 0.65;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* The sub line in the page's own font, for words rather than an address or path */
+/* Example: <div class="base-card-item-sub base-card-item-sub-text">Someone requests a title</div> */
+.base-card-item-sub.base-card-item-sub-text {
+    font-family: inherit;
+    font-size: 0.85em;
+}
+
+/* Tags under the title and sub line that wrap rather than clip, such as where a record applies */
+/* Example: <div class="base-tags base-card-item-tags"><span class="base-tag">HD</span><span class="base-tag base-tag-off">4K (off)</span></div> */
+.base-card-item-main .base-card-item-tags {
+    margin-top: var(--base-gap-narrow);
+    gap: var(--base-gap-narrow);
+}
+.base-card-item-tags .base-tag { font-size: 0.85em; padding: calc(var(--base-gap-narrow) / 4) var(--base-pad-small); }
+.base-card-item-tags .material-icons { font-size: var(--base-icon-small); opacity: 0.8; }
+
+/* A head row that only holds a control at its end (such as Unblock) opens nothing itself */
+/* Example: <div class="base-card-item-head base-card-item-head-static">...<button class="base-row-btn"></button></div> */
+.base-card-item-head.base-card-item-head-static { cursor: default; }
+.base-card-item-head.base-card-item-head-static:hover { background: none; }
+.base-card-item-head:focus-visible { outline: 2px solid var(--base-accent); outline-offset: -2px; }
+
+/* Body shown only inside the open, unfolded card */
+/* Example: <div class="base-card-item-body"></div> */
+.base-card-item-body {
+    padding: var(--base-gap-narrow) var(--base-gap-wide) var(--base-gap-wide);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+}
+.base-card-item.collapsed .base-card-item-body,
+.base-card-item:not(.selected) .base-card-item-body { display: none; }
+
+/* Action row under the list, for an Add button */
+/* Example: <div class="base-card-list-actions"><button class="base-button primary">Add</button></div> */
+.base-card-list-actions {
+    margin: var(--base-gap-wide) 0 var(--base-gap-wide);
+}
+
+@media (max-width: 768px) {
+    /* A narrow head uses the narrow gap, so the name keeps room beside the grip, number, and buttons. */
+    .base-card-item-head { gap: var(--base-gap-narrow); }
+    .base-card-item-sub { display: none; }
+    /* A sub line in words says what the record is, so it stays on a phone and only an address or path drops. */
+    .base-card-item-sub.base-card-item-sub-text { display: block; }
+}

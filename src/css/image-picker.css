@@ -1,0 +1,79 @@
+/* An image frame in a square, portrait, or wide shape beside its Select Image and Remove buttons */
+/* Example: <div class="base-image-picker square" role="group"><div class="base-image-picker-body"><div class="base-image-picker-frame"></div><div class="base-image-picker-actions"></div></div></div> */
+.base-image-picker {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+}
+.base-image-picker[hidden] { display: none; }
+.base-image-picker-body {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: var(--base-gap-wide);
+}
+.base-image-picker-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--base-gap-narrow);
+}
+.base-image-picker-actions > [hidden] { display: none; }
+.base-image-picker-description { opacity: 0.7; font-size: 0.9em; }
+
+/* The base-thumb frame that holds the preview, or the placeholder icon and text while empty */
+/* Example: <span class="base-thumb base-image-picker-frame"><img class="base-thumb-image base-image-picker-image" alt="poster.png" src="poster.png"></span> */
+.base-image-picker-frame {
+    width: 128px;
+    height: 128px;
+    max-width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-large);
+}
+.base-image-picker.portrait .base-image-picker-frame { width: 120px; height: 180px; }
+.base-image-picker.wide .base-image-picker-frame { width: 256px; height: 144px; }
+/* The frame's placeholder stacks its icon over the empty text, a little stronger than other thumbs */
+.base-image-picker .base-image-picker-placeholder {
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+    padding: var(--base-pad-small);
+    text-align: center;
+    opacity: 0.6;
+}
+.base-image-picker-placeholder .material-icons { font-size: calc(var(--base-size-large) * 0.9); }
+.base-image-picker-empty { font-size: 0.85em; }
+
+@media (max-width: 600px) {
+    .base-image-picker.wide .base-image-picker-frame { width: 100%; height: auto; padding-top: 56.25%; }
+}
+
+/* The picture an empty picker shows in place of its placeholder: initials or an icon on a status color over the surface, filling the frame */
+/* Example: <span class="base-thumb base-image-picker-frame"><span class="base-image-picker-fallback blue" aria-hidden="true">AL</span></span> */
+.base-image-picker-fallback {
+    --base-image-picker-fallback-bg: var(--base-blue-bg);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(var(--base-size-large) * 0.9);
+    font-weight: 600;
+    background-color: var(--base-surface);
+    background-image: linear-gradient(var(--base-image-picker-fallback-bg), var(--base-image-picker-fallback-bg));
+    color: var(--base-blue-fg);
+}
+.base-image-picker-fallback[hidden] { display: none; }
+.base-image-picker-fallback .material-icons { font-size: calc(var(--base-size-large) * 1.4); }
+.base-image-picker-fallback.green { --base-image-picker-fallback-bg: var(--base-green-bg); color: var(--base-green-fg); }
+.base-image-picker-fallback.red { --base-image-picker-fallback-bg: var(--base-red-bg); color: var(--base-red-fg); }
+.base-image-picker-fallback.orange { --base-image-picker-fallback-bg: var(--base-orange-bg); color: var(--base-orange-fg); }
+.base-image-picker-fallback.purple { --base-image-picker-fallback-bg: var(--base-purple-bg); color: var(--base-purple-fg); }
+.base-image-picker-fallback.gray { --base-image-picker-fallback-bg: var(--base-gray-bg); color: var(--base-gray-fg); }
+.base-image-picker-fallback.yellow { --base-image-picker-fallback-bg: var(--base-yellow-bg); color: var(--base-yellow-fg); }
+.base-image-picker-fallback.pink { --base-image-picker-fallback-bg: var(--base-pink-bg); color: var(--base-pink-fg); }
+.base-image-picker-fallback.teal { --base-image-picker-fallback-bg: var(--base-teal-bg); color: var(--base-teal-fg); }
+.base-image-picker-fallback.custom { --base-image-picker-fallback-bg: var(--base-custom); color: var(--base-custom-on); }

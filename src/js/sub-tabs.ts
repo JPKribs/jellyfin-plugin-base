@@ -1,4 +1,4 @@
-import { make, nextId, listen, runAll, clear } from './dom-util.js';
+import { make, nextId, listen, runAll, clear } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
 
 /** One tab of a sub tab list. text is plain text for its panel. */
@@ -47,9 +47,9 @@ export function createSubTabs(options?: SubTabsOptions): SubTabsHandle {
     var built: Record<string, boolean> = {};
     var cleanups: Array<() => void> = [];
 
-    var root = make('div', 'jpk-subtabs');
-    var list = make('div', 'jpk-subtab-list', { role: 'tablist', 'aria-label': options.label || 'Sections' });
-    var panels = make('div', 'jpk-subtab-panels');
+    var root = make('div', 'base-subtabs');
+    var list = make('div', 'base-subtab-list', { role: 'tablist', 'aria-label': options.label || 'Sections' });
+    var panels = make('div', 'base-subtab-panels');
     root.appendChild(list);
     root.appendChild(panels);
 
@@ -58,8 +58,8 @@ export function createSubTabs(options?: SubTabsOptions): SubTabsHandle {
     // An id made safe to join into an element id.
     function safe(id: unknown): string { return String(id).replace(/[^A-Za-z0-9_-]+/g, '-'); }
 
-    function tabEl(id: unknown): HTMLElement { return Array.prototype.filter.call(list.querySelectorAll('.jpk-subtab'), function (el) { return el.getAttribute('data-id') === String(id); })[0]; }
-    function panelEl(id: unknown): HTMLElement { return Array.prototype.filter.call(panels.querySelectorAll('.jpk-subtab-panel'), function (el) { return el.getAttribute('data-id') === String(id); })[0]; }
+    function tabEl(id: unknown): HTMLElement { return Array.prototype.filter.call(list.querySelectorAll('.base-subtab'), function (el) { return el.getAttribute('data-id') === String(id); })[0]; }
+    function panelEl(id: unknown): HTMLElement { return Array.prototype.filter.call(panels.querySelectorAll('.base-subtab-panel'), function (el) { return el.getAttribute('data-id') === String(id); })[0]; }
     function enabledTabs(): SubTab[] { return tabs.filter(function (t) { return !t.disabled; }); }
 
     function draw(): void {
@@ -69,9 +69,9 @@ export function createSubTabs(options?: SubTabsOptions): SubTabsHandle {
         var base = nextId('subtab');
         tabs.forEach(function (tab) {
             var id = safe(idOf(tab));
-            var tabButton = make('button', 'jpk-subtab', { type: 'button', role: 'tab', id: base + '-' + id, 'aria-controls': base + '-panel-' + id, 'data-id': idOf(tab) }, tab.label);
+            var tabButton = make('button', 'base-subtab', { type: 'button', role: 'tab', id: base + '-' + id, 'aria-controls': base + '-panel-' + id, 'data-id': idOf(tab) }, tab.label);
             tabButton.disabled = !!tab.disabled;
-            var panel = make('div', 'jpk-subtab-panel', { role: 'tabpanel', id: base + '-panel-' + id, 'aria-labelledby': base + '-' + id, 'data-id': idOf(tab), tabindex: '0' });
+            var panel = make('div', 'base-subtab-panel', { role: 'tabpanel', id: base + '-panel-' + id, 'aria-labelledby': base + '-' + id, 'data-id': idOf(tab), tabindex: '0' });
             panel.hidden = true;
             list.appendChild(tabButton);
             panels.appendChild(panel);
@@ -110,7 +110,7 @@ export function createSubTabs(options?: SubTabsOptions): SubTabsHandle {
     }
 
     cleanups.push(listen(list, 'click', function (e) {
-        var el = e.target.closest && e.target.closest('.jpk-subtab');
+        var el = e.target.closest && e.target.closest('.base-subtab');
         if (el && !el.disabled) select(el.getAttribute('data-id'), false);
     }));
     cleanups.push(listen(list, 'keydown', function (e) {

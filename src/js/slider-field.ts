@@ -1,4 +1,4 @@
-import { make, listen, runAll } from './dom-util.js';
+import { make, listen, runAll } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
 
 /** What createSliderField takes. min and max bound the value, and the readout shows prefix, value, and suffix. */
@@ -52,9 +52,9 @@ export function createSliderField(options?: SliderFieldOptions): SliderFieldHand
     if (min > max) { var swap = min; min = max; max = swap; }
     var cleanups: Array<() => void> = [];
 
-    var root = make('div', 'jpk-slider');
+    var root = make('div', 'base-slider');
     var input = make('input', '', { type: 'range', min: String(min), max: String(max), step: String(finite(options.step, 1) > 0 ? finite(options.step, 1) : 1), 'aria-label': options.label || 'Value' });
-    var readout = make('output', 'jpk-slider-value');
+    var readout = make('output', 'base-slider-value');
     readout.hidden = options.showValue === false;
     root.appendChild(input);
     root.appendChild(readout);

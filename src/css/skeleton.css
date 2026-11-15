@@ -1,47 +1,47 @@
 /* Placeholder for loading content, made of pulsing lines, a block, or a circle */
-/* Example: <div class="jpk-skeleton" role="status" aria-busy="true"><span class="jpk-skeleton-line"></span><span class="jpk-skeleton-line"></span></div> */
-.jpk-skeleton {
+/* Example: <div class="base-skeleton" role="status" aria-busy="true"><span class="base-skeleton-line"></span><span class="base-skeleton-line"></span></div> */
+.base-skeleton {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--base-gap-narrow);
 }
 
 /* One line of text, with the last line shorter */
-/* Example: <span class="jpk-skeleton-line"></span> */
-.jpk-skeleton-line {
+/* Example: <span class="base-skeleton-line"></span> */
+.base-skeleton-line {
     display: block;
     height: 0.9em;
-    border-radius: 4px;
-    background: var(--jpk-wash-strong);
-    animation: jpk-pulse 1.4s ease-in-out infinite;
+    border-radius: var(--base-radius-small);
+    background: var(--base-wash-strong);
+    animation: base-pulse 1.4s ease-in-out infinite;
 }
-.jpk-skeleton-line:last-child:not(:first-child) { width: 60%; }
+.base-skeleton-line + .base-skeleton-line:last-child { width: 60%; }
 
 /* A block or a circle in three sizes */
-/* Example: <span class="jpk-skeleton-block jpk-skeleton-medium"></span> */
-.jpk-skeleton-block,
-.jpk-skeleton-circle {
+/* Example: <span class="base-skeleton-block base-skeleton-medium"></span> */
+.base-skeleton-block,
+.base-skeleton-circle {
     display: block;
-    background: var(--jpk-wash-strong);
-    animation: jpk-pulse 1.4s ease-in-out infinite;
+    background: var(--base-wash-strong);
+    animation: base-pulse 1.4s ease-in-out infinite;
 }
-.jpk-skeleton-block { width: 100%; border-radius: 6px; }
-.jpk-skeleton-block.jpk-skeleton-small { height: 32px; }
-.jpk-skeleton-block.jpk-skeleton-medium { height: 80px; }
-.jpk-skeleton-block.jpk-skeleton-large { height: 160px; }
-.jpk-skeleton-circle { border-radius: 50%; }
-.jpk-skeleton-circle.jpk-skeleton-small { width: 24px; height: 24px; }
-.jpk-skeleton-circle.jpk-skeleton-medium { width: 40px; height: 40px; }
-.jpk-skeleton-circle.jpk-skeleton-large { width: 64px; height: 64px; }
+.base-skeleton-block { width: 100%; border-radius: var(--base-radius-medium); }
+.base-skeleton-block.base-skeleton-small { height: 32px; }
+.base-skeleton-block.base-skeleton-medium { height: 80px; }
+.base-skeleton-block.base-skeleton-large { height: 160px; }
+.base-skeleton-circle { border-radius: var(--base-radius-round); }
+.base-skeleton-circle.base-skeleton-small { width: 24px; height: 24px; }
+.base-skeleton-circle.base-skeleton-medium { width: 40px; height: 40px; }
+.base-skeleton-circle.base-skeleton-large { width: 64px; height: 64px; }
 
-@keyframes jpk-pulse {
+@keyframes base-pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.45; }
 }
 
 /* A user who asks for less motion gets still placeholders */
 @media (prefers-reduced-motion: reduce) {
-    .jpk-skeleton-line,
-    .jpk-skeleton-block,
-    .jpk-skeleton-circle { animation: none; }
+    .base-skeleton-line,
+    .base-skeleton-block,
+    .base-skeleton-circle { animation: none; }
 }

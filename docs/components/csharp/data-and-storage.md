@@ -86,7 +86,7 @@ var changed = _store.UpdateIf(f => f.Items.RemoveAll(t => t.Expired) > 0);
 
 ## PagedResult
 
-One page of results with the total count and the page metadata, in the shape the shared paginated table, `createPaginatedTable`, reads.
+One page of results with the total count and the page metadata. It serializes in the shape `createPaginatedTable` reads, and the shape the `fetch` of `createDataTable` and `createFilteredList` may return.
 
 ```csharp
 return Ok(new PagedResult<SyncItemDto>(

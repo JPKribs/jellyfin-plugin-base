@@ -1,24 +1,27 @@
 /* Removable chips stacked above a search input with a results dropdown, built by createChipSelect */
-/* Example: <div class="jpk-chip-select"><div class="jpk-tags"></div><div class="jpk-combo"></div></div> */
-.jpk-chip-select {
+/* Example: <div class="base-chip-select"><div class="base-tags"></div><div class="base-combo"></div></div> */
+.base-chip-select {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--base-gap-narrow);
 }
 
 /* Chip row that sits flush above the input and hides while no chip is selected */
-/* Example: <div class="jpk-chip-select"><div class="jpk-tags"></div></div> */
-.jpk-chip-select .jpk-tags:empty {
+/* Example: <div class="base-chip-select"><div class="base-tags"></div></div> */
+.base-chip-select .base-tags:empty {
     display: none;
 }
-.jpk-chip-select .jpk-tags {
+.base-chip-select .base-tags {
     margin-top: 0;
 }
 
-/* Search box sized as a page field, at the height of a select */
-/* Example: <div class="jpk-chip-select"><div class="jpk-combo"><input class="jpk-edit-input"></div></div> */
-.jpk-chip-select .jpk-edit-input {
-    font-size: 110%;
-    padding: 0.5em;
-    height: 2.5em;
+
+/* A round picture at the start of a chip, from the thumb core, as tall as the chip's text and inset from its edge, for the chip select and the tag input */
+/* Example: <span class="base-tag has-thumb"><span class="base-thumb base-tag-thumb"><img class="base-thumb-image" alt="" src="poster.jpg"></span><span>Alien</span></span> */
+.base-tag-thumb {
+    width: var(--base-icon-medium);
+    height: var(--base-icon-medium);
+    border-radius: var(--base-radius-round);
 }
+.base-tag-thumb .base-thumb-placeholder .material-icons { font-size: var(--base-icon-small); }
+.base-tag.has-thumb { padding-left: calc(var(--base-pad-small) / 2); }

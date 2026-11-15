@@ -1,12 +1,20 @@
 <!-- title: Definition List -->
-<div id="mount"></div>
+<div id="mount" style="display: grid; gap: 24px;"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
-const view = document.getElementById('view');
+const base = await window.__baseReady;
 const mount = document.getElementById('mount');
-mount.appendChild(JPK.createDefinitionList({ items: [
+mount.appendChild(base.createDefinitionList({ items: [
     { label: 'Version', value: '12.4.14.1' },
     { label: 'Id', value: '2f40d5d8-5b6a', mono: true },
     { label: 'Last Sync' }
+] }).element);
+mount.appendChild(base.createDefinitionList({ layout: 'columns', items: [
+    { label: 'Last Sync', value: 'Today at 3:12 PM' },
+    { label: 'Library', value: 'Movies to Films' },
+    { label: 'Status', value: { badge: { label: 'Synced', color: 'green' } } }
+] }).element);
+mount.appendChild(base.createDefinitionList({ layout: 'columns', arrow: true, items: [
+    { label: 'Source Path', value: '/media/movies/Alien (1979)/Alien.mkv', mono: true, meta: 'Size 4.2 GB' },
+    { label: 'Local Path', value: '/data/films/Alien (1979)/Alien.mkv', mono: true, meta: 'Size 4.2 GB', note: 'Renamed to match the local library.' }
 ] }).element);
 </script>

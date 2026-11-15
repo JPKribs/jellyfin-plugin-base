@@ -1,8 +1,8 @@
 /* Checkboxes laid out in as many columns as fit */
-/* Example: <div class="jpk-check-grid"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox"><span class="checkboxLabel">Poster</span></label></div> */
-.jpk-check-grid {
+/* Example: <div class="base-check-grid"><label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox"><span class="checkboxLabel">Poster</span></label></div> */
+.base-check-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(10em, 1fr));
-    gap: 0 16px;
+    gap: 0 var(--base-gap-wide);
 }
-.jpk-check-grid .emby-checkbox-label { width: auto; }
+.base-check-grid .emby-checkbox-label { width: auto; }

@@ -1,0 +1,17 @@
+/* Button that clips and anchors a progress bar along its bottom edge */
+/* Example: <button class="base-btn-progress-host"><span>Run</span><div class="base-progress-bar base-btn-progress"></div></button> */
+.base-btn-progress-host { position: relative; overflow: hidden; }
+
+/* Progress fill on an accent or red button, in the text color of that fill so it stays visible */
+/* Example: <button class="base-button primary base-btn-progress-host"><div class="base-progress-bar base-btn-progress"></div></button> */
+.base-button.primary .base-btn-progress,
+.base-button.destructive .base-btn-progress { background: rgba(255, 255, 255, 0.7); }
+@supports (color: color-mix(in srgb, red, blue)) {
+    .base-button.primary .base-btn-progress,
+    .base-button.destructive .base-btn-progress { background: color-mix(in srgb, var(--base-on-accent) 70%, transparent); }
+}
+
+/* A small button never draws the bar, since it is too short, and shows a pie beside it instead */
+/* Example: <button class="base-button small"><span>Run</span></button><span class="base-ring base-ring-pie base-btn-progress-pie"></span> */
+.base-button.small .base-btn-progress { display: none; }
+.base-btn-progress-pie { margin-left: var(--base-gap-narrow); }

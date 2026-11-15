@@ -1,26 +1,26 @@
 <!-- title: Choice Group -->
-<div class="jpk-choice-group" id="modeChoices" role="radiogroup" aria-label="Direction">
-    <label class="jpk-choice">
+<div class="base-choice-group" id="modeChoices" role="radiogroup" aria-label="Direction">
+    <label class="base-choice">
         <input type="radio" name="serverMode" value="Pull" />
-        <span class="jpk-choice-name">Pull</span>
-        <span class="jpk-choice-text">Read from this server on a schedule.</span>
+        <span class="base-choice-name">Pull</span>
+        <span class="base-choice-text">Read from this server on a schedule.</span>
     </label>
-    <label class="jpk-choice">
+    <label class="base-choice">
         <input type="radio" name="serverMode" value="Push" />
-        <span class="jpk-choice-name">Push</span>
-        <span class="jpk-choice-text">Send changes made here as they happen.</span>
+        <span class="base-choice-name">Push</span>
+        <span class="base-choice-text">Send changes made here as they happen.</span>
     </label>
-    <label class="jpk-choice">
+    <label class="base-choice">
         <input type="radio" name="serverMode" value="Both" />
-        <span class="jpk-choice-name">Both</span>
-        <span class="jpk-choice-text">Pull and push together.</span>
+        <span class="base-choice-name">Both</span>
+        <span class="base-choice-text">Pull and push together.</span>
     </label>
 </div>
-<span id="modeStatus" class="jpk-status-text"></span>
+<span id="modeStatus" class="base-status-text"></span>
 <script type="module">
-const JPK = await window.__jpkReady;
-const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
-const mode = JPK.createChoiceGroup(document.getElementById('modeChoices'), {
+const base = await window.__baseReady;
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const mode = base.createChoiceGroup(document.getElementById('modeChoices'), {
     onChange: (value) => shared.setStatus('modeStatus', 'Chose ' + value + '.', false, { timeout: 0 })
 });
 mode.set('Pull');

@@ -2,7 +2,7 @@
 // The shapes the web components share, such as the helper bag, the page handle, and a paged result. Types only,
 // so nothing here reaches the bundle.
 
-import type { createShared } from './core.js';
+import type { createShared } from './shared-bag.js';
 
 /** The per view helper bag that createShared builds. */
 export type Shared = ReturnType<typeof createShared>;
@@ -22,13 +22,13 @@ export interface ComponentHandle {
     destroy?(): void;
 }
 
-/** A state name that badges.css tints. */
+/** A state name that badge.css tints. */
 export type BadgeState = 'Active' | 'Synced' | 'Downloaded' | 'Imported' | 'Queued' | 'Downloading' | 'Pending' |
     'Pending-Download' | 'Pending-Replacement' | 'Errored' | 'Error' | 'Disabled' | 'Deleting' | 'Pending-Deletion' |
     'Expired' | 'Locked' | 'Admin' | 'Ignored' | 'Group' | 'Completed' | 'Enabled' | 'Failed' | 'Paused' | 'Running' |
     'Skipped' | 'Unknown';
 
-/** A color modifier that jpk-badge takes. */
+/** A color modifier that base-badge takes. */
 export type BadgeColor = 'green' | 'red' | 'orange' | 'purple' | 'blue' | 'gray' | 'yellow' | 'pink' | 'teal';
 
 /** One page of rows, as the C# PagedResult serializes it. */
@@ -104,6 +104,7 @@ export interface ConfigPageOptions {
 export interface SecretFieldOptions {
     placeholder?: string;
     clearButton?: HTMLElement | null;
+    allowExpose?: boolean;
 }
 
 /** One count card that renderCards draws. */
@@ -132,9 +133,12 @@ export type ComboBoxItem = string | number | { value: unknown; label?: string };
 /** What createSearchableComboBox takes. searchFn answers each query through its callback. */
 export interface ComboBoxOptions {
     placeholder?: string;
+    size?: 'small' | 'medium' | 'large';
     searchFn(query: string, callback: (results: ComboBoxItem[] | null) => void): void;
     onSelect?(value: unknown, item: ComboBoxItem): void;
     onInput?(): void;
+    noResultsText?: string;
+    errorText?: string;
 }
 
 /** What createSearchableComboBox returns. */

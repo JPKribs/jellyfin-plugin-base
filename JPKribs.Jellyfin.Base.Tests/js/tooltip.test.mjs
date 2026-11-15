@@ -12,7 +12,7 @@ beforeEach(function () {
 
 function page() {
     var root = dom.document.body.appendChild(dom.el('div'));
-    var target = root.appendChild(dom.el('button', { type: 'button', 'data-jpk-tip': 'Explains the field.' }));
+    var target = root.appendChild(dom.el('button', { type: 'button', 'data-base-tip': 'Explains the field.' }));
     var other = root.appendChild(dom.el('button', { type: 'button' }));
     return { root: root, target: target, other: other };
 }
@@ -20,8 +20,8 @@ function page() {
 test('setTooltip sets the data attribute and makes a plain element focusable, but leaves a button alone', function () {
     var span = dom.el('span');
     setTooltip(span, 'Hello', 'bottom');
-    assert.equal(span.getAttribute('data-jpk-tip'), 'Hello');
-    assert.equal(span.getAttribute('data-jpk-tip-placement'), 'bottom');
+    assert.equal(span.getAttribute('data-base-tip'), 'Hello');
+    assert.equal(span.getAttribute('data-base-tip-placement'), 'bottom');
     assert.equal(span.getAttribute('tabindex'), '0');
     var button = setTooltip(dom.el('button'), 'Hi');
     assert.equal(button.hasAttribute('tabindex'), false);
@@ -84,7 +84,7 @@ test('the tip is placed above the target, flips below when there is no room, and
     p.target.dispatch('mouseover');
     assert.equal(tips.element.style.top, '30px');
     p.target._rect = { top: 100, left: 100, right: 160, bottom: 120, width: 60, height: 20 };
-    p.target.setAttribute('data-jpk-tip-placement', 'bottom');
+    p.target.setAttribute('data-base-tip-placement', 'bottom');
     p.target.dispatch('mouseover');
     assert.equal(tips.element.style.top, '128px');
 });
@@ -101,8 +101,8 @@ test('destroy removes the tip and the root listeners', function () {
 test('createHelpHint needs text and builds a described, labelled button', function () {
     assert.throws(function () { createHelpHint({}); }, /text/);
     var hint = createHelpHint({ text: 'Seconds between checks.' });
-    var button = hint.element.querySelector('.jpk-help-button');
-    var tip = hint.element.querySelector('.jpk-help-tip');
+    var button = hint.element.querySelector('.base-help-button');
+    var tip = hint.element.querySelector('.base-help-tip');
     assert.equal(button.getAttribute('aria-label'), 'Help');
     assert.equal(button.getAttribute('aria-describedby'), tip.id);
     assert.equal(tip.getAttribute('role'), 'tooltip');
@@ -112,7 +112,7 @@ test('createHelpHint needs text and builds a described, labelled button', functi
 
 test('the help hint label and icon can be replaced, and setValue changes the text', function () {
     var hint = createHelpHint({ text: 'a', label: 'About This Field', icon: 'info' });
-    var button = hint.element.querySelector('.jpk-help-button');
+    var button = hint.element.querySelector('.base-help-button');
     assert.equal(button.getAttribute('aria-label'), 'About This Field');
     assert.equal(button.querySelector('.material-icons').textContent, 'info');
     hint.setValue('b');
@@ -122,7 +122,7 @@ test('the help hint label and icon can be replaced, and setValue changes the tex
 test('a click toggles the help bubble, Escape and an outside click close it', function () {
     var hint = createHelpHint({ text: 'a' });
     dom.document.body.appendChild(hint.element);
-    var button = hint.element.querySelector('.jpk-help-button');
+    var button = hint.element.querySelector('.base-help-button');
     button.click();
     assert.ok(hint.element.classList.contains('open'));
     button.dispatch('keydown', { key: 'Escape' });
@@ -138,9 +138,9 @@ test('a click toggles the help bubble, Escape and an outside click close it', fu
 test('destroy of the help hint drops the document listener', function () {
     var hint = createHelpHint({ text: 'a' });
     dom.document.body.appendChild(hint.element);
-    hint.element.querySelector('.jpk-help-button').click();
+    hint.element.querySelector('.base-help-button').click();
     var before = (dom.document.listeners.click || []).length;
     hint.destroy();
     assert.equal(dom.document.listeners.click.length, before - 1);
-    assert.equal(hint.element.querySelector('.jpk-help-button').listeners.click.length, 0);
+    assert.equal(hint.element.querySelector('.base-help-button').listeners.click.length, 0);
 });

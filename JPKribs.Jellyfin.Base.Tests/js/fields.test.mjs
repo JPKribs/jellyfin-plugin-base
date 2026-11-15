@@ -19,8 +19,8 @@ function unit(extra) {
     return { field: field, changes: changes };
 }
 
-function type(field, text) { field.input.value = text; field.input.dispatch('input'); }
-function msg(ui) { return ui.field.element.querySelector('.jpk-field-message'); }
+function type(field, text) { field.input.value = text; field.input.dispatch('input'); field.input.dispatch('blur'); }
+function msg(ui) { return ui.field.element.querySelector('.base-field-message'); }
 
 test('number unit needs units, and strings become units with no factor', function () {
     assert.throws(function () { createNumberUnitField({}); }, /units/);
@@ -56,11 +56,11 @@ test('typing and changing the unit report onChange', function () {
     assert.deepEqual(ui.changes[1], { value: 10, unit: 'GB', base: 10240 });
 });
 
-test('a number out of range shows the error with aria-invalid, and its sentences can be replaced', function () {
+test('a number out of range shows the error with aria-invalid once the field is left, and its sentences can be replaced', function () {
     var ui = unit();
     type(ui.field, '5000');
     assert.equal(shown(msg(ui)), true);
-    assert.equal(msg(ui).querySelector('.jpk-field-message-text').textContent, 'Enter a number from 1 to 4096.');
+    assert.equal(msg(ui).querySelector('.base-field-message-text').textContent, 'Enter a number from 1 to 4096.');
     assert.equal(ui.field.input.getAttribute('aria-invalid'), 'true');
     assert.equal(ui.field.isValid(), false);
     type(ui.field, '50');
@@ -68,13 +68,13 @@ test('a number out of range shows the error with aria-invalid, and its sentences
     assert.equal(ui.field.isValid(), true);
     var low = unit({ max: undefined });
     type(low.field, '0');
-    assert.equal(msg(low).querySelector('.jpk-field-message-text').textContent, 'Enter 1 or more.');
+    assert.equal(msg(low).querySelector('.base-field-message-text').textContent, 'Enter 1 or more.');
     var high = unit({ min: undefined, maxText: 'Too large, max {max}.' });
     type(high.field, '9999');
-    assert.equal(msg(high).querySelector('.jpk-field-message-text').textContent, 'Too large, max 4096.');
+    assert.equal(msg(high).querySelector('.base-field-message-text').textContent, 'Too large, max 4096.');
     var ranged = unit({ rangeText: 'Between {min} and {max}.' });
     type(ranged.field, '0');
-    assert.equal(msg(ranged).querySelector('.jpk-field-message-text').textContent, 'Between 1 and 4096.');
+    assert.equal(msg(ranged).querySelector('.base-field-message-text').textContent, 'Between 1 and 4096.');
 });
 
 test('setValue sets the number and unit, and setBaseValue picks the largest even unit', function () {
@@ -86,6 +86,25 @@ test('setValue sets the number and unit, and setBaseValue picks the largest even
     ui.field.setBaseValue(1536);
     assert.deepEqual(ui.field.getValue(), { value: 1536, unit: 'MB', base: 1536 });
     assert.equal(ui.changes.length, 0);
+});
+
+test('number unit refuses a number off a step the caller set, and allows any number with the default step', function () {
+    var stepped = unit({ step: 0.5 });
+    type(stepped.field, '2.25');
+    assert.equal(msg(stepped).querySelector('.base-field-message-text').textContent, 'Enter a multiple of 0.5.');
+    var plain = unit();
+    type(plain.field, '1.5');
+    assert.equal(plain.field.isValid(), true);
+});
+
+test('number unit takes a validate function that runs after the range', function () {
+    var ui = unit({ validate: function (v) { return v.unit === 'GB' && v.value > 2 ? 'At most 2 GB.' : ''; } });
+    ui.field.select.value = 'GB';
+    ui.field.select.dispatch('change');
+    type(ui.field, '3');
+    assert.equal(msg(ui).querySelector('.base-field-message-text').textContent, 'At most 2 GB.');
+    type(ui.field, '2');
+    assert.equal(shown(msg(ui)), false);
 });
 
 test('number unit destroy removes the listeners', function () {
@@ -132,7 +151,7 @@ function schedule(extra) {
     var changes = [];
     var picker = createSchedulePicker(Object.assign({ value: { time: '02:30', days: [1, 3] }, onChange: function (v) { changes.push(v); } }, extra));
     dom.document.body.appendChild(picker.element);
-    return { picker: picker, changes: changes, days: all(picker.element, '.jpk-toggle'), time: picker.element.querySelector('input') };
+    return { picker: picker, changes: changes, days: all(picker.element, '.base-toggle'), time: picker.element.querySelector('input') };
 }
 
 test('the schedule shows the time and seven day toggles from Sunday with aria-pressed', function () {
@@ -181,5 +200,34 @@ test('the schedule destroy removes the listeners', function () {
     var ui = schedule();
     ui.picker.destroy();
     assert.equal(ui.time.listeners.input.length, 0);
-    assert.equal(ui.days[0].listeners.click.length, 0);
+    // The day toggles share one click listener on their group, from bindPressedGroup.
+    assert.equal(ui.picker.element.querySelector('[role="group"]').listeners.click.length, 0);
+    ui.days[1].click();
+    assert.equal(ui.changes.length, 0);
+});
+
+test('createNumberUnitField puts size small or large on data-base-size, and leaves it off for medium or no size', function () {
+    function build(size) { return createNumberUnitField({ units: ['MB', 'GB'], size: size }); }
+    assert.equal(build('small').element.getAttribute('data-base-size'), 'small');
+    assert.equal(build('large').element.getAttribute('data-base-size'), 'large');
+    assert.equal(build('medium').element.hasAttribute('data-base-size'), false);
+    assert.equal(build(undefined).element.hasAttribute('data-base-size'), false);
+    var handle = build('small');
+    handle.setSize('large');
+    assert.equal(handle.element.getAttribute('data-base-size'), 'large');
+    handle.setSize('medium');
+    assert.equal(handle.element.hasAttribute('data-base-size'), false);
+});
+
+test('createSchedulePicker puts size small or large on data-base-size, and leaves it off for medium or no size', function () {
+    function build(size) { return createSchedulePicker({ size: size }); }
+    assert.equal(build('small').element.getAttribute('data-base-size'), 'small');
+    assert.equal(build('large').element.getAttribute('data-base-size'), 'large');
+    assert.equal(build('medium').element.hasAttribute('data-base-size'), false);
+    assert.equal(build(undefined).element.hasAttribute('data-base-size'), false);
+    var handle = build('small');
+    handle.setSize('large');
+    assert.equal(handle.element.getAttribute('data-base-size'), 'large');
+    handle.setSize('medium');
+    assert.equal(handle.element.hasAttribute('data-base-size'), false);
 });

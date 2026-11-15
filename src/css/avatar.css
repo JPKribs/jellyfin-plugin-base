@@ -1,34 +1,41 @@
-/* Round picture or initials, in three sizes, with an optional status dot */
-/* Example: <span class="jpk-avatar jpk-avatar-medium blue"><span class="jpk-avatar-initials">AB</span></span> */
-.jpk-avatar {
+/* Round picture, or the person icon on a gray circle, in three sizes, with an optional status dot */
+/* Example: <span class="base-avatar base-avatar-medium placeholder"><span class="base-avatar-icon material-icons" aria-hidden="true">person</span></span> */
+.base-avatar {
     position: relative;
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--jpk-gray-bg);
-    color: var(--jpk-gray-fg);
+    width: var(--base-size-large);
+    height: var(--base-size-large);
+    border-radius: var(--base-radius-round);
+    background: var(--base-gray-bg);
+    color: var(--base-gray-fg);
     font-weight: 600;
     vertical-align: middle;
 }
-.jpk-avatar-small { width: 24px; height: 24px; font-size: 0.7em; }
-.jpk-avatar-large { width: 64px; height: 64px; font-size: 1.4em; }
-.jpk-avatar.blue { background: var(--jpk-blue-bg); color: var(--jpk-blue-fg); }
-.jpk-avatar.green { background: var(--jpk-green-bg); color: var(--jpk-green-fg); }
-.jpk-avatar.red { background: var(--jpk-red-bg); color: var(--jpk-red-fg); }
-.jpk-avatar.orange { background: var(--jpk-orange-bg); color: var(--jpk-orange-fg); }
-.jpk-avatar.purple { background: var(--jpk-purple-bg); color: var(--jpk-purple-fg); }
-.jpk-avatar.teal { background: var(--jpk-teal-bg); color: var(--jpk-teal-fg); }
-.jpk-avatar.pink { background: var(--jpk-pink-bg); color: var(--jpk-pink-fg); }
-.jpk-avatar.yellow { background: var(--jpk-yellow-bg); color: var(--jpk-yellow-fg); }
-.jpk-avatar-image { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.base-avatar-small { width: var(--base-size-small); height: var(--base-size-small); font-size: 0.7em; }
+.base-avatar-large { width: calc(var(--base-size-large) * 1.6); height: calc(var(--base-size-large) * 1.6); font-size: 1.4em; }
+.base-avatar.blue { background: var(--base-blue-bg); color: var(--base-blue-fg); }
+.base-avatar.green { background: var(--base-green-bg); color: var(--base-green-fg); }
+.base-avatar.red { background: var(--base-red-bg); color: var(--base-red-fg); }
+.base-avatar.orange { background: var(--base-orange-bg); color: var(--base-orange-fg); }
+.base-avatar.purple { background: var(--base-purple-bg); color: var(--base-purple-fg); }
+.base-avatar.teal { background: var(--base-teal-bg); color: var(--base-teal-fg); }
+.base-avatar.pink { background: var(--base-pink-bg); color: var(--base-pink-fg); }
+.base-avatar.yellow { background: var(--base-yellow-bg); color: var(--base-yellow-fg); }
+.base-avatar.custom { background: var(--base-custom-bg); color: var(--base-custom-fg); }
+.base-avatar-image { width: 100%; height: 100%; border-radius: var(--base-radius-round); object-fit: cover; }
+
+/* The person icon an avatar shows with no picture, sized to its circle */
+/* Example: <span class="base-avatar-icon material-icons" aria-hidden="true">person</span> */
+.base-avatar-icon { font-size: calc(var(--base-size-large) * 0.65); }
+.base-avatar-small .base-avatar-icon { font-size: var(--base-icon-small); }
+.base-avatar-large .base-avatar-icon { font-size: calc(var(--base-size-large) * 1.05); }
 
 /* Dot at the bottom right of an avatar, ringed in the surface color */
-/* Example: <span class="jpk-avatar-status green" role="img" title="Active" aria-label="Active"></span> */
-.jpk-avatar-status {
+/* Example: <span class="base-avatar-status green" role="img" title="Active" aria-label="Active"></span> */
+.base-avatar-status {
     position: absolute;
     right: -1px;
     bottom: -1px;
@@ -37,29 +44,37 @@
     height: 25%;
     min-height: 8px;
     box-sizing: border-box;
-    border: 2px solid var(--jpk-surface);
-    border-radius: 50%;
-    background: var(--jpk-gray-fg);
+    border: 2px solid var(--base-surface);
+    border-radius: var(--base-radius-round);
+    background: var(--base-gray-fg);
 }
-.jpk-avatar-status.green { background: var(--jpk-green-fg); }
-.jpk-avatar-status.red { background: var(--jpk-red-fg); }
-.jpk-avatar-status.orange { background: var(--jpk-orange-fg); }
-.jpk-avatar-status.purple { background: var(--jpk-purple-fg); }
-.jpk-avatar-status.blue { background: var(--jpk-blue-fg); }
+.base-avatar-status.green { background: var(--base-green-fg); }
+.base-avatar-status.red { background: var(--base-red-fg); }
+.base-avatar-status.orange { background: var(--base-orange-fg); }
+.base-avatar-status.purple { background: var(--base-purple-fg); }
+.base-avatar-status.blue { background: var(--base-blue-fg); }
 
 /* Pill with an avatar, a name, and an optional second line */
-/* Example: <span class="jpk-user-chip"><span class="jpk-avatar"></span><span class="jpk-user-chip-body"><span class="jpk-user-chip-name">Ada</span></span></span> */
-.jpk-user-chip {
+/* Example: <span class="base-user-chip"><span class="base-avatar"></span><span class="base-user-chip-body"><span class="base-user-chip-name">Ada</span></span></span> */
+.base-user-chip {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--base-gap-narrow);
     max-width: 100%;
-    padding: 3px 12px 3px 3px;
-    border: 1px solid var(--jpk-border);
-    border-radius: 999px;
+    box-sizing: border-box;
+    min-height: var(--base-size-medium);
+    padding: calc(var(--base-gap-narrow) / 2) var(--base-pad-medium) calc(var(--base-gap-narrow) / 2) calc(var(--base-gap-narrow) / 2);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-round);
     vertical-align: middle;
 }
-.jpk-user-chip .jpk-avatar { width: 28px; height: 28px; font-size: 0.75em; }
-.jpk-user-chip-body { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
-.jpk-user-chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.jpk-user-chip-text { font-size: 0.8em; opacity: 0.7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.base-user-chip .base-avatar { width: var(--base-size-small); height: var(--base-size-small); font-size: 0.7em; }
+.base-user-chip .base-avatar-icon { font-size: var(--base-icon-small); }
+
+/* A chip with a second line, whose avatar grows to span both lines */
+/* Example: <span class="base-user-chip two-line"><span class="base-avatar"></span><span class="base-user-chip-body"><span class="base-user-chip-name">Ada</span><span class="base-user-chip-text">Administrator</span></span></span> */
+.base-user-chip.two-line .base-avatar { width: var(--base-size-large); height: var(--base-size-large); font-size: 1em; }
+.base-user-chip.two-line .base-avatar-icon { font-size: calc(var(--base-size-large) * 0.65); }
+.base-user-chip-body { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.base-user-chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.base-user-chip-text { font-size: 0.8em; opacity: 0.7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -20,6 +20,7 @@ declare var ApiClient: {
     getJSON(url: string): Promise<any>;
     getUsers(query?: Record<string, unknown>): Promise<any[]>;
     getUserImageUrl(userId: string, options?: Record<string, unknown>): string;
+    getImageUrl?(itemId: string, options?: Record<string, unknown>): string;
     getPluginConfiguration(pluginId: string): Promise<any>;
     updatePluginConfiguration(pluginId: string, config: unknown): Promise<any>;
     getScheduledTasks(query?: Record<string, unknown>): Promise<any[]>;

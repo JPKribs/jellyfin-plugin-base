@@ -1,19 +1,21 @@
 /* Small round dot in a status color, which needs a title and an aria-label */
-/* Example: <span class="jpk-dot green" role="img" title="Active" aria-label="Active"></span> */
-.jpk-dot {
+/* Example: <span class="base-dot green" role="img" title="Active" aria-label="Active"></span> */
+.base-dot {
     display: inline-block;
+    flex: 0 0 auto;
     width: 10px;
     height: 10px;
-    border-radius: 50%;
-    background: var(--jpk-gray-fg);
+    border-radius: var(--base-radius-round);
+    background: var(--base-gray-fg);
     vertical-align: middle;
 }
-.jpk-dot.green { background: var(--jpk-green-fg); }
-.jpk-dot.red { background: var(--jpk-red-fg); }
-.jpk-dot.orange { background: var(--jpk-orange-fg); }
-.jpk-dot.purple { background: var(--jpk-purple-fg); }
-.jpk-dot.blue { background: var(--jpk-blue-fg); }
-.jpk-dot.gray { background: var(--jpk-gray-fg); }
-.jpk-dot.yellow { background: var(--jpk-yellow-fg); }
-.jpk-dot.pink { background: var(--jpk-pink-fg); }
-.jpk-dot.teal { background: var(--jpk-teal-fg); }
+.base-dot.green { background: var(--base-green-fg); }
+.base-dot.red { background: var(--base-red-fg); }
+.base-dot.orange { background: var(--base-orange-fg); }
+.base-dot.purple { background: var(--base-purple-fg); }
+.base-dot.blue { background: var(--base-blue-fg); }
+.base-dot.gray { background: var(--base-gray-fg); }
+.base-dot.yellow { background: var(--base-yellow-fg); }
+.base-dot.pink { background: var(--base-pink-fg); }
+.base-dot.teal { background: var(--base-teal-fg); }
+.base-dot.custom { background: var(--base-custom-fg); }

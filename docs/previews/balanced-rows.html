@@ -1,0 +1,17 @@
+<!-- title: Balanced Rows -->
+<div id="mount"></div>
+<script type="module">
+const base = await window.__baseReady;
+const mount = document.getElementById('mount');
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const colors = ['blue', 'green', 'orange', 'purple', 'red', 'gray', 'teal'];
+[4, 5, 7].forEach((count) => {
+    const note = document.createElement('p');
+    note.className = 'fieldDescription';
+    note.textContent = count + ' cards';
+    mount.appendChild(note);
+    const box = document.createElement('div');
+    mount.appendChild(box);
+    shared.renderCards(box, colors.slice(0, count).map((color, i) => ({ count: (i + 1) * 7, label: 'Group ' + (i + 1), color: color })));
+});
+</script>

@@ -1,32 +1,32 @@
 /* Trail of places that wraps on a narrow screen, with chevrons between them */
-/* Example: <nav class="jpk-breadcrumbs" aria-label="Breadcrumb"><ol class="jpk-breadcrumb-list"><li class="jpk-breadcrumb"><a class="jpk-breadcrumb-link" href="#">Servers</a></li></ol></nav> */
-.jpk-breadcrumb-list {
+/* Example: <nav class="base-breadcrumbs" aria-label="Breadcrumb"><ol class="base-breadcrumb-list"><li class="base-breadcrumb"><a class="base-breadcrumb-link" href="#">Servers</a></li></ol></nav> */
+.base-breadcrumb-list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 2px;
+    gap: var(--base-gap-narrow);
 }
-.jpk-breadcrumb { display: inline-flex; align-items: center; gap: 2px; }
-.jpk-breadcrumb > .material-icons { font-size: 18px; opacity: 0.6; }
+.base-breadcrumb { display: inline-flex; align-items: center; gap: var(--base-gap-narrow); }
+.base-breadcrumb > .material-icons { font-size: var(--base-chevron-secondary); opacity: 0.6; }
 
 /* A place that can be opened, as a link or a button that looks like one */
-/* Example: <button type="button" class="jpk-breadcrumb-link">Servers</button> */
-.jpk-breadcrumb-link {
-    padding: 2px 4px;
+/* Example: <button type="button" class="base-breadcrumb-link">Servers</button> */
+.base-breadcrumb-link {
+    padding: calc(var(--base-gap-narrow) / 4) calc(var(--base-gap-narrow) / 2);
     border: 0;
-    border-radius: 4px;
+    border-radius: var(--base-radius-small);
     background: transparent;
-    color: var(--jpk-accent);
+    color: var(--base-accent);
     font: inherit;
     text-decoration: none;
     cursor: pointer;
 }
-.jpk-breadcrumb-link:hover { text-decoration: underline; }
-.jpk-breadcrumb-link:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 1px; }
+.base-breadcrumb-link:hover { text-decoration: underline; }
+.base-breadcrumb-link:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 1px; }
 
 /* The current place, which is plain text */
-/* Example: <span class="jpk-breadcrumb-current" aria-current="page">Settings</span> */
-.jpk-breadcrumb-current { padding: 2px 4px; font-weight: 600; }
+/* Example: <span class="base-breadcrumb-current" aria-current="page">Settings</span> */
+.base-breadcrumb-current { padding: calc(var(--base-gap-narrow) / 4) calc(var(--base-gap-narrow) / 2); font-weight: 600; }

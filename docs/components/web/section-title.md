@@ -8,7 +8,7 @@ The page heading with a full width underline. Jellyfin supplies the markup class
 
 ## When Not to Use
 
-* Never use it inside a dialog. Use `jpk-modal-title` there. See [Dialog](dialog.md).
+* Never use it inside a dialog. Use `base-modal-title` there. See [Dialog](dialog.md).
 
 ## Usage
 
@@ -22,7 +22,7 @@ Classes: `sectionTitleContainer`, `sectionTitle`.
 
 ## States and Modifiers
 
-* The container gets a 1.5em top margin, and none when it is the first child.
+* The container takes the wide gap above it, also when it is the first child. The heading fills the row and takes a rule under it, with the wide gap below.
 * The heading is a normal heading element. Use `h1` for the page title and `h2` for later ones.
 
 ## Gotchas
@@ -35,7 +35,7 @@ Artwork Generator, Custom Pages, Live Channels, Remote Access, Requests, Scripts
 
 ## Example
 
-<iframe class="jpk-preview" src="../../../assets/previews/section-title.html" title="Section Title example" loading="lazy"></iframe>
+<iframe class="base-preview" src="../../../assets/previews/section-title.html" title="Section Title example" loading="lazy"></iframe>
 
 ## Example Code
 

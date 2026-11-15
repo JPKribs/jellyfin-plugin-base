@@ -10,15 +10,17 @@ Formatting for log lines and user-facing text.
 
 ```csharp
 SourceSizeFormatted = FormatUtilities.FormatBytes(i.SourceSize);
-_logger.LogInformation("Removed {Count} link(s) to the forgotten server {Key}", links, FormatUtilities.SanitizeForLog(key));
+_logger.LogInformation("Removed {Count} links to the forgotten server {Key}", links, FormatUtilities.SanitizeForLog(key));
 ```
 
 Use `SanitizeForLog` for every value that came from a client, a peer, or a remote server.
 
 **Gotchas**
 
-* `FormatBytes` divides by 1024 and prints two decimals with the invariant culture, so 1536 gives `1.50 KB` and the separator is always a period. Values above 1024 TB stay in TB.
-* `SanitizeForLog` removes control characters, the line and paragraph separators U+2028 and U+2029, and the bidirectional formatting controls (U+200E, U+200F, U+061C, U+202A to U+202E, U+2066 to U+2069), so a newline cannot forge a log entry and text cannot be reordered, and cuts the text to `maxLength` plus `...` without splitting a surrogate pair. The result is valid XML text.
+* `FormatBytes` divides by 1024 and prints two decimals with the invariant culture, so 1536 gives `1.50 KB` and the separator is always a period. Values above 1024 TB stay in TB, and a negative count stays in bytes.
+* `SanitizeForLog` removes control characters, U+FFFE and U+FFFF, the line and paragraph separators U+2028 and U+2029, and the bidirectional formatting controls. Those are U+200E, U+200F, U+061C, U+202A to U+202E, and U+2066 to U+2069. A newline cannot forge a log entry, and text cannot be reordered.
+* A lone surrogate becomes U+FFFD, so the result is valid XML text.
+* Text longer than `maxLength`, 200 by default, is cut and gets `...` added, so the result can be three characters longer than `maxLength`.
 * Null or empty input returns `[empty]`, but text that is only control characters returns an empty string.
 * A surrogate pair that would cross the limit is left out whole, so the kept text can be one character shorter than `maxLength`.
 * A negative `maxLength` throws when the text is not empty.
@@ -78,6 +80,6 @@ var key = HashUtilities.Sha256Hex(url, 16);
 
 **Gotchas**
 
-* `ComputeSha256Hash` returns only the first 32 hex characters, which is 128 bits of the SHA-256. Use `Sha256Hex` for the full hash.
+* `ComputeSha256Hash` and `ComputeSha256HashAsync` return only the first 32 hex characters, which is 128 bits of the SHA-256. Use `Sha256Hex` for the full hash, or pass it a `length` from 1 to 64 for a shorter one.
 * A stream is hashed from its current position to its end. It is not rewound or disposed.
 * The tests pin each overload to known outputs, so a stored fingerprint stays valid across releases.

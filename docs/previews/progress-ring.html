@@ -1,9 +1,9 @@
 <!-- title: Progress Ring -->
 <div id="mount"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
+const base = await window.__baseReady;
 const view = document.getElementById('view');
 const mount = document.getElementById('mount');
 mount.style.cssText = 'display:flex;align-items:center;gap:16px';
-[['small', 25, ''], ['medium', 60, 'green'], ['large', 90, 'orange']].forEach(([size, value, color]) => mount.appendChild(JPK.createProgressRing({ size, value, color }).element));
+[['small', 25, ''], ['medium', 60, 'green'], ['large', 90, 'orange']].forEach(([size, value, color]) => mount.appendChild(base.createProgressRing({ size, value, color }).element));
 </script>

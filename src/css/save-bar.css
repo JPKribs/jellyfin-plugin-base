@@ -1,0 +1,11 @@
+/* A Save button with its status line above it, the line in the state's color with its icon centered on the first line */
+/* Example: <div class="base-save-bar" data-state="pending"><div class="base-status-text base-save-status base-icon-text warn" role="status"></div><button class="raised base-button primary base-save-button">Save</button></div> */
+.base-save-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--base-gap-narrow);
+}
+.base-save-bar > .base-save-status { margin-top: 0; }
+.base-save-bar > .base-save-status:empty { display: none; }
+.base-save-bar > .base-save-button.fill { align-self: stretch; }

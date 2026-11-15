@@ -1,0 +1,29 @@
+<!-- title: List -->
+<div id="mount"></div>
+<script type="module">
+const base = await window.__baseReady;
+const mount = document.getElementById('mount');
+const D = window.__galleryData;
+const names = Array.from({ length: 30 }, (_, i) => 'Item ' + (i + 1));
+
+const fixed = base.createList({ items: names.slice(0, 15), render: (t) => t, height: 200, onEndReached: () => {
+    const have = fixed.getItems().length;
+    if (have >= 30) return;
+    fixed.setLoading(true);
+    setTimeout(() => { fixed.append(names.slice(have, have + 5)); fixed.setLoading(false); }, 400);
+} });
+mount.appendChild(fixed.element);
+
+const cards = base.createList({
+    layout: 'grid',
+    minColumn: 120,
+    items: D.MEDIA,
+    render: (m) => base.createMediaCard({ layout: 'card', shape: base.mediaShape(m.Type), itemId: m.ImageTags.Primary ? m.Id : null, title: m.Name, subtitle: String(m.ProductionYear) })
+});
+cards.element.style.marginTop = '16px';
+mount.appendChild(cards.element);
+
+const empty = base.createList({ items: [], render: (t) => t, emptyText: 'Nothing in the queue.' });
+empty.element.style.marginTop = '16px';
+mount.appendChild(empty.element);
+</script>

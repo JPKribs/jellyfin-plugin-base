@@ -1,0 +1,21 @@
+<!-- title: Bar Chart -->
+<div id="mount" style="display: grid; gap: 24px;"></div>
+<script type="module">
+const base = await window.__baseReady;
+const mount = document.getElementById('mount');
+mount.appendChild(base.createBarChart({
+    label: 'Items synced per day',
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    series: [{ name: 'Synced', values: [42, 58, 31, 77, 64, 12, 25] }]
+}).element);
+mount.appendChild(base.createBarChart({
+    label: 'Storage by library',
+    labels: ['Movies', 'Shows', 'Music', 'Photos'],
+    unit: 'GB',
+    series: [
+        { name: 'Den', color: 'blue', values: [820, 1240, 96, 40] },
+        { name: 'Cabin', color: 'green', values: [610, 980, 120, 12] },
+        { name: 'Office', color: '#e91e63', values: [140, 320, 18, 0] }
+    ]
+}).element);
+</script>

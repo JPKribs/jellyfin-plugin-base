@@ -1,0 +1,57 @@
+/* Bordered toolbar above a table holding a stack of field lines for editing many rows at once */
+/* Example: <div class="base-bulk-edit-bar"><div class="base-bulk-edit-title">Bulk Edit</div><div class="base-edit-line"></div></div> */
+.base-bulk-edit-bar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+    padding: var(--base-pad-medium);
+    margin-bottom: var(--base-gap-wide);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-medium);
+    background: rgba(255, 255, 255, 0.04);
+    background: color-mix(in srgb, currentColor 4%, transparent);
+}
+.base-bulk-edit-bar > button {
+    align-self: flex-start;
+    margin-top: var(--base-gap-narrow);
+}
+
+/* Heading that labels the bulk-edit region */
+/* Example: <div class="base-bulk-edit-title">Bulk Edit</div> */
+.base-bulk-edit-title {
+    font-size: 1em;
+    font-weight: 600;
+    opacity: 0.9;
+    margin-bottom: calc(var(--base-gap-narrow) / 4);
+}
+
+/* Table row stacked into a column for a multi-line field editor */
+/* Example: <div class="base-table-row base-edit-row"><div class="base-edit-line"></div></div> */
+.base-edit-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--base-gap-narrow);
+    padding: var(--base-pad-medium);
+}
+
+/* One line of fields placed side by side inside an editor */
+/* Example: <div class="base-edit-line"><div class="base-field"></div></div> */
+.base-edit-line {
+    display: flex;
+    gap: var(--base-gap-narrow);
+    align-items: flex-end;
+    width: 100%;
+}
+
+/* Muted, non-wrapping secondary text within an editor line, such as a file size */
+/* Example: <span class="base-edit-secondary">2.34 MB</span> */
+.base-edit-secondary {
+    font-size: 0.85em;
+    opacity: 0.5;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* A button in an editor line lines up with the fields beside it */
+/* Example: <div class="base-edit-line"><div class="base-field"><input type="text"></div><button class="base-button primary field">Apply</button></div> */
+.base-edit-line > .base-button { align-self: flex-end; }

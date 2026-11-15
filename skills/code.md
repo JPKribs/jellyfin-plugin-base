@@ -8,9 +8,68 @@ Base holds what two plugins could share unchanged.
 
 * A helper has no plugin specific type in its signature, no plugin name in a string, and no assumption about one plugin's configuration.
 * Read [README.md](../README.md) and the [component pages](documentation.md#the-component-pages) before you add anything. When a component almost fits, extend it.
-* One component per file. A C# helper is one file in `src/`, a style is one file in `src/css/`, a module is one file in `src/js/` that `src/js/index.ts` re-exports, and a template is one file in `src/templates/`.
+* One component per file, named after its docs page. A web component is `src/js/<name>.ts` and `src/css/<name>.css`, and its page is `docs/components/web/<name>.md`. A C# helper is one file in `src/`, and a template is one file in `src/templates/`. Code shared by components but not public goes in `src/js/lib/`.
+* The sources are strict TypeScript. There is no `.js` source, and `tsconfig.json` includes only `src/js/**/*.ts`, so a `.js` file there is never type checked or bundled.
+* Every value a component takes from the CSS scales comes from `src/css/design-tokens.css`: sizes, fonts, pads, icons, lines, fields, gaps, chevrons, radii, shadows, layers, and colors.
 * Never add a file to a folder with a numeric prefix. Ordering never matters.
 * Never add a runtime dependency. The package has no assembly, so everything compiles into the plugin and can use only what a Jellyfin plugin already references.
+
+## The Component Model
+
+Base is a set of base components and cores, with thin variations on top. A variation adds only its own options and look, and takes everything else from what it is built on. So a fix in the base reaches every variation, and two variations can never drift apart. See [style.md](style.md#composition) for the rules.
+
+### The Trees
+
+| Base or core | Built on it |
+| :--- | :--- |
+| List, `list.ts` | Filtered List, Record List, Tree View, and every other component that shows a list of items |
+| Filtered List, `filtered-list.ts` | Data Table, Paginated Table, and Checkbox List, which User Multi Selector is built on |
+| Data Table, `data-table.ts` | Compare Table and Matrix Grid, which inherit its hidden columns (`setColumnHidden`) and centered columns |
+| Row editor core, `lib/row-editor.ts` | Repeater, which Key Value Editor and Rule Builder are built on, and String List, Ordered List, Sortable Card List, and Access Schedule |
+| Field control core, `lib/field-control.ts` | The fields of the Repeater, the Rule Builder's value, the Matrix Grid's cells, the Mapping Table, and the Data Table's row editor |
+| Data view core, `lib/data-view.ts` | The search, filters, sort, and paging of the Filtered List and every table on it |
+| Checkbox core, `lib/check.ts` | Checkbox, the toggle field of the field control core, the Filtered List's row checks and select all, which the Checkbox List and tables inherit, the Filter Panel, the Tree View, the Inherit Field, and the Log Viewer |
+| Selection core, `lib/selection.ts` | The picked ids of the Filtered List, the Checkbox List, and the Tree View |
+| Popover core, `lib/popover.ts`, and `.base-float` | Overflow Menu, Filter Panel, Help Hint, Tooltip, the typeahead dropdown, and the chart tooltip |
+| Typeahead core, `lib/typeahead.ts` | Combo Box, Chip Select, and Media Picker |
+| Pressed group core, `lib/pressed-group.ts` | Pill Group, the Schedule Picker's days, the Inherit Field, the Date Range Picker's presets, the Filtered List's pills, the World Map's layers, and the Folder Picker and Preview Frame toggles |
+| Dialog core, `lib/dialog.ts` | `createModalShell`, which `openDialog` and the Detail Drawer are built on. Confirm Dialog, with its typed confirm, Prompt Dialog, and Editor Dialog are built on `openDialog` |
+| Message core, `lib/message.ts` | Field Message, Status Text, Banner, and Toast. Save Bar is built on the status line |
+| Card core, `lib/card.ts` | Count Cards, Stat Card, and the Filtered List's filter cards |
+| Chart core, `lib/chart.ts` | Bar Chart, Line Chart, and Sparkline |
+| Clock core, `lib/clock.ts` | Relative Time, and every other live time on a page |
+| Thumb core, `lib/thumb.ts` | Avatar, Media Card, Media Picker, Chip Select, Checkbox List rows, Paginated Table, Tree View, Image Picker, and Preview Frame. A source may be an address or a function that returns an address, a Blob, or a promise of one |
+| Validation core, `lib/validate.ts` | Every input. See [Validation](#validation) |
+| Color core, `lib/color.ts` | Every component that takes a status name or a hex code |
+
+### Add a Component
+
+1. Find the closest base component or core in the trees above. When one almost fits, add an option or a modifier to it instead of a new component.
+2. Write the variation in `src/js/<name>.ts`. Build it by calling the base, such as `createFilteredList` or `createRepeater`, and pass its options through. Never copy the base's markup, state, or handlers.
+3. When a behavior is missing from the base, add it to the base as an option with a default that keeps the old behavior, so every variation can use it.
+4. Put only the variation's own look in `src/css/<name>.css`. It reuses the base's classes and adds a modifier or a part.
+5. Export it from `src/js/index.ts`, with `export type *` for its types, and add its page, preview, gallery section, and tests in the same change.
+
+### Core CSS
+
+A core in `src/js/lib/` has no CSS file of its own. Its shared look lives in the CSS file of the component that owns the concept, such as the card in `count-cards.css`, the chart frame in `bar-chart.css`, and the field group in `repeater.css`. A look that no one component owns, such as `.base-float`, `.base-icon-text`, and `.base-thumb`, lives in `utility-classes.css`. A variation never repeats a core's rule in its own file.
+
+### Validation
+
+Every input validates through the validation core, `lib/validate.ts`. Its rules come from the field's own attributes, `required`, `min`, `max`, `step`, `minlength`, `maxlength`, `pattern`, and its type, plus an optional `validate` function, and its message shows through the Field Message.
+
+* `bindFieldAdornments` binds the core on every ruled field under a root, and on the ones added later. `createConfigPage` calls it on the page, so a plain config page field validates with no code.
+* A component that builds its own inputs binds each with `bindValidation`, or builds them with the field control core, which does it.
+* A form checks every field with `validateAll` before it saves, as the Save Bar and the Prompt Dialog do.
+* A component never writes its own range check, required check, or error markup.
+
+### Shared Helpers
+
+A helper exists once, and two helpers never share a name with different output. Internal helpers live in `src/js/lib/`, and the public ones a plugin also calls live in `browser-helpers.ts`.
+
+* Clock time, such as `1:30:00`, is `clockText` in `lib/dom.ts`. The Audio Player, the Relative Time countdown, and the bag's `formatDuration` all call it.
+* Duration in units, such as `1h 30m`, is the Duration Field's `durationText`.
+* Text matching is `matchesText`, ids are `idOf`, sizes are `formatBytes`, and focus after a remove is `focusAfterRemove`, all in `lib/dom.ts`. Debounce is `debounce` and plurals are `plural`, in `browser-helpers.ts`.
 
 ## Compatibility
 
@@ -21,7 +80,7 @@ Every plugin compiles Base in, so each change is seen by every one of them. A pl
 * **A behavior change is an API change.** A changed return value, a new exception, a different default, or a different default label reaches every plugin.
 * **A name that exists in Base must never exist in a plugin.** Base compiles into the plugin's assembly, so a plugin copy with the same name is ambiguous. A new public name should be unlikely to match a plugin's own type.
 * **Keep the signatures of C# members binary and source compatible** where you can, since a plugin compiles against the source and a recompile is the only fix.
-* **A class is a contract.** Do not rename a `jpk-` class, change what a modifier means, or change a token's value for a different look. A plugin page depends on them.
+* **A class is a contract.** Do not rename a `base-` class, change what a modifier means, or change a token's value for a different look. A plugin page depends on them.
 * **Older engines count.** CSS must still pass [the fallback tests](testing.md#css-tests), and JS stays in the style the existing files use.
 * **A removal needs a path.** When a rename is approved, name the replacement in the commit, keep the old name for one release when that is possible, and tell the plugin authors the steps.
 * **Check the consumers.** Before you call a change done, build a consuming plugin against a local pack. See [release.md](release.md#before-the-release).
@@ -85,8 +144,8 @@ Two lines above each component selector. The first says what it looks like, and 
 
 ```css
 /* Rounded translucent card holding a count and a label */
-/* Example: <div class="jpk-card blue"><span class="jpk-card-count">5</span></div> */
-.jpk-card { ... }
+/* Example: <div class="base-card blue"><span class="base-card-count">5</span></div> */
+.base-card { ... }
 ```
 
 ### HTML Templates
@@ -95,12 +154,12 @@ A single line comment naming each object where it starts.
 
 ```html
 <!-- card -->
-<div class="jpk-card">
+<div class="base-card">
 ```
 
 ### Shell and YAML
 
-* A shell script opens with a comment saying what it does and how to run it. Every script in `scripts/` and `tools/` does.
+* A shell script opens with a comment saying what it does and how to run it. Every script in `scripts/` does.
 * A workflow opens with a comment saying what it is for.
 
 ## C# Conventions
@@ -121,22 +180,24 @@ The code is compiled into each plugin, and every plugin sets `Nullable`, `TreatW
 
 ## TypeScript Conventions
 
-* Every component is a TypeScript module, and `src/js/index.ts` re-exports it. esbuild strips the types and bundles it to one ESM file for Chromium 87. Import a sibling by its `.js` name, such as `./dom-util.js`.
-* `tsc` type checks in strict mode in `scripts/bundle.sh`. A type error fails the build.
+* Every component is a TypeScript module. `src/js/index.ts` names each public export, so a component file can export helpers to other files without making them public. esbuild strips the types and bundles it to one ESM file for Chromium 87. Import a sibling by its `.js` name, such as `./lib/dom.js`.
+* `tsc` type checks in strict mode in `scripts/bundle.sh`, before esbuild runs, and `npm run typecheck` runs it alone. A type error fails the build.
 * Use only syntax that erases to plain JS: annotations, `as`, `!`, `interface`, `type`, and `import type`. No `enum`, `namespace`, or parameter properties.
 * Give each component an exported `Options` interface for what it takes and a `Handle` interface for what it returns. Shared shapes live in `src/js/types.ts`, and the Jellyfin globals in `src/js/globals.d.ts`.
 * Labels, items, and flags in an `Options` interface are plain data. A callback is for behavior only.
 * Prefer a real type to `any`. Use `!` only where the code already relies on the value being present.
 * Follow the style of the file you edit. Every module uses `var` and `function` expressions, with no arrow functions. Keep that so older engines load the bundle.
+* A component that shows a list of items builds its container with `createList`, and passes `height`, `maxHeight`, and `minHeight` through. See [style.md](style.md#lists-and-tables).
 * Never wrap a function expression in parentheses or an `as` cast. esbuild keeps the parentheses, so the bundle changes. Cast the receiver instead.
 * A module exports named functions only. A plugin imports from the bundle by a relative path, `./configurationpage?name=<plugin>_jpkribs_shared.js`.
 * Escape every value placed in HTML with `escapeHtml`. Class names that come from data go through `classNames`.
+* A field a component builds validates through the [validation core](#validation), and a color it takes goes through the color core.
 * Return a handle with a `destroy()` for anything that holds a listener, an observer, or a timer, so `viewhide` can stop it.
 * Never touch a global a config page does not provide. `LibraryMenu`, `ApiClient`, and `Dashboard` are read only when present.
 
 ## CSS Conventions
 
-See [style.md](style.md#component-conventions). In short, tokens for color, modifiers for state, one file per component, a plain fallback before `color-mix()`, and the two line comment above every component.
+See [style.md](style.md). In short, tokens for every size, space, rounding, shadow, layer, and color, modifiers for state, one file per component, a core's shared look in the file that owns it, a plain fallback before `color-mix()`, no `:has()` for a rule an older engine needs, and the two line comment above every component.
 
 ## Security
 
@@ -161,6 +222,8 @@ Every change has a test. See [testing.md](testing.md) for each layer and how to 
 ## Checklist
 
 * [ ] The component is shareable, with no plugin specific type or name.
+* [ ] A new component is a thin variation on a base component or core, and copies none of its code or CSS.
+* [ ] Every input validates through the validation core, and every helper it needs is the one in `lib/`.
 * [ ] Nothing public was removed or renamed, or the change was approved.
 * [ ] Defaults keep the old behavior, and a changed behavior was approved.
 * [ ] Every public type, member, export, selector, and template object has its header in the [format above](#comments).

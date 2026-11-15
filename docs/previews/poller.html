@@ -1,13 +1,13 @@
 <!-- title: Poller -->
 <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-    <button type="button" id="btnStart" class="raised jpk-button-submit jpk-button-small"><span>Start</span></button>
-    <button type="button" id="btnStop" class="raised jpk-secondary jpk-button-small"><span>Stop</span></button>
-    <span id="ticks" class="jpk-mono">0 ticks</span>
-    <span id="running" class="jpk-mono">stopped</span>
+    <button type="button" id="btnStart" class="raised base-button primary small"><span>Start</span></button>
+    <button type="button" id="btnStop" class="raised base-button secondary small"><span>Stop</span></button>
+    <span id="ticks" class="base-mono">0 ticks</span>
+    <span id="running" class="base-mono">stopped</span>
 </div>
 <script type="module">
-const JPK = await window.__jpkReady;
-const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const base = await window.__baseReady;
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
 let ticks = 0;
 const poller = shared.createPoller(() => {
     ticks++;

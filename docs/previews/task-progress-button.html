@@ -1,9 +1,9 @@
 <!-- title: Task Progress Button -->
-<button type="button" id="btnSync" class="raised jpk-button-submit"><span>Sync</span></button>
-<span id="taskStatus" class="jpk-status-text"></span>
+<button type="button" id="btnSync" class="raised base-button primary"><span>Sync</span></button>
+<span id="taskStatus" class="base-status-text"></span>
 <script type="module">
-const JPK = await window.__jpkReady;
-const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const base = await window.__baseReady;
+const shared = base.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
 
 // The dashboard answers getScheduledTasks. This stub runs a task for a few seconds.
 let startedAt = 0;

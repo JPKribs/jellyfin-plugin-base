@@ -1,28 +1,42 @@
-/* A wrapping row of pills where exactly one is chosen, wired by createPillGroup */
-/* Example: <div class="jpk-pill-group" role="group"><button type="button" class="jpk-pill" aria-pressed="true">Daily</button><button type="button" class="jpk-pill" aria-pressed="false">Weekly</button></div> */
-.jpk-pill-group {
+/* A wrapping row of pills where exactly one is chosen, wired by createPillGroup. The toggle group shares the row */
+/* Example: <div class="base-pill-group" role="group"><button type="button" class="base-pill" aria-pressed="true">Daily</button><button type="button" class="base-pill" aria-pressed="false">Weekly</button></div> */
+.base-pill-group,
+.base-toggle-group {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--base-gap-narrow);
 }
 
 /* One pill, outlined when off and filled with the accent and white text when aria-pressed is true or it has selected */
-/* Example: <button type="button" class="jpk-pill selected" aria-pressed="true">Daily</button> */
-.jpk-pill {
-    padding: 6px 16px;
-    border-radius: 999px;
-    border: 1px solid var(--jpk-border);
+/* Example: <button type="button" class="base-pill selected" aria-pressed="true">Daily</button> */
+.base-pill {
+    box-sizing: border-box;
+    height: var(--base-size-medium);
+    padding: 0 var(--base-pad-large);
+    font-size: var(--base-font-medium);
+    line-height: 1;
+    border-radius: var(--base-radius-round);
+    border: 1px solid var(--base-border);
     background: transparent;
     color: inherit;
-    font: inherit;
+    font-family: inherit;
     cursor: pointer;
 }
-.jpk-pill:hover { border-color: var(--jpk-accent); }
-.jpk-pill:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 2px; }
-.jpk-pill:disabled { opacity: 0.5; cursor: default; }
-.jpk-pill[aria-pressed="true"],
-.jpk-pill.selected {
-    background: var(--jpk-accent);
-    border-color: var(--jpk-accent);
-    color: var(--jpk-on-accent);
+
+/* A pill at the small or large size of the scale */
+/* Example: <button type="button" class="base-pill small">Daily</button> */
+.base-pill.small { height: var(--base-size-small); padding: 0 var(--base-pad-medium); font-size: var(--base-font-small); }
+.base-pill.large { height: var(--base-size-large); padding: 0 var(--base-pad-large); font-size: var(--base-font-large); }
+/* The hover, focus, and disabled look that pills and toggles share */
+.base-pill:hover,
+.base-toggle:hover { border-color: var(--base-accent); }
+.base-pill:focus-visible,
+.base-toggle:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 2px; }
+.base-pill:disabled,
+.base-toggle:disabled { opacity: 0.5; cursor: default; }
+.base-pill[aria-pressed="true"],
+.base-pill.selected {
+    background: var(--base-accent);
+    border-color: var(--base-accent);
+    color: var(--base-on-accent);
 }

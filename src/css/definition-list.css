@@ -1,21 +1,87 @@
 /* Read-only list of labels and values, side by side and stacked on a narrow screen */
-/* Example: <dl class="jpk-defs"><div class="jpk-defs-row"><dt class="jpk-defs-label">Version</dt><dd class="jpk-defs-value">1.2.0</dd></div></dl> */
-.jpk-defs {
+/* Example: <dl class="base-defs"><div class="base-defs-row"><dt class="base-defs-label">Version</dt><dd class="base-defs-value">1.2.0</dd></div></dl> */
+.base-defs {
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.5em;
+    gap: var(--base-gap-narrow);
 }
-.jpk-defs-row {
+.base-defs-row {
     display: grid;
     grid-template-columns: minmax(120px, 30%) 1fr;
-    gap: 0.75em;
+    gap: var(--base-gap-wide);
     font-size: 0.95em;
 }
-.jpk-defs-label { opacity: 0.7; }
-.jpk-defs-value { margin: 0; min-width: 0; overflow-wrap: anywhere; }
-.jpk-defs-missing { opacity: 0.5; }
+/* The dimmed label every label and value list shares, a definition list's and a record card's */
+/* Example: <dt class="base-defs-label">Version</dt> */
+.base-defs-label,
+.base-record-label { opacity: 0.7; }
+.base-defs-value { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.base-defs-missing { opacity: 0.5; }
 
 @media (max-width: 600px) {
-    .jpk-defs-row { grid-template-columns: 1fr; gap: 0.1em; }
+    .base-defs-row { grid-template-columns: 1fr; gap: 0.1em; }
+}
+
+/* Dimmed lines under a value, a meta line such as a size and a note, in the value's column */
+/* Example: <div class="base-defs-row"><dt class="base-defs-label">Source Path</dt><dd class="base-defs-value">/media/movies</dd><dd class="base-defs-meta">4.2 GB</dd><dd class="base-defs-note">Not on this server yet.</dd></div> */
+.base-defs-meta,
+.base-defs-note {
+    grid-column: -2 / -1;
+    margin: 0;
+    min-width: 0;
+    font-size: var(--base-font-small);
+    opacity: 0.7;
+    overflow-wrap: anywhere;
+}
+.base-defs-meta { font-variant-numeric: tabular-nums; }
+
+/* A value drawn as a badge, a link, or mono text, which wrap beside each other */
+/* Example: <dd class="base-defs-value"><span class="base-badge green small base-defs-badge">Healthy</span><a class="base-defs-link" href="https://example.com">Example</a></dd> */
+.base-defs-value > .base-defs-badge + * { margin-left: var(--base-gap-narrow); }
+.base-defs-link { color: var(--base-accent); overflow-wrap: anywhere; }
+
+/* The columns layout, each small uppercase label over its value, in balanced columns on the wash */
+/* Example: <dl class="base-defs columns base-list grid"><div class="base-defs-row"><dt class="base-defs-label">Last Sync</dt><dd class="base-defs-value">Today</dd></div><div class="base-defs-row"><dt class="base-defs-label">Library</dt><dd class="base-defs-value">Movies</dd></div></dl> */
+.base-defs.columns {
+    padding: var(--base-pad-medium);
+    border-radius: var(--base-radius-medium);
+    background: var(--base-wash);
+}
+.base-defs.columns .base-defs-row {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--base-gap-narrow) / 4);
+    min-width: 0;
+}
+.base-defs.columns .base-defs-label {
+    font-size: var(--base-font-small);
+    text-transform: uppercase;
+}
+
+/* A route arrow after an item, such as From to To, pointing on to the next column and down once the columns stack */
+/* Example: <dl class="base-defs columns base-list grid"><div class="base-defs-row has-arrow"><dt class="base-defs-label">From</dt><dd class="base-defs-value">Movies</dd><span class="material-icons base-defs-arrow">arrow_forward</span></div><div class="base-defs-row"><dt class="base-defs-label">To</dt><dd class="base-defs-value">Films</dd></div></dl> */
+.base-defs.columns .base-defs-row.has-arrow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--base-gap-wide);
+    row-gap: calc(var(--base-gap-narrow) / 4);
+    align-content: start;
+}
+.base-defs.columns .base-defs-row.has-arrow > dt,
+.base-defs.columns .base-defs-row.has-arrow > dd { grid-column: 1; }
+.base-defs-arrow {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    font-size: var(--base-icon-medium);
+    opacity: 0.7;
+}
+.base-defs.columns.compact .base-defs-row.has-arrow { grid-template-columns: minmax(0, 1fr); }
+.base-defs.columns.compact .base-defs-arrow {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+    margin-top: var(--base-gap-narrow);
+    transform: rotate(90deg);
 }

@@ -32,9 +32,7 @@
     <None Include="dist/jpkribs_shared.js" Pack="true" PackagePath="assets/" />
     <None Include="dist/jpkribs_shared.d.ts" Pack="true" PackagePath="assets/" />
     <None Include="src/templates/*.html" Pack="true" PackagePath="templates/" />
-    <None Include="build/JPKribs.Jellyfin.Base.props" Pack="true" PackagePath="build/" />
     <None Include="build/JPKribs.Jellyfin.Base.targets" Pack="true" PackagePath="build/" />
-    <None Include="tools/build-plugin.sh" Pack="true" PackagePath="tools/" />
     <None Include="README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 

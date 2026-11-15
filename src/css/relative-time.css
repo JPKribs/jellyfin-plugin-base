@@ -1,0 +1,15 @@
+/* A live time, such as "3 minutes ago", with its full date as the title, in even width digits */
+/* Example: <span class="base-relative-time"><time class="base-relative-time-text" datetime="2026-11-15T10:00:00.000Z" title="Sunday, November 15, 2026 at 10:00 AM">3 minutes ago</time></span> */
+.base-relative-time {
+    display: inline;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.base-relative-time-text[title] { cursor: help; }
+
+/* A countdown, a clock of the time left with an optional small ring that fills as the wait passes */
+/* Example: <span class="base-relative-time countdown"><span class="base-ring base-ring-small base-ring-pie" role="progressbar"></span><time class="base-relative-time-text">4:05</time></span> */
+.base-relative-time.countdown .base-relative-time-text { display: inline-block; min-width: 2.5em; }
+/* The ring sits on the text's line, centered on its letters, so the countdown lines up with the words around it */
+.base-relative-time > .base-ring { vertical-align: -0.2em; margin-right: var(--base-gap-narrow); }
+.base-relative-time.countdown.done .base-relative-time-text { color: var(--base-green-fg); }

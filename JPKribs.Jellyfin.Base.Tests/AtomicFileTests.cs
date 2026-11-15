@@ -11,7 +11,7 @@ namespace JPKribs.Jellyfin.Base.Tests;
 /// <summary>Verifies that <see cref="AtomicFile"/> never leaves a part written file, and that a failed write keeps the old file and leaves no temp file.</summary>
 public sealed class AtomicFileTests : IDisposable
 {
-    private readonly string _dir = Path.Combine(Path.GetTempPath(), "jpk-atomic-" + Guid.NewGuid().ToString("N"));
+    private readonly string _dir = Path.Combine(Path.GetTempPath(), "base-atomic-" + Guid.NewGuid().ToString("N"));
 
     public AtomicFileTests() => Directory.CreateDirectory(_dir);
 

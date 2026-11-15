@@ -1,0 +1,235 @@
+/* One media item with its artwork, a title, a second line, badges, and a side column for status, meta, and actions */
+/* Example: <div class="base-media-card base-media-card-row"><div class="base-media-card-thumb portrait"></div><div class="base-media-card-info"></div></div> */
+.base-media-card {
+    position: relative;
+    box-sizing: border-box;
+    min-width: 0;
+    background: var(--base-surface);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-large);
+}
+.base-media-card[hidden] { display: none; }
+.base-media-card.clickable { cursor: pointer; }
+.base-media-card.clickable:hover { background: var(--base-wash); }
+.base-media-card.clickable:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 2px; }
+
+/* List row with the artwork at the start and the side column at the end, its text starting at the top so a pinned action lines up with the title */
+/* Example: <div class="base-media-card base-media-card-row"></div> */
+.base-media-card-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--base-gap-wide);
+    padding: var(--base-pad-medium);
+}
+.base-media-card-row .base-media-card-info { flex: 1 1 auto; }
+
+/* Grid tile with the artwork on top, filling the tile's width */
+/* Example: <div class="base-media-card base-media-card-tile"><div class="base-media-card-thumb portrait"></div></div> */
+.base-media-card-tile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+    padding: var(--base-pad-small);
+}
+.base-media-card-tile .base-media-card-side { align-items: flex-start; text-align: left; }
+
+/* The slot a row card holds its artwork in, as wide as a wide thumbnail and as tall as a portrait one, centered on the row with the artwork centered in it, so every title in a list starts at the same place and every artwork shares one center line with the checkbox */
+/* Example: <span class="base-media-card-slot"><span class="base-thumb base-media-card-thumb wide"></span></span> */
+.base-media-card-row {
+    --base-media-card-thumb: var(--base-size-large);
+    --base-media-card-slot: calc(var(--base-size-large) * 2);
+}
+.base-media-card-slot {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--base-media-card-slot);
+    height: calc(var(--base-media-card-thumb) * 1.5);
+    align-self: center;
+}
+
+/* Artwork box in one of four shapes, a base-thumb frame holding the placeholder icon under the image. In a row, portrait, square, and round share one width, a portrait is that width at 2:3, and a wide one fills the slot at 16:9 */
+/* Example: <span class="base-thumb base-media-card-thumb wide"><span class="base-thumb-placeholder base-media-card-placeholder"><span class="material-icons">tv</span></span><img class="base-thumb-image base-media-card-image" loading="lazy" alt=""></span> */
+.base-media-card-thumb {
+    width: var(--base-media-card-thumb, var(--base-size-large));
+    height: calc(var(--base-media-card-thumb, var(--base-size-large)) * 1.5);
+    border-radius: var(--base-radius-small);
+}
+.base-media-card-thumb.wide { width: var(--base-media-card-slot, calc(var(--base-size-large) * 2)); height: calc(var(--base-media-card-slot, calc(var(--base-size-large) * 2)) * 9 / 16); }
+.base-media-card-thumb.square,
+.base-media-card-thumb.round { height: var(--base-media-card-thumb, var(--base-size-large)); }
+.base-media-card-thumb.round { border-radius: var(--base-radius-round); }
+.base-media-card-tile .base-media-card-thumb { width: 100%; height: 0; padding-top: 150%; }
+.base-media-card-tile .base-media-card-thumb.wide { padding-top: 56.25%; }
+.base-media-card-tile .base-media-card-thumb.square,
+.base-media-card-tile .base-media-card-thumb.round { padding-top: 100%; }
+
+/* The placeholder icon of a tile, larger to fill the bigger artwork */
+/* Example: <span class="base-thumb-placeholder base-media-card-placeholder"><span class="material-icons">movie</span></span> */
+.base-media-card-tile .base-media-card-placeholder .material-icons { font-size: var(--base-size-large); }
+
+/* Text column with the title, the second line, and the badges */
+/* Example: <div class="base-media-card-info"><div class="base-media-card-title"><span class="base-media-card-name">Title</span></div></div> */
+.base-media-card-info { min-width: 0; }
+.base-media-card-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Secondary part of the title after a dot, such as an episode name */
+/* Example: <span class="base-media-card-suffix">Pilot</span> */
+.base-media-card-suffix { font-weight: 400; opacity: 0.7; }
+.base-media-card-suffix::before { content: "\00b7\00a0"; margin-left: var(--base-gap-narrow); }
+
+/* Second line, with an optional small avatar and name before the subtitle */
+/* Example: <div class="base-media-card-sub"><span class="base-media-card-user"><span class="base-avatar"></span><span class="base-media-card-user-name">viewer</span></span><span class="base-media-card-subtitle">2010</span></div> */
+.base-media-card-sub {
+    display: flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    min-width: 0;
+    margin-top: 3px;
+    font-size: 0.85em;
+    line-height: var(--base-line-medium);
+}
+.base-media-card-subtitle { opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.base-media-card-user { display: inline-flex; align-items: center; gap: var(--base-gap-narrow); white-space: nowrap; flex: 0 0 auto; }
+.base-media-card-user .base-avatar { width: var(--base-icon-medium); height: var(--base-icon-medium); font-size: 0.6em; }
+.base-media-card-user .base-avatar-icon { font-size: calc(var(--base-icon-medium) * 0.7); }
+.base-media-card-user + .base-media-card-subtitle::before { content: "\00b7"; margin-right: var(--base-gap-narrow); opacity: 0.6; }
+
+/* Wrapping row of badges under the second line */
+/* Example: <div class="base-media-card-badges"><span class="base-badge blue">Movie</span></div> */
+.base-media-card-badges { display: flex; flex-wrap: wrap; gap: var(--base-gap-narrow); margin-top: var(--base-gap-narrow); }
+
+/* Column at the end of a row with the status badge, the meta line, and the action buttons, compact when it holds only buttons */
+/* Example: <div class="base-media-card-side"><span class="base-badge orange base-media-card-status">Pending</span><span class="base-media-card-meta">2 minutes ago</span></div> */
+.base-media-card-side {
+    flex: 0 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--base-gap-narrow);
+    min-width: 0;
+    max-width: 40%;
+    text-align: right;
+}
+.base-media-card-tile .base-media-card-side { max-width: none; }
+
+/* The first line of the status column, the size dimmed and then the badge, kept on one line */
+/* Example: <div class="base-media-card-side-line"><span class="base-media-card-size">1.2 GB</span><span class="base-badge green base-media-card-status">Synced</span></div> */
+.base-media-card-side-line {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--base-gap-narrow);
+    max-width: 100%;
+}
+.base-media-card-side-line > .base-badge { flex: 0 0 auto; }
+.base-media-card-tile .base-media-card-side-line { justify-content: flex-start; }
+
+/* The action buttons, such as a remove X, pinned to the card's top right corner and inset by its padding, so they line up with the title */
+/* Example: <div class="base-media-card base-media-card-row has-actions"><div class="base-media-card-actions"><button class="base-row-btn base-media-card-action" title="Remove"></button></div></div> */
+.base-media-card-actions {
+    position: absolute;
+    top: var(--base-pad-medium);
+    right: var(--base-pad-medium);
+    display: flex;
+    gap: var(--base-gap-narrow);
+}
+.base-media-card-tile .base-media-card-actions { top: var(--base-pad-small); right: var(--base-pad-small); }
+
+/* A card with pinned actions leaves room for them, so its title, status, and lines never run under them */
+/* Example: <div class="base-media-card base-media-card-row has-actions" style="--base-media-card-actions: 1"></div> */
+.base-media-card.has-actions {
+    --base-media-card-room: calc(var(--base-media-card-actions, 1) * (var(--base-size-small) + var(--base-gap-narrow)));
+}
+.base-media-card-row.has-actions { padding-right: calc(var(--base-pad-medium) + var(--base-media-card-room)); }
+.base-media-card-tile.has-actions .base-media-card-info { padding-right: var(--base-media-card-room); }
+
+/* The size beside the status, in even width digits */
+/* Example: <span class="base-media-card-size">1.2 GB</span> */
+.base-media-card-size { font-size: 0.8em; opacity: 0.7; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* The status's detail line, and an error line in the error color that ends in an ellipsis with its full text as the tooltip */
+/* Example: <span class="base-media-card-detail">Pending, retry in 2m</span><span class="base-media-card-error" title="Could not reach the server.">Could not reach the server.</span> */
+.base-media-card-detail,
+.base-media-card-error {
+    max-width: 100%;
+    font-size: 0.8em;
+    line-height: var(--base-line-medium);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.base-media-card-detail { opacity: 0.7; }
+.base-media-card-error { color: var(--base-error); }
+
+/* Short faded line beside the status, in the error color with error */
+/* Example: <span class="base-media-card-meta error">Could not reach the server.</span> */
+.base-media-card-meta { font-size: 0.8em; opacity: 0.7; overflow-wrap: anywhere; }
+.base-media-card-meta.error { color: var(--base-error); opacity: 1; }
+
+/* A media row inside a bordered list, where the list draws the frame and the dividers */
+/* Example: <div class="base-list rows"><div class="base-list-item"><div class="base-media-card base-media-card-row"></div></div></div> */
+.base-list.rows > .base-list-item > .base-media-card,
+.base-list.rows > .base-list-item > .base-filtered-checked > .base-media-card,
+.base-list.rows > .base-media-card.base-list-item { border: 0; border-radius: 0; background: transparent; }
+.base-list.rows > .base-list-item:first-child > .base-media-card,
+.base-list.rows > .base-media-card.base-list-item:first-child { border-top-left-radius: 7px; border-top-right-radius: 7px; }
+.base-list.rows > .base-list-item:last-child > .base-media-card,
+.base-list.rows > .base-media-card.base-list-item:last-child { border-bottom-left-radius: 7px; border-bottom-right-radius: 7px; }
+.base-list.rows > .base-list-item > .base-media-card.clickable:focus-visible,
+.base-list.rows > .base-media-card.base-list-item.clickable:focus-visible { outline-offset: -2px; }
+
+/* A media row that a list's checkbox leads, where the checkbox takes the row's leading padding and the narrow gap sits between it and the artwork */
+/* Example: <div class="base-filtered-checked"><input type="checkbox" class="base-check-row-input base-filtered-check"><div class="base-media-card base-media-card-row"></div></div> */
+.base-filtered-checked > .base-media-card-row { padding-left: 0; }
+
+/* A media tile inside a grid list, as tall as the tallest tile in its row */
+/* Example: <div class="base-list grid"><div class="base-list-item"><div class="base-media-card base-media-card-tile"></div></div></div> */
+.base-list.grid > .base-list-item > .base-media-card { height: 100%; }
+
+/* A row card narrower than its wide layout, which the card sets from its own width: a smaller artwork slot, and one text column of the title, one second line, one chip row, and an error line */
+/* Example: <div class="base-media-card base-media-card-row compact"><span class="base-media-card-slot"><span class="base-thumb base-media-card-thumb portrait"></span></span><div class="base-media-card-info"><div class="base-media-card-title"></div><div class="base-media-card-sub"></div><div class="base-media-card-chips"></div></div></div> */
+.base-media-card-row.compact {
+    gap: var(--base-gap-wide);
+    --base-media-card-thumb: var(--base-size-medium);
+    --base-media-card-slot: calc(var(--base-size-medium) * 2);
+}
+.base-media-card-row.compact.has-actions { padding-right: var(--base-pad-medium); }
+.base-media-card-row.compact.has-actions .base-media-card-title { padding-right: var(--base-media-card-room); }
+.base-media-card-row.compact .base-media-card-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    white-space: normal;
+}
+
+/* The second line of a compact card, one line that ends in an ellipsis, with a dot drawn before each part after the first so a part never leaves one dangling */
+/* Example: <div class="base-media-card-sub"><span class="base-media-card-user"></span><span class="base-media-card-episode">S1, E1, Pilot</span><span class="base-media-card-subtitle">watch history</span></div> */
+.base-media-card-row.compact .base-media-card-sub {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.base-media-card-row.compact .base-media-card-sub > * { display: inline; opacity: 0.7; }
+.base-media-card-row.compact .base-media-card-sub > .base-media-card-user { display: inline-flex; vertical-align: middle; opacity: 1; }
+.base-media-card-row.compact .base-media-card-sub > * + *::before { content: "\00b7"; margin: 0 calc(var(--base-gap-narrow) / 2); opacity: 0.6; }
+
+/* A compact card's one chip row: the badges and the status, then the status's detail, which ends in an ellipsis to keep the row on one line, then the size */
+/* Example: <div class="base-media-card-chips"><span class="base-badge blue">History</span><span class="base-badge orange base-media-card-status">Pending</span><span class="base-media-card-detail">waiting for delivery</span></div> */
+.base-media-card-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    margin-top: var(--base-gap-narrow);
+}
+.base-media-card-chips > .base-media-card-detail { flex: 1 1 0%; min-width: 3em; max-width: max-content; }
+.base-media-card-chips > .base-media-card-size { flex: 0 0 auto; }
+.base-media-card-row.compact .base-media-card-error { display: block; margin-top: calc(var(--base-gap-narrow) / 2); }

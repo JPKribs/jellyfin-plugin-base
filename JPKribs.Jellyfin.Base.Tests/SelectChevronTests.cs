@@ -16,27 +16,9 @@ public class SelectChevronTests
 {
     // The form CSS scopes its rules to config pages and to kit dialogs, which open outside the page.
     // The two are written as a plain selector list, since older engines cannot parse :is(), so each rule names both.
-    private const string Scope = @"(?:\.pluginConfigurationPage|\.jpk-dialog)";
+    private const string Scope = @"(?:\.pluginConfigurationPage|\.base-dialog)";
 
-    private static readonly string[] Scopes = { ".pluginConfigurationPage", ".jpk-dialog" };
-
-    /// <summary>
-    /// The table CSS hides its own filter arrow on config pages and in dialogs.
-    /// True: the filter dropdown shows the chevron the select rule paints and no second one.
-    /// False: the filter would show two arrows.
-    /// </summary>
-    [Fact]
-    public void TableFilterArrow_IsHiddenOnConfigPagesAndInDialogs()
-    {
-        var css = KitCss(".Css.table.css");
-
-        foreach (var scope in Scopes)
-        {
-            var body = CssRules.BodyFor(css, scope + " .jpk-table-filter-arrow");
-            Assert.True(body != null, "table.css must hide .jpk-table-filter-arrow under " + scope + ", where the select rule already paints a chevron.");
-            Assert.Matches(new Regex(@"display\s*:\s*none"), body);
-        }
-    }
+    private static readonly string[] Scopes = { ".pluginConfigurationPage", ".base-dialog" };
 
     /// <summary>
     /// The form CSS paints a background image chevron on selects in config pages and dialogs.
@@ -51,7 +33,7 @@ public class SelectChevronTests
         foreach (var scope in Scopes)
         {
             var body = CssRules.BodyFor(css, scope + " select");
-            Assert.True(body != null, "form.css must style " + scope + " select.");
+            Assert.True(body != null, "form-fields.css must style " + scope + " select.");
             Assert.Matches(new Regex(@"background-image\s*:"), body);
         }
     }
@@ -69,7 +51,7 @@ public class SelectChevronTests
         foreach (var scope in Scopes)
         {
             var body = CssRules.BodyFor(css, scope + " .selectArrowContainer");
-            Assert.True(body != null, "form.css must neutralize .selectArrowContainer under " + scope + ", or emby-select-withcolor dropdowns render two chevrons.");
+            Assert.True(body != null, "form-fields.css must neutralize .selectArrowContainer under " + scope + ", or emby-select-withcolor dropdowns render two chevrons.");
             Assert.Matches(new Regex(@"display\s*:\s*none\s*!important"), body);
         }
     }
@@ -89,7 +71,7 @@ public class SelectChevronTests
             Regex.Replace(css, Scope + @"\s+\.selectArrowContainer", "SCOPED"));
     }
 
-    private static string FormCss() => KitCss(".Css.form.css");
+    private static string FormCss() => KitCss(".Css.form-fields.css");
 
     private static string KitCss(string suffix)
     {

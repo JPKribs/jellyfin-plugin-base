@@ -17,8 +17,8 @@ function build(extra) {
     return { pager: pager, changes: changes };
 }
 
-function numbers(ui) { return all(ui.pager.element, '.jpk-pager-number').map(function (b) { return b.textContent; }); }
-function summary(ui) { return ui.pager.element.querySelector('.jpk-pager-total').textContent; }
+function numbers(ui) { return all(ui.pager.element, '.base-pager-number').map(function (b) { return b.textContent; }); }
+function summary(ui) { return ui.pager.element.querySelector('.base-pager-total').textContent; }
 
 test('it is a labelled nav with the total text, and the label and text can be replaced', function () {
     var ui = build();
@@ -33,9 +33,9 @@ test('it is a labelled nav with the total text, and the label and text can be re
 test('an empty list shows the empty text and one disabled page', function () {
     var ui = build({ total: 0 });
     assert.equal(summary(ui), 'No items.');
-    assert.equal(ui.pager.element.querySelector('.jpk-pager-prev').disabled, true);
-    assert.equal(ui.pager.element.querySelector('.jpk-pager-next').disabled, true);
-    assert.equal(build({ total: 0, emptyText: 'Nothing.' }).pager.element.querySelector('.jpk-pager-total').textContent, 'Nothing.');
+    assert.equal(ui.pager.element.querySelector('.base-pager-prev').disabled, true);
+    assert.equal(ui.pager.element.querySelector('.base-pager-next').disabled, true);
+    assert.equal(build({ total: 0, emptyText: 'Nothing.' }).pager.element.querySelector('.base-pager-total').textContent, 'Nothing.');
 });
 
 test('getValue gives page, size, skip, take, total, and page count', function () {
@@ -45,23 +45,23 @@ test('getValue gives page, size, skip, take, total, and page count', function ()
 
 test('Next and Previous change the page and report it, and disable at the ends', function () {
     var ui = build();
-    var prev = ui.pager.element.querySelector('.jpk-pager-prev');
-    var next = ui.pager.element.querySelector('.jpk-pager-next');
+    var prev = ui.pager.element.querySelector('.base-pager-prev');
+    var next = ui.pager.element.querySelector('.base-pager-next');
     assert.equal(prev.disabled, true);
     next.click();
     assert.equal(ui.pager.getValue().page, 2);
     assert.equal(ui.changes[0].skip, 10);
-    ui.pager.element.querySelector('.jpk-pager-prev').click();
+    ui.pager.element.querySelector('.base-pager-prev').click();
     assert.equal(ui.pager.getValue().page, 1);
     ui.pager.setValue({ page: 10 });
-    assert.equal(ui.pager.element.querySelector('.jpk-pager-next').disabled, true);
+    assert.equal(ui.pager.element.querySelector('.base-pager-next').disabled, true);
 });
 
 test('page numbers show the first, the last, and a window with gaps, and the current one is marked', function () {
     var ui = build({ total: 300, pageSize: 10, page: 15, windowSize: 3 });
     assert.deepEqual(numbers(ui), ['1', '14', '15', '16', '30']);
-    assert.equal(ui.pager.element.querySelectorAll('.jpk-pager-gap').length, 2);
-    var current = ui.pager.element.querySelector('.jpk-pager-number.active');
+    assert.equal(ui.pager.element.querySelectorAll('.base-pager-gap').length, 2);
+    var current = ui.pager.element.querySelector('.base-pager-number.active');
     assert.equal(current.textContent, '15');
     assert.equal(current.getAttribute('aria-current'), 'page');
     assert.equal(current.getAttribute('aria-label'), 'Page 15');
@@ -70,7 +70,7 @@ test('page numbers show the first, the last, and a window with gaps, and the cur
 
 test('clicking a number goes to that page', function () {
     var ui = build();
-    all(ui.pager.element, '.jpk-pager-number').filter(function (b) { return b.textContent === '4'; })[0].click();
+    all(ui.pager.element, '.base-pager-number').filter(function (b) { return b.textContent === '4'; })[0].click();
     assert.equal(ui.pager.getValue().page, 4);
     assert.equal(ui.changes.length, 1);
 });
@@ -100,14 +100,14 @@ test('setResult reads TotalCount or totalCount from a PagedResult, and a page pa
 
 test('every default label can be replaced', function () {
     var ui = build({ previousText: 'Back', nextText: 'Forward', pageSizeLabel: 'Rows', pageLabel: 'Go to {value}' });
-    assert.equal(ui.pager.element.querySelector('.jpk-pager-prev').textContent, 'Back');
-    assert.equal(ui.pager.element.querySelector('.jpk-pager-next').textContent, 'Forward');
-    assert.equal(ui.pager.element.querySelector('.jpk-pager-size span').textContent, 'Rows');
-    assert.equal(ui.pager.element.querySelector('.jpk-pager-number').getAttribute('aria-label'), 'Go to 1');
+    assert.equal(ui.pager.element.querySelector('.base-pager-prev').textContent, 'Back');
+    assert.equal(ui.pager.element.querySelector('.base-pager-next').textContent, 'Forward');
+    assert.equal(ui.pager.element.querySelector('.base-pager-size span').textContent, 'Rows');
+    assert.equal(ui.pager.element.querySelector('.base-pager-number').getAttribute('aria-label'), 'Go to 1');
     var defaults = build();
-    assert.equal(defaults.pager.element.querySelector('.jpk-pager-prev').textContent, 'Previous');
-    assert.equal(defaults.pager.element.querySelector('.jpk-pager-next').textContent, 'Next');
-    assert.equal(defaults.pager.element.querySelector('.jpk-pager-size span').textContent, 'Page Size');
+    assert.equal(defaults.pager.element.querySelector('.base-pager-prev').textContent, 'Previous');
+    assert.equal(defaults.pager.element.querySelector('.base-pager-next').textContent, 'Next');
+    assert.equal(defaults.pager.element.querySelector('.base-pager-size span').textContent, 'Page Size');
 });
 
 test('destroy removes the select listener', function () {
@@ -118,29 +118,37 @@ test('destroy removes the select listener', function () {
 
 test('a click on Next, Previous, or a page number keeps focus on the same control after the redraw', function () {
     var ui = build();
-    var next = ui.pager.element.querySelector('.jpk-pager-next');
+    var next = ui.pager.element.querySelector('.base-pager-next');
     next.focus();
     next.click();
-    assert.equal(dom.document.activeElement, ui.pager.element.querySelector('.jpk-pager-next'));
+    assert.equal(dom.document.activeElement, ui.pager.element.querySelector('.base-pager-next'));
     assert.equal(dom.document.activeElement.disabled, false);
-    ui.pager.element.querySelector('.jpk-pager-next').click();
-    var prev = ui.pager.element.querySelector('.jpk-pager-prev');
+    ui.pager.element.querySelector('.base-pager-next').click();
+    var prev = ui.pager.element.querySelector('.base-pager-prev');
     prev.focus();
     prev.click();
     assert.equal(ui.pager.getValue().page, 2);
-    assert.equal(dom.document.activeElement, ui.pager.element.querySelector('.jpk-pager-prev'));
-    var three = all(ui.pager.element, '.jpk-pager-number').filter(function (b) { return b.textContent === '3'; })[0];
+    assert.equal(dom.document.activeElement, ui.pager.element.querySelector('.base-pager-prev'));
+    var three = all(ui.pager.element, '.base-pager-number').filter(function (b) { return b.textContent === '3'; })[0];
     three.focus();
     three.click();
-    assert.equal(dom.document.activeElement, ui.pager.element.querySelector('.jpk-pager-number.active'));
+    assert.equal(dom.document.activeElement, ui.pager.element.querySelector('.base-pager-number.active'));
     assert.equal(dom.document.activeElement.textContent, '3');
 });
 
 test('focus moves to the current page when the control it was on is now disabled', function () {
     var ui = build({ total: 20 });
-    var next = ui.pager.element.querySelector('.jpk-pager-next');
+    var next = ui.pager.element.querySelector('.base-pager-next');
     next.focus();
     next.click();
-    assert.equal(ui.pager.element.querySelector('.jpk-pager-next').disabled, true);
-    assert.equal(dom.document.activeElement, ui.pager.element.querySelector('.jpk-pager-number.active'));
+    assert.equal(ui.pager.element.querySelector('.base-pager-next').disabled, true);
+    assert.equal(dom.document.activeElement, ui.pager.element.querySelector('.base-pager-number.active'));
+});
+
+test('createPagination puts size small or large on data-base-size, and leaves it off for medium or no size', function () {
+    function build(size) { return createPagination({ size: size }); }
+    assert.equal(build('small').element.getAttribute('data-base-size'), 'small');
+    assert.equal(build('large').element.getAttribute('data-base-size'), 'large');
+    assert.equal(build('medium').element.hasAttribute('data-base-size'), false);
+    assert.equal(build(undefined).element.hasAttribute('data-base-size'), false);
 });

@@ -1,0 +1,58 @@
+/* Row of count cards that wraps to fit */
+/* Example: <div class="base-cards"></div> */
+.base-cards {
+    display: flex;
+    gap: var(--base-gap-wide);
+    flex-wrap: wrap;
+}
+
+/* Rounded card showing a large count over a label, tinted by status */
+/* Example: <div class="base-card blue"><span class="base-card-count">5</span><span class="base-card-label">Users</span></div> */
+.base-card {
+    flex: 1;
+    min-width: 90px;
+    padding: var(--base-pad-medium) var(--base-pad-large);
+    border-radius: var(--base-radius-large);
+    text-align: center;
+    border: 1px solid var(--base-border);
+    background: rgba(255, 255, 255, 0.03);
+    background: color-mix(in srgb, currentColor 3%, transparent);
+}
+/* Large bold count at the top of a card */
+/* Example: <span class="base-card-count">5</span> */
+.base-card-count {
+    display: block;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: var(--base-gap-narrow);
+}
+/* Small label under the count */
+/* Example: <span class="base-card-label">Users</span> */
+.base-card-label {
+    display: block;
+    font-size: 0.85em;
+    opacity: 0.9;
+}
+/* Status color modifiers for a card, each tinting the fill, text, and border */
+/* Example: <div class="base-card orange"><span class="base-card-count">2</span><span class="base-card-label">Queued</span></div> */
+.base-card.green { background: var(--base-green-bg); color: var(--base-green-fg); border-color: var(--base-green-fg); }
+.base-card.red { background: var(--base-red-bg); color: var(--base-red-fg); border-color: var(--base-red-fg); }
+.base-card.orange { background: var(--base-orange-bg); color: var(--base-orange-fg); border-color: var(--base-orange-fg); }
+.base-card.purple { background: var(--base-purple-bg); color: var(--base-purple-fg); border-color: var(--base-purple-fg); }
+.base-card.blue { background: var(--base-blue-bg); color: var(--base-blue-fg); border-color: var(--base-blue-fg); }
+.base-card.gray { background: var(--base-gray-bg); color: var(--base-gray-fg); border-color: var(--base-gray-fg); }
+.base-card.yellow { background: var(--base-yellow-bg); color: var(--base-yellow-fg); border-color: var(--base-yellow-fg); }
+.base-card.pink { background: var(--base-pink-bg); color: var(--base-pink-fg); border-color: var(--base-pink-fg); }
+.base-card.teal { background: var(--base-teal-bg); color: var(--base-teal-fg); border-color: var(--base-teal-fg); }
+.base-card.custom { background: var(--base-custom-bg); color: var(--base-custom-fg); border-color: var(--base-custom-fg); }
+
+/* A tighter row of small count cards, for many counts in little room, such as on a phone */
+/* Example: <div class="base-cards compact"><div class="base-card green"></div></div> */
+.base-cards.compact { gap: var(--base-gap-narrow); --base-balance-min: 72px; }
+.base-cards.compact .base-card { min-width: 0; padding: var(--base-pad-small) calc(var(--base-gap-narrow) * 3 / 4); }
+.base-cards.compact .base-card-label { font-size: 0.78em; line-height: 1.25; }
+
+@media (max-width: 768px) {
+    .base-cards { gap: var(--base-gap-narrow); }
+    .base-card { min-width: 60px; padding: var(--base-pad-small) calc(var(--base-gap-narrow) * 3 / 4); }
+}

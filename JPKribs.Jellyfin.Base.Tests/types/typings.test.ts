@@ -49,7 +49,7 @@ B.createChipSelect({ options: ['a', { value: 'b', label: 'B' }] });
 B.createChoiceGroup(view, {});
 B.createCopyField({});
 B.createDefinitionList({});
-B.openDialog({ title: 'Title' });
+B.openDialog({ title: 'Title', size: 'large' });
 B.bindDialog('dialogId', {});
 B.confirmDialog('Remove it?').then(function (yes: boolean) { return yes; });
 B.openEditorDialog({});
@@ -87,6 +87,18 @@ B.setTooltip(input, 'Tip');
 B.bindTooltips(view);
 B.createUserSelector({});
 B.createUserMultiSelector({});
+B.balanceRows(view, { minWidth: 160, maxColumns: 4 }).update();
+B.bindBalancedRows(view).destroy();
+B.createList<Row>({ items: [{ id: '1', name: 'One' }], render: function (row: Row) { return row.name; }, height: 'fill', onEndReached: function () { return undefined; } });
+B.createMediaCard({ shape: B.mediaShape('Episode'), title: 'Title', actions: [{ label: 'Remove', icon: 'close', value: 'remove' }] });
+B.createMediaPicker({ itemTypes: ['Movie'], onChange: function (items) { return items[0].Id; } });
+B.createFolderPicker({});
+B.createImagePicker({});
+B.createAccessSchedule({ value: [{ DayOfWeek: 'Weekday', StartHour: 16, EndHour: 21.5 }], onChange: function (windows) { return windows[0].EndHour - windows[0].StartHour; } });
+B.createMappingTable({ rows: [{ value: 'a', label: 'Movies' }], targets: [{ value: 'm' }], value: { a: 'm' }, unique: true });
+B.createFilterPanel({ groups: [{ name: 'status', label: 'Status', options: [{ value: 'active', label: 'Active' }] }], value: { status: ['active'] }, onChange: function (value) { return value.status.length; } });
+B.createSearchField({ size: 'small' }).setSize('large');
+B.createPagination({ size: 'small' });
 
 // @ts-expect-error A page needs its plugin id.
 B.createConfigPage(view, {});
@@ -108,9 +120,56 @@ B.createStatCard({ trend: 'up' });
 B.confirmDialog('Remove it?').then(function (yes: string) { return yes; });
 // @ts-expect-error A secret field is an input.
 B.readSecretField('field');
-// @ts-expect-error dom-util helpers are not exported from the bundle.
+// @ts-expect-error lib/dom helpers are not exported from the bundle.
 B.make('div');
 // @ts-expect-error classNames is not exported from the bundle.
 B.classNames('a');
+// @ts-expect-error minWidth is a number of pixels.
+B.balanceRows(view, { minWidth: '160px' });
+// @ts-expect-error A dialog size is small, medium, or large.
+B.openDialog({ size: 'wide' });
+// @ts-expect-error A list needs render.
+B.createList({ items: [1] });
+// @ts-expect-error A list height is auto, fill, or a length.
+B.createList({ render: function () { return ''; }, height: true });
+// @ts-expect-error The layout is a row or a card.
+B.createMediaCard({ layout: 'grid' });
+// @ts-expect-error An action needs its icon and value.
+B.createMediaCard({ actions: [{ label: 'Remove' }] });
+// @ts-expect-error searchFn returns a promise of items.
+B.createMediaPicker({ searchFn: function (query: string) { return [query]; } });
+// @ts-expect-error The path is text.
+B.createFolderPicker({ value: 5 });
+// @ts-expect-error The shape is square, portrait, or wide.
+B.createImagePicker({ shape: 'round' });
+// @ts-expect-error A day is a Jellyfin day name or number, not a list.
+B.createAccessSchedule({ value: [{ DayOfWeek: ['Monday'] }] });
+// @ts-expect-error The step is a number of hours.
+B.createAccessSchedule({ step: '0.5' });
+// @ts-expect-error The mapping value maps strings to strings.
+B.createMappingTable({ value: { a: 1 } });
+// @ts-expect-error A filter group needs its options.
+B.createFilterPanel({ groups: [{ name: 'status', label: 'Status' }] });
+// @ts-expect-error A picked value is an array of strings.
+B.createFilterPanel({ value: { status: 'active' } });
+// @ts-expect-error The size is small, medium, or large.
+B.createTagInput({ size: 'huge' });
+
+// The options that shape one component into its final state.
+B.createCheckbox({ label: 'Enabled', size: 'large', description: 'Sync it.', boxed: false });
+B.createCheckbox({ ariaLabel: 'Enabled', field: true, boxed: true }).setIndeterminate(true);
+// @ts-expect-error The checkbox size is small, medium, or large.
+B.createCheckbox({ size: 'huge' });
+B.createStatCard({ value: 'Delivered 3m ago', label: 'Queue', detail: ['Next in 5m'], layout: 'label-top', valueColor: 'green' });
+// @ts-expect-error The layout is value-top or label-top.
+B.createStatCard({ layout: 'side' });
+B.createDefinitionList({ layout: 'columns', arrow: true, items: [{ label: 'From', value: 'Living Room', meta: '12 GB', note: 'Main' }] });
+B.createCompareTable({ columns: [{ key: 'a', label: 'A' }], rows: [{ section: 'Genres' }, { note: 'Changed by a rule.' }] });
+var grid = B.createMatrixGrid({ rows: [{ key: 'speed', label: 'Speed', cells: { at: null } }], columns: [{ key: 'limit', label: 'Limit', type: 'number', unit: 'Mbps' }, { key: 'role', label: 'Role', type: 'badge' }], note: 'Speeds are per server.' });
+grid.setColumnHidden('limit', true);
+var section = B.createCollapsibleSection({ title: 'Movies', icon: 'movie', subtitle: 'Living Room to Office', collapsible: false });
+section.setSubtitle(null);
+section.setAside(document.createElement('span'));
+var thumbColumn: B.TableColumn<Row> = { key: 'name', label: 'Name', image: function () { return function () { return Promise.resolve(new Blob()); }; } };
 
 export { page, table, result, secret, label, kept, states, safe };

@@ -17,7 +17,7 @@ function build(extra) {
     var searches = [];
     var field = createSearchField(Object.assign({ onInput: function (v) { inputs.push(v); }, onSearch: function (v) { searches.push(v); } }, extra));
     dom.document.body.appendChild(field.element);
-    return { field: field, inputs: inputs, searches: searches, clear: field.element.querySelector('.jpk-search-clear') };
+    return { field: field, inputs: inputs, searches: searches, clear: field.element.querySelector('.base-search-clear') };
 }
 
 function type(ui, text) { ui.field.input.value = text; ui.field.input.dispatch('input'); }
@@ -98,4 +98,17 @@ test('destroy cancels a pending call and removes the listeners', function () {
     assert.deepEqual(ui.inputs, []);
     assert.equal(ui.clear.listeners.click.length, 0);
     assert.equal(ui.field.input.listeners.input.length, 0);
+});
+
+test('createSearchField puts size small or large on data-base-size, and leaves it off for medium or no size', function () {
+    function build(size) { return createSearchField({ size: size }); }
+    assert.equal(build('small').element.getAttribute('data-base-size'), 'small');
+    assert.equal(build('large').element.getAttribute('data-base-size'), 'large');
+    assert.equal(build('medium').element.hasAttribute('data-base-size'), false);
+    assert.equal(build(undefined).element.hasAttribute('data-base-size'), false);
+    var handle = build('small');
+    handle.setSize('large');
+    assert.equal(handle.element.getAttribute('data-base-size'), 'large');
+    handle.setSize('medium');
+    assert.equal(handle.element.hasAttribute('data-base-size'), false);
 });

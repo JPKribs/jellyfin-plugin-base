@@ -1,0 +1,56 @@
+/* Static table that pairs each source row with a target select, with a sentence in place of the table while there is no source */
+/* Example: <div class="base-mapping-table"><div class="base-static-table-scroll"><table class="base-static-table base-mapping-table-grid"></table></div></div> */
+.base-mapping-table {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+}
+.base-mapping-table-grid th,
+.base-mapping-table-grid td { vertical-align: middle; }
+.base-mapping-table-grid thead th { width: 50%; }
+
+/* Source cell with its name and an optional dimmed description under it */
+/* Example: <th class="base-mapping-table-source" scope="row"><span class="base-mapping-table-name">Movies</span><span class="base-mapping-table-description">source-a</span></th> */
+.base-mapping-table-grid .base-mapping-table-source {
+    font-weight: 400;
+    white-space: normal;
+    background: none;
+    overflow-wrap: anywhere;
+}
+.base-mapping-table-name { display: block; }
+.base-mapping-table-description {
+    display: block;
+    opacity: 0.7;
+    font-size: 0.85em;
+}
+
+/* Target cell whose select fills it */
+/* Example: <td class="base-mapping-table-target"><select><option value="">None</option></select></td> */
+.base-mapping-table-target > select { width: 100%; min-width: 0; box-sizing: border-box; }
+
+
+/* A table with extra columns: a toggle first, a cell per extra field, and a remove button last. A row switched off dims its source and target */
+/* Example: <table class="base-static-table base-mapping-table-grid extended"><tr class="base-mapping-table-row off"><td class="base-mapping-table-toggle"></td><th class="base-mapping-table-source"></th><td class="base-mapping-table-target"></td><td class="base-mapping-table-extra"></td><td class="base-mapping-table-remove"></td></tr></table> */
+.base-mapping-table-grid.extended thead th { width: auto; }
+.base-mapping-table-grid .base-mapping-table-toggle,
+.base-mapping-table-grid .base-mapping-table-remove { width: 1%; white-space: nowrap; }
+.base-mapping-table-grid .base-mapping-table-extra .base-field-cell-label { display: none; }
+.base-mapping-table-row.off > .base-mapping-table-source,
+.base-mapping-table-row.off > .base-mapping-table-target,
+.base-mapping-table-row.off > .base-mapping-table-extra { opacity: 0.55; }
+
+@media (max-width: 600px) {
+    .base-mapping-table-grid thead { display: none; }
+    .base-mapping-table-grid,
+    .base-mapping-table-grid tbody,
+    .base-mapping-table-grid tr,
+    .base-mapping-table-grid th,
+    .base-mapping-table-grid td { display: block; }
+    .base-mapping-table-grid .base-mapping-table-source { padding-bottom: calc(var(--base-gap-narrow) / 2); }
+    .base-static-table.base-mapping-table-grid .base-mapping-table-target,
+    .base-static-table.base-mapping-table-grid .base-mapping-table-extra,
+    .base-static-table.base-mapping-table-grid .base-mapping-table-remove { padding-top: 0; border-top: 0; }
+    .base-mapping-table-grid .base-mapping-table-toggle,
+    .base-mapping-table-grid .base-mapping-table-remove { width: auto; }
+    .base-mapping-table-grid .base-mapping-table-extra .base-field-cell-label { display: block; }
+}

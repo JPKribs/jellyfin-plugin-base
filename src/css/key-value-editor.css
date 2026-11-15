@@ -1,49 +1,15 @@
-/* Editor of key and value rows, with column labels and an add button */
-/* Example: <div class="jpk-kv-editor"><div class="jpk-kv-head"><span>Key</span><span>Value</span></div><div class="jpk-kv-rows"></div></div> */
-.jpk-kv-editor {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-start;
-}
-.jpk-kv-editor > .jpk-kv-head,
-.jpk-kv-editor > .jpk-kv-rows { align-self: stretch; }
+/* Editor of key and value rows, a Repeater of two text fields, with column labels and an add button */
+/* Example: <div class="base-repeater inline base-kv-editor"><div class="base-repeater-head base-kv-head"><span>Key</span><span>Value</span></div><div class="base-repeater-rows base-kv-rows"></div></div> */
+.base-kv-editor { min-width: 0; }
 
-/* Column labels over the key and value columns */
-/* Example: <div class="jpk-kv-head"><span>Key</span><span>Value</span></div> */
-.jpk-kv-head {
-    display: grid;
-    grid-template-columns: 1fr 1fr 34px;
-    gap: 8px;
-    font-size: 0.85em;
-    opacity: 0.7;
-}
+/* Column labels over the key and value columns, the repeater's head, hidden while the editor is narrow */
+/* Example: <div class="base-repeater-head base-kv-head"><span>Key</span><span>Value</span></div> */
+.base-kv-head { min-width: 0; }
 
-/* Rows of two inputs and a remove button, which stack on a narrow screen */
-/* Example: <div class="jpk-kv-rows"><div class="jpk-kv-row"></div></div> */
-.jpk-kv-rows {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-.jpk-kv-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 34px;
-    gap: 8px;
-    align-items: start;
-}
-.jpk-kv-row input { width: 100%; min-width: 0; box-sizing: border-box; }
-.jpk-kv-row .jpk-row-btn { align-self: center; }
-.jpk-kv-row .jpk-row-btn:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 1px; }
+/* Rows of a key cell, a value cell, and a remove button, the repeater's rows, which stack while the editor is narrow */
+/* Example: <div class="base-repeater-rows base-kv-rows"><div class="base-kv-row"><div class="base-field-cell base-kv-key"></div><div class="base-field-cell base-kv-value"></div></div></div> */
+.base-kv-rows { min-width: 0; }
 
-@media (max-width: 600px) {
-    .jpk-kv-head { display: none; }
-    .jpk-kv-row {
-        grid-template-columns: 1fr 34px;
-        padding-bottom: 8px;
-        border-bottom: 1px solid var(--jpk-border);
-    }
-    .jpk-kv-row > .jpk-kv-key { grid-column: 1; }
-    .jpk-kv-row > input { grid-column: 1; }
-    .jpk-kv-row > .jpk-kv-remove { grid-column: 2; grid-row: 1; }
-}
+/* Sentence shown while there is no row */
+/* Example: <div class="base-list-empty outside base-kv-empty">No headers.</div> */
+/* It is built as the list's own empty sentence, base-list-empty outside */

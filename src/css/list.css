@@ -1,0 +1,154 @@
+/* A column of items, bordered rows by default, that may scroll inside a fixed or filling height */
+/* Example: <div class="base-list rows" role="list"><div class="base-list-item" role="listitem">Item</div></div> */
+.base-list {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.base-list[hidden] { display: none; }
+
+/* Rows drawn as one bordered block with a divider between items */
+/* Example: <div class="base-list rows">...</div> */
+.base-list.rows {
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-large);
+}
+
+.base-list.rows > .base-list-item + .base-list-item { border-top: 1px solid var(--base-border); }
+
+/* Tiles in as many columns as fit, each at least --base-list-column wide */
+/* Example: <div class="base-list grid">...</div> */
+.base-list.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--base-list-column, 140px), 1fr));
+    gap: var(--base-gap-wide);
+    align-content: start;
+}
+
+.base-list.grid > .base-list-empty,
+.base-list.grid > .base-list-loading,
+.base-list.grid > .base-list-sentinel { grid-column: 1 / -1; }
+
+/* A list that scrolls inside itself rather than growing the page */
+/* Example: <div class="base-list rows scrolls fixed">...</div> */
+.base-list.scrolls {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+.base-list.fixed { height: var(--base-list-height, 320px); }
+
+.base-list.capped { max-height: var(--base-list-max, 320px); }
+
+/* A list that reaches from its top to the bottom of the window, and flexes inside a bounded column */
+/* Example: <div class="base-list rows scrolls fill">...</div> */
+.base-list.fill {
+    flex: 1 1 auto;
+    height: 320px;
+    height: calc(100vh - var(--base-list-top, 0px) - var(--base-list-gap, 16px));
+    min-height: var(--base-list-min, 160px);
+}
+
+@supports (height: 100dvh) {
+    .base-list.fill { height: calc(100dvh - var(--base-list-top, 0px) - var(--base-list-gap, 16px)); }
+}
+
+.base-list-item { min-width: 0; }
+
+/* An item that opens or is picked by a click, with the shared row hover, and an accent ring for a keyboard user */
+/* Example: <div class="base-list rows"><div class="base-list-item openable" tabindex="0">Item</div></div> */
+.base-list-item.openable,
+.base-list-item[aria-selected] { cursor: pointer; }
+.base-list-item.openable:hover,
+.base-list-item[aria-selected]:hover,
+.base-table-row:hover { background: var(--base-wash); }
+.base-list-item.openable:focus,
+.base-list-item[aria-selected]:focus { outline: none; }
+.base-list-item.openable:focus-visible,
+.base-list-item[aria-selected]:focus-visible { box-shadow: inset 0 0 0 2px var(--base-accent); }
+
+/* A selected item or row, in the accent wash with a leading accent bar, the one selection look every list shares */
+/* Example: <div class="base-list rows"><div class="base-list-item selected">Item</div></div> */
+.base-list-item.selected,
+.base-table-row.selected,
+.base-data-row.selected {
+    background: var(--base-accent-wash) !important;
+    box-shadow: inset 3px 0 0 var(--base-accent);
+}
+
+/* A text item, padded the way a component in a row pads itself */
+/* Example: <div class="base-list-item text">Item</div> */
+.base-list-item.text { padding: var(--base-pad-small) var(--base-pad-medium); }
+
+.base-list.plain > .base-list-item.text { padding: calc(var(--base-gap-narrow) / 2) 0; }
+
+/* The sentence a list shows while it holds no items */
+/* Example: <div class="base-list-empty">Nothing to show.</div> */
+.base-list-empty,
+.base-list-loading {
+    padding: var(--base-gap-wide);
+    text-align: center;
+}
+
+/* The dimmed empty sentence every empty region shares: a List's, an inline one, and a compact one */
+/* Example: <div class="base-empty-inline">This folder is empty.</div> */
+.base-list-empty,
+.base-list-loading,
+.base-empty-inline,
+.base-empty { opacity: 0.7; }
+
+.base-list.plain > .base-list-empty,
+.base-list.plain > .base-list-loading { padding: var(--base-gap-narrow) 0; text-align: left; }
+
+/* The empty sentence of a ul or ol list, which sits after the list rather than in it */
+/* Example: <ul class="base-list"></ul><div class="base-list-empty outside">Nothing added yet.</div> */
+.base-list-empty.outside { padding: 0; text-align: left; font-size: 0.9em; }
+
+.base-list-sentinel { height: 1px; flex: 0 0 auto; }
+
+/* A boxed row that looks like a field and is at least a field tall, with its text and row buttons centered, as in a string list */
+/* Example: <li class="base-item-row"><span class="base-item-row-text">value</span><button class="base-row-btn"></button></li> */
+.base-item-row {
+    display: flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    box-sizing: border-box;
+    min-height: var(--base-field-height);
+    padding: 0 calc((var(--base-field-height) - var(--base-size-small)) / 2 - 1px) 0 var(--base-field-pad);
+    background: var(--base-surface);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-small);
+    font-size: var(--base-field-font);
+}
+.base-item-row-text {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+/* A row's text in two parts, a primary and a dimmed secondary that starts at the same place on every row of the list, and wraps under the primary when the row is too narrow for both */
+/* Example: <span class="base-item-row-text base-item-row-parts"><span class="base-item-row-primary">Intro</span><span class="base-item-row-secondary">Position 1</span></span> */
+.base-item-row-parts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--base-gap-wide);
+}
+.base-item-row-primary {
+    flex: 0 0 auto;
+    min-width: var(--base-item-primary-width, 0px);
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+}
+@supports (width: min(1px, 2px)) {
+    .base-item-row-primary { min-width: min(var(--base-item-primary-width, 0px), 100%); }
+}
+.base-item-row-secondary {
+    flex: 1 0 auto;
+    max-width: 100%;
+    opacity: 0.7;
+    overflow-wrap: anywhere;
+}

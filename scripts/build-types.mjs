@@ -58,7 +58,7 @@ if (!existsSync(metaPath)) fail('Run scripts/bundle.sh first. ' + metaPath + ' i
 var meta = JSON.parse(readFileSync(metaPath, 'utf8'));
 var runtime = new Set(Object.values(meta.outputs)[0].exports);
 
-var temp = mkdtempSync(join(tmpdir(), 'jpk-types-'));
+var temp = mkdtempSync(join(tmpdir(), 'base-types-'));
 var tsc = spawnSync(join(root, 'node_modules', '.bin', 'tsc'), ['-p', join(root, 'tsconfig.json'), '--noEmit', 'false', '--declaration', '--emitDeclarationOnly', '--rootDir', join(root, 'src', 'js'), '--outDir', temp], { encoding: 'utf8' });
 if (tsc.status !== 0) fail('tsc could not emit the declarations.\n' + tsc.stdout + tsc.stderr);
 
@@ -67,16 +67,19 @@ var body = [];
 var declared = {};
 var values = new Set();
 
-readdirSync(emitted).filter(function (f) { return f.endsWith('.d.ts') && f !== 'index.d.ts'; }).sort().forEach(function (file) {
+// The internal helpers in lib/ are read too, so a type they declare stays in the typings.
+var files = readdirSync(emitted).concat(readdirSync(join(emitted, 'lib')).map(function (f) { return 'lib/' + f; }));
+
+files.filter(function (f) { return f.endsWith('.d.ts') && f !== 'index.d.ts'; }).sort().forEach(function (file) {
     statements(readFileSync(join(emitted, file), 'utf8')).forEach(function (statement) {
         var code = statement.replace(/^\s*\/\*\*[\s\S]*?\*\/\s*/, '');
-        if (/^(import|export \*|export \{)/.test(code)) return;
+        if (/^(import|export \*|export \{|export type \{|export type \*)/.test(code)) return;
         var match = /^(export )?(?:declare )?(function|var|let|const|class|interface|type) (\w+)/.exec(code);
         if (!match) fail('Unexpected declaration in ' + file + ':\n' + statement);
         var kind = match[2];
         var name = match[3];
         var isValue = kind === 'function' || kind === 'var' || kind === 'let' || kind === 'const' || kind === 'class';
-        // A value the bundle does not export is internal, such as the dom-util helpers.
+        // A value the bundle does not export is internal, such as the helpers in lib/.
         if (isValue && !runtime.has(name)) return;
         if (isValue) values.add(name);
         // A function may have several overloads, so only a second file with the name is a collision.

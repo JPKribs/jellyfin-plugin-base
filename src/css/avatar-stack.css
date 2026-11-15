@@ -1,0 +1,23 @@
+/* A row of overlapping avatars, each ringed in the surface color, ending in a +N bubble when there are more */
+/* Example: <div class="base-avatar-stack small" role="img" aria-label="Ada, Bob, Cy"><span class="base-avatar base-avatar-small"></span><span class="base-avatar base-avatar-small base-avatar-more">+2</span></div> */
+.base-avatar-stack {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    vertical-align: middle;
+}
+.base-avatar-stack[hidden] { display: none; }
+.base-avatar-stack > .base-avatar { box-shadow: 0 0 0 2px var(--base-surface); }
+.base-avatar-stack > .base-avatar + .base-avatar { margin-left: calc(var(--base-gap-narrow) * -1); }
+.base-avatar-stack.medium > .base-avatar + .base-avatar,
+.base-avatar-stack.large > .base-avatar + .base-avatar { margin-left: calc(var(--base-gap-narrow) * -1.5); }
+
+/* The +N bubble that stands for the avatars past max, with their names in its tooltip */
+/* Example: <span class="base-avatar base-avatar-small base-avatar-more" data-base-tip="Dee, Eve">+2</span> */
+.base-avatar-more {
+    background: var(--base-wash-strong);
+    color: var(--base-fg);
+    font-size: var(--base-font-small);
+    font-variant-numeric: tabular-nums;
+}
+.base-avatar-small.base-avatar-more { font-size: calc(var(--base-font-small) * 0.85); }

@@ -2,7 +2,7 @@
 
 Outbound HTTP that reports failure as data, a guard against unsafe targets, and the types that handle failure over time.
 
-Three types handle failure over time, and they differ by where the state lives.
+Four types handle failure over time, and they differ by where the state lives.
 
 | Type | Where its state lives | Use it for |
 | :--- | :--- | :--- |
@@ -54,13 +54,13 @@ if (r.Status == 0 && r.Body.StartsWith(SsrfGuard.RefusalPrefix, StringComparison
 
 * Status 0 covers four cases, a failed request, a timeout, an oversize body, and a refused target. `IsRefused` and `IsOversize` recognize the last two, and the body text tells the rest apart.
 * A non-2xx status is not an error here. Check `HttpResult.Ok`.
-* Pass absolute URLs. A malformed URL throws `UriFormatException`, and a relative one throws `InvalidOperationException`, because neither is caught.
+* Pass absolute http or https URLs. An empty, relative, or malformed URL is refused with status 0 by every guard. With `SsrfGuard.Disabled` nothing checks it, so a malformed URL throws `UriFormatException` and a relative one throws `InvalidOperationException`.
 * Cancelling the caller's token throws `OperationCanceledException`. Any other cancellation is read as a timeout.
 * A User-Agent passed in `headers` is added next to the default `jellyfin-plugin/1.0`, not instead of it.
 * Basic auth is added only when both `login` and `password` are given.
 * The default is a pre-flight check only. It validates the URL and every address its name resolves to before sending, with `SsrfGuard.PrivateNetworkAllowed`, so it never blocks a loopback or LAN target. It does not re-check redirects, since the client follows them itself, and it does not check the address the socket connects to, so a DNS answer that changes after the check is not caught. Only an explicit guard such as `SsrfGuard.PublicOnly` or `SsrfGuard.PrivateNetworkAllowed` protects against a redirect to an unsafe address and against DNS rebinding.
-* A URL with a user name or password, and a target in an unspecified, link local, multicast, or reserved range, is refused with status 0 and a body that starts with `SsrfGuard.RefusalPrefix`.
-* An explicit guard sends through a client the guard owns. That client ignores the system proxy, follows a redirect only to the same host and port (an http to https upgrade on the same host to the default https port is allowed) and never from https to http, and returns status 0 for any other redirect.
+* A scheme other than http and https, a URL with a user name or password, and a target in an unspecified, link local, multicast, broadcast, or reserved range are refused with status 0 and a body that starts with `SsrfGuard.RefusalPrefix`.
+* An explicit guard sends through a client the guard owns, which ignores the system proxy. It follows a redirect only to the same host and port, never from https to http, and at most `JpkHttp.MaxGuardedRedirects` times, which is 5. An http to https upgrade on the same host to the default https port is allowed. Any other redirect returns status 0.
 * `SsrfGuard.Disabled` skips every check. Use it only for a call that must reach an address the default refuses.
 * `FirstToken` and `FirstLine` are small body parsers for replies such as a dynamic DNS answer.
 
@@ -77,7 +77,7 @@ if (result.IsTransient)
 
 **Gotchas**
 
-* `IsTransient` counts 408, 429, 500 and above, and status 0 from a failed request or a timeout. A refusal (`IsRefused`) and an oversize body (`IsOversize`) also have status 0 but never pass by themselves, so they are not transient and a caller that retries on `IsTransient` does not repeat them.
+* `IsTransient` counts 408, 429, 500 and above, and status 0 from a failed request or a timeout. A refusal, which `IsRefused` reports, and an oversize body, which `IsOversize` reports, also have status 0. They never pass by themselves, so they are not transient and a caller that retries on `IsTransient` does not repeat them.
 
 ## SsrfGuard
 
@@ -93,11 +93,11 @@ using var client = new HttpClient(SsrfGuard.PublicOnly.CreateHandler());
 
 * Validation alone is not enough, since a name can answer differently when the request connects. The handler from `CreateHandler` classifies the addresses again at connect time and connects to the ones it checked.
 * If you build your own client from the handler, follow redirects yourself and ask `IsRedirectAllowed` first.
-* Link local (including `169.254.169.254`), multicast, unspecified, broadcast, and `240.0.0.0/4` addresses are refused whatever the setting. Loopback, private, carrier grade NAT, and unique local addresses are refused unless the private network is allowed.
+* Link local addresses, which include `169.254.169.254`, and multicast, unspecified, broadcast, `240.0.0.0/4`, and IPv6 site local addresses are refused whatever the setting. Loopback, private, carrier grade NAT, and unique local addresses are refused unless the private network is allowed.
 * An IPv6 address that carries an IPv4 address is judged as the IPv4 address it carries. The decimal, hex, and octal forms of an IPv4 host are classified too.
 * `ValidateUrl` refuses an empty or relative URL, any scheme other than http and https, and a URL with a user name or password.
 * A host name that does not resolve is let through by the default guard, since a proxy may resolve it, and refused by `PublicOnly`. Any other resolver failure is refused, and `ValidateUrlAsync` never throws for one.
-* IPv4 translated (`::ffff:0:a.b.c.d`) and ISATAP addresses are judged as the IPv4 address they carry. Teredo (`2001::/32`) and local use NAT64 (`64:ff9b:1::/48`) addresses are refused. A scoped IPv6 literal such as `[fe80::1%25eth0]` is refused.
+* IPv4 translated addresses such as `::ffff:0:a.b.c.d`, and ISATAP addresses, are judged as the IPv4 address they carry. Teredo addresses in `2001::/32` and local use NAT64 addresses in `64:ff9b:1::/48` are refused. A scoped IPv6 literal such as `[fe80::1%25eth0]` is refused.
 * `SsrfGuard.Disabled` is compared by reference. A copy made with `new SsrfGuard(true)` is not the opt out.
 * The guard checks addresses only. It does not limit ports or paths.
 
@@ -136,7 +136,7 @@ var result = await RetryPolicy.ExecuteWithRetryAsync(
 **Gotchas**
 
 * The wait before retry n is 1000 ms times 2 to the power n minus 1, capped at 30000 ms, then jittered by up to a quarter either way.
-* Transient means an `HttpRequestException` with no status or with 408, 429, 500, 502, 503, or 504, a timeout, an `IOException` that is not a missing file or folder, a `SocketException`, or any exception wrapping one of these. Everything else is rethrown on the first occurrence.
+* Transient means an `HttpRequestException` with no status or with 408, 429, 500, 502, 503, or 504, a timeout, an `IOException` that is not a missing file, folder, or drive or a path that is too long, a `SocketException`, or any exception wrapping one of these. Everything else is rethrown on the first occurrence.
 * Each retry logs a warning, and running out of retries logs an error and rethrows the original exception.
 * A `maxRetries` below zero never runs the operation and throws `InvalidOperationException`.
 * `logger` is not null-checked and is used only when a failure happens.
@@ -177,7 +177,7 @@ request.Options.Set(JpkRetryHandler.NoRetry, true);
 * The defaults are 3 attempts, a 1 second then 3 second backoff with up to a quarter more at random, 90 seconds per attempt for the response headers, and a 30 second cap on Retry-After. The last backoff repeats when there are more attempts.
 * A status in `HttpRetry.IsGatewayTransient` is asked for again, and the last attempt returns the server's answer. A plain 500, a 404, and a refused redirect are returned at once.
 * When every attempt times out the call throws a `TaskCanceledException`. A cancellation from the caller is never retried.
-* A guard refusal, a TLS failure (an `AuthenticationException` among the inner exceptions), and a bad request URI are thrown at once. A dropped connection is retried.
+* A guard refusal, a TLS failure, and a bad request URI are thrown at once. A TLS failure is an `AuthenticationException` among the inner exceptions. A dropped connection is retried.
 * The `HttpClient`'s own `Timeout` covers every attempt together, so it must be longer than the attempts times `AttemptTimeout`. Otherwise the client cancels first and the timeout is never retried.
 * `JpkRetryHandler.NoRetry` turns the retry off for one request, for a caller that does its own failover.
 * `JpkRetryOptions` takes a `TimeProvider`, a delay function, and a random source, so a test never sleeps.
@@ -192,7 +192,8 @@ var options = new JpkRetryOptions { MaxAttempts = 5 };
 
 **Gotchas**
 
-* The handler copies the options when it is constructed and refuses fewer than 1 attempt, an `AttemptTimeout` or `MaxRetryAfter` that is not above zero, a negative backoff wait, an empty backoff list, and a jitter that is not finite or is outside 0 to 1, with an `ArgumentOutOfRangeException`. Changing the object later changes nothing.
+* The handler copies the options when it is constructed. Changing the object later changes nothing.
+* The handler throws `ArgumentOutOfRangeException` for fewer than 1 attempt, an `AttemptTimeout` or `MaxRetryAfter` that is not above zero, a negative backoff wait, and a jitter that is not finite or is outside 0 to 1. An empty backoff list throws `ArgumentException`.
 
 ## CircuitBreaker
 
@@ -201,8 +202,7 @@ Counts consecutive failures for a named service, opens after a threshold, and st
 Use one long-lived instance per service, for example one per source server URL. Do not create one per call, since a new instance starts closed. Use `BackoffPolicy` for pauses that must survive a restart.
 
 ```csharp
-private static readonly Dictionary<string, CircuitBreaker> Breakers = new();
-
+// Keep one breaker per service for the life of the plugin.
 var breaker = new CircuitBreaker(logger, "SourceServer", failureThreshold: 5, cooldownPeriod: TimeSpan.FromMinutes(5));
 
 if (!breaker.AllowOperation(out var reason))
@@ -267,8 +267,10 @@ catch (HttpRequestException)
 
 **Gotchas**
 
+* The defaults are a threshold of 3, a base of 5 minutes, and a maximum of 6 hours.
 * The pause begins only once the failure threshold is reached, then doubles for each further failure up to the maximum. With a threshold of 1, a base of 5 minutes, and a maximum of 30 minutes, the pauses are 5, 10, 20, and then 30 minutes.
 * A base delay of zero or less, or a base larger than the maximum, gives the maximum.
 * A threshold below 1 throws `ArgumentOutOfRangeException`.
+* `IsBackingOff` and `RecordFailure` read `DateTime.UtcNow` unless a time is passed, so a test passes its own.
 * `RecordSuccess` is an instance method that ignores the instance and returns `BackoffState.Initial`.
 * The policy holds no mutable state and is safe to share across threads.

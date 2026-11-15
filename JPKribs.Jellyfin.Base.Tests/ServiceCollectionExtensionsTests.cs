@@ -14,7 +14,7 @@ namespace JPKribs.Jellyfin.Base.Tests;
 [Collection("ActivityLogger.Current")]
 public sealed class ServiceCollectionExtensionsTests : IDisposable
 {
-    private readonly string _dir = Path.Combine(Path.GetTempPath(), "jpk-di-" + Guid.NewGuid().ToString("N"));
+    private readonly string _dir = Path.Combine(Path.GetTempPath(), "base-di-" + Guid.NewGuid().ToString("N"));
 
     public ServiceCollectionExtensionsTests() => Directory.CreateDirectory(_dir);
 

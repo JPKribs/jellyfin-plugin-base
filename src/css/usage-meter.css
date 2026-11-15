@@ -1,0 +1,52 @@
+/* A progress bar of how much is used, with a label and an "X of Y used" line over it, and a legend under it when it holds several parts */
+/* Example: <div class="base-usage-meter"><div class="base-usage-meter-head"><span class="base-usage-meter-label">Storage</span><span class="base-usage-meter-text">40 GB of 100 GB used</span></div><div class="base-progress base-usage-meter-bar" role="meter"><div class="base-progress-bar base-usage-meter-fill" style="--base-usage-share: 40%"></div></div></div> */
+.base-usage-meter {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+    min-width: 0;
+}
+.base-usage-meter-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0 var(--base-gap-wide);
+}
+.base-usage-meter-label { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.base-usage-meter-text { font-size: var(--base-font-small); opacity: 0.7; font-variant-numeric: tabular-nums; }
+
+/* The bar, the progress bar's track a narrow gap tall, whose fills sit side by side, each as wide as its share */
+/* Example: <div class="base-progress base-usage-meter-bar"><div class="base-progress-bar base-usage-meter-fill blue" style="--base-usage-share: 30%"></div><div class="base-progress-bar base-usage-meter-fill green" style="--base-usage-share: 10%"></div></div> */
+.base-progress.base-usage-meter-bar { display: flex; height: var(--base-gap-narrow); }
+.base-usage-meter-fill { flex: 0 0 auto; width: var(--base-usage-share, 0%); }
+.base-usage-meter-fill + .base-usage-meter-fill { border-left: 2px solid var(--base-surface); }
+.base-usage-meter-fill.green { background: var(--base-green-fg); }
+.base-usage-meter-fill.red { background: var(--base-red-fg); }
+.base-usage-meter-fill.orange { background: var(--base-orange-fg); }
+.base-usage-meter-fill.purple { background: var(--base-purple-fg); }
+.base-usage-meter-fill.blue { background: var(--base-blue-fg); }
+.base-usage-meter-fill.gray { background: var(--base-gray-fg); }
+.base-usage-meter-fill.yellow { background: var(--base-yellow-fg); }
+.base-usage-meter-fill.pink { background: var(--base-pink-fg); }
+.base-usage-meter-fill.teal { background: var(--base-teal-fg); }
+.base-usage-meter-fill.custom { background: var(--base-custom); }
+
+/* A meter past its warning share turns orange, and past its danger share turns red, with its line in the same color. A segmented meter keeps its part colors and colors only the line */
+/* Example: <div class="base-usage-meter danger"><div class="base-progress base-usage-meter-bar"><div class="base-progress-bar base-usage-meter-fill whole"></div></div></div> */
+.base-usage-meter.warning .base-usage-meter-fill.whole { background: var(--base-orange-fg); }
+.base-usage-meter.danger .base-usage-meter-fill.whole { background: var(--base-red-fg); }
+.base-usage-meter.warning .base-usage-meter-text { color: var(--base-orange-fg); opacity: 1; }
+.base-usage-meter.danger .base-usage-meter-text { color: var(--base-red-fg); opacity: 1; }
+
+/* The legend of a segmented meter: a swatch, a name, and an amount per part, wrapping as a row */
+/* Example: <div class="base-usage-meter-legend"><span class="base-usage-meter-key"><span class="base-chart-swatch blue"></span><span>Movies</span><span class="base-usage-meter-amount">30 GB</span></span></div> */
+.base-usage-meter-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--base-gap-narrow) var(--base-gap-wide);
+    font-size: var(--base-font-small);
+}
+.base-usage-meter-legend[hidden] { display: none; }
+.base-usage-meter-key { display: inline-flex; align-items: center; gap: var(--base-gap-narrow); }
+.base-usage-meter-amount { opacity: 0.7; font-variant-numeric: tabular-nums; }

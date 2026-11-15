@@ -1,0 +1,146 @@
+/* A list of rows or cards of mixed fields, with an Add button under them */
+/* Example: <div class="base-repeater inline"><div class="base-repeater-head"><span>Name</span></div><div class="base-repeater-rows base-list plain"></div><button class="raised base-button small base-repeater-add">Add</button></div> */
+.base-repeater {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+    align-items: flex-start;
+    min-width: 0;
+}
+.base-repeater > .base-repeater-head,
+.base-repeater > .base-repeater-rows { align-self: stretch; }
+
+/* Column labels over inline rows, on the rows' own tracks with room for the row buttons */
+/* Example: <div class="base-repeater-head"><span>Name</span><span>Port</span></div> */
+.base-repeater-head {
+    display: grid;
+    grid-template-columns: var(--base-repeater-columns, minmax(0, 1fr)) calc(var(--base-size-small) * var(--base-repeater-buttons, 1));
+    gap: var(--base-gap-narrow);
+    font-size: var(--base-font-small);
+    opacity: 0.7;
+}
+
+/* The rows, a gap apart */
+/* Example: <div class="base-repeater-rows base-list plain"><div class="base-repeater-row base-list-item"></div></div> */
+.base-repeater-rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+}
+
+/* One inline row: a cell per field on the shared tracks, then the row buttons */
+/* Example: <div class="base-repeater-row base-list-item"><div class="base-field-cell"></div><div class="base-repeater-actions"></div></div> */
+.base-repeater.inline .base-repeater-rows > .base-list-item {
+    display: grid;
+    grid-template-columns: var(--base-repeater-columns, minmax(0, 1fr)) calc(var(--base-size-small) * var(--base-repeater-buttons, 1));
+    gap: var(--base-gap-narrow);
+    align-items: start;
+}
+
+/* A field's cell: its label, its control, and its message under it */
+/* Example: <div class="base-field-cell"><label class="base-field-cell-label" for="x">Name</label><div class="base-control base-control-text"><input id="x"></div><div class="base-field-message"></div></div> */
+.base-field-cell {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--base-gap-narrow) / 2);
+    min-width: 0;
+}
+.base-field-cell-label { font-size: var(--base-font-small); opacity: 0.7; }
+.base-repeater.inline:not(.compact) .base-field-cell-label { display: none; }
+.base-control { min-width: 0; }
+/* A component in a field's control is part of the field, so it takes none of the page's field spacing */
+.pluginConfigurationPage .base-control > [class],
+.base-dialog .base-control > [class] { margin: 0 !important; }
+.base-control > input,
+.base-control > select,
+.base-control > .base-adorned { width: 100%; min-width: 0; box-sizing: border-box; }
+
+/* A toggle field: the shared Checkbox a field tall, its box centered on the line of the fields beside it */
+/* Example: <div class="base-control base-control-toggle"><label class="base-check-row base-checkbox field"><input type="checkbox" class="base-check-row-input base-checkbox-input base-control-switch" aria-label="Enabled" checked></label></div> */
+.base-control-toggle { display: flex; align-items: center; }
+
+/* The row buttons, the moves and the remove, at the row's end and centered on its first field */
+/* Example: <div class="base-repeater-actions"><button class="base-row-btn base-repeater-remove"></button></div> */
+.base-repeater-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: var(--base-field-height);
+}
+
+/* One card: a head with the title and the row buttons at the top right, over its fields in a grid */
+/* Example: <div class="base-repeater-card base-list-item"><div class="base-repeater-card-head"><span class="base-repeater-card-title">Server 1</span><div class="base-repeater-actions"></div></div><div class="base-field-group grid"></div></div> */
+.base-repeater.card .base-repeater-rows > .base-list-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+    padding: var(--base-pad-small) var(--base-pad-small) var(--base-pad-medium) var(--base-pad-medium);
+    background: var(--base-surface);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-medium);
+}
+.base-repeater-card-head {
+    display: flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    min-height: var(--base-size-small);
+}
+.base-repeater-card-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+}
+.base-repeater-card-head > .base-repeater-actions { min-height: 0; }
+
+/* Fields in as many columns as fit, each under its label */
+/* Example: <div class="base-field-group grid"><div class="base-field-cell"></div></div> */
+.base-field-group.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(calc(var(--base-size-large) * 5), 1fr));
+    gap: var(--base-gap-narrow) var(--base-gap-wide);
+    padding-right: var(--base-pad-small);
+}
+
+/* A narrow inline repeater: each row stacks its fields full width under their labels, with the row buttons pinned top right, level with the first label */
+/* Example: <div class="base-repeater inline compact"></div> */
+.base-repeater.inline.compact > .base-repeater-head { display: none; }
+.base-repeater.inline.compact .base-repeater-rows > .base-list-item {
+    position: relative;
+    grid-template-columns: minmax(0, 1fr);
+    padding-bottom: var(--base-gap-narrow);
+    border-bottom: 1px solid var(--base-border);
+}
+.base-repeater.inline.compact .base-repeater-rows > .base-list-item > .base-field-cell { grid-column: 1; }
+.base-repeater.inline.compact .base-repeater-rows > .base-list-item > .base-repeater-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+/* A toggle in a stacked row reads as a checkbox: its box, then its label beside it as the box's text, then its message */
+/* Example: <div class="base-field-cell toggle"><label class="base-field-cell-label">Enabled</label><div class="base-control base-control-toggle"></div><div class="base-field-message"></div></div> */
+.base-repeater.inline.compact .base-field-cell.toggle {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: var(--base-gap-narrow);
+}
+.base-repeater.inline.compact .base-field-cell.toggle > .base-control { grid-row: 1; grid-column: 1; }
+.base-repeater.inline.compact .base-field-cell.toggle > .base-field-cell-label {
+    grid-row: 1;
+    grid-column: 2;
+    font-size: var(--base-field-font);
+    opacity: 1;
+    cursor: pointer;
+}
+.base-repeater.inline.compact .base-field-cell.toggle > .base-field-message { grid-column: 1 / -1; }
+
+/* The first label leaves room for the buttons beside it, so it never runs under them */
+.base-repeater.inline.compact .base-repeater-rows > .base-list-item > .base-field-cell:first-of-type > .base-field-cell-label {
+    min-height: var(--base-size-small);
+    display: flex;
+    align-items: center;
+    padding-right: calc(var(--base-size-small) * 3 + var(--base-gap-narrow));
+}

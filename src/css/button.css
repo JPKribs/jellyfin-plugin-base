@@ -1,0 +1,129 @@
+/* A button on Jellyfin's raised button, medium unless small or large, muted like secondary unless it names a variant, with any icon beside its label */
+/* Example: <button is="emby-button" type="button" class="raised base-button primary"><span>Save</span></button> */
+.base-button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: var(--base-gap-narrow);
+    box-sizing: border-box;
+    height: var(--base-size-medium) !important;
+    min-height: 0 !important;
+    min-width: auto !important;
+    padding: 0 var(--base-pad-medium) !important;
+    font-size: var(--base-font-medium) !important;
+    line-height: 1 !important;
+    border: 0 !important;
+    border-radius: var(--base-radius-small);
+    background-color: rgba(255, 255, 255, 0.1);
+    background-color: color-mix(in srgb, currentColor 10%, transparent);
+    color: inherit;
+    cursor: pointer;
+}
+.base-button .material-icons { font-size: var(--base-icon-medium); }
+
+.base-button.small {
+    height: var(--base-size-small) !important;
+    padding: 0 var(--base-pad-small) !important;
+    font-size: var(--base-font-small) !important;
+}
+.base-button.small .material-icons { font-size: var(--base-icon-small); }
+
+.base-button.large {
+    height: var(--base-size-large) !important;
+    padding: 0 var(--base-pad-large) !important;
+    font-size: var(--base-font-large) !important;
+}
+.base-button.large .material-icons { font-size: var(--base-icon-large); }
+
+/* The accent filled button for the main action */
+/* Example: <button class="raised base-button primary">Save</button> */
+.base-button.primary {
+    background-color: var(--base-accent) !important;
+    color: var(--base-on-accent) !important;
+}
+.base-button.primary:hover {
+    background-color: var(--base-accent-hover) !important;
+}
+
+/* The muted button for a lower emphasis action */
+/* Example: <button class="raised base-button secondary">Cancel</button> */
+.base-button.secondary {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    background-color: color-mix(in srgb, currentColor 10%, transparent) !important;
+    color: inherit !important;
+}
+.base-button.secondary:hover {
+    background-color: rgba(255, 255, 255, 0.18) !important;
+    background-color: color-mix(in srgb, currentColor 18%, transparent) !important;
+}
+
+/* The red filled button for an action that destroys data */
+/* Example: <button class="raised base-button destructive">Delete</button> */
+.base-button.destructive {
+    background-color: var(--base-error) !important;
+    color: var(--base-on-accent) !important;
+}
+.base-button.destructive:hover {
+    background-color: var(--base-error-hover) !important;
+}
+
+/* A button filled with a custom color from a hex code, with black or white text, whichever reads better */
+/* Example: <button class="raised base-button custom" style="--base-custom: #e91e63; --base-custom-on: #fff">Boost</button> */
+.base-button.custom {
+    background-color: var(--base-custom) !important;
+    color: var(--base-custom-on, var(--base-on-accent)) !important;
+}
+.base-button.custom:hover {
+    filter: brightness(0.9);
+}
+
+/* A medium or large button that spans the width it has. A small button keeps its own width */
+/* Example: <button class="raised base-button primary fill">Save</button> */
+.base-button.fill:not(.small) {
+    display: flex !important;
+    width: 100%;
+}
+
+/* A row of buttons a wide space apart, where fill buttons share the width evenly */
+/* Example: <div class="base-button-row"><button class="raised base-button secondary fill">Cancel</button><button class="raised base-button primary fill">Save</button></div> */
+.base-button-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--base-gap-wide);
+}
+.base-button-row > .base-button.fill:not(.small) {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+}
+
+/* A button that turns on and off by aria-pressed, filled with the accent while on and muted while off, whatever variant it names */
+/* Example: <button class="raised base-button" aria-pressed="true">Daily</button><button class="raised base-button" aria-pressed="false">Weekly</button> */
+.base-button[aria-pressed="true"] {
+    background-color: var(--base-accent) !important;
+    color: var(--base-on-accent) !important;
+    opacity: 1;
+}
+.base-button[aria-pressed="true"]:hover {
+    background-color: var(--base-accent-hover) !important;
+}
+.base-button[aria-pressed="false"] {
+    background-color: transparent !important;
+    color: inherit !important;
+    box-shadow: inset 0 0 0 1px var(--base-border);
+    opacity: 0.6;
+}
+.base-button[aria-pressed="false"]:hover {
+    background-color: var(--base-wash) !important;
+    opacity: 0.85;
+}
+
+/* A button on the same line as a field, which takes the field's height, padding, and text size, so the two line up at any size */
+/* Example: <div class="base-string-list-add"><input type="text"><button class="raised base-button field">Add</button></div> */
+.base-button.field {
+    flex: 0 0 auto;
+    height: var(--base-field-height) !important;
+    padding: 0 var(--base-field-pad) !important;
+    font-size: var(--base-field-font) !important;
+}

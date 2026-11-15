@@ -1,0 +1,12 @@
+<!-- title: Time Range Field -->
+<div class="base-field"><label>Quiet Hours</label><div id="quiet"></div></div>
+<div class="base-field" style="margin-top: 16px;"><label>Overnight Window</label><div id="night"></div></div>
+<div class="base-field" style="margin-top: 16px;"><label>Backwards Range</label><div id="bad"></div></div>
+<script type="module">
+const base = await window.__baseReady;
+document.getElementById('quiet').appendChild(base.createTimeRangeField({ value: { start: '22:00', end: '00:00' }, step: 15 }).element);
+document.getElementById('night').appendChild(base.createTimeRangeField({ value: { start: '23:00', end: '06:30' }, allowOvernight: true }).element);
+const bad = base.createTimeRangeField({ value: { start: '18:00', end: '09:00' } });
+document.getElementById('bad').appendChild(bad.element);
+bad.isValid();
+</script>

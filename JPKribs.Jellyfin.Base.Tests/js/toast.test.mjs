@@ -12,17 +12,17 @@ beforeEach(function () {
     mock.timers.enable({ apis: ['setTimeout'] });
 });
 
-function toasts(t) { return all(t.element, '.jpk-toast'); }
+function toasts(t) { return all(t.element, '.base-toast'); }
 
 test('the stack is a labelled region in the document body at the bottom end', function () {
     var t = createToaster();
     assert.equal(t.element.parentNode, dom.document.body);
     assert.equal(t.element.getAttribute('role'), 'region');
     assert.equal(t.element.getAttribute('aria-label'), 'Notifications');
-    assert.ok(t.element.classList.contains('jpk-toaster-bottom-end'));
+    assert.ok(t.element.classList.contains('base-toaster-bottom-end'));
     var custom = createToaster({ label: 'Messages', position: 'top-start' });
     assert.equal(custom.element.getAttribute('aria-label'), 'Messages');
-    assert.ok(custom.element.classList.contains('jpk-toaster-top-start'));
+    assert.ok(custom.element.classList.contains('base-toaster-top-start'));
 });
 
 test('each kind sets its class and icon and joins a live region, where only an error joins the alert', function () {
@@ -33,7 +33,7 @@ test('each kind sets its class and icon and joins a live region, where only an e
         assert.equal(toast.element.querySelector('.material-icons').textContent, k[1]);
         assert.equal(toast.element.parentNode.getAttribute('role'), k[2]);
         assert.equal(toast.element.hasAttribute('role'), false);
-        assert.equal(toast.element.querySelector('.jpk-toast-message').textContent, 'Message.');
+        assert.equal(toast.element.querySelector('.base-toast-message').textContent, 'Message.');
     });
 });
 
@@ -41,8 +41,8 @@ test('show takes a message, a title, and an unknown kind falls back to info', fu
     var t = createToaster();
     var toast = t.show({ message: 'Saved.', title: 'Done', kind: 'odd' });
     assert.ok(toast.element.classList.contains('info'));
-    assert.equal(toast.element.querySelector('.jpk-toast-title').textContent, 'Done');
-    assert.equal(t.show('Plain.').element.querySelector('.jpk-toast-title'), null);
+    assert.equal(toast.element.querySelector('.base-toast-title').textContent, 'Done');
+    assert.equal(t.show('Plain.').element.querySelector('.base-toast-title'), null);
 });
 
 test('a toast closes after the default timeout, and a timeout option changes it', function () {
@@ -73,13 +73,13 @@ test('the dismiss button closes the toast, reports onDismiss, and has the defaul
     var seen = [];
     var t = createToaster({ onDismiss: function (spec) { seen.push(spec.message); } });
     var toast = t.info('Bye.');
-    var close = toast.element.querySelector('.jpk-toast-close');
+    var close = toast.element.querySelector('.base-toast-close');
     assert.equal(close.getAttribute('aria-label'), 'Dismiss');
     close.click();
     assert.equal(toasts(t).length, 0);
     assert.deepEqual(seen, ['Bye.']);
     var custom = createToaster({ dismissLabel: 'Close' });
-    assert.equal(custom.info('x').element.querySelector('.jpk-toast-close').getAttribute('aria-label'), 'Close');
+    assert.equal(custom.info('x').element.querySelector('.base-toast-close').getAttribute('aria-label'), 'Close');
 });
 
 test('the pointer pauses the timer and leaving restarts it', function () {
@@ -109,7 +109,7 @@ test('only max toasts show and the oldest closes first', function () {
     t.info('one');
     t.info('two');
     t.info('three');
-    assert.deepEqual(toasts(t).map(function (e) { return e.querySelector('.jpk-toast-message').textContent; }), ['two', 'three']);
+    assert.deepEqual(toasts(t).map(function (e) { return e.querySelector('.base-toast-message').textContent; }), ['two', 'three']);
 });
 
 test('clear and destroy close every toast, and destroy removes the stack and stops the timers', function () {
@@ -121,5 +121,5 @@ test('clear and destroy close every toast, and destroy removes the stack and sto
     var toast = t.info('c');
     t.destroy();
     assert.equal(t.element.parentNode, null);
-    assert.equal(toast.element.querySelector('.jpk-toast-close').listeners.click.length, 0);
+    assert.equal(toast.element.querySelector('.base-toast-close').listeners.click.length, 0);
 });

@@ -1,11 +1,11 @@
 <!-- title: File Picker -->
 <div id="mount"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
+const base = await window.__baseReady;
 const view = document.getElementById('view');
 const mount = document.getElementById('mount');
 const status = document.createElement('div');
-status.className = 'jpk-status-text';
-mount.appendChild(JPK.createFilePicker({ accept: 'image/*,.json', maxSize: 1048576, multiple: true, onChange: (files) => { status.textContent = files.length + ' chosen'; } }).element);
+status.className = 'base-status-text';
+mount.appendChild(base.createFilePicker({ accept: 'image/*,.json', maxSize: 1048576, multiple: true, onChange: (files) => { status.textContent = files.length + ' chosen'; } }).element);
 mount.appendChild(status);
 </script>

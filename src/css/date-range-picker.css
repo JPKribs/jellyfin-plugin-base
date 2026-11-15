@@ -1,0 +1,16 @@
+/* Preset pills over a from and a to date box, each with the calendar icon inside, and the range's message under them */
+/* Example: <div class="base-date-range"><div class="base-pill-group base-date-range-presets" role="group"></div><div class="base-date-range-row"><span class="base-adorned base-adorned-picker"><input type="date" class="base-date-range-from"></span><span class="base-adorned base-adorned-picker"><input type="date" class="base-date-range-to"></span></div></div> */
+.base-date-range {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.base-date-range-presets:not([hidden]) { margin-bottom: var(--base-gap-narrow); }
+.base-date-range-row {
+    display: grid;
+    /* Two boxes side by side while each keeps room for a whole value, and stacked when they do not fit. */
+    grid-template-columns: repeat(auto-fit, minmax(calc(var(--base-size-large) * 4), 1fr));
+    gap: var(--base-gap-narrow);
+}
+.base-date-range-row > input,
+.base-date-range-row > .base-adorned { min-width: 0; box-sizing: border-box; }

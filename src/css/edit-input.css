@@ -1,17 +1,18 @@
-/* Compact input on the same surface as the page fields, sized for inline and combo use */
-/* Example: <input class="jpk-edit-input" value="name" /> */
-.jpk-edit-input {
+/* Input on the same surface and at the same height as the page fields, for inline and combo use outside a form */
+/* Example: <input class="base-edit-input" value="name" /> */
+.base-edit-input {
     width: 100%;
-    background: var(--jpk-surface);
-    border: 1px solid var(--jpk-border);
-    border-radius: 4px;
-    padding: 0.3em 0.4em;
+    height: var(--base-field-height);
+    background: var(--base-surface);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-small);
+    padding: 0 var(--base-field-pad);
     color: inherit;
-    font-size: 0.9em;
+    font-size: var(--base-field-font);
     box-sizing: border-box;
     transition: border-color 0.2s;
 }
-.jpk-edit-input:focus {
-    border-color: var(--jpk-accent);
+.base-edit-input:focus {
+    border-color: var(--base-accent);
     outline: none;
 }

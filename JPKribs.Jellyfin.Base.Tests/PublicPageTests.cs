@@ -11,7 +11,7 @@ namespace JPKribs.Jellyfin.Base.Tests;
 /// <summary>Verifies that <see cref="PublicPage"/> sets hardening headers and serves the web client's favicon.</summary>
 public sealed class PublicPageTests : IDisposable
 {
-    private readonly string _dir = Path.Combine(Path.GetTempPath(), "jpk-public-" + Guid.NewGuid().ToString("N"));
+    private readonly string _dir = Path.Combine(Path.GetTempPath(), "base-public-" + Guid.NewGuid().ToString("N"));
 
     public PublicPageTests() => Directory.CreateDirectory(_dir);
 

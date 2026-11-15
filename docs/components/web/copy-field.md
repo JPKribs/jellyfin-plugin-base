@@ -1,6 +1,6 @@
 # Copy Field
 
-A read only value with a copy button that shows its result. A secret value is masked until the reveal button is pressed.
+A read only value with a copy button beside it that shows its result. A secret value is masked, and with `allowExpose` an eye inside the box shows and hides it.
 
 ## When to Use
 
@@ -19,24 +19,68 @@ var url = createCopyField({ value: config.WebhookUrl, secret: false });
 container.appendChild(url.element);
 ```
 
-Classes: `jpk-copy-field`, `jpk-copy-button`, `jpk-copy-reveal`. The handle is `{ element, input, getValue, setValue, copy, destroy }`.
+Classes: `base-copy-field`, `base-copy-button`, `base-copy-reveal`. The handle is `{ element, input, getValue, setValue, copy, setSize, destroy }`.
 
 ## States and Modifiers
 
-* `secret: true` masks the value and adds a reveal button. `mono` (default true) shows the value in the mono font.
-* The copy button is a `jpk-row-btn`. It takes `success` for the feedback, and shows a check and the feedback text. A hidden status region announces it.
+* `secret: true` masks the value. `allowExpose: true` adds an eye inside the box, at its trailing end, that shows and hides it. It is off by default, so a secret stays masked unless the page opts in. `mono` (default true) shows the value in the mono font.
+* The copy button is a `base-row-btn`. It takes `success` for the feedback, and shows a check and the feedback text. A hidden status region announces it.
 * The feedback is "Copied." or "Copy failed." for 1500 ms (`feedbackMs`). `copiedText` and `failedText` replace the text.
 * The labels default to "Value", "Copy", "Show", and "Hide". `label`, `copyLabel`, `revealLabel`, and `hideLabel` replace them.
 * `copy()` returns a promise of whether the copy worked. `onCopy(value, ok)` runs after each copy.
 * The copy uses `copyToClipboard`, which is also exported on its own.
+* `size` is `small`, `medium` (default), or `large`, and sizes its fields on the [size scale](design-tokens.md). `setSize(size)` changes it later.
+
+## Reference
+
+Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this section.
+
+<!-- reference:start -->
+
+### `createCopyField`
+
+<code>function createCopyField(options?: CopyFieldOptions): CopyFieldHandle</code>
+
+A read-only value with a copy button beside it that shows its result. A secret value is masked, and with allowExpose an eye inside the box shows and hides it.
+
+| Option | Type | What it does |
+| :--- | :--- | :--- |
+| `value` | <code>unknown</code> | the text to show and copy [optional] |
+| `secret` | <code>boolean</code> | true masks the value (default false) |
+| `allowExpose` | <code>boolean</code> | true adds an eye inside a secret's box that shows and hides it (default false) |
+| `mono` | <code>boolean</code> | true shows the value in the mono font (default true) |
+| `label` | <code>string</code> | aria-label of the value (default 'Value') |
+| `copyLabel` | <code>string</code> | title and aria-label of the copy button (default 'Copy') |
+| `copiedText` | <code>string</code> | feedback after a copy (default 'Copied.') |
+| `failedText` | <code>string</code> | feedback when the copy failed (default 'Copy failed.') |
+| `revealLabel` | <code>string</code> | title of the eye while masked (default 'Show') |
+| `hideLabel` | <code>string</code> | title of the eye while shown (default 'Hide') |
+| `feedbackMs` | <code>number</code> | how long the feedback stays (default 1500) |
+| `size` | <code>'small' &#124; 'medium' &#124; 'large'</code> | 'small', 'medium', or 'large' for its fields (default 'medium') |
+| `onCopy` | <code>(value: string, ok: boolean): void</code> | function(value, ok) called after each copy [optional] |
+
+| Handle member | Type |
+| :--- | :--- |
+| `input` | <code>HTMLInputElement</code> |
+| `getValue` | <code>(): string</code> |
+| `setValue` | <code>(value: unknown): void</code> |
+| `copy` | <code>(): Promise&lt;boolean&gt;</code> |
+| `setSize` | <code>(size?: 'small' &#124; 'medium' &#124; 'large'): void</code> |
+| `destroy` | <code>(): void</code> |
+
+| Class | What it looks like |
+| :--- | :--- |
+| `base-copy-field` | Read-only value with a copy button beside it, and an optional eye inside a secret's box |
+
+<!-- reference:end -->
 
 ## Used By
 
-No plugin uses it today. User Management (invite links), Scripts (webhook URL), and Remote Access (share link) copy a value with their own button.
+No plugin uses it today.
 
 ## Example
 
-<iframe class="jpk-preview" src="../../../assets/previews/copy-field.html" title="Copy Field example" loading="lazy"></iframe>
+<iframe class="base-preview" src="../../../assets/previews/copy-field.html" title="Copy Field example" loading="lazy"></iframe>
 
 ## Example Code
 

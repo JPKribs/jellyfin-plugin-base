@@ -1,8 +1,8 @@
 <!-- title: Breadcrumbs -->
 <div id="mount"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
+const base = await window.__baseReady;
 const view = document.getElementById('view');
 const mount = document.getElementById('mount');
-mount.appendChild(JPK.createBreadcrumbs({ items: [{ label: 'Servers', value: 'servers' }, { label: 'Library', href: '#library' }, { label: 'Settings' }] }).element);
+mount.appendChild(base.createBreadcrumbs({ items: [{ label: 'Servers', value: 'servers' }, { label: 'Library', href: '#library' }, { label: 'Settings' }] }).element);
 </script>

@@ -1,0 +1,82 @@
+/* One selectable row with a checkbox, an optional thumbnail, a text block, and an optional note */
+/* Example: <label class="base-check-row"><input class="base-check-row-input" /><span class="base-check-text"></span></label> */
+.base-check-row {
+    display: flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    padding: calc(var(--base-gap-narrow) * 0.75) var(--base-gap-narrow);
+    border-radius: var(--base-radius-medium);
+    cursor: pointer;
+}
+.base-check-row:hover { background: var(--base-wash); }
+
+/* Checkbox at the start of a row */
+/* Example: <input type="checkbox" class="base-check-row-input"> */
+.base-check-row-input {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+/* Thumbnail shown before the text when a row supplies an imageUrl, a base-thumb frame with its placeholder under the image */
+/* Example: <span class="base-thumb base-check-thumb"><img class="base-thumb-image" alt="" src="poster.jpg"></span> */
+.base-check-thumb {
+    width: var(--base-size-medium);
+    height: var(--base-size-medium);
+    border-radius: var(--base-radius-small);
+}
+
+/* Text block that stacks a label over an optional sublabel */
+/* Example: <span class="base-check-text"><span class="base-check-label">Name</span><span class="base-check-sub">detail</span></span> */
+.base-check-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* Row label that clips with an ellipsis */
+/* Example: <span class="base-check-label">Name</span> */
+.base-check-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Small dimmed sublabel that clips with an ellipsis */
+/* Example: <span class="base-check-sub">detail</span> */
+.base-check-sub {
+    font-size: var(--base-font-small);
+    opacity: 0.6;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* A person's avatar at the start of a row, the size of a thumbnail, with the person icon when they have no picture */
+/* Example: <span class="base-avatar base-avatar-small base-check-avatar"></span> */
+.base-check-avatar { width: var(--base-size-medium); height: var(--base-size-medium); flex: 0 0 auto; }
+.base-check-avatar .base-avatar-icon { font-size: var(--base-icon-large); }
+
+/* A badge or note at the end of a row, drawn as a base-badge */
+/* Example: <span class="base-badge gray base-check-note">Family</span> */
+.base-check-badge,
+.base-check-note { flex: 0 0 auto; }
+
+/* Select all row that sits above the list with a divider */
+/* Example: <label class="base-check-row base-check-selectall"></label> */
+.base-check-selectall {
+    font-weight: 600;
+    border-bottom: 1px solid var(--base-border);
+    border-radius: 0;
+    margin-bottom: var(--base-gap-narrow);
+}
+
+/* Dimmed row that cannot be selected */
+/* Example: <label class="base-check-row base-check-row-disabled"></label> */
+.base-check-row-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.base-check-row-disabled .base-check-row-input {
+    cursor: not-allowed;
+}

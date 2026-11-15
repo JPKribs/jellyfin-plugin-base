@@ -16,7 +16,7 @@ public class TemplateLoaderTests
     public void Load_ReturnsEmbeddedTemplate()
     {
         var html = TemplateLoader.Load("status");
-        Assert.Contains("jpk-status-card", html, System.StringComparison.Ordinal);
+        Assert.Contains("base-status-card", html, System.StringComparison.Ordinal);
     }
 
     /// <summary>

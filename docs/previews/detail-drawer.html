@@ -1,0 +1,37 @@
+<!-- title: Detail Drawer -->
+<!-- min-height: 520 -->
+<div id="table"></div>
+<p class="fieldDescription">Select a row to open its details. Previous and Next swap the content without closing the drawer.</p>
+<script type="module">
+const base = await window.__baseReady;
+const rows = [
+    { id: 1, name: 'Movies', kind: 'Library', items: 1204, size: '2.1 TB', state: 'Synced', peer: 'Den' },
+    { id: 2, name: 'Shows', kind: 'Library', items: 8711, size: '6.4 TB', state: 'Queued', peer: 'Cabin' },
+    { id: 3, name: 'Music', kind: 'Library', items: 23090, size: '412 GB', state: 'Errored', peer: 'Office' },
+    { id: 4, name: 'Home Videos', kind: 'Folder', items: 96, size: '88 GB', state: 'Synced', peer: 'Den' }
+];
+const stepTo = (row, by) => rows[(rows.indexOf(row) + by + rows.length) % rows.length];
+// One opener serves the table, and while its drawer is open it swaps the content in place.
+const show = base.detailDrawerOpener((row) => ({
+    title: row.name,
+    subtitle: row.kind + ' on ' + row.peer,
+    badge: { label: row.state, color: row.state },
+    body: base.createDefinitionList({ items: [
+        { label: 'Items', value: row.items.toLocaleString() },
+        { label: 'Size', value: row.size },
+        { label: 'Server', value: row.peer },
+        { label: 'Path', value: '/media/' + row.name.toLowerCase().replace(/ /g, '-'), mono: true }
+    ] }).element,
+    buttons: [
+        { text: 'Previous', action: () => show(stepTo(row, -1)) },
+        { text: 'Next', action: () => show(stepTo(row, 1)) },
+        { text: 'Done', className: 'base-button primary' }
+    ]
+}), { size: 'small' });
+const table = base.createDataTable({
+    columns: [{ key: 'name', label: 'Name' }, { key: 'kind', label: 'Kind' }, { key: 'state', label: 'State' }, { key: 'peer', label: 'Server' }],
+    rows,
+    onOpen: show
+});
+document.getElementById('table').appendChild(table.element);
+</script>

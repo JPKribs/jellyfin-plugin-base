@@ -1,0 +1,36 @@
+/* A small audio player: a Play and Pause button a field tall, then the title over a seek slider and the current and total time */
+/* Example: <div class="base-audio-player" role="group" aria-label="Theme"><button class="raised base-button secondary field base-audio-player-toggle" aria-label="Play"></button><div class="base-audio-player-body"><div class="base-audio-player-title">theme.mp3</div><div class="base-audio-player-line"><div class="base-slider"></div><span class="base-audio-player-time">0:00 / 0:31</span></div></div></div> */
+.base-audio-player {
+    display: flex;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    min-width: 0;
+}
+.base-audio-player-audio { display: none; }
+.base-audio-player-toggle { flex: 0 0 auto; }
+.base-audio-player-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.base-audio-player-title {
+    font-size: var(--base-font-small);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.base-audio-player-title[hidden] { display: none; }
+
+/* A player whose audio could not load: the error in red in the title's place, and the button an X that resets it */
+/* Example: <div class="base-audio-player failed"><button class="raised base-button secondary field base-audio-player-toggle" aria-label="Reset"><span class="material-icons">close</span></button><div class="base-audio-player-body"><div class="base-audio-player-title" role="alert">Could not load the audio.</div></div></div> */
+.base-audio-player.failed .base-audio-player-title { color: var(--base-red-fg); }
+.base-audio-player.failed .base-audio-player-toggle .material-icons { color: var(--base-red-fg); }
+.base-audio-player.failed .base-audio-player-line { opacity: 0.5; }
+.base-audio-player-line { display: flex; align-items: center; gap: var(--base-gap-narrow); min-width: 0; }
+.base-audio-player-line > .base-slider { flex: 1 1 auto; min-width: 0; }
+/* The slider is part of the player, so the page's space under a component never applies to it */
+.pluginConfigurationPage .base-audio-player-line > .base-slider[class],
+.base-dialog .base-audio-player-line > .base-slider[class] { margin: 0 !important; }
+.base-audio-player-time {
+    flex: 0 0 auto;
+    font-size: var(--base-font-small);
+    opacity: 0.7;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}

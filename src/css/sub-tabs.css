@@ -1,18 +1,18 @@
 /* In-page tab list over its panels, which scrolls sideways when the tabs do not fit */
-/* Example: <div class="jpk-subtabs"><div class="jpk-subtab-list" role="tablist"><button type="button" class="jpk-subtab active" role="tab" aria-selected="true">General</button></div><div class="jpk-subtab-panels"></div></div> */
-.jpk-subtabs { display: flex; flex-direction: column; gap: 12px; }
-.jpk-subtab-list {
+/* Example: <div class="base-subtabs"><div class="base-subtab-list" role="tablist"><button type="button" class="base-subtab active" role="tab" aria-selected="true">General</button></div><div class="base-subtab-panels"></div></div> */
+.base-subtabs { display: flex; flex-direction: column; gap: var(--base-gap-wide); }
+.base-subtab-list {
     display: flex;
-    gap: 4px;
+    gap: var(--base-gap-narrow);
     overflow-x: auto;
-    border-bottom: 1px solid var(--jpk-border);
+    border-bottom: 1px solid var(--base-border);
 }
 
 /* One tab, underlined in the accent when active */
-/* Example: <button type="button" class="jpk-subtab active" role="tab" aria-selected="true">General</button> */
-.jpk-subtab {
+/* Example: <button type="button" class="base-subtab active" role="tab" aria-selected="true">General</button> */
+.base-subtab {
     flex: 0 0 auto;
-    padding: 8px 14px;
+    padding: var(--base-pad-small) var(--base-pad-medium);
     border: 0;
     border-bottom: 2px solid transparent;
     background: transparent;
@@ -21,12 +21,12 @@
     opacity: 0.75;
     cursor: pointer;
 }
-.jpk-subtab:hover { opacity: 1; }
-.jpk-subtab.active { opacity: 1; border-bottom-color: var(--jpk-accent); }
-.jpk-subtab:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: -2px; }
-.jpk-subtab:disabled { opacity: 0.4; cursor: default; }
+.base-subtab:hover { opacity: 1; }
+.base-subtab.active { opacity: 1; border-bottom-color: var(--base-accent); }
+.base-subtab:focus-visible { outline: 2px solid var(--base-accent); outline-offset: -2px; }
+.base-subtab:disabled { opacity: 0.4; cursor: default; }
 
 /* Panel under the tabs, which takes focus without a ring unless a keyboard user lands on it */
-/* Example: <div class="jpk-subtab-panel" role="tabpanel" tabindex="0">Content</div> */
-.jpk-subtab-panel:focus { outline: none; }
-.jpk-subtab-panel:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 2px; }
+/* Example: <div class="base-subtab-panel" role="tabpanel" tabindex="0">Content</div> */
+.base-subtab-panel:focus { outline: none; }
+.base-subtab-panel:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 2px; }

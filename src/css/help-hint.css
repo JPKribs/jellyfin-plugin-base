@@ -1,50 +1,23 @@
 /* Inline wrapper for a help icon button and its bubble, which shows on hover, focus, and a tap */
-/* Example: <span class="jpk-help"><button type="button" class="jpk-help-button" aria-label="Help"><span class="material-icons">help_outline</span></button><span class="jpk-help-tip" role="tooltip">Explains the field.</span></span> */
-.jpk-help {
+/* Example: <span class="base-help"><button type="button" class="base-row-btn base-help-button" title="Help" aria-label="Help"><span class="material-icons" aria-hidden="true">help_outline</span></button><span class="base-help-tip" role="tooltip">Explains the field.</span></span> */
+.base-help {
     position: relative;
     display: inline-flex;
     vertical-align: middle;
-    margin-left: 4px;
+    margin-left: var(--base-gap-narrow);
 }
 
-/* Round icon button that carries no label of its own */
-/* Example: <button type="button" class="jpk-help-button" aria-label="Help"><span class="material-icons">help_outline</span></button> */
-.jpk-help-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2px;
-    border: 0;
-    border-radius: 50%;
-    background: transparent;
-    color: inherit;
-    opacity: 0.65;
-    cursor: help;
-}
-.jpk-help-button .material-icons { font-size: 18px; }
-.jpk-help-button:hover,
-.jpk-help-button:focus-visible { opacity: 1; }
-.jpk-help-button:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 1px; }
-
-/* Bubble fixed to the viewport that explains the field, placed by the hint beside its icon, and hidden until the hint is hovered, focused, or open */
-/* Example: <span class="jpk-help-tip" role="tooltip">Explains the field.</span> */
-.jpk-help-tip {
+/* Bubble on the base-float surface, fixed to the viewport, that explains the field, placed by the hint beside its icon, and hidden until the hint is hovered, focused, or open */
+/* Example: <span class="base-help-tip base-float" role="tooltip">Explains the field.</span> */
+.base-help-tip {
     display: none;
     position: fixed;
-    z-index: 1000;
     width: max-content;
-    max-width: min(280px, calc(100vw - 32px));
-    margin: 6px 0 0;
-    padding: 6px 10px;
-    background: var(--jpk-surface);
-    color: var(--jpk-fg);
-    border: 1px solid var(--jpk-border);
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    font-size: 0.85em;
+    max-width: min(calc(var(--base-size-large) * 7), calc(100vw - 2 * var(--base-gap-wide)));
+    margin: 0;
+    padding: var(--base-gap-narrow) var(--base-pad-medium);
+    font-size: var(--base-font-small);
     font-weight: normal;
-    line-height: 1.4;
+    line-height: var(--base-line-small);
 }
-.jpk-help:hover .jpk-help-tip,
-.jpk-help:focus-within .jpk-help-tip,
-.jpk-help.open .jpk-help-tip { display: block; }
+.base-help.open .base-help-tip { display: block; }

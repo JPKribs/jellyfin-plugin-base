@@ -2,9 +2,9 @@
 <!-- min-height: 160 -->
 <div id="mount"></div>
 <script type="module">
-const JPK = await window.__jpkReady;
+const base = await window.__baseReady;
 const view = document.getElementById('view');
 const mount = document.getElementById('mount');
 mount.innerHTML = '<div class="inputContainer"><label for="interval">Check interval <span id="slot"></span></label><input id="interval" type="text" value="30"></div>';
-document.getElementById('slot').appendChild(JPK.createHelpHint({ text: 'Seconds between checks. A low value adds load on the server.' }).element);
+document.getElementById('slot').appendChild(base.createHelpHint({ text: 'Seconds between checks. A low value adds load on the server.' }).element);
 </script>

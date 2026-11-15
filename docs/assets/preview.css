@@ -1,5 +1,5 @@
 /* The frame of a live preview. The page inside is isolated from the docs theme and sets its own height. */
-iframe.jpk-preview {
+iframe.base-preview {
     display: block;
     width: 100%;
     height: 120px;

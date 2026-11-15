@@ -1,0 +1,90 @@
+/* Filter button with a leading icon, its text, and a round accent badge counting the filters on */
+/* Example: <button type="button" class="raised base-button base-filter-button active" aria-haspopup="dialog"><span class="material-icons" aria-hidden="true">filter_list</span><span class="base-filter-text">Filter</span><span class="base-filter-count" aria-hidden="true">3</span></button> */
+.base-filter-button {
+    gap: var(--base-gap-narrow);
+}
+
+/* Small round badge with the count of filters on, hidden while none is on */
+/* Example: <span class="base-filter-count" aria-hidden="true">3</span> */
+.base-filter-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--base-icon-medium);
+    height: var(--base-icon-medium);
+    padding: 0 calc(var(--base-gap-narrow) / 2);
+    box-sizing: border-box;
+    border-radius: var(--base-radius-round);
+    background: var(--base-accent);
+    color: var(--base-on-accent);
+    font-size: var(--base-font-small);
+    font-weight: 600;
+    line-height: 1;
+}
+.base-filter-count[hidden] { display: none; }
+
+/* Floating panel of filter groups on the base-float surface, fixed to the viewport, placed by createFilterPanel under the button, or above it with no room */
+/* Example: <div class="base-filter-panel base-float" role="dialog" aria-labelledby="t"><div class="base-filter-title" id="t">Filters</div><div class="base-filter-groups"></div><div class="base-filter-actions"></div></div> */
+.base-filter-panel {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-narrow);
+    width: calc(var(--base-size-large) * 7);
+    max-width: calc(100vw - 2 * var(--base-gap-wide));
+    max-height: calc(100vh - 2 * var(--base-gap-narrow));
+    box-sizing: border-box;
+    padding: var(--base-pad-medium);
+}
+.base-filter-panel[hidden] { display: none; }
+
+/* Bold heading at the top of the floating panel */
+/* Example: <div class="base-filter-title">Filters</div> */
+.base-filter-title {
+    font-weight: 600;
+}
+
+/* Scrolling stack of filter groups, in the floating panel or in the dialog body */
+/* Example: <div class="base-filter-groups"><fieldset class="base-filter-group"></fieldset></div> */
+.base-filter-groups {
+    display: flex;
+    flex-direction: column;
+    gap: var(--base-gap-wide);
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* One group of checkbox rows, or radio rows with single, under its name */
+/* Example: <fieldset class="base-filter-group"><legend class="base-filter-group-name">Status</legend><label class="base-check-row base-filter-option"><input type="checkbox" class="base-check-row-input base-filter-input"><span class="base-check-label">Active</span></label></fieldset> */
+.base-filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* Small dimmed name over a group's rows */
+/* Example: <legend class="base-filter-group-name">Status</legend> */
+.base-filter-group-name {
+    padding: 0 0 calc(var(--base-gap-narrow) / 2);
+    font-size: var(--base-font-small);
+    font-weight: 600;
+    opacity: 0.75;
+}
+
+/* One option row, which shows an accent ring while its box has focus */
+/* Example: <label class="base-check-row base-filter-option"><input type="radio" class="base-check-row-input base-filter-input"><span class="base-check-label">Movies</span></label> */
+.base-filter-option:focus-within {
+    outline: 2px solid var(--base-accent);
+    outline-offset: -2px;
+}
+
+/* Row of the Clear and Done buttons at the end of the floating panel */
+/* Example: <div class="base-filter-actions"><button type="button" class="raised base-button small secondary base-filter-clear">Clear</button><button type="button" class="raised base-button small primary base-filter-done">Done</button></div> */
+.base-filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--base-gap-narrow);
+}
