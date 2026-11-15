@@ -11,5 +11,9 @@ Usage, every C# helper, every web component, and how a release works are covered
 ## Package
 
 ```xml
-<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.11.15" />
+<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.11.16" />
 ```
+
+## License
+
+[Zero-Clause BSD](LICENSE). Use it, change it, embed it in any project, open or closed, and redistribute it for any purpose, with no conditions and no attribution required.

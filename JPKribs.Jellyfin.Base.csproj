@@ -14,6 +14,8 @@
     <Authors>JPKribs</Authors>
     <Description>Shared configuration-UI assets (CSS/JS) and C# helpers for JPKribs Jellyfin plugins. Authored as per-component sources, bundled at build time, and compiled into the consuming plugin so plugins stay a single DLL.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- Zero-Clause BSD: anyone may use, change, embed, and redistribute it for any purpose, with no conditions. -->
+    <PackageLicenseExpression>0BSD</PackageLicenseExpression>
     <PackageTags>jellyfin;plugin</PackageTags>
   </PropertyGroup>
 
@@ -34,6 +36,7 @@
     <None Include="src/templates/*.html" Pack="true" PackagePath="templates/" />
     <None Include="build/JPKribs.Jellyfin.Base.targets" Pack="true" PackagePath="build/" />
     <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

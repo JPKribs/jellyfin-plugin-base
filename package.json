@@ -1,6 +1,7 @@
 {
   "name": "jpkribs-jellyfin-base-web",
   "private": true,
+  "license": "0BSD",
   "type": "module",
   "description": "Dev tools that type check and bundle the web components. Nothing here ships at runtime.",
   "scripts": {
