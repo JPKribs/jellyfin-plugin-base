@@ -11,5 +11,5 @@ Usage, every C# helper, every web component, and how a release works are covered
 ## Package
 
 ```xml
-<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.10.28" />
+<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.11.14" />
 ```
