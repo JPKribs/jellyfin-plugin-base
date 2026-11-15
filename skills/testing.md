@@ -15,6 +15,8 @@ Test each behavior at the lowest layer that can prove it. Go up a layer only for
 | C# unit | One helper gives the right output for each input | `dotnet test` | Seconds |
 | CSS rules | The shipped CSS keeps its invariants, such as older engine fallbacks and no class collisions | `dotnet test` | Seconds |
 | JavaScript | Component behavior against a stub DOM | `node --test` | Seconds |
+| Golden bundle | The shipped JS bundle is the one expected | `scripts/check-bundle.mjs` | Seconds |
+| Typings | The shipped typings accept good calls and reject bad ones | `scripts/check-types.sh` | Seconds |
 | Gallery | Every component looks right in a real browser | `scripts/gallery.sh` | Minutes |
 | Consumer build | A plugin still builds and works against a local pack | `scripts/pack.sh` | Minutes |
 
@@ -22,7 +24,7 @@ Test each behavior at the lowest layer that can prove it. Go up a layer only for
 | :--- | :--- |
 | A C# helper in `src/*.cs` | C# unit |
 | A CSS file in `src/css/` | CSS rules, and the gallery |
-| A JS module in `src/js/` | JavaScript, and the gallery |
+| A module in `src/js/` | JavaScript, the golden bundle, the typings, and the gallery |
 | A template in `src/templates/` | C# unit, and CSS rules for class collisions |
 | `build/`, `tools/`, `scripts/`, or the csproj | Consumer build |
 | A public API change of any kind | Consumer build |
@@ -89,14 +91,14 @@ The CSS has no browser test, so rules that a plugin depends on are pinned in C#.
 
 ## JavaScript Tests
 
-JS tests run on node's own test runner with a stub DOM and no dependencies.
+JS tests run on node's own test runner with a stub DOM and no dependencies. `register.mjs` loads `ts-loader.mjs`, which strips the types from a TypeScript source, so a test imports `src/js/<name>.js` whether the source is JS or TS.
 
 ```bash
-node --test JPKribs.Jellyfin.Base.Tests/js/*.test.mjs
+node --import ./JPKribs.Jellyfin.Base.Tests/js/register.mjs --test JPKribs.Jellyfin.Base.Tests/js/*.test.mjs
 ```
 
 ```bash
-node --test JPKribs.Jellyfin.Base.Tests/js/kit.test.mjs
+node --import ./JPKribs.Jellyfin.Base.Tests/js/register.mjs --test JPKribs.Jellyfin.Base.Tests/js/kit.test.mjs
 ```
 
 ```js
@@ -117,6 +119,29 @@ test('generateGuid gives 32 hex digits when compact', function () {
 * Test logic and behavior, not layout. Move logic out of event handlers into exported functions so a test can call them.
 * Extend `fake-dom.mjs` when a component needs a selector or element feature it lacks, and keep it dependency free.
 * CI runs these tests on Node 22, so run them yourself before you call a change done.
+
+## The Golden Bundle
+
+`JPKribs.Jellyfin.Base.Tests/golden/` holds the JS bundle plugins receive, with its exports and each component's bytes. It is built with the original names, since the minifier picks short names from the source's character counts. CI fails when the build differs from it.
+
+```bash
+node scripts/check-bundle.mjs
+```
+
+* It builds on its own, and also checks the exports of `dist/` when `scripts/bundle.sh` has run. On a difference it prints the changed exports, components, and a formatted diff.
+* A change meant to alter the bundle updates the copy in the same commit, with `node scripts/check-bundle.mjs --update`.
+* A change meant to keep behavior, such as adding types, must leave the bundle byte for byte the same.
+
+## The Typings
+
+`scripts/build-types.mjs` writes `dist/jpkribs_shared.d.ts` from the sources, with only the values the bundle exports. `JPKribs.Jellyfin.Base.Tests/types/typings.test.ts` imports it by a `configurationpage` path, as a plugin page does, and calls every export.
+
+```bash
+scripts/check-types.sh
+```
+
+* Call each new export once in `typings.test.ts` the way a plugin would.
+* Add a line marked `@ts-expect-error` for each call a plugin must not be able to make, such as a missing required option.
 
 ## The Gallery
 
@@ -158,7 +183,7 @@ Raise the plugin's `JPKribs.Jellyfin.Base` reference to the local version first,
 * [ ] Every changed file has tests, and a bug fix has a test that fails without it.
 * [ ] Edges are covered, including null, empty, cancelled, and a faulting dependency.
 * [ ] `dotnet test` passes.
-* [ ] The JS tests pass.
+* [ ] The JS tests, the golden bundle, and the typings check pass.
 * [ ] A new CSS rule keeps its fallback, and the CSS tests pass.
 * [ ] Every changed component was seen in the gallery at 375px.
 * [ ] A public change was built into a consuming plugin from a local pack.

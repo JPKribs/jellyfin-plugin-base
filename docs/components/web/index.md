@@ -2,16 +2,16 @@
 
 Every web component in the Base bundle has one page here. A page says what the component is for, when to use it and when not to, the markup or call that puts it on a page, and its gotchas. Each page ends with a live example and the code behind it.
 
-The JavaScript comments in `src/js` and the header comments in `src/css` are the reference for every option and signature. These pages are about usage.
+The TypeScript in `src/js`, and the typings built from it, and the header comments in `src/css` are the reference for every option and signature. These pages are about usage.
 
 For the C# helpers, see [C# Components](../csharp/index.md).
 
 ## How the Bundle Is Built
 
-* CSS lives under `src/css`, one file per component. JavaScript lives in ES modules under `src/js`, all re-exported from `src/js/index.js`. The one template, `status.html`, lives in `src/templates`.
-* `scripts/bundle.sh` writes the two shipped assets into `dist/`, which git ignores. `dist/jpkribs_shared.css` holds `tokens.css` first and then every other CSS file in alphabetical order, minified for Chrome 58, Safari 11, and Firefox 57. File order never matters, because every component targets its own selectors and custom properties resolve in any order. `dist/jpkribs_shared.js` is `src/js/index.js` bundled and minified as one ES module with the exported names kept.
+* CSS lives under `src/css`, one file per component. The components are TypeScript modules under `src/js`, all re-exported from `src/js/index.ts`. The one template, `status.html`, lives in `src/templates`.
+* `scripts/bundle.sh` writes the two shipped assets into `dist/`, which git ignores. `dist/jpkribs_shared.css` holds `tokens.css` first and then every other CSS file in alphabetical order, minified for Chrome 58, Safari 11, and Firefox 57. File order never matters, because every component targets its own selectors and custom properties resolve in any order. `dist/jpkribs_shared.js` is `src/js/index.ts` with its types stripped, bundled and minified for Chromium 87 as one ES module with the exported names kept. `dist/jpkribs_shared.d.ts` holds its typings.
 * The gallery renders every component from the real `dist/` bundle with a stubbed `ApiClient`, `Dashboard`, and user list. The live examples on these pages use the same stubs.
-* The package build packs the bundles as `assets/` and `src/templates/*.html` as `templates/`.
+* The package build packs the bundles and the typings as `assets/` and `src/templates/*.html` as `templates/`.
 
 ## How a Plugin Loads the Bundle
 

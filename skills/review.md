@@ -32,7 +32,8 @@ The check to run on your own changes before you call them done. People and AI as
 * [ ] No default label, default value, or return changed without approval.
 * [ ] No new public name collides with a type a plugin might own.
 * [ ] A consuming plugin builds against a local pack with no warning, per [testing.md](testing.md#consumer-build).
-* [ ] The CSS and JS bundles rebuild with `scripts/bundle.sh`, and a plugin page that loads them still works.
+* [ ] The CSS and JS bundles and the typings rebuild with `scripts/bundle.sh`, and a plugin page that loads them still works.
+* [ ] A change to the bundle that was not meant to change it leaves the golden copy matching.
 * [ ] A change to `src/templates/` or `templates/plugin/` was checked against the plugins that consume it.
 * [ ] A change to a security helper was approved, and its tests cover the hostile input.
 
@@ -62,7 +63,7 @@ The check to run on your own changes before you call them done. People and AI as
 
 * [ ] Every change has tests, per [testing.md](testing.md).
 * [ ] A bug fix has a test that fails without it.
-* [ ] `dotnet test` and `node --test` both passed. CI runs both.
+* [ ] `dotnet test`, `node --test`, `scripts/check-bundle.mjs`, and `scripts/check-types.sh` passed. CI runs all four.
 
 ## Docs
 

@@ -371,7 +371,7 @@ public class CssFallbackTests
     [Fact]
     public void BadgeStates_HaveRules()
     {
-        var core = File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "js", "core.js"));
+        var core = File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "js", "core.ts"));
         var names = ReadList(core, "names");
         var colors = ReadList(core, "colors");
         var selectors = CssRules.Parse(Source("badges.css")).SelectMany(r => r.Selectors).ToHashSet(StringComparer.Ordinal);
@@ -385,7 +385,7 @@ public class CssFallbackTests
 
     private static List<string> ReadList(string source, string key)
     {
-        var block = Regex.Match(source, @"export var BADGE_STATES = \{.*?\};", RegexOptions.Singleline).Value;
+        var block = Regex.Match(source, @"export var BADGE_STATES\b[^=]*=\s*(\{.*?\});", RegexOptions.Singleline).Groups[1].Value;
         var list = Regex.Match(block, key + @"\s*:\s*\[(.*?)\]", RegexOptions.Singleline).Groups[1].Value;
         return Regex.Matches(list, @"'([^']+)'").Select(m => m.Groups[1].Value).ToList();
     }
@@ -393,12 +393,12 @@ public class CssFallbackTests
     private static string RepositoryRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir != null && !File.Exists(Path.Combine(dir.FullName, "src", "js", "core.js")))
+        while (dir != null && !File.Exists(Path.Combine(dir.FullName, "src", "css", "tokens.css")))
         {
             dir = dir.Parent;
         }
 
-        Assert.True(dir != null, "The repository root with src/js/core.js was not found above the test output.");
+        Assert.True(dir != null, "The repository root with src/css/tokens.css was not found above the test output.");
         return dir!.FullName;
     }
 

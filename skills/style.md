@@ -31,7 +31,7 @@ This section is the rule.
 * Never add a numeric prefix to a file. Order never matters.
 * A selector that styles Jellyfin's own markup keeps Jellyfin's name and stays unprefixed. The current set is `sectionTitle`, `sectionTitleContainer`, `hidden`, `fieldDescription`, `material-icons`, `inputContainer`, `checkboxContainer`, `selectContainer`, and `emby-*`. Add to this list before you add one.
 * The one exception for variables is the unprefixed token aliases listed under [Tokens](#tokens).
-* Keep one file per component. CSS lives in `src/css`, one file per component. JS lives in `src/js` as ES modules re-exported from `index.js`. A template lives in `src/templates`, one HTML file per template. A C# helper lives in `src/`, one file per helper. Adding a component is dropping a file in the right folder, and the bundler emits `tokens.css` first.
+* Keep one file per component. CSS lives in `src/css`, one file per component. TypeScript lives in `src/js` as modules re-exported from `index.ts`. A template lives in `src/templates`, one HTML file per template. A C# helper lives in `src/`, one file per helper. Adding a component is dropping a file in the right folder, and the bundler emits `tokens.css` first.
 
 ## Writing
 

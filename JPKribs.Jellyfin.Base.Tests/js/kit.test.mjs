@@ -1,5 +1,5 @@
 // Behavior tests for the kit JavaScript, run with the node test runner and a stub DOM with no dependencies:
-//   node --test 'JPKribs.Jellyfin.Base.Tests/js/*.test.mjs'
+//   node --import ./JPKribs.Jellyfin.Base.Tests/js/register.mjs --test 'JPKribs.Jellyfin.Base.Tests/js/*.test.mjs'
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom, all } from './fake-dom.mjs';

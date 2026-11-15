@@ -1,6 +1,6 @@
 # Code
 
-How to write, comment, and keep compatible the code in Base. It covers C#, JavaScript, CSS, HTML templates, and shell. [style.md](style.md#naming) is the authority for naming, and this guide is the authority for the comment formats.
+How to write, comment, and keep compatible the code in Base. It covers C#, TypeScript, CSS, HTML templates, and shell. [style.md](style.md#naming) is the authority for naming, and this guide is the authority for the comment formats.
 
 ## What Belongs Here
 
@@ -8,7 +8,7 @@ Base holds what two plugins could share unchanged.
 
 * A helper has no plugin specific type in its signature, no plugin name in a string, and no assumption about one plugin's configuration.
 * Read [README.md](../README.md) and the [component pages](documentation.md#the-component-pages) before you add anything. When a component almost fits, extend it.
-* One component per file. A C# helper is one file in `src/`, a style is one file in `src/css/`, a module is one file in `src/js/` that `src/js/index.js` re-exports, and a template is one file in `src/templates/`.
+* One component per file. A C# helper is one file in `src/`, a style is one file in `src/css/`, a module is one file in `src/js/` that `src/js/index.ts` re-exports, and a template is one file in `src/templates/`.
 * Never add a file to a folder with a numeric prefix. Ordering never matters.
 * Never add a runtime dependency. The package has no assembly, so everything compiles into the plugin and can use only what a Jellyfin plugin already references.
 
@@ -60,23 +60,24 @@ public static string Render(string heading) { ... }
 * Put one public type in each file, named after the type. A small record or enum used by one class may share its file.
 * Use the `JPKribs.Jellyfin.Base` namespace for every public type, with a file scoped namespace.
 
-### JavaScript
+### TypeScript
 
-Above each exported function, the name, then a summary, a one line gap, then one `Param:` line per parameter.
+A TSDoc block above each export: a summary, then one `@param` per parameter and a `@returns` when the return is not obvious. The block ships in the typings, so a plugin's editor shows it.
 
-```js
-// createShared
-// Builds the per view helper bag used by a config page. Bind it once on viewshow.
-//
-// Param: view      | page element
-// Param: pluginId  | string
-// Param: apiPrefix | string [optional]
-export function createShared(view, pluginId, apiPrefix) { ... }
+```ts
+/**
+ * Builds the per view helper bag used by a config page. Bind it once on viewshow.
+ *
+ * @param view page element the helpers operate on
+ * @param pluginId plugin GUID string
+ * @param apiPrefix controller name for apiRequest [optional]
+ */
+export function createShared(view: HTMLElement, pluginId: string, apiPrefix?: string) { ... }
 ```
 
-* Document the exported function only. Never document the methods inside a returned helper.
-* Existing sources add one `Returns` line after the `Param:` lines for a handle or value. Do the same when the return is not obvious.
-* Use one `Param:` line per parameter, with `|` between the name and the type or meaning, and `[optional]` for an optional one.
+* Document every export, including each `Options` and `Handle` interface. Never document the methods inside a returned helper.
+* A `@param` says what the value is for. The signature already gives its type.
+* A one line summary with no tags fits on one line, as `/** Summary. */`.
 
 ### CSS
 
@@ -118,10 +119,16 @@ The code is compiled into each plugin, and every plugin sets `Nullable`, `TreatW
 * Never throw from a helper whose contract is not to throw, such as `JpkHttp.SendAsync` on a network fault and `ActivityLogger.Log`.
 * Log through `ILogger` with static message templates. Pass untrusted text through `FormatUtilities.SanitizeForLog`.
 
-## JavaScript Conventions
+## TypeScript Conventions
 
-* Every component is an ES module, and `src/js/index.js` re-exports it. esbuild bundles it to one ESM file.
-* Follow the style of the file you edit. Today every module uses `var` and `function` expressions, with no arrow functions. Keep that so older engines load the bundle.
+* Every component is a TypeScript module, and `src/js/index.ts` re-exports it. esbuild strips the types and bundles it to one ESM file for Chromium 87. Import a sibling by its `.js` name, such as `./dom-util.js`.
+* `tsc` type checks in strict mode in `scripts/bundle.sh`. A type error fails the build.
+* Use only syntax that erases to plain JS: annotations, `as`, `!`, `interface`, `type`, and `import type`. No `enum`, `namespace`, or parameter properties.
+* Give each component an exported `Options` interface for what it takes and a `Handle` interface for what it returns. Shared shapes live in `src/js/types.ts`, and the Jellyfin globals in `src/js/globals.d.ts`.
+* Labels, items, and flags in an `Options` interface are plain data. A callback is for behavior only.
+* Prefer a real type to `any`. Use `!` only where the code already relies on the value being present.
+* Follow the style of the file you edit. Every module uses `var` and `function` expressions, with no arrow functions. Keep that so older engines load the bundle.
+* Never wrap a function expression in parentheses or an `as` cast. esbuild keeps the parentheses, so the bundle changes. Cast the receiver instead.
 * A module exports named functions only. A plugin imports from the bundle by a relative path, `./configurationpage?name=<plugin>_jpkribs_shared.js`.
 * Escape every value placed in HTML with `escapeHtml`. Class names that come from data go through `classNames`.
 * Return a handle with a `destroy()` for anything that holds a listener, an observer, or a timer, so `viewhide` can stop it.
@@ -159,6 +166,6 @@ Every change has a test. See [testing.md](testing.md) for each layer and how to 
 * [ ] Every public type, member, export, selector, and template object has its header in the [format above](#comments).
 * [ ] Inline comments appear only above branches, and say why.
 * [ ] No commented out code, TODO, or debug output.
-* [ ] The code builds with no warning under a plugin's strict analyzers.
+* [ ] The code builds with no warning under a plugin's strict analyzers, and `tsc` passes in strict mode.
 * [ ] The [security](#security) rules hold.
 * [ ] Every changed file has tests that pass, per [testing.md](testing.md).

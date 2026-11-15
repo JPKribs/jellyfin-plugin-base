@@ -26,6 +26,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -35,8 +36,14 @@ jobs:
       - name: Bundle shared assets
         run: bash scripts/bundle.sh
 
+      - name: Check bundle against golden copy
+        run: node scripts/check-bundle.mjs
+
+      - name: Check typings
+        run: bash scripts/check-types.sh
+
       - name: Test JavaScript
-        run: node --test JPKribs.Jellyfin.Base.Tests/js/*.test.mjs
+        run: node --import ./JPKribs.Jellyfin.Base.Tests/js/register.mjs --test JPKribs.Jellyfin.Base.Tests/js/*.test.mjs
 
       - name: Test
         run: dotnet test JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Release

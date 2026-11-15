@@ -47,6 +47,19 @@ Import the JavaScript by a relative path, so the page works on a server hosted u
 import { createShared, setTabs, initCollapsibles } from './configurationpage?name=myplugin_jpkribs_shared.js';
 ```
 
+## Typings
+
+Each build copies the typings of the JavaScript to `obj/jpkribs_shared.d.ts`. They describe every import from a path that ends in `jpkribs_shared.js`, so an editor completes each option and flags a wrong one. Add a `jsconfig.json` beside the plugin's csproj to use them.
+
+```json
+{
+  "compilerOptions": { "module": "ESNext", "moduleResolution": "bundler", "target": "ES2020" },
+  "include": ["Configuration/*.js", "obj/jpkribs_shared.d.ts"]
+}
+```
+
+Add `"checkJs": true` to have the editor report a wrong call as an error. The typings never reach the plugin assembly.
+
 ## Add Tabs
 
 For a plugin with several tabs, register one native page per tab and call `setTabs` on `viewshow`.

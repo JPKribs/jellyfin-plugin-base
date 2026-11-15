@@ -28,7 +28,7 @@ A date carries no meaning about the change. Compatibility is judged by [code.md]
     ```
 
     ```bash
-    node --test JPKribs.Jellyfin.Base.Tests/js/*.test.mjs
+    node --import ./JPKribs.Jellyfin.Base.Tests/js/register.mjs --test JPKribs.Jellyfin.Base.Tests/js/*.test.mjs
     ```
 
 3. **Bundle and pack.** Make a local package the way the workflow does.
@@ -37,7 +37,7 @@ A date carries no meaning about the change. Compatibility is judged by [code.md]
     scripts/pack.sh
     ```
 
-    It runs `scripts/bundle.sh`, which needs Node and runs `npx --yes esbuild`, then packs `nupkg/JPKribs.Jellyfin.Base.<version>.nupkg`. Pass a version to override, such as `scripts/pack.sh 2026.11.14.1`.
+    It runs `scripts/bundle.sh`, which needs Node, installs the pinned dev tools from `package-lock.json`, type checks, and bundles. It then packs `nupkg/JPKribs.Jellyfin.Base.<version>.nupkg`. Pass a version to override, such as `scripts/pack.sh 2026.11.14.1`.
 
 4. **Consumer build.** Build at least one plugin that uses the changed components against the local pack, per [testing.md](testing.md#consumer-build). Build one with strict analyzers.
 5. **Docs.** The README and the [component pages](documentation.md#the-component-pages) describe this release, and `mkdocs build --strict` passes.

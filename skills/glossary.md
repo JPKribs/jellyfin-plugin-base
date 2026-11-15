@@ -15,10 +15,12 @@ The agreed name for every concept in Base. Components, default labels, docs, and
 | Base | This repository and its package | `JPKribs.Jellyfin.Base` | Shared library, common, core |
 | Package | The NuGet package that ships Base | `JPKribs.Jellyfin.Base.csproj` | Library, DLL |
 | Consumer | A plugin that references the package | | Client, host, dependent |
-| Component | One reusable piece, a CSS file, a JS module, a template, or a C# helper | | Widget, control, module |
+| Component | One reusable piece, a CSS file, a TypeScript module, a template, or a C# helper | | Widget, control, module |
 | Helper | A C# type in `src/` that a plugin calls | `src/*.cs` | Utility class, service |
 | Kit | The CSS and JS components together. Used in code comments | | Framework, library |
 | Bundle | The one minified CSS file and one JS file built from the component sources | `dist/jpkribs_shared.css`, `dist/jpkribs_shared.js` | Build, dist file |
+| Typings | The declaration file that describes the JS bundle for a plugin's editor | `dist/jpkribs_shared.d.ts` | Types file, definitions, d.ts |
+| Golden copy | The committed JS bundle a build must match unless a change means to alter it | `JPKribs.Jellyfin.Base.Tests/golden/` | Snapshot, baseline |
 | Template | An HTML file in `src/templates/` that a helper fills in | `src/templates/status.html` | View, page file |
 | Plugin template | The files `scripts/sync-plugins.sh` writes into each plugin | `templates/plugin/` | Boilerplate, scaffold |
 | Inventory | A page that lists every public component with a short entry each | `docs/components/csharp/index.md`, `docs/components/web/index.md` | Catalog, index |

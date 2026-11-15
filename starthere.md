@@ -41,9 +41,10 @@ A plugin references the `JPKribs.Jellyfin.Base` package at one version. Nothing 
 | Packaging script | `tools/build-plugin.sh` ships in the package and a plugin's `build.sh` runs the copy for its Base version | `build/JPKribs.Jellyfin.Base.props` |
 | Plugin workflows | Callers pinned to a Base release run the reusable `plugin-*.yaml` workflows | `templates/plugin/` |
 
-Four scripts matter to a contributor.
+These scripts matter to a contributor.
 
-* `scripts/bundle.sh` builds `dist/jpkribs_shared.css` and `dist/jpkribs_shared.js` from `src/css` and `src/js`.
+* `scripts/bundle.sh` installs the pinned dev tools, type checks `src/js`, and builds `dist/jpkribs_shared.css`, `dist/jpkribs_shared.js`, and the typings `dist/jpkribs_shared.d.ts`.
+* `scripts/check-bundle.mjs` and `scripts/check-types.sh` check the bundle against its golden copy and the typings against their test.
 * `scripts/pack.sh` bundles and packs a local package, so a plugin can test unreleased work.
 * `scripts/build-previews.mjs` builds the live preview pages for the docs site from `docs/previews/`. Run it after `scripts/bundle.sh`.
 * `scripts/sync-plugins.sh` writes the files in `templates/plugin/` into plugin checkouts and points each at one Base release.
@@ -78,9 +79,9 @@ Explain what you would change, why, and what it risks. Wait for an answer before
 | :--- | :--- |
 | `src/*.cs` | The C# helpers, one per file, in the `JPKribs.Jellyfin.Base` namespace. |
 | `src/css/` | One CSS file per component. |
-| `src/js/` | ES module components, re-exported from `index.js`. |
+| `src/js/` | TypeScript components, re-exported from `index.ts`, with shared types in `types.ts`. |
 | `src/templates/` | The HTML templates, such as `status.html`. |
-| `dist/` | The bundled CSS and JS. Built by `scripts/bundle.sh` and not committed. |
+| `dist/` | The bundled CSS and JS, and the typings. Built by `scripts/bundle.sh` and not committed. |
 | `build/` | The props and targets that wire the package into a plugin. |
 | `tools/` | `build-plugin.sh`, the plugin packaging script that ships in the package. |
 | `templates/plugin/` | The `build.sh` shim and the workflow callers that `scripts/sync-plugins.sh` writes into plugins. |

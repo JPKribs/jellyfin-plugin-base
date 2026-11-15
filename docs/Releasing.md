@@ -33,7 +33,7 @@ The push uses nuget.org's Trusted Publishing, so no API key is stored. The packa
 * Run the JavaScript tests.
 
     ```bash
-    node --test JPKribs.Jellyfin.Base.Tests/js/*.test.mjs
+    node --import ./JPKribs.Jellyfin.Base.Tests/js/register.mjs --test JPKribs.Jellyfin.Base.Tests/js/*.test.mjs
     ```
 
 * Make a local package dated the same way, to build a plugin against before the release.

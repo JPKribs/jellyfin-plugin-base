@@ -29,4 +29,12 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <!--
+    Copies the typings of the shared JS to obj/jpkribs_shared.d.ts, so a plugin's jsconfig.json can include them
+    for editor checks. Nothing here reaches the plugin assembly.
+  -->
+  <Target Name="JpkCopyTypings" BeforeTargets="BeforeBuild" Condition="Exists('$(MSBuildThisFileDirectory)..\assets\jpkribs_shared.d.ts')">
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\assets\jpkribs_shared.d.ts" DestinationFolder="$(BaseIntermediateOutputPath)" SkipUnchangedFiles="true" />
+  </Target>
+
 </Project>

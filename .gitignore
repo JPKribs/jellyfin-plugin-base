@@ -2,6 +2,7 @@ bin/
 obj/
 nupkg/
 dist/
+node_modules/
 .DS_Store
 
 # Local AI assistant files, never committed
