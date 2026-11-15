@@ -13,11 +13,17 @@
     border-bottom: 1px solid color-mix(in srgb, currentColor 5%, transparent);
 }
 .jpk-reset-row:last-child { border-bottom: none; }
+
+/* Row with a faint red tint for the most destructive action */
+/* Example: <div class="jpk-reset-row jpk-reset-row-nuclear"></div> */
 .jpk-reset-row-nuclear {
     background: rgba(217, 83, 79, 0.08);
     border-radius: 4px;
     border-bottom: none;
 }
+
+/* Column that holds the description beside an action button */
+/* Example: <div class="jpk-reset-info"><div>Reset</div><div class="fieldDescription">Clears every setting.</div></div> */
 .jpk-reset-info {
     display: flex;
     flex-direction: column;

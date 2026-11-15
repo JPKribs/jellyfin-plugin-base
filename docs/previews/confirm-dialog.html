@@ -1,0 +1,15 @@
+<!-- title: Confirm Dialog -->
+<!-- min-height: 360 -->
+<button type="button" id="btnRemove" class="raised jpk-button-destructive"><span>Remove Server</span></button>
+<span id="confirmStatus" class="jpk-status-text"></span>
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+shared.bindClick('btnRemove', () => {
+    JPK.confirmDialog('Remove this server? Its links stop playing.', {
+        title: 'Remove Server',
+        confirmText: 'Remove',
+        destructive: true
+    }).then((confirmed) => shared.setStatus('confirmStatus', confirmed ? 'Removed.' : 'Kept.', !confirmed, { timeout: 0 }));
+});
+</script>

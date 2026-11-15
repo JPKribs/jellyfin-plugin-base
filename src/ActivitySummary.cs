@@ -6,11 +6,11 @@ using Microsoft.Extensions.Logging;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// One kind of summary entry: what it is called, its activity type, and how its overview reads from the
-/// counts. A plugin defines one per outcome, such as synced, skipped, and retrying.
+/// One kind of summary entry, with its activity type, its outcome word, and how its overview reads from the counts.
+/// A plugin defines one per outcome, such as synced, skipped, and retrying.
 /// </summary>
 /// <param name="Type">The activity type, namespaced under the plugin, such as <c>MyPlugin.ItemsSynced</c>.</param>
-/// <param name="Outcome">What happened, in title case, as it ends the name: "Synced" gives "12 Items Synced".</param>
+/// <param name="Outcome">What happened, in title case, as it ends the name. "Synced" gives "12 Items Synced".</param>
 /// <param name="Overview">The overview sentence, built from the counts.</param>
 /// <param name="Severity">The entry's severity.</param>
 /// <param name="Noun">The singular noun in title case, "Item" by default.</param>
@@ -23,11 +23,13 @@ public sealed record ActivityOutcome(string Type, string Outcome, Func<ActivityT
 public sealed record ActivityTally(int Total, IReadOnlyDictionary<string, int> Sources, IReadOnlyDictionary<string, int> Reasons);
 
 /// <summary>
-/// Sums events into one activity entry per outcome instead of one entry per item, so a busy run leaves
-/// a single "12 Items Synced" line rather than twelve. Events are written once none has arrived for a
-/// quiet spell, and at least once per longest spell while they keep coming, and whatever is waiting is
-/// written on dispose, so nothing that happened goes unrecorded. Register one per plugin as a singleton.
+/// Sums events into one activity entry per outcome, so a busy run leaves a single "12 Items Synced" line rather than twelve.
+/// Register one per plugin as a singleton and dispose it.
 /// </summary>
+/// <remarks>
+/// Summaries are written once no event has arrived for the quiet spell, and at least once per longest spell while events keep coming.
+/// Whatever is waiting is written on dispose. The timer callback runs each outcome's <c>Overview</c> delegate with no exception guard.
+/// </remarks>
 public sealed class ActivitySummary : IDisposable
 {
     private readonly ActivityLogger _logger;
@@ -46,7 +48,7 @@ public sealed class ActivitySummary : IDisposable
     /// <param name="logger">The activity log writer.</param>
     /// <param name="quiet">How long after the last event the summaries are written. 30 seconds by default.</param>
     /// <param name="longest">The longest events wait while more keep coming. 5 minutes by default.</param>
-    /// <param name="now">The clock, for tests.</param>
+    /// <param name="now">The clock that times the quiet and longest spells, <see cref="DateTime.UtcNow"/> by default.</param>
     public ActivitySummary(ActivityLogger logger, TimeSpan? quiet = null, TimeSpan? longest = null, Func<DateTime>? now = null)
     {
         ArgumentNullException.ThrowIfNull(logger);
@@ -57,6 +59,7 @@ public sealed class ActivitySummary : IDisposable
     }
 
     /// <summary>Counts one event toward its outcome's next summary.</summary>
+    /// <remarks>An event added after <see cref="Dispose"/> is ignored.</remarks>
     /// <param name="outcome">The outcome.</param>
     /// <param name="source">Where it came from, such as a server's name.</param>
     /// <param name="reason">Why, when the overview lists reasons.</param>
@@ -97,7 +100,11 @@ public sealed class ActivitySummary : IDisposable
         }
     }
 
-    /// <summary>Writes every summary waiting, now.</summary>
+    /// <summary>Writes every waiting summary immediately.</summary>
+    /// <remarks>
+    /// The waiting counts are taken before they are written. An exception from an <c>Overview</c> delegate
+    /// propagates and the summaries not yet written are lost.
+    /// </remarks>
     public void Flush()
     {
         List<(ActivityOutcome Outcome, Tally Tally)> taken;

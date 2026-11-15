@@ -1,23 +1,20 @@
-/* Design tokens: accent palette, status swatches, and the mono font stack.
-   The accent and surface follow the web client's live theme (its MUI palette variables, prefixed jf), falling back to
-   the dark theme's values where they aren't set. Lines and washes are a share of the text colour (currentColor,
-   resolved where the token is used), so they are light on dark themes and dark on light ones without a per-theme rule.
-   Older engines (the desktop app's Qt WebEngine, older TV webviews) have no color-mix(). A custom property holding one
-   is not rejected when parsed, it only fails where it is used, so a second declaration can't act as a fallback for a
-   token. Each token therefore starts on a plain colour, the old dark-theme value, and is upgraded in the @supports
-   block below only where color-mix() works.
-   In the components, a colour written as a share of currentColor is preceded by the plain rgba it replaced: an engine
-   that can't parse color-mix() drops that second line and keeps the first, so dark themes look as they did. A share of a
-   variable (the accent, --jpk-fg) is accepted when parsed even where it can't work, so those go in an @supports block
-   after the plain rule instead. */
+/* Design tokens for the accent, surface, border, washes, status colors, and the mono font stack */
+/* Example: color: var(--jpk-accent); */
 :root {
     --jpk-accent: var(--jf-palette-primary-main, #00a4dc);
     --jpk-accent-hover: #0088cc;
     --jpk-border: #555;
     --jpk-surface: var(--jf-palette-background-paper, #181818);
-    /* The theme's text colour, for a wash on an element that fades its own colour: currentColor there is already
-       faded, so a share of it would come out far fainter than intended. */
+    /* The theme text color, for a wash on an element that fades its own color, where currentColor is already faded. */
     --jpk-fg: var(--jf-palette-text-primary, #fff);
+    /* Text on an accent or status fill. It stays white in every theme, since the fill never follows the theme text color. */
+    --jpk-on-accent: #fff;
+    /* Text on a light status fill such as green, orange, yellow, gray, and blue, where white falls below 3 to 1. */
+    --jpk-on-warning: #1a1a1a;
+    /* Washes of the accent and of the text color, plain here and upgraded below. */
+    --jpk-accent-wash: rgba(0, 164, 220, 0.12);
+    --jpk-wash: rgba(255, 255, 255, 0.06);
+    --jpk-wash-strong: rgba(255, 255, 255, 0.12);
 
     --jpk-field-gap: 1.5em;
 
@@ -36,19 +33,23 @@
     --jpk-purple-bg: rgba(155, 89, 182, 0.2); --jpk-purple-fg: #9b59b6;
     --jpk-blue-bg: rgba(52, 152, 219, 0.2);   --jpk-blue-fg: #3498db;
     --jpk-gray-bg: rgba(153, 153, 153, 0.2);  --jpk-gray-fg: #999;
+    --jpk-yellow-bg: rgba(224, 200, 78, 0.2); --jpk-yellow-fg: #e0c84e;
+    --jpk-pink-bg: rgba(232, 93, 154, 0.2);   --jpk-pink-fg: #e85d9a;
+    --jpk-teal-bg: rgba(38, 166, 154, 0.2);   --jpk-teal-fg: #26a69a;
 }
+/* A token holding color-mix() fails where it is used, not where it is parsed, so each starts plain and upgrades here. */
 @supports (color: color-mix(in srgb, red, blue)) {
     :root {
         --jpk-accent-hover: color-mix(in srgb, var(--jpk-accent) 82%, #000);
         --jpk-border: color-mix(in srgb, currentColor 30%, transparent);
+        --jpk-accent-wash: color-mix(in srgb, var(--jpk-accent) 12%, transparent);
+        --jpk-wash: color-mix(in srgb, currentColor 6%, transparent);
+        --jpk-wash-strong: color-mix(in srgb, currentColor 12%, transparent);
     }
 }
 
-/* Generic-named convenience aliases for the accent/status swatches. These use un-namespaced names that could
-   collide with the host dashboard's own variables, so they are NOT defined on :root — they are scoped to the
-   plugin config page and to body-level kit surfaces (dialogs) where consuming plugins reference them, and so
-   never leak into the surrounding Jellyfin UI. The namespaced --jpk-* tokens above stay global (on :root) so
-   body-level components like jpk-dialog resolve them everywhere. */
+/* Unprefixed aliases of the accent, border, success, and error tokens, scoped so they never reach the dashboard */
+/* Example: .myplugin-link { color: var(--accent-color); } */
 .pluginConfigurationPage,
 .jpk-dialog {
     --accent-color: var(--jpk-accent);

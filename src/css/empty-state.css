@@ -1,0 +1,61 @@
+/* Centered placeholder shown when a list has no items */
+/* Example: <div class="jpk-empty-state"><div class="jpk-empty-state-card"></div></div> */
+.jpk-empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 16px;
+}
+
+/* Card holding the empty state icon, title, subtitle, and button */
+/* Example: <div class="jpk-empty-state-card"></div> */
+.jpk-empty-state-card {
+    text-align: center;
+    padding: 40px 48px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid color-mix(in srgb, currentColor 6%, transparent);
+    max-width: 420px;
+    width: 100%;
+}
+
+/* Large faded accent icon at the top of the card */
+/* Example: <span class="jpk-empty-state-icon material-icons">inbox</span> */
+.jpk-empty-state-icon {
+    font-size: 56px;
+    color: var(--jpk-accent);
+    opacity: 0.6;
+    margin-bottom: 16px;
+    display: block;
+}
+
+/* Bold title under the icon */
+/* Example: <div class="jpk-empty-state-title">Nothing here yet</div> */
+.jpk-empty-state-title {
+    font-size: 1.3em;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.85);
+    color: color-mix(in srgb, currentColor 85%, transparent);
+}
+
+/* Muted sentence under the title */
+/* Example: <div class="jpk-empty-state-subtitle">Add an item to get started.</div> */
+.jpk-empty-state-subtitle {
+    font-size: 0.95em;
+    color: rgba(255, 255, 255, 0.45);
+    color: color-mix(in srgb, currentColor 45%, transparent);
+    line-height: 1.5;
+    margin-bottom: 28px;
+}
+
+/* Wide action button at the bottom of the card */
+/* Example: <button class="raised jpk-empty-state-button">Add</button> */
+.jpk-empty-state-button {
+    display: inline-flex !important;
+    align-items: center;
+    padding: 10px 28px !important;
+    font-size: 0.95em;
+    border-radius: 4px;
+}

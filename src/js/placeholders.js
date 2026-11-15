@@ -1,10 +1,3 @@
-// Placeholder hints.
-//
-// A field that takes placeholders such as {title} gets a Placeholders hint under it, where Jellyfin puts a
-// field's help. The hint shows the placeholders the field takes as buttons, and pressing one puts it in at the
-// cursor. The markup is plain HTML, so it works in strings built for dialogs; bindPlaceholders handles every
-// hint inside a root at once.
-
 import { escapeHtml } from './escape.js';
 
 // insertAtCursor
@@ -23,8 +16,7 @@ export function insertAtCursor(field, text) {
 }
 
 // placeholderHint
-// Returns a field's Placeholders hint and the hidden list it shows. Put it after the field, in the same
-// inputContainer, so the label above the field stays a plain label.
+// Returns a field's Placeholders hint and the hidden list it shows. Put it after the field, in the same inputContainer.
 //
 // Param: placeholders | [[name, description], ...] where name is used as {name}
 export function placeholderHint(placeholders) {
@@ -46,7 +38,7 @@ export function placeholderHint(placeholders) {
 export function bindPlaceholders(root, onInsert) {
     if (!root || root.dataset.jpkPlaceholders) return;
     root.dataset.jpkPlaceholders = '1';
-    // Pressing a placeholder keeps the focus in the field, so it goes where the cursor is.
+    // Keeps focus in the field while a placeholder is pressed, so it goes in at the cursor.
     root.addEventListener('mousedown', function (e) {
         if (e.target.closest('[data-jpk-placeholder]')) e.preventDefault();
     });

@@ -3,9 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>JPKribs Base — UI Gallery</title>
+<title>JPKribs Base UI Gallery</title>
 
-<!-- The real, freshly-bundled kit stylesheet. Run scripts/gallery.sh to (re)bundle and serve. -->
+<!-- The Material Icons font that the kit icons use through the material-icons class -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+<!-- The bundled kit stylesheet, which scripts/gallery.sh rebuilds -->
 <link rel="stylesheet" href="../../dist/jpkribs_shared.css" />
 
 <style>
@@ -43,18 +45,16 @@
 </style>
 </head>
 
-<!-- Wrapped in .pluginConfigurationPage so the field/form rules and the scoped token aliases apply,
-     exactly as they do on a real Jellyfin config page. -->
+<!-- The page wrapper carries pluginConfigurationPage so the form rules and token aliases apply as on a config page -->
 <body>
 <div class="pluginConfigurationPage">
 <div class="g-wrap" id="view">
-    <div class="g-title">JPKribs Base — UI Gallery</div>
+    <div class="g-title">JPKribs Base UI Gallery</div>
     <p class="g-sub">Every shipped component, rendered from the real bundled <code>jpkribs_shared.css</code> / <code>.js</code>.</p>
 </div>
 </div>
 
-<!-- Stub the Jellyfin dashboard globals the kit JS reaches for, with mock data, so every component runs
-     stand-alone. Classic script runs before the deferred module below. -->
+<!-- Stubs of the dashboard globals with mock data, as a classic script so it runs before the module below -->
 <script>
 (function () {
     function svg(w, h, bg, label) {
@@ -88,7 +88,7 @@
     for (var i = 1; i <= 57; i++) {
         ITEMS.push({
             id: 'item-' + i,
-            name: 'Episode ' + i + ' — The One With The ' + ['Cache', 'Sync', 'Retry', 'Backoff', 'Token'][i % 5],
+            name: 'Episode ' + i + ', The One With The ' + ['Cache', 'Sync', 'Retry', 'Backoff', 'Token'][i % 5],
             sizeBytes: (i * 37 % 900 + 20) * 1024 * 1024,
             status: STATUSES[i % STATUSES.length]
         });
@@ -131,7 +131,7 @@ const D = window.__galleryData;
 const G = window.__gallery;
 const shared = JPK.createShared(view, 'gallery-plugin-id', 'Gallery');
 
-// section(title) -> a card element you append content into.
+// Adds a titled section card to the page and returns it.
 function section(title) {
     const s = document.createElement('div');
     s.className = 'g-section';
@@ -154,13 +154,14 @@ function html(parent, markup) {
     return d;
 }
 
-// ---- Palette ----
 (function () {
     const s = section('Palette & tokens');
     const wrap = document.createElement('div');
     wrap.className = 'g-swatches';
     [['--jpk-accent', 'accent'], ['--jpk-success', 'success'], ['--jpk-warning', 'warning'],
-     ['--jpk-error', 'error'], ['--jpk-info', 'info'], ['--jpk-purple', 'purple'], ['--jpk-border', 'border']]
+     ['--jpk-error', 'error'], ['--jpk-info', 'info'], ['--jpk-purple', 'purple'], ['--jpk-border', 'border'],
+     ['--jpk-on-accent', 'on-accent'], ['--jpk-accent-wash', 'accent-wash'], ['--jpk-wash', 'wash'], ['--jpk-wash-strong', 'wash-strong'],
+     ['--jpk-pink-fg', 'pink'], ['--jpk-teal-fg', 'teal']]
     .forEach(([v, name]) => {
         const sw = document.createElement('div');
         sw.className = 'g-swatch';
@@ -170,7 +171,6 @@ function html(parent, markup) {
     s.appendChild(wrap);
 })();
 
-// ---- Buttons ----
 (function () {
     const s = section('Buttons');
     const r = row(s);
@@ -183,20 +183,18 @@ function html(parent, markup) {
         '<button class="jpk-icon-btn"><span class="material-icons">add</span><span>Icon button</span></button>';
 })();
 
-// ---- Status callouts ----
 (function () {
     const s = section('Status callouts');
-    html(s, '<div class="jpk-info">jpk-info — a neutral hint or guidance.</div>').style.marginBottom = '8px';
-    html(s, '<div class="jpk-success">jpk-success — a healthy or completed state.</div>').style.marginBottom = '8px';
-    html(s, '<div class="jpk-warn">jpk-warn — a caution worth heeding.</div>').style.marginBottom = '8px';
-    html(s, '<div class="jpk-error">jpk-error — a blocking problem.</div>').style.marginBottom = '8px';
-    html(s, '<div class="jpk-neutral">jpk-neutral — a muted, inactive note.</div>').style.marginBottom = '8px';
+    html(s, '<div class="jpk-info">jpk-info, a neutral hint or guidance.</div>').style.marginBottom = '8px';
+    html(s, '<div class="jpk-success">jpk-success, a healthy or completed state.</div>').style.marginBottom = '8px';
+    html(s, '<div class="jpk-warn">jpk-warn, a caution worth heeding.</div>').style.marginBottom = '8px';
+    html(s, '<div class="jpk-error">jpk-error, a blocking problem.</div>').style.marginBottom = '8px';
+    html(s, '<div class="jpk-neutral">jpk-neutral, a muted, inactive note.</div>').style.marginBottom = '8px';
     html(s, '<div class="jpk-error-message">TypeError: cannot read properties of undefined (reading \'Items\')</div>');
 })();
 
-// ---- setStatus (class-based) ----
 (function () {
-    const s = section('Status text — shared.setStatus');
+    const s = section('Status text (shared.setStatus)');
     const line = document.createElement('span');
     line.id = 'demoStatus';
     line.className = 'jpk-status-text';
@@ -208,9 +206,8 @@ function html(parent, markup) {
     r.appendChild(ok); r.appendChild(bad); r.appendChild(line);
 })();
 
-// ---- Cards ----
 (function () {
-    const s = section('Count cards — shared.renderCards');
+    const s = section('Count cards (shared.renderCards)');
     const host = document.createElement('div'); host.id = 'demoCards';
     s.appendChild(host);
     shared.renderCards('demoCards', [
@@ -220,7 +217,6 @@ function html(parent, markup) {
         { label: 'Ignored', count: 8, color: 'gray' },
         { label: 'Pending', count: 21, color: 'purple' }
     ]);
-    // Record card
     html(s, '<div class="jpk-record-card" style="margin-top:14px">' +
         '<div class="jpk-record-row"><span class="jpk-record-label">Last run</span><span>2 minutes ago</span></div>' +
         '<div class="jpk-record-row"><span class="jpk-record-label">Result</span><span class="jpk-mono">OK</span></div>' +
@@ -228,25 +224,31 @@ function html(parent, markup) {
         '</div>');
 })();
 
-// ---- Badges ----
 (function () {
-    const s = section('Badges — BADGE_STATES');
+    const s = section('Badges (BADGE_STATES)');
     const r = row(s);
     JPK.BADGE_STATES.names.forEach(n => r.insertAdjacentHTML('beforeend', shared.statusBadge(n, n) + ' '));
     const r2 = row(s); r2.style.marginTop = '10px';
     JPK.BADGE_STATES.colors.forEach(c => r2.insertAdjacentHTML('beforeend', shared.badge(c, c) + ' '));
 })();
 
-// ---- Tags ----
 (function () {
     const s = section('Tags');
     html(s, '<div class="jpk-tags">' +
         ['Action', 'Comedy', 'Drama', 'Sci-Fi'].map(t =>
             '<span class="jpk-tag">' + t + '<span class="jpk-tag-remove">×</span></span>').join('') +
         '</div>');
+    html(s, '<div class="jpk-tags">' +
+        ['Action', 'Comedy', 'Drama', 'Sci-Fi'].map(t =>
+            '<span class="jpk-tag">' + t + '<button type="button" class="jpk-tag-remove" aria-label="Remove ' + t + '">×</button></span>').join('') +
+        '</div>');
+    html(s, '<div class="jpk-tags">' +
+        ['Action', 'Comedy', 'Drama', 'Sci-Fi'].map(t =>
+            '<span class="jpk-tag jpk-tag-pill">' + t + '<button type="button" class="jpk-tag-remove" aria-label="Remove ' + t + '">×</button></span>').join('') +
+        '<span class="jpk-tag jpk-tag-off">Off tag</span></div>');
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">Row one is span removers, row two is real buttons with a focus ring, row three is jpk-tag-pill.</p>');
 })();
 
-// ---- Fields ----
 (function () {
     const s = section('Fields & inputs');
     html(s, '<div class="jpk-field-row">' +
@@ -258,9 +260,8 @@ function html(parent, markup) {
     html(s, '<div class="inputContainer"><label>Notes</label><textarea rows="2">Multi-line text area.</textarea></div>');
 })();
 
-// ---- Selector ----
 (function () {
-    const s = section('Record selector — jpk-selector');
+    const s = section('Record selector (jpk-selector)');
     html(s, '<div class="jpk-selector">' +
         '<select class="jpk-selector-dropdown"><option>Primary record</option><option>Backup record</option></select>' +
         '<div class="jpk-selector-actions">' +
@@ -269,7 +270,6 @@ function html(parent, markup) {
         '</div></div>');
 })();
 
-// ---- Collapsibles ----
 (function () {
     const s = section('Collapsible sections');
     s.insertAdjacentHTML('beforeend',
@@ -288,9 +288,8 @@ function html(parent, markup) {
     shared.initCollapsibles();
 })();
 
-// ---- Sortable card list ----
 (function () {
-    const s = section('Sortable card list — createSortableCardList');
+    const s = section('Sortable card list (createSortableCardList)');
     const list = document.createElement('div');
     s.appendChild(list);
     const editor = document.createElement('div');
@@ -313,9 +312,8 @@ function html(parent, markup) {
         '<span id="cardListStatus" class="jpk-status-text"></span>');
 })();
 
-// ---- Choice cards ----
 (function () {
-    const s = section('Choice cards — createChoiceGroup');
+    const s = section('Choice cards (createChoiceGroup)');
     const group = html(s, '<div class="jpk-choice-group" role="radiogroup">' +
         '<label class="jpk-choice"><input type="radio" name="g-mode" value="Scan" checked><span class="jpk-choice-name">Scan</span><span class="jpk-choice-text">Pull from this server on a schedule.</span></label>' +
         '<label class="jpk-choice"><input type="radio" name="g-mode" value="Send"><span class="jpk-choice-name">Send</span><span class="jpk-choice-text">Tell this server about changes as they happen.</span></label>' +
@@ -324,9 +322,8 @@ function html(parent, markup) {
     JPK.createChoiceGroup(group, { onChange: (v) => shared.setStatus('choiceStatus', 'Chose ' + v, true) });
 })();
 
-// ---- Step headers ----
 (function () {
-    const s = section('Step headers — jpk-step-title');
+    const s = section('Step headers (jpk-step-title)');
     s.insertAdjacentHTML('beforeend',
         '<div class="jpk-collapsible-section">' +
           '<button type="button" class="jpk-collapsible-header" data-target="stepA">' +
@@ -343,9 +340,8 @@ function html(parent, markup) {
     shared.initCollapsibles();
 })();
 
-// ---- Combo box ----
 (function () {
-    const s = section('Searchable combo box — shared.createSearchableComboBox');
+    const s = section('Searchable combo box (shared.createSearchableComboBox)');
     const OPTIONS = ['Aardvark', 'Albatross', 'Beaver', 'Bison', 'Cheetah', 'Cobra', 'Dolphin', 'Eagle', 'Falcon'];
     const combo = shared.createSearchableComboBox({
         placeholder: 'Type to search animals…',
@@ -358,9 +354,8 @@ function html(parent, markup) {
     s.appendChild(st);
 })();
 
-// ---- Chip select ----
 (function () {
-    const s = section('Chip multi-select — createChipSelect');
+    const s = section('Chip multi-select (createChipSelect)');
     const chip = JPK.createChipSelect({
         placeholder: 'Add genres…',
         value: ['drama'],
@@ -373,9 +368,17 @@ function html(parent, markup) {
     });
     s.appendChild(chip.element);
     s.insertAdjacentHTML('beforeend', '<p class="g-note">Type to filter, click or Enter to add, × or Backspace to remove. allowCreate lets you add a free-typed value.</p>');
+    const pills = JPK.createChipSelect({
+        pill: true,
+        placeholder: 'Add genres as pills…',
+        value: [{ value: 'drama', label: 'Drama' }, { value: 'scifi', label: 'Sci-Fi' }],
+        options: [{ value: 'action', label: 'Action' }, { value: 'drama', label: 'Drama' }, { value: 'scifi', label: 'Sci-Fi' }]
+    });
+    pills.element.style.marginTop = '14px';
+    s.appendChild(pills.element);
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">pill: true draws each chip as jpk-tag-pill.</p>');
 
-    // Single-select variant backed by an async searchFn (the studios/people/language pattern):
-    // stores an opaque value but shows a friendly label, keeping at most one selection.
+    // A single select picker backed by an async search that stores an opaque value and shows a friendly label.
     const LANGS = [
         { value: 'eng', label: 'English' }, { value: 'fra', label: 'French' }, { value: 'deu', label: 'German' },
         { value: 'spa', label: 'Spanish' }, { value: 'jpn', label: 'Japanese' }, { value: 'kor', label: 'Korean' }
@@ -392,12 +395,11 @@ function html(parent, markup) {
     s.appendChild(lang.element);
     const st = document.createElement('span'); st.id = 'langStatus'; st.className = 'jpk-status-text';
     s.appendChild(st);
-    s.insertAdjacentHTML('beforeend', '<p class="g-note">single: true — an async, searchable single-picker that stores an opaque value (ISO code) but keeps the label via getItems().</p>');
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">single: true is an async, searchable single-picker that stores an opaque value (ISO code) but keeps the label via getItems().</p>');
 })();
 
-// ---- Checkbox list ----
 (function () {
-    const s = section('Searchable checkbox list — createCheckboxList');
+    const s = section('Searchable checkbox list (createCheckboxList)');
     const SERIES = [];
     for (let i = 1; i <= 12; i++) {
         SERIES.push({ id: 's' + i, name: 'Series ' + i, year: 2000 + i,
@@ -409,15 +411,15 @@ function html(parent, markup) {
         disabledIds: ['s9'],
         searchKeys: ['name'],
         showSelectAll: true,
+        selectAllText: 'Select every series',
         renderRow: (it) => ({ label: it.name, sublabel: 'First aired ' + it.year, imageUrl: it.poster,
             note: it.id === 's9' ? 'assigned' : '' })
     });
     s.appendChild(list.element);
 })();
 
-// ---- User selectors ----
 (function () {
-    const s = section('User selectors — createUserSelector / createUserMultiSelector');
+    const s = section('User selectors (createUserSelector / createUserMultiSelector)');
     const single = shared.createUserSelector({ value: 'u2' });
     s.appendChild(single.element);
     const multi = shared.createUserMultiSelector({ value: ['u1', 'u3'], showSelectAll: true, adminFilter: 'all' });
@@ -425,9 +427,8 @@ function html(parent, markup) {
     s.appendChild(multi.element);
 })();
 
-// ---- Dialogs ----
 (function () {
-    const s = section('Dialogs — openDialog / confirmDialog / promptDialog');
+    const s = section('Dialogs (openDialog / confirmDialog / promptDialog)');
     const r = row(s);
     const b1 = document.createElement('button'); b1.className = 'raised jpk-button-submit'; b1.textContent = 'openDialog';
     b1.onclick = () => JPK.openDialog({
@@ -446,14 +447,39 @@ function html(parent, markup) {
         [{ name: 'label', label: 'Label', value: 'My record' }, { name: 'ttl', label: 'TTL (seconds)', type: 'number', value: '300' }],
         { title: 'New record', submitText: 'Create' })
         .then(vals => shared.setStatus('dialogStatus', vals ? ('prompt: ' + JSON.stringify(vals)) : 'prompt cancelled', !vals, { timeout: 0 }));
-    r.appendChild(b1); r.appendChild(b2); r.appendChild(b3);
+    const b4 = document.createElement('button'); b4.className = 'raised jpk-secondary'; b4.id = 'demoEditor'; b4.textContent = 'openEditorDialog';
+    b4.onclick = () => {
+        const body = document.createElement('div');
+        body.innerHTML = '<div class="inputContainer"><label>Name</label><input type="text" id="demoEditorName" value="Living room"></div>' +
+            '<div class="inputContainer"><label>Starts on</label><input type="date" value="2026-03-10"></div>';
+        const input = body.querySelector('input');
+        const editor = JPK.openEditorDialog({
+            title: 'Edit Record', body: body, serialize: () => input.value, cancelText: 'Cancel',
+            onRemove: (close) => close('removed'),
+            onDone: () => true,
+            onClose: (value) => shared.setStatus('dialogStatus', 'editor closed: ' + (value || 'dismissed'), false, { timeout: 0 })
+        });
+    };
+    const b5 = document.createElement('button'); b5.className = 'raised jpk-secondary'; b5.id = 'demoWide'; b5.textContent = 'openDialog wide';
+    b5.onclick = () => {
+        let more = '';
+        for (let i = 1; i <= 12; i++) more += '<div class="inputContainer"><label>Field ' + i + '</label><input type="text" value="Value ' + i + '"></div>';
+        JPK.openDialog({
+            title: 'A Wide Dialog', wide: true, body: more,
+            buttons: [
+                { text: 'Delete', className: 'jpk-button-destructive', action: (close) => close() },
+                { text: 'Cancel', className: 'jpk-secondary', action: (close) => close() },
+                { text: 'Done', className: 'jpk-button-submit', action: (close) => close() }
+            ]
+        });
+    };
+    r.appendChild(b1); r.appendChild(b2); r.appendChild(b3); r.appendChild(b4); r.appendChild(b5);
     const st = document.createElement('span'); st.id = 'dialogStatus'; st.className = 'jpk-status-text'; st.style.marginTop = '8px';
     s.appendChild(st);
 })();
 
-// ---- Static dialog markup ----
 (function () {
-    const s = section('Dialog in page markup — bindDialog');
+    const s = section('Dialog in page markup (bindDialog)');
     s.insertAdjacentHTML('beforeend',
         '<div id="demoStaticDialog" class="jpk-dialog hidden">' +
           '<div class="jpk-dialog-content jpk-dialog-content-narrow">' +
@@ -476,9 +502,8 @@ function html(parent, markup) {
     r.appendChild(b); r.appendChild(st);
 })();
 
-// ---- Secret field ----
 (function () {
-    const s = section('Secret field — bindSecretField / readSecretField');
+    const s = section('Secret field (bindSecretField / readSecretField)');
     s.insertAdjacentHTML('beforeend',
         '<div class="inputContainer"><label>API key</label><input id="demoSecret" type="password" placeholder="Enter an API key" /></div>');
     shared.bindSecretField('demoSecret', true);
@@ -491,9 +516,8 @@ function html(parent, markup) {
     r.appendChild(read); r.appendChild(clear); r.appendChild(out);
 })();
 
-// ---- Copy with feedback ----
 (function () {
-    const s = section('Copy — shared.copyWithFeedback');
+    const s = section('Copy (shared.copyWithFeedback)');
     const r = row(s);
     const b = document.createElement('button'); b.className = 'raised jpk-button-small'; b.id = 'demoCopy';
     b.innerHTML = '<span class="material-icons">content_copy</span><span>Copy link</span>';
@@ -501,9 +525,8 @@ function html(parent, markup) {
     r.appendChild(b);
 })();
 
-// ---- Change tracker + unsaved indicator ----
 (function () {
-    const s = section('Unsaved indicator — shared.createChangeTracker');
+    const s = section('Unsaved indicator (shared.createChangeTracker)');
     const wrap = document.createElement('div');
     wrap.innerHTML =
         '<div class="inputContainer"><label>Edit me ' +
@@ -511,7 +534,7 @@ function html(parent, markup) {
         '</label><input id="demoTrack" type="text" value="initial value" /></div>';
     s.appendChild(wrap);
     const input = wrap.querySelector('#demoTrack');
-    const tracker = shared.createChangeTracker({ serialize: () => input.value, indicatorId: 'demoUnsaved' });
+    const tracker = shared.createChangeTracker({ serialize: () => input.value, indicatorId: 'demoUnsaved', savedText: 'Saved' });
     input.addEventListener('input', () => tracker.check());
     const r = row(s);
     const save = document.createElement('button'); save.className = 'raised jpk-button-small'; save.textContent = 'Save (flash)';
@@ -519,9 +542,8 @@ function html(parent, markup) {
     r.appendChild(save);
 })();
 
-// ---- Poller ----
 (function () {
-    const s = section('Poller — shared.createPoller');
+    const s = section('Poller (shared.createPoller)');
     const count = document.createElement('span'); count.className = 'jpk-mono'; count.textContent = '0 ticks';
     let n = 0;
     const poller = shared.createPoller(() => { n++; count.textContent = n + ' ticks'; }, 1000);
@@ -533,12 +555,11 @@ function html(parent, markup) {
     r.appendChild(start); r.appendChild(stop); r.appendChild(count);
 })();
 
-// ---- Inline / bulk edit ----
 (function () {
     const s = section('Inline & bulk edit');
     s.insertAdjacentHTML('beforeend',
         '<div class="jpk-bulk-edit-bar">' +
-          '<div class="jpk-bulk-edit-title">Bulk edit — 3 selected</div>' +
+          '<div class="jpk-bulk-edit-title">Bulk edit, 3 selected</div>' +
           '<div class="jpk-edit-line">' +
             '<div class="jpk-field"><label>Artist</label><input type="text" placeholder="Set artist" /></div>' +
             '<div class="jpk-field"><label>Album</label><input type="text" placeholder="Set album" /></div>' +
@@ -548,15 +569,13 @@ function html(parent, markup) {
         '</div>');
 })();
 
-// ---- Empty section ----
 (function () {
-    const s = section('Empty state — shared.emptySection');
+    const s = section('Empty state (shared.emptySection)');
     s.insertAdjacentHTML('beforeend', shared.emptySection('No records yet. Add one to get started.'));
 })();
 
-// ---- Paginated table ----
 (function () {
-    const s = section('Paginated table — createPaginatedTable');
+    const s = section('Paginated table (createPaginatedTable)');
     const host = document.createElement('div'); host.id = 'demoTable';
     s.appendChild(host);
     JPK.createPaginatedTable(view, shared, {
@@ -572,6 +591,363 @@ function html(parent, markup) {
         getDisplayStatus: (it) => it.status,
         getStatusClass: (it) => it.status
     }).load();
+})();
+
+(function () {
+    const s = section('Toggle group (jpk-toggle)');
+    html(s, '<div class="jpk-toggle-group" id="demoToggles">' +
+        '<button type="button" class="jpk-toggle" aria-pressed="true"><span class="material-icons">forum</span>Discord</button>' +
+        '<button type="button" class="jpk-toggle" aria-pressed="false"><span class="material-icons">mail</span>Email</button>' +
+        '<button type="button" class="jpk-toggle" aria-pressed="true">Webhook</button></div>');
+    s.querySelectorAll('.jpk-toggle').forEach((b) => b.addEventListener('click', () =>
+        b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true'))));
+})();
+
+(function () {
+    const s = section('Code block (jpk-code)');
+    html(s, '<textarea class="jpk-code" rows="4" spellcheck="false">{\n  "event": "Approved",\n  "user": "viewer"\n}</textarea>');
+    html(s, '<pre class="jpk-code jpk-code-block" style="margin-top:10px">{ "event": "Approved", "title": "A long title that wraps rather than scrolls sideways on a phone" }</pre>');
+    html(s, '<pre class="jpk-code jpk-code-block jpk-code-invalid" style="margin-top:10px">{ "event": </pre>');
+})();
+
+(function () {
+    const s = section('Asset list (jpk-asset-list)');
+    html(s, '<div class="jpk-asset-list">' +
+        ['logo.png', 'a-very-long-asset-file-name-that-has-to-clip-with-an-ellipsis.svg'].map((n, i) =>
+            '<div class="jpk-asset-item"><img class="jpk-asset-thumb" alt="" src="' + G.rect(48, 48, D.COLORS[i], 'A') + '">' +
+            '<div class="jpk-asset-info"><div class="jpk-asset-name">' + n + '</div><div class="jpk-asset-ref">assets/' + n + '</div></div>' +
+            '<div class="jpk-asset-actions"><button type="button" class="jpk-asset-btn" title="Copy"><span class="material-icons">content_copy</span></button>' +
+            '<button type="button" class="jpk-asset-btn danger" title="Delete"><span class="material-icons">delete</span></button></div></div>').join('') +
+        '</div>');
+})();
+
+(function () {
+    const s = section('Progress bar (jpk-progress)');
+    html(s, '<div class="jpk-progress"><div class="jpk-progress-bar" style="width: 40%"></div></div>');
+    const r = row(s); r.style.marginTop = '14px';
+    r.innerHTML = '<button type="button" class="raised jpk-button-submit jpk-btn-progress-host"><span>Run</span><div class="jpk-btn-progress" style="width: 55%"></div></button>' +
+        '<button type="button" class="raised jpk-button-destructive jpk-btn-progress-host"><span>Delete</span><div class="jpk-btn-progress" style="width: 55%"></div></button>' +
+        '<button type="button" class="raised jpk-btn-progress-host"><span>Plain</span><div class="jpk-btn-progress" style="width: 55%"></div></button>';
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">The progress line on an accent or red button uses the on-accent color, and on a plain button it uses the accent.</p>');
+})();
+
+(function () {
+    const s = section('Check grid (jpk-check-grid)');
+    html(s, '<div class="jpk-check-grid">' + ['Poster', 'Backdrop', 'Logo', 'Banner', 'Thumb', 'Disc'].map((n) =>
+        '<label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox"' + (n === 'Poster' ? ' checked' : '') + '><span class="checkboxLabel">' + n + '</span></label>').join('') + '</div>');
+})();
+
+(function () {
+    const s = section('Layout blocks (section, subsection title, indent, reset group)');
+    html(s, '<div class="jpk-section"><div class="jpk-section-title">Authentication</div><div class="jpk-section-content">' +
+        '<h3 class="jpk-subsection-title">Credentials</h3>' +
+        '<div class="inputContainer"><label>Server</label><input type="text" value="server.example.com"></div>' +
+        '<div class="jpk-indent"><div class="inputContainer"><label>Indented field</label><input type="text" value="Under a toggle"></div></div>' +
+        '</div></div>');
+    html(s, '<div class="jpk-reset-group">' +
+        '<div class="jpk-reset-row"><div class="jpk-reset-info"><div>Reset sync state</div><div class="fieldDescription">Clears the sync history.</div></div><button type="button" class="raised jpk-secondary">Reset</button></div>' +
+        '<div class="jpk-reset-row jpk-reset-row-nuclear"><div class="jpk-reset-info"><div>Reset everything</div><div class="fieldDescription">Clears every setting.</div></div><button type="button" class="raised jpk-button-destructive">Reset</button></div></div>');
+})();
+
+(function () {
+    const s = section('Placeholder hint (placeholderHint / bindPlaceholders)');
+    html(s, '<div class="inputContainer"><label>Message</label><input id="demoPlaceholderField" type="text" value="Now playing ">' +
+        shared.placeholderHint([['title', 'The item name'], ['user', 'The viewer']]) + '</div>');
+    shared.bindPlaceholders(s);
+})();
+
+(function () {
+    const s = section('Cards in rows (jpk-cards-rows and --jpk-cards-per-row)');
+    const cards = (extra) => '<div class="jpk-cards jpk-cards-rows"' + (extra ? ' style="' + extra + '"' : '') + '>' +
+        ['green', 'red', 'orange', 'purple', 'blue', 'gray', 'pink', 'teal'].map((c, i) =>
+            '<div class="jpk-card ' + c + '"><span class="jpk-card-count">' + (i + 1) + '</span><span class="jpk-card-label">' + c + '</span></div>').join('') +
+        '<div class="jpk-card hidden"></div></div>';
+    html(s, cards(''));
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">The default keeps as many columns as fit.</p>');
+    html(s, cards('--jpk-cards-per-row: 4'));
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">--jpk-cards-per-row: 4 caps the row at four cards.</p>');
+})();
+
+(function () {
+    const s = section('Ordered list (createOrderedList)');
+    const names = ['Intro', 'Verse', 'Chorus', 'Outro'];
+    const list = JPK.createOrderedList({
+        items: names,
+        render: (item, i) => '<strong>' + shared.escapeHtml(item) + '</strong> <span style="opacity:.6">Position ' + (i + 1) + '</span>',
+        label: (item) => item,
+        onMove: (from, to, items) => shared.setStatus('orderedStatus', 'Moved ' + (from + 1) + ' to ' + (to + 1) + ': ' + items.join(', '), false, { timeout: 0 })
+    });
+    s.appendChild(list.element);
+    html(s, '<span id="orderedStatus" class="jpk-status-text"></span>');
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">The first up and last down buttons are disabled, and focus stays on the button that moved the row.</p>');
+})();
+
+(function () {
+    const s = section('Static table, panel, and pill group');
+    html(s, '<div class="jpk-static-table-scroll"><table class="jpk-static-table"><thead><tr><th>Name</th><th>Type</th><th class="jpk-static-table-num">Size</th><th class="jpk-static-table-num">Items</th></tr></thead><tbody>' +
+        '<tr><td>Poster.png</td><td>Image</td><td class="jpk-static-table-num">1,204</td><td class="jpk-static-table-num">12</td></tr>' +
+        '<tr><td>A longer row name that wraps on a narrow screen</td><td>Image</td><td class="jpk-static-table-num">98</td><td class="jpk-static-table-num">3</td></tr>' +
+        '</tbody></table></div>');
+    html(s, '<div class="jpk-static-table-scroll"><table class="jpk-static-table" style="min-width:640px"><tbody><tr><th>Wide table</th><td>This one is wider than a phone, so its wrapper scrolls sideways.</td><td>One</td><td>Two</td><td>Three</td></tr></tbody></table></div>');
+    html(s, '<div class="jpk-panel"><div class="jpk-panel-header">Schedule</div><div class="jpk-panel-body">' +
+        '<div class="inputContainer"><label>Starts on</label><input type="date" value="2026-03-10"></div>' +
+        '<div class="jpk-pill-group" id="demoPills" role="group" aria-label="Frequency">' +
+        '<button type="button" class="jpk-pill" data-value="daily">Daily</button>' +
+        '<button type="button" class="jpk-pill" data-value="weekly" aria-pressed="true">Weekly</button>' +
+        '<button type="button" class="jpk-pill" data-value="monthly">Monthly</button></div></div></div>');
+    html(s, '<div class="jpk-panel"><div class="jpk-panel-body">A panel with a body and no header.</div></div>');
+    const pills = JPK.createPillGroup(s.querySelector('#demoPills'), { onChange: (v) => shared.setStatus('pillStatus', 'Chose ' + v, false, { timeout: 0 }) });
+    pills.set('weekly');
+    html(s, '<span id="pillStatus" class="jpk-status-text"></span>');
+})();
+
+(function () {
+    const s = section('Utilities (jpk-sr-only, input type date, plural)');
+    html(s, '<button type="button" class="jpk-icon-btn"><span class="material-icons" aria-hidden="true">delete</span><span class="jpk-sr-only">Delete the record</span></button>' +
+        ' <span class="g-note">The button above has hidden text for a screen reader.</span>');
+    html(s, '<div class="inputContainer" style="margin-top:12px"><label>Date</label><input type="date" value="2026-03-10"></div>' +
+        '<div class="inputContainer"><label>Text</label><input type="text" value="Beside the date"></div>' +
+        '<div id="demoCompactDates" class="g-row"><input type="date" class="jpk-edit-input" value="2026-03-10" style="width:auto"> <input type="date" value="2026-03-11" style="font-size:0.8em"></div>');
+    html(s, '<div class="jpk-mono">' + [0, 1, 2].map((n) => shared.plural(n, 'item')).join(', ') + ', ' + shared.plural(1, 'child', 'children') + ', ' + shared.plural(2, 'child', 'children') + '</div>');
+})();
+
+(function () {
+    const s = section('Badge colors (jpk-badge)');
+    const r = row(s);
+    ['green', 'red', 'orange', 'purple', 'blue', 'gray', 'yellow', 'pink', 'teal'].forEach(c => r.insertAdjacentHTML('beforeend', shared.badge(c, c.charAt(0).toUpperCase() + c.slice(1)) + ' '));
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">Pink and teal use the --jpk-pink-* and --jpk-teal-* tokens.</p>');
+})();
+
+(function () {
+    const s = section('Overflow menu, tooltip, and help hint');
+    const r = row(s);
+    const menu = JPK.createOverflowMenu({
+        items: [{ label: 'Edit', value: 'edit', icon: 'edit' }, { label: 'Duplicate', value: 'duplicate', disabled: true }, { label: 'Remove', value: 'remove', destructive: true, icon: 'delete' }],
+        onSelect: (value) => shared.setStatus('menuStatus', 'Chose ' + value, false, { timeout: 0 })
+    });
+    r.appendChild(menu.element);
+    html(r, '<span id="menuStatus" class="jpk-status-text"></span>');
+    const tipped = JPK.setTooltip(document.createElement('button'), 'Shown on hover and focus.');
+    tipped.type = 'button';
+    tipped.className = 'raised jpk-button-small';
+    tipped.textContent = 'Hover or focus me';
+    r.appendChild(tipped);
+    JPK.bindTooltips(s);
+    html(s, '<div class="inputContainer"><label for="demoHelpInput">Check interval <span id="demoHelpSlot"></span></label><input id="demoHelpInput" type="text" value="30"></div>');
+    s.querySelector('#demoHelpSlot').appendChild(JPK.createHelpHint({ text: 'Seconds between checks. A low value adds load on the server.' }).element);
+
+    // The same popups inside a panel that clips its overflow, and inside a dialog, where Escape closes the popup before the dialog.
+    html(s, '<div id="demoPopupPanel" class="jpk-panel" style="margin-top:14px"><div class="jpk-panel-header">Popups inside a panel</div><div id="demoPopupBody" class="jpk-panel-body g-row" style="justify-content:flex-end"></div></div>');
+    const body = s.querySelector('#demoPopupBody');
+    body.appendChild(JPK.createHelpHint({ text: 'A longer explanation that has to stay on the screen at 375 pixels wide, even from the right edge of a panel.' }).element);
+    body.appendChild(JPK.createOverflowMenu({ items: [{ label: 'Edit', value: 'edit' }, { label: 'Remove', value: 'remove', destructive: true }] }).element);
+    const tip = JPK.setTooltip(document.createElement('button'), 'Tooltip inside a panel.');
+    tip.type = 'button'; tip.className = 'raised jpk-button-small'; tip.textContent = 'Tip';
+    body.appendChild(tip);
+    const inDialog = document.createElement('button');
+    inDialog.type = 'button'; inDialog.id = 'demoPopupDialog'; inDialog.className = 'raised jpk-secondary'; inDialog.textContent = 'Popups in a dialog';
+    inDialog.onclick = () => {
+        const wrap = document.createElement('div');
+        wrap.className = 'g-row';
+        wrap.appendChild(JPK.createOverflowMenu({ items: [{ label: 'Edit', value: 'edit' }, { label: 'Remove', value: 'remove', destructive: true }] }).element);
+        wrap.appendChild(JPK.createHelpHint({ text: 'Escape closes this bubble first, then the dialog.' }).element);
+        const t = JPK.setTooltip(document.createElement('button'), 'Tooltip above the dialog.');
+        t.type = 'button'; t.className = 'raised jpk-button-small'; t.textContent = 'Tip';
+        wrap.appendChild(t);
+        wrap.appendChild(JPK.createSearchField({ placeholder: 'alice' }).element);
+        JPK.bindTooltips(wrap);
+        JPK.openDialog({ title: 'Popups', body: wrap, buttons: [{ text: 'Done', className: 'jpk-button-submit' }] });
+    };
+    s.appendChild(inDialog);
+})();
+
+(function () {
+    const s = section('Copy field and inline validation message');
+    s.appendChild(JPK.createCopyField({ value: 'https://example.test/hooks/abc123' }).element);
+    const secret = JPK.createCopyField({ value: 'sk-demo-secret-0123456789', secret: true }).element;
+    secret.style.marginTop = '12px';
+    s.appendChild(secret);
+    html(s, '<div class="inputContainer" style="margin-top:12px"><label for="demoValid">Port</label><input id="demoValid" type="text" value="99999"></div>');
+    const input = s.querySelector('#demoValid');
+    const msg = JPK.setFieldState(input, 'error', 'Enter a port from 1 to 65535.');
+    const r = row(s);
+    ['error', 'warn', 'success', 'info', ''].forEach((state) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'raised jpk-button-small';
+        b.textContent = state || 'clear';
+        b.addEventListener('click', () => msg.set(state, 'This is a ' + (state || 'cleared') + ' message.'));
+        r.appendChild(b);
+    });
+})();
+
+(function () {
+    const s = section('String list, key value editor, and tag input');
+    s.appendChild(JPK.createStringList({ values: ['one.example.test', 'two.example.test'], reorder: true, placeholder: 'host.example.test', emptyText: 'Nothing added yet.', validate: (v) => v.indexOf(' ') === -1 ? '' : 'No spaces allowed.' }).element);
+    html(s, '<p class="g-note">Duplicates are refused, and a value with a space is refused by validate.</p>');
+    s.appendChild(JPK.createKeyValueEditor({ values: [{ key: 'Accept', value: 'application/json' }, { key: 'X-Mode', value: 'fast' }], keyPlaceholder: 'Accept', valuePlaceholder: 'application/json' }).element);
+    html(s, '<p class="g-note">A repeated key is an error.</p>');
+    s.appendChild(JPK.createTagInput({ values: ['news', 'movies'], placeholder: 'music' }).element);
+    html(s, '<p class="g-note">Type a tag and press Enter or comma. Backspace removes the last tag.</p>');
+})();
+
+(function () {
+    const s = section('File picker');
+    const picker = JPK.createFilePicker({ accept: 'image/*,.json', maxSize: 1048576, multiple: true, onChange: (files) => shared.setStatus('fileStatus', files.length + ' chosen', false, { timeout: 0 }) });
+    s.appendChild(picker.element);
+    html(s, '<span id="fileStatus" class="jpk-status-text"></span>');
+    s.insertAdjacentHTML('beforeend', '<p class="g-note">Accepts images and JSON up to 1 MB. Click, press Enter, or drop files.</p>');
+})();
+
+(function () {
+    const s = section('Toast');
+    const toaster = JPK.createToaster({ timeout: 4000 });
+    const r = row(s);
+    [['info', 'Heads up.'], ['success', 'Saved.'], ['warn', 'Disk is almost full.'], ['error', 'Could not connect.']].forEach(([k, m]) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'raised jpk-button-small';
+        b.textContent = k;
+        b.addEventListener('click', () => toaster[k](m));
+        r.appendChild(b);
+    });
+})();
+
+(function () {
+    const s = section('Spinner and skeleton');
+    const r = row(s);
+    ['small', 'medium', 'large'].forEach((size) => r.appendChild(JPK.createSpinner({ size }).element));
+    html(s, '<div style="margin-top:14px"></div>').firstChild.appendChild(JPK.createSkeleton({ lines: 3 }).element);
+    const r2 = row(s);
+    r2.style.marginTop = '14px';
+    r2.appendChild(JPK.createSkeleton({ type: 'circle', size: 'medium' }).element);
+    const block = JPK.createSkeleton({ type: 'block', size: 'small' }).element;
+    block.style.flex = '1';
+    r2.appendChild(block);
+})();
+
+(function () {
+    const s = section('Definition list, status dot, and divider');
+    s.appendChild(JPK.createDefinitionList({ items: [{ label: 'Version', value: '12.4.14.1' }, { label: 'Id', value: '2f40d5d8-5b6a', mono: true }, { label: 'Last Sync' }] }).element);
+    s.appendChild(JPK.createDivider({ label: 'Or' }).element);
+    s.appendChild(JPK.createDivider().element);
+    const r = row(s);
+    ['green', 'red', 'orange', 'purple', 'blue', 'gray'].forEach((color) => r.appendChild(JPK.createStatusDot({ color }).element));
+})();
+
+(function () {
+    const s = section('Log viewer');
+    const log = JPK.createLogViewer({ lines: [{ text: 'Starting the session', level: 'info', time: '10:00:01' }, { text: 'Retrying in 5 seconds', level: 'warn', time: '10:00:03' }, { text: 'Could not reach the server', level: 'error', time: '10:00:08' }, { text: 'Detail line', level: 'debug', time: '10:00:08' }], maxLines: 50 });
+    s.appendChild(log.element);
+    const r = row(s);
+    r.style.marginTop = '10px';
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'raised jpk-button-small';
+    b.textContent = 'Append Lines';
+    let n = 0;
+    b.addEventListener('click', () => { for (let i = 0; i < 5; i++) log.append({ text: 'Line ' + (++n), level: i === 4 ? 'warn' : 'info' }); });
+    r.appendChild(b);
+})();
+
+(function () {
+    const s = section('Sub tabs and stepper');
+    s.appendChild(JPK.createSubTabs({
+        tabs: [{ id: 'general', label: 'General', text: 'General settings live here.' }, { id: 'advanced', label: 'Advanced' }, { id: 'off', label: 'Disabled', disabled: true }, { id: 'logs', label: 'Logs' }],
+        render: (tab) => tab.id === 'general' ? null : '<p style="margin:0">Built the first time ' + shared.escapeHtml(tab.label) + ' opened.</p>'
+    }).element);
+    const stepper = JPK.createStepper({ steps: [{ id: 'a', label: 'Connect', description: 'Pick a server' }, { id: 'b', label: 'Choose', description: 'Select content' }, { id: 'c', label: 'Review' }], value: 'b', clickable: true, onSelect: (id) => stepper.setValue(id) });
+    stepper.element.style.marginTop = '20px';
+    s.appendChild(stepper.element);
+    const r = row(s);
+    r.style.marginTop = '10px';
+    [['Back', () => stepper.previous()], ['Next', () => stepper.next()]].forEach(([t, f]) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'raised jpk-button-small';
+        b.textContent = t;
+        b.addEventListener('click', f);
+        r.appendChild(b);
+    });
+})();
+
+(function () {
+    const s = section('Pagination, search field, and breadcrumbs');
+    s.appendChild(JPK.createBreadcrumbs({ items: [{ label: 'Servers', value: 'servers' }, { label: 'Library', href: '#library' }, { label: 'Settings' }], onSelect: (v) => shared.setStatus('crumbStatus', 'Opened ' + v, false, { timeout: 0 }) }).element);
+    html(s, '<span id="crumbStatus" class="jpk-status-text"></span>');
+    const search = JPK.createSearchField({ placeholder: 'alice', onInput: (v) => shared.setStatus('searchStatus', 'Searched ' + JSON.stringify(v), false, { timeout: 0 }) });
+    search.element.style.margin = '14px 0';
+    s.appendChild(search.element);
+    html(s, '<span id="searchStatus" class="jpk-status-text"></span>');
+    const pager = JPK.createPagination({ total: 245, pageSize: 10, page: 4, onChange: (v) => shared.setStatus('pagerStatus', 'skip ' + v.skip + ' take ' + v.take, false, { timeout: 0 }) });
+    pager.element.style.marginTop = '14px';
+    s.appendChild(pager.element);
+    html(s, '<span id="pagerStatus" class="jpk-status-text"></span>');
+})();
+
+(function () {
+    const s = section('Number with unit, slider, and schedule picker');
+    s.appendChild(JPK.createNumberUnitField({ units: [{ value: 'MB', factor: 1 }, { value: 'GB', factor: 1024 }], value: 512, unit: 'MB', min: 1, max: 4096 }).element);
+    html(s, '<p class="g-note">Type 5000 to see the range message.</p>');
+    s.appendChild(JPK.createSliderField({ min: 0, max: 255, value: 128, suffix: ' of 255', label: 'Opacity' }).element);
+    const sched = JPK.createSchedulePicker({ value: { time: '02:30', days: [1, 3, 5] }, onChange: (v) => shared.setStatus('schedStatus', JSON.stringify(v), false, { timeout: 0 }) });
+    sched.element.style.marginTop = '14px';
+    s.appendChild(sched.element);
+    html(s, '<span id="schedStatus" class="jpk-status-text"></span>');
+})();
+
+(function () {
+    const s = section('Banner');
+    const wrap = document.createElement('div');
+    s.appendChild(wrap);
+    const mem = {};
+    ['info', 'success', 'warn', 'error', 'neutral'].forEach((kind) => wrap.appendChild(JPK.createBanner({ kind, title: kind === 'warn' ? 'Back up first' : '', text: 'This is a ' + kind + ' banner. Dismissing it remembers nothing unless a key and storage are given.', key: kind === 'info' ? 'demo-info' : undefined, storage: kind === 'info' ? { get: (k) => mem[k], set: (k, v) => { mem[k] = v; } } : undefined }).element));
+})();
+
+(function () {
+    const s = section('Avatar, user chip, stat card, and progress ring');
+    const r = row(s);
+    r.appendChild(JPK.createAvatar({ name: 'Ada Lovelace', size: 'small' }).element);
+    r.appendChild(JPK.createAvatar({ name: 'Bob Ross', status: 'green' }).element);
+    r.appendChild(JPK.createAvatar({ name: 'Carol', size: 'large', status: 'red', statusLabel: 'Offline' }).element);
+    r.appendChild(JPK.createAvatar({ src: G.svg(64, 64, '#0088cc', 'D'), name: 'Dave' }).element);
+    r.appendChild(JPK.createAvatar({ src: 'data:image/png;base64,AAAA', name: 'Eve Adams' }).element);
+    const r2 = row(s);
+    r2.style.marginTop = '12px';
+    r2.appendChild(JPK.createUserChip({ name: 'Ada Lovelace', text: 'Administrator', status: 'green' }).element);
+    r2.appendChild(JPK.createUserChip({ name: 'Bob', src: G.svg(64, 64, '#9b59b6', 'B') }).element);
+    const cards = document.createElement('div');
+    cards.className = 'jpk-cards';
+    cards.style.marginTop = '14px';
+    cards.appendChild(JPK.createStatCard({ value: '1,204', label: 'Items', color: 'blue', trend: 12, trendSuffix: '%', trendLabel: 'vs last week' }).element);
+    cards.appendChild(JPK.createStatCard({ value: 7, label: 'Errors', color: 'red', trend: 3, positiveIsGood: false }).element);
+    cards.appendChild(JPK.createStatCard({ value: 98, label: 'Uptime', color: 'green', trend: -1, trendSuffix: '%' }).element);
+    cards.appendChild(JPK.createStatCard({ value: 4, label: 'Servers', trend: 0 }).element);
+    s.appendChild(cards);
+    const r3 = row(s);
+    r3.style.marginTop = '14px';
+    [['small', 25, ''], ['medium', 60, 'green'], ['large', 90, 'orange']].forEach(([size, value, color]) => r3.appendChild(JPK.createProgressRing({ size, value, color }).element));
+})();
+
+(function () {
+    const s = section('Timeline');
+    s.appendChild(JPK.createTimeline({ items: [
+        { time: '10:00', datetime: '2026-03-10T10:00', title: 'Sync started', body: 'Two servers in the pool.', status: 'purple', icon: 'sync' },
+        { time: '10:04', title: 'Library synced', body: '1,204 items.', status: 'green', icon: 'check' },
+        { time: '10:06', title: 'One item skipped', status: 'orange' },
+        { time: '10:07', title: 'Could not reach a server', body: 'The request timed out.', status: 'red' }
+    ] }).element);
+})();
+
+(function () {
+    const s = section('Deprecated (kept for existing plugins)');
+    const r = row(s);
+    r.innerHTML = '<button class="raised jpk-button-primary">jpk-button-primary</button>' +
+        '<span class="jpk-readonly">jpk-readonly</span>' +
+        '<span class="jpk-edit-line-spacer"></span>';
+    html(s, '<div class="jpk-empty-state"><div class="jpk-empty-state-card"><span class="jpk-empty-state-icon material-icons">inbox</span>' +
+        '<div class="jpk-empty-state-title">Nothing here yet</div><div class="jpk-empty-state-subtitle">Add an item to get started.</div>' +
+        '<button type="button" class="raised jpk-empty-state-button">Add</button></div></div>').style.marginTop = '12px';
 })();
 </script>
 </body>

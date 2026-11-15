@@ -1,0 +1,20 @@
+<!-- title: Count Cards -->
+<div id="statusRow"></div>
+<div class="jpk-cards jpk-cards-rows" style="--jpk-cards-per-row: 4">
+    <div class="jpk-card pink"><span class="jpk-card-count">4</span><span class="jpk-card-label">Pink</span></div>
+    <div class="jpk-card teal"><span class="jpk-card-count">9</span><span class="jpk-card-label">Teal</span></div>
+    <div class="jpk-card yellow"><span class="jpk-card-count">2</span><span class="jpk-card-label">Yellow</span></div>
+    <div class="jpk-card blue"><span class="jpk-card-count">6</span><span class="jpk-card-label">Blue</span></div>
+    <div class="jpk-card gray"><span class="jpk-card-count">1</span><span class="jpk-card-label">Gray</span></div>
+</div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+shared.renderCards('statusRow', [
+    { label: 'Queued', count: 12, color: 'orange' },
+    { label: 'Synced', count: 340, color: 'green' },
+    { label: 'Errored', count: 3, color: 'red' },
+    { label: 'Pending', count: 21, color: 'purple' },
+    { label: 'Ignored', count: 8, color: 'gray' }
+]);
+</script>

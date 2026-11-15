@@ -6,7 +6,7 @@
     gap: 10px;
 }
 
-/* One radio card holding a hidden input, a name, and a sentence. selected outlines it with the accent */
+/* One radio card holding a hidden input, a name, and a sentence, outlined in the accent when selected */
 /* Example: <label class="jpk-choice"><input type="radio" name="mode" value="Scan"><span class="jpk-choice-name">Scan</span><span class="jpk-choice-text">Pull on a schedule.</span></label> */
 .jpk-choice {
     position: relative;
@@ -21,8 +21,7 @@
     transition: border-color 0.15s, background 0.15s;
 }
 .jpk-choice:hover { background: rgba(255, 255, 255, 0.05); background: color-mix(in srgb, currentColor 5%, transparent); }
-/* Two rules rather than one list: an engine without :has() drops a whole rule it can't parse, which would take the
-   .selected look with it. The tint is the theme's accent where color-mix() works, the default accent before it. */
+/* Two rules rather than one list, since an engine without :has() drops the whole rule and would lose .selected too. */
 .jpk-choice.selected {
     border-color: var(--jpk-accent);
     background: rgba(0, 164, 220, 0.08);
@@ -41,7 +40,13 @@
     width: 0;
     height: 0;
 }
+
+/* Bold name of a choice */
+/* Example: <span class="jpk-choice-name">Scan</span> */
 .jpk-choice-name { font-weight: 600; }
+
+/* Small dimmed sentence under the name */
+/* Example: <span class="jpk-choice-text">Pull on a schedule.</span> */
 .jpk-choice-text {
     font-size: 0.85em;
     opacity: 0.75;

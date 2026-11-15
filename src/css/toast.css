@@ -1,0 +1,49 @@
+/* Fixed stack of toasts in a corner of the screen, which lets clicks through around the toasts */
+/* Example: <div class="jpk-toaster jpk-toaster-bottom-end" role="region" aria-label="Notifications"></div> */
+.jpk-toaster {
+    position: fixed;
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    width: 360px;
+    max-width: calc(100vw - 32px);
+    pointer-events: none;
+}
+.jpk-toaster-bottom-end { bottom: 16px; right: 16px; }
+.jpk-toaster-bottom-start { bottom: 16px; left: 16px; }
+.jpk-toaster-top-end { top: 16px; right: 16px; flex-direction: column-reverse; }
+.jpk-toaster-top-start { top: 16px; left: 16px; flex-direction: column-reverse; }
+
+/* Persistent live region inside the stack that holds the toasts of one urgency */
+/* Example: <div class="jpk-toaster-live" role="status" aria-live="polite"></div> */
+.jpk-toaster-live { display: flex; flex-direction: column; }
+.jpk-toaster-top-end .jpk-toaster-live,
+.jpk-toaster-top-start .jpk-toaster-live { flex-direction: column-reverse; }
+
+/* One message with an icon, text, and a dismiss button, bordered in the color of its kind */
+/* Example: <div class="jpk-toast success"><span class="material-icons" aria-hidden="true">check_circle</span><div class="jpk-toast-body"><div class="jpk-toast-message">Saved.</div></div></div> */
+.jpk-toast {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 8px 10px 12px;
+    background: var(--jpk-surface);
+    color: var(--jpk-fg);
+    border: 1px solid var(--jpk-border);
+    border-left-width: 4px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    pointer-events: auto;
+    margin-top: 8px;
+}
+.jpk-toast.info { border-left-color: var(--jpk-blue-fg); }
+.jpk-toast.info > .material-icons { color: var(--jpk-blue-fg); }
+.jpk-toast.success { border-left-color: var(--jpk-green-fg); }
+.jpk-toast.success > .material-icons { color: var(--jpk-green-fg); }
+.jpk-toast.warn { border-left-color: var(--jpk-orange-fg); }
+.jpk-toast.warn > .material-icons { color: var(--jpk-orange-fg); }
+.jpk-toast.error { border-left-color: var(--jpk-red-fg); }
+.jpk-toast.error > .material-icons { color: var(--jpk-red-fg); }
+.jpk-toast-body { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.jpk-toast-title { font-weight: 600; }
+.jpk-toast .jpk-row-btn:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 1px; }

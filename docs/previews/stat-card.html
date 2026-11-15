@@ -1,0 +1,11 @@
+<!-- title: Stat Card -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+mount.className = 'jpk-cards';
+mount.appendChild(JPK.createStatCard({ value: '1,204', label: 'Items', color: 'blue', trend: 12, trendSuffix: '%', trendLabel: 'vs last week' }).element);
+mount.appendChild(JPK.createStatCard({ value: 7, label: 'Errors', color: 'red', trend: 3, positiveIsGood: false }).element);
+mount.appendChild(JPK.createStatCard({ value: 4, label: 'Servers', trend: 0 }).element);
+</script>

@@ -6,14 +6,17 @@ using System.Linq;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// Wording shared by every activity entry, so entries from every plugin read the same way: a short
-/// title case name, such as "12 Items Synced", over one sentence naming where things came from, such as
-/// "12 items were synced from source-a (9), source-b (3)". Jellyfin's own entries have no full stops, and
-/// these follow them.
+/// Wording shared by every activity entry, so entries from every plugin read the same way.
+/// An entry has a short title case name such as "12 Items Synced" over one sentence such as "12 items were synced from source-a (9), source-b (3)".
 /// </summary>
+/// <remarks>
+/// Entries carry no closing full stop, following Jellyfin's own. Counts are formatted with the invariant culture.
+/// Plural nouns are made by adding <c>s</c>, by turning a consonant and <c>y</c> into <c>ies</c>, and by adding <c>S</c> to an all capitals noun.
+/// A noun such as <c>class</c> or <c>match</c> comes out wrong.
+/// </remarks>
 public static class ActivityText
 {
-    /// <summary>The name of a summary entry, as "1 Item Synced" or "12 Items Synced".</summary>
+    /// <summary>Builds the name of a summary entry, such as "1 Item Synced" or "12 Items Synced".</summary>
     /// <param name="count">How many.</param>
     /// <param name="outcome">What happened, in title case, such as "Synced" or "Not Synced".</param>
     /// <param name="noun">The singular noun, in title case. "Item" by default.</param>
@@ -25,7 +28,8 @@ public static class ActivityText
         return string.Create(CultureInfo.InvariantCulture, $"{count} {Plural(count, noun)} {outcome}");
     }
 
-    /// <summary>A count with its noun, as "1 item" or "3 items".</summary>
+    /// <summary>Builds a count with its noun, such as "1 item" or "3 items".</summary>
+    /// <remarks>Despite the name it returns text, not a number.</remarks>
     /// <param name="count">How many.</param>
     /// <param name="noun">The singular noun.</param>
     /// <returns>The phrase.</returns>
@@ -35,13 +39,13 @@ public static class ActivityText
         return string.Create(CultureInfo.InvariantCulture, $"{count} {Plural(count, noun)}");
     }
 
-    /// <summary>"was" for one, "were" for any other count.</summary>
+    /// <summary>Gives "was" for one and "were" for any other count.</summary>
     /// <param name="count">How many.</param>
     /// <returns>The verb.</returns>
     public static string WasOrWere(int count) => count == 1 ? "was" : "were";
 
-    /// <summary>Names with their counts, the largest first, as "source-a (9), source-b (3)".</summary>
-    /// <param name="counts">The counts by name.</param>
+    /// <summary>Lists names with their counts, the largest first, such as "source-a (9), source-b (3)".</summary>
+    /// <param name="counts">The counts by name. A count of zero or less is left out, and equal counts sort by name.</param>
     /// <returns>The list, or an empty string when there is nothing to list.</returns>
     public static string CountedList(IReadOnlyDictionary<string, int> counts)
     {
@@ -53,9 +57,9 @@ public static class ActivityText
             .Select(p => string.Create(CultureInfo.InvariantCulture, $"{p.Key} ({p.Value})")));
     }
 
-    /// <summary>The text trimmed, with its first letter capitalized and any closing full stop removed.</summary>
+    /// <summary>Trims the text, capitalizes its first letter, and removes its trailing full stops.</summary>
     /// <param name="text">The text.</param>
-    /// <returns>The sentence, or the text itself when it is blank.</returns>
+    /// <returns>The sentence, or the text itself when it is <c>null</c> or blank.</returns>
     public static string? Sentence(string? text)
     {
         if (string.IsNullOrWhiteSpace(text))
@@ -74,7 +78,7 @@ public static class ActivityText
             return noun;
         }
 
-        // The nouns these entries use: item, file, change, user, playlist, entry, request, episode.
+        // These rules cover the nouns the entries use, such as item, file, user, entry, and episode.
         if (noun.Length > 1 && char.ToLowerInvariant(noun[^1]) == 'y' && !"aeiou".Contains(char.ToLowerInvariant(noun[^2]), StringComparison.Ordinal))
         {
             return noun[..^1] + (char.IsUpper(noun[^1]) ? "IES" : "ies");

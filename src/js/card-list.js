@@ -1,22 +1,19 @@
 import { escapeHtml } from './escape.js';
 
 // createSortableCardList
-// Renders records as cards in priority order: a numbered head per record with a status dot, badges, up and
-// down arrows, and drag to reorder, plus a body the open card shows. One editor element can be handed in and
-// it moves into whichever card is open, parking in a holder while the list re-renders, so its fields and
-// bindings survive. The caller owns the data and renders a card's text; this owns the mechanics.
+// Renders records as numbered cards with a status dot, badges, arrow and drag reordering, and a body the open card shows. One editor element moves into whichever card is open, so its fields and bindings survive a re-render.
 //
 // Param: listEl  | container element the cards render into
 // Param: options | {
-//   items        : array of records, in priority order (replace with setItems)
-//   render       : function(item, index) -> { title, subtitle, badges: [{ label, cls }], dot: 'ok'|'bad'|'checking'|'unknown'|'none', disabled } [required]
-//   editor       : element placed inside the open card's body [optional]
-//   onSelect     : function(index) called when a card opens, before the editor is placed [optional]
-//   onBeforeLeave: function(index) called when the open card is left, to read the editor back [optional]
-//   onMove       : function(fromIndex, toIndex) called after a reorder; the caller saves [optional]
-//   reorder      : allow arrows and drag (default true)
-//   collapsible  : clicking the open head folds it and a chevron shows the state (default true); false keeps the open card open
-//   escapeHtml   : function(str) -> safe string (default a built in escaper)
+//   items         : array of records in priority order, replaced with setItems [optional]
+//   render        : function(item, index) returning { title, subtitle, badges: [{ label, cls }], dot: 'ok'|'bad'|'checking'|'unknown'|'none', dotTitle, disabled } [required]
+//   editor        : element placed inside the open card's body [optional]
+//   onSelect      : function(index) called when a card opens, before the editor is placed [optional]
+//   onBeforeLeave : function(index) called when the open card is left, to read the editor back [optional]
+//   onMove        : function(fromIndex, toIndex) called after a reorder, so the caller can save [optional]
+//   reorder       : allow arrows and drag (default true)
+//   collapsible   : clicking the open head folds it and a chevron shows the state, where false keeps the open card open (default true)
+//   escapeHtml    : function(str) returning a safe string (default the built in escaper)
 // }
 // Returns { render, setItems, getSelected, setSelected, destroy }.
 export function createSortableCardList(listEl, options) {
@@ -32,7 +29,7 @@ export function createSortableCardList(listEl, options) {
     var collapsible = options.collapsible !== false;
     var esc = options.escapeHtml || escapeHtml;
 
-    // The editor parks here while the list re-renders, since innerHTML would destroy it.
+    // The editor parks here during a render, since replacing the list HTML would destroy it.
     var holder = null;
     if (options.editor) {
         holder = document.createElement('div');
@@ -51,6 +48,7 @@ export function createSortableCardList(listEl, options) {
         else parkEditor();
     }
 
+    // Rebuilds every card from the items and puts the editor back in the open one.
     function render() {
         parkEditor();
         listEl.innerHTML = '';
@@ -67,7 +65,7 @@ export function createSortableCardList(listEl, options) {
             }).join('');
             card.innerHTML =
                 '<div class="jpk-card-item-head"' + (reorder ? ' draggable="true"' : '') + ' role="button" tabindex="0" aria-expanded="' + (isSelected && !collapsed ? 'true' : 'false') + '">' +
-                    (reorder ? '<span class="jpk-card-item-grip material-icons" title="Drag to reorder">drag_indicator</span>' : '') +
+                    (reorder ? '<span class="jpk-card-item-grip material-icons" title="Drag to Reorder">drag_indicator</span>' : '') +
                     '<span class="jpk-card-item-num">' + (index + 1) + '</span>' +
                     '<div class="jpk-card-item-main">' +
                         '<div class="jpk-card-item-title">' +
@@ -77,8 +75,8 @@ export function createSortableCardList(listEl, options) {
                         (spec.subtitle ? '<div class="jpk-card-item-sub">' + esc(spec.subtitle) + '</div>' : '') +
                     '</div>' +
                     (reorder ? '<div class="jpk-card-item-arrows">' +
-                        '<button type="button" class="jpk-row-btn" data-move="-1" title="Move up"' + (index === 0 ? ' disabled' : '') + '><span class="material-icons">keyboard_arrow_up</span></button>' +
-                        '<button type="button" class="jpk-row-btn" data-move="1" title="Move down"' + (index === items.length - 1 ? ' disabled' : '') + '><span class="material-icons">keyboard_arrow_down</span></button>' +
+                        '<button type="button" class="jpk-row-btn" data-move="-1" title="Move Up"' + (index === 0 ? ' disabled' : '') + '><span class="material-icons">keyboard_arrow_up</span></button>' +
+                        '<button type="button" class="jpk-row-btn" data-move="1" title="Move Down"' + (index === items.length - 1 ? ' disabled' : '') + '><span class="material-icons">keyboard_arrow_down</span></button>' +
                     '</div>' : '') +
                     (collapsible ? '<span class="jpk-card-item-chevron material-icons" aria-hidden="true">expand_more</span>' : '') +
                 '</div>' +
@@ -88,6 +86,7 @@ export function createSortableCardList(listEl, options) {
         placeEditor();
     }
 
+    // Opens a card, or folds the open one when it is clicked again.
     function open(index) {
         if (index === selected) {
             if (collapsible) {
@@ -103,6 +102,7 @@ export function createSortableCardList(listEl, options) {
         render();
     }
 
+    // Moves a record, keeping the open card the same record, and reports it to onMove.
     function move(from, to) {
         if (from < 0 || from >= items.length || to < 0 || to >= items.length || from === to) return;
         if (selected >= 0 && options.onBeforeLeave) options.onBeforeLeave(selected);
@@ -115,6 +115,7 @@ export function createSortableCardList(listEl, options) {
         if (options.onMove) options.onMove(from, to);
     }
 
+    // Routes a click on a head to its arrow buttons or to opening the card.
     function onClick(e) {
         var head = e.target.closest('.jpk-card-item-head');
         if (!head || !listEl.contains(head)) return;
@@ -149,6 +150,7 @@ export function createSortableCardList(listEl, options) {
         try { e.dataTransfer.setData('text/plain', String(dragIndex)); } catch (err) { /* older WebKit */ }
     }
 
+    // Marks the half of the hovered card where the dragged card would land.
     function onDragOver(e) {
         var card = e.target.closest('.jpk-card-item');
         if (!card || dragIndex < 0) return;
@@ -159,6 +161,7 @@ export function createSortableCardList(listEl, options) {
         card.classList.add((e.clientY - rect.top) > rect.height / 2 ? 'drop-after' : 'drop-before');
     }
 
+    // Moves the dragged card to the marked position.
     function onDrop(e) {
         var card = e.target.closest('.jpk-card-item');
         if (!card || dragIndex < 0) return;

@@ -1,0 +1,12 @@
+<!-- title: Status Text -->
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+    <button type="button" id="btnOk" class="raised jpk-button-small"><span>Show Saved</span></button>
+    <button type="button" id="btnBad" class="raised jpk-secondary jpk-button-small"><span>Show Error</span></button>
+    <span id="saveStatus" class="jpk-status-text" role="status"></span>
+</div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+shared.bindClick('btnOk', () => shared.setStatus('saveStatus', 'Server order saved.', false));
+shared.bindClick('btnBad', () => shared.setStatus('saveStatus', 'Could not save.', true, { timeout: 0 }));
+</script>

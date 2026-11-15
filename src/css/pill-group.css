@@ -1,0 +1,28 @@
+/* A wrapping row of pills where exactly one is chosen, wired by createPillGroup */
+/* Example: <div class="jpk-pill-group" role="group"><button type="button" class="jpk-pill" aria-pressed="true">Daily</button><button type="button" class="jpk-pill" aria-pressed="false">Weekly</button></div> */
+.jpk-pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* One pill, outlined when off and filled with the accent and white text when aria-pressed is true or it has selected */
+/* Example: <button type="button" class="jpk-pill selected" aria-pressed="true">Daily</button> */
+.jpk-pill {
+    padding: 6px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--jpk-border);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+.jpk-pill:hover { border-color: var(--jpk-accent); }
+.jpk-pill:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 2px; }
+.jpk-pill:disabled { opacity: 0.5; cursor: default; }
+.jpk-pill[aria-pressed="true"],
+.jpk-pill.selected {
+    background: var(--jpk-accent);
+    border-color: var(--jpk-accent);
+    color: var(--jpk-on-accent);
+}

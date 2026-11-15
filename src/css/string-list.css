@@ -1,0 +1,48 @@
+/* Editor for a list of strings, with rows above an add row */
+/* Example: <div class="jpk-string-list"><ul class="jpk-string-items"></ul><div class="jpk-string-add"><input type="text"><button type="button" class="raised">Add</button></div></div> */
+.jpk-string-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.jpk-string-items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.jpk-string-items:empty { display: none; }
+
+/* One row with the text and its buttons */
+/* Example: <li class="jpk-string-item"><span class="jpk-string-text">value</span></li> */
+.jpk-string-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 4px 4px 10px;
+    background: var(--jpk-surface);
+    border: 1px solid var(--jpk-border);
+    border-radius: 6px;
+}
+.jpk-string-text {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.jpk-string-item .jpk-row-btn:disabled { opacity: 0.25; cursor: default; background: none; }
+.jpk-string-item .jpk-row-btn:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 1px; }
+
+/* Row holding the new value input and the add button */
+/* Example: <div class="jpk-string-add"><input type="text"><button type="button" class="raised">Add</button></div> */
+.jpk-string-add {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.jpk-string-add > input { flex: 1 1 auto; min-width: 0; box-sizing: border-box; }
+
+/* Sentence shown while the list is empty */
+/* Example: <div class="jpk-string-empty">Nothing added yet.</div> */
+.jpk-string-empty { opacity: 0.7; font-size: 0.9em; }

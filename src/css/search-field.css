@@ -1,0 +1,26 @@
+/* Search input with a leading icon and a clear button that shows while it has text */
+/* Example: <div class="jpk-search"><span class="material-icons" aria-hidden="true">search</span><input type="search" aria-label="Search"><button type="button" class="jpk-row-btn jpk-search-clear"></button></div> */
+.jpk-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.jpk-search > .material-icons {
+    position: absolute;
+    left: 8px;
+    font-size: 20px;
+    opacity: 0.6;
+    pointer-events: none;
+}
+.jpk-search > input {
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: 34px !important;
+    padding-right: 34px !important;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.jpk-search > input::-webkit-search-cancel-button,
+.jpk-search > input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+.jpk-search-clear { position: absolute; right: 4px; }
+.jpk-search-clear:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 1px; }

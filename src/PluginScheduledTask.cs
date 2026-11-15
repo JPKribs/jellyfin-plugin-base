@@ -7,8 +7,8 @@ using MediaBrowser.Model.Tasks;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// Base for plugin scheduled tasks. Supplies the usual configurable task defaults and trigger
-/// helpers so a task only declares its name, key, description, and work.
+/// Base for plugin scheduled tasks, with the usual configurable task defaults and trigger helpers.
+/// A task then only declares its name, key, description, and work.
 /// </summary>
 public abstract class PluginScheduledTask : IScheduledTask, IConfigurableScheduledTask
 {
@@ -40,34 +40,23 @@ public abstract class PluginScheduledTask : IScheduledTask, IConfigurableSchedul
     public virtual IEnumerable<TaskTriggerInfo> GetDefaultTriggers() => Array.Empty<TaskTriggerInfo>();
 
     /// <summary>
-    /// Builds an interval trigger that fires on the given period. Yield it from
-    /// <see cref="GetDefaultTriggers"/> to seed the default schedule.
+    /// Builds an interval trigger that fires on the given period.
+    /// Yield it from <see cref="GetDefaultTriggers"/> to seed the default schedule.
     /// </summary>
     /// <param name="interval">How often the task should run.</param>
     /// <returns>The interval trigger.</returns>
-    protected static TaskTriggerInfo EveryInterval(TimeSpan interval) => new()
-    {
-        Type = TaskTriggerInfoType.IntervalTrigger,
-        IntervalTicks = interval.Ticks
-    };
+    protected static TaskTriggerInfo EveryInterval(TimeSpan interval) => TaskTriggers.EveryInterval(interval);
 
     /// <summary>
     /// Builds a trigger that fires once each time the server starts.
     /// </summary>
     /// <returns>The startup trigger.</returns>
-    protected static TaskTriggerInfo OnStartup() => new()
-    {
-        Type = TaskTriggerInfoType.StartupTrigger
-    };
+    protected static TaskTriggerInfo OnStartup() => TaskTriggers.OnStartup();
 
     /// <summary>
-    /// Builds a trigger that fires once a day at the given server-local time of day.
+    /// Builds a trigger that fires once a day at the given server local time of day.
     /// </summary>
-    /// <param name="timeOfDay">The time after midnight to run, for example <c>TimeSpan.FromHours(3)</c>.</param>
+    /// <param name="timeOfDay">The time after midnight to run, such as <c>TimeSpan.FromHours(3)</c>.</param>
     /// <returns>The daily trigger.</returns>
-    protected static TaskTriggerInfo Daily(TimeSpan timeOfDay) => new()
-    {
-        Type = TaskTriggerInfoType.DailyTrigger,
-        TimeOfDayTicks = timeOfDay.Ticks
-    };
+    protected static TaskTriggerInfo Daily(TimeSpan timeOfDay) => TaskTriggers.Daily(timeOfDay);
 }

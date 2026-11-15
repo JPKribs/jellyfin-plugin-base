@@ -1,0 +1,81 @@
+/* Row of steps for a flow of stages, which becomes a column on a narrow screen */
+/* Example: <nav class="jpk-stepper" aria-label="Progress"><ol class="jpk-stepper-list"><li class="jpk-stepper-step current"><div class="jpk-stepper-control"><span class="jpk-stepper-number">1</span><span class="jpk-stepper-text"><span class="jpk-stepper-label">Connect</span></span></div></li></ol></nav> */
+.jpk-stepper-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 8px;
+}
+.jpk-stepper-step { flex: 1 1 0; min-width: 0; position: relative; }
+.jpk-stepper-step + .jpk-stepper-step::before {
+    content: "";
+    position: absolute;
+    top: 14px;
+    left: calc(-100% + 24px);
+    width: calc(100% - 28px);
+    border-top: 2px solid var(--jpk-border);
+}
+.jpk-stepper-step.completed + .jpk-stepper-step::before,
+.jpk-stepper-step.completed + .jpk-stepper-step.current::before { border-top-color: var(--jpk-accent); }
+
+/* One step, as a div or as a button when it can be chosen */
+/* Example: <button type="button" class="jpk-stepper-control"><span class="jpk-stepper-number">1</span></button> */
+.jpk-stepper-control {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    width: 100%;
+    padding: 0 4px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+}
+button.jpk-stepper-control { cursor: pointer; }
+button.jpk-stepper-control:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 2px; border-radius: 4px; }
+
+/* Round number, filled with the accent when current and green with a dark check when completed */
+/* Example: <span class="jpk-stepper-number">2</span> */
+.jpk-stepper-number {
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 1;
+    width: 28px;
+    height: 28px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--jpk-border);
+    border-radius: 50%;
+    background: var(--jpk-surface);
+    font-size: 0.85em;
+    font-weight: 700;
+}
+.jpk-stepper-number .material-icons { font-size: 16px; }
+.jpk-stepper-step.current .jpk-stepper-number { background: var(--jpk-accent); border-color: var(--jpk-accent); color: var(--jpk-on-accent); }
+.jpk-stepper-step.completed .jpk-stepper-number { background: var(--jpk-green-fg); border-color: var(--jpk-green-fg); color: var(--jpk-on-warning); }
+.jpk-stepper-text { display: flex; flex-direction: column; min-width: 0; }
+.jpk-stepper-label { font-weight: 600; overflow-wrap: anywhere; }
+.jpk-stepper-step.upcoming .jpk-stepper-label { opacity: 0.65; font-weight: normal; }
+.jpk-stepper-description { font-size: 0.85em; opacity: 0.7; }
+
+@media (max-width: 600px) {
+    .jpk-stepper-list { flex-direction: column; gap: 12px; }
+    .jpk-stepper-control { flex-direction: row; gap: 8px; }
+    .jpk-stepper-text { padding-top: 3px; }
+    .jpk-stepper-step + .jpk-stepper-step::before {
+        top: auto;
+        bottom: calc(100% - 2px);
+        left: 17px;
+        right: auto;
+        width: 0;
+        height: 14px;
+        border-top: 0;
+        border-left: 2px solid var(--jpk-border);
+    }
+    .jpk-stepper-step.completed + .jpk-stepper-step::before { border-left-color: var(--jpk-accent); }
+}

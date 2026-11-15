@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{{TITLE}}</title>
+<meta name="robots" content="noindex" />
+<meta name="jpk-preview-min-height" content="{{MIN_HEIGHT}}" />
+
+<!-- The Material Icons font, which the kit icons use through the material-icons class -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+<!-- The real bundled kit stylesheet -->
+<link rel="stylesheet" href="./base/jpkribs_shared.css" />
+
+<style>
+    /* Preview chrome only. It sets the Jellyfin palette the kit tokens read, and it never styles a kit class. */
+    :root, :root[data-theme="dark"] {
+        color-scheme: dark;
+        --jf-palette-primary-main: #00a4dc;
+        --jf-palette-background-paper: #181818;
+        --jf-palette-text-primary: #fff;
+        --jpk-preview-page: #101010;
+    }
+    :root[data-theme="light"] {
+        color-scheme: light;
+        --jf-palette-primary-main: #0088cc;
+        --jf-palette-background-paper: #fff;
+        --jf-palette-text-primary: rgba(0, 0, 0, 0.87);
+        --jpk-preview-page: #f4f4f4;
+    }
+    html { background: var(--jpk-preview-page); }
+    body {
+        margin: 0;
+        background: var(--jpk-preview-page);
+        color: var(--jf-palette-text-primary);
+        font-family: 'Noto Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+    }
+    #jpk-preview-root { padding: 16px 16px 20px; position: relative; }
+    #jpk-preview-theme {
+        position: absolute; top: 4px; right: 6px; z-index: 1;
+        width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%;
+        background: transparent; color: inherit; opacity: 0.45; cursor: pointer;
+        font: 16px/28px 'Material Icons'; overflow: hidden;
+    }
+    #jpk-preview-theme:hover, #jpk-preview-theme:focus-visible { opacity: 1; }
+</style>
+</head>
+
+<body>
+<!-- The wrapper carries pluginConfigurationPage so the form rules and token aliases apply as on a config page -->
+<div class="pluginConfigurationPage">
+<div id="jpk-preview-root">
+<button id="jpk-preview-theme" type="button" title="Switch between light and dark" aria-label="Switch between light and dark">brightness_6</button>
+<div id="view">
+{{BODY}}
+</div>
+</div>
+</div>
+
+<!-- The shared Jellyfin globals stubs, as a classic script so they exist before any module runs -->
+<script src="./base/jellyfin-stubs.js"></script>
+
+<script>
+(function () {
+    var root = document.documentElement;
+    var min = parseInt((document.querySelector('meta[name="jpk-preview-min-height"]') || {}).content, 10) || 0;
+    var params = new URLSearchParams(location.search);
+
+    // Loads the real bundle once. A snippet awaits it: const JPK = await window.__jpkReady;
+    window.__jpkReady = import('./base/jpkribs_shared.js');
+
+    function setTheme(theme) {
+        root.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark');
+    }
+
+    // The theme comes from the query string, then the operating system, and the docs page overrides it by message.
+    var initial = params.get('theme') ||
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    setTheme(initial);
+
+    document.getElementById('jpk-preview-theme').addEventListener('click', function () {
+        setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+    });
+
+    window.addEventListener('message', function (e) {
+        if (e.origin !== location.origin || !e.data || e.data.type !== 'jpk-preview-theme') { return; }
+        setTheme(e.data.theme);
+    });
+
+    // Reports the content height to the docs page, which sizes the frame to it.
+    var last = 0;
+    function report() {
+        var h = Math.max(Math.ceil(document.getElementById('jpk-preview-root').getBoundingClientRect().height), min);
+        if (h === last) { return; }
+        last = h;
+        if (window.parent !== window) {
+            window.parent.postMessage({ type: 'jpk-preview-height', height: h }, location.origin);
+        }
+    }
+    if (window.ResizeObserver) {
+        new ResizeObserver(report).observe(document.getElementById('jpk-preview-root'));
+    }
+    window.addEventListener('load', function () {
+        report();
+        if (window.parent !== window) {
+            window.parent.postMessage({ type: 'jpk-preview-ready' }, location.origin);
+        }
+    });
+})();
+</script>
+
+</body>
+</html>

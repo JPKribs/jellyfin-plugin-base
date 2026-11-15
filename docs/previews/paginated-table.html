@@ -1,0 +1,26 @@
+<!-- title: Paginated Table -->
+<div id="contentTable"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const shared = JPK.createShared(view, 'preview-plugin', 'Preview');
+const table = JPK.createPaginatedTable(view, shared, {
+    containerId: 'contentTable',
+    endpoint: 'Items',
+    search: { placeholder: 'Search episodes' },
+    selection: { enabled: true, idKey: 'id' },
+    pagination: { pageSize: 10, loadMore: true },
+    filters: { options: [{ value: 'Queued', label: 'Queued' }, { value: 'Errored', label: 'Errored' }] },
+    columns: [
+        { key: 'name', type: 'custom', render: (item) =>
+            '<div class="jpk-table-item-info"><div class="jpk-table-item-title">' + shared.escapeHtml(item.name) + '</div>' +
+            '<div class="jpk-table-item-sub">' + shared.formatSize(item.sizeBytes) + '</div></div>' },
+        { key: 'status', type: 'status' }
+    ],
+    getDisplayStatus: (item) => item.status,
+    getStatusClass: (item) => item.status,
+    actions: { onRowClick: (item) => shared.showAlert('Opened ' + item.name) },
+    emptyState: { message: 'No items found.' }
+});
+table.load();
+</script>

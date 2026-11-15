@@ -1,0 +1,32 @@
+/* In-page tab list over its panels, which scrolls sideways when the tabs do not fit */
+/* Example: <div class="jpk-subtabs"><div class="jpk-subtab-list" role="tablist"><button type="button" class="jpk-subtab active" role="tab" aria-selected="true">General</button></div><div class="jpk-subtab-panels"></div></div> */
+.jpk-subtabs { display: flex; flex-direction: column; gap: 12px; }
+.jpk-subtab-list {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--jpk-border);
+}
+
+/* One tab, underlined in the accent when active */
+/* Example: <button type="button" class="jpk-subtab active" role="tab" aria-selected="true">General</button> */
+.jpk-subtab {
+    flex: 0 0 auto;
+    padding: 8px 14px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    opacity: 0.75;
+    cursor: pointer;
+}
+.jpk-subtab:hover { opacity: 1; }
+.jpk-subtab.active { opacity: 1; border-bottom-color: var(--jpk-accent); }
+.jpk-subtab:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: -2px; }
+.jpk-subtab:disabled { opacity: 0.4; cursor: default; }
+
+/* Panel under the tabs, which takes focus without a ring unless a keyboard user lands on it */
+/* Example: <div class="jpk-subtab-panel" role="tabpanel" tabindex="0">Content</div> */
+.jpk-subtab-panel:focus { outline: none; }
+.jpk-subtab-panel:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 2px; }

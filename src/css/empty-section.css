@@ -1,0 +1,15 @@
+/* Bordered box with centered muted text for an empty region */
+/* Example: <div class="jpk-empty-section">Queue is empty. Add a URL above to get started.</div> */
+.jpk-empty-section {
+    text-align: center;
+    padding: 40px 24px;
+    color: rgba(255, 255, 255, 0.5);
+    color: color-mix(in srgb, currentColor 50%, transparent);
+    font-size: 1.1em;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+/* The box fades its own text, so its border mixes the theme text color, not the faded currentColor. */
+@supports (color: color-mix(in srgb, red, blue)) {
+    .jpk-empty-section { border-color: color-mix(in srgb, var(--jpk-fg) 10%, transparent); }
+}

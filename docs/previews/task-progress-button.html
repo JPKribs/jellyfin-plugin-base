@@ -1,0 +1,20 @@
+<!-- title: Task Progress Button -->
+<button type="button" id="btnSync" class="raised jpk-button-submit"><span>Sync</span></button>
+<span id="taskStatus" class="jpk-status-text"></span>
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+
+// The dashboard answers getScheduledTasks. This stub runs a task for a few seconds.
+let startedAt = 0;
+ApiClient.getScheduledTasks = () => {
+    const pct = Math.min(100, (Date.now() - startedAt) / 40);
+    return Promise.resolve([{ Key: 'SyncTask', State: pct < 100 ? 'Running' : 'Idle', CurrentProgressPercentage: pct }]);
+};
+
+shared.bindClick('btnSync', () => {
+    startedAt = Date.now();
+    shared.pollTaskProgress(document.getElementById('btnSync'), 'SyncTask', 'Sync',
+        () => shared.setStatus('taskStatus', 'Sync finished.', false));
+});
+</script>

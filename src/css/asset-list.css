@@ -18,6 +18,8 @@
     border: 1px solid var(--jpk-border);
     border-radius: 8px;
 }
+/* Square checkerboard thumbnail so transparent images stay visible */
+/* Example: <img class="jpk-asset-thumb" src="logo.png"> */
 .jpk-asset-thumb {
     width: 48px;
     height: 48px;
@@ -27,12 +29,16 @@
         linear-gradient(45deg, #2a2a2a 25%, #222 25%, #222 75%, #2a2a2a 75%) 6px 6px / 12px 12px;
     border-radius: 4px;
 }
+/* Column holding the asset name and its reference */
+/* Example: <div class="jpk-asset-info"><div class="jpk-asset-name">logo.png</div><div class="jpk-asset-ref">logo</div></div> */
 .jpk-asset-info {
     min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 0.15em;
 }
+/* Bold asset name that clips with an ellipsis */
+/* Example: <div class="jpk-asset-name">logo.png</div> */
 .jpk-asset-name {
     font-weight: 700;
     font-size: 0.95rem;
@@ -40,12 +46,16 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+/* Small dimmed mono reference that breaks anywhere */
+/* Example: <div class="jpk-asset-ref">assets/logo.png</div> */
 .jpk-asset-ref {
     font-family: var(--jpk-mono);
     font-size: 0.8rem;
     opacity: 0.65;
     word-break: break-all;
 }
+/* Row of action buttons at the end of an asset row */
+/* Example: <div class="jpk-asset-actions"><button class="jpk-asset-btn"></button></div> */
 .jpk-asset-actions {
     display: flex;
     gap: 0.25em;
@@ -57,8 +67,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.06);
-    background: color-mix(in srgb, currentColor 6%, transparent);
+    background: var(--jpk-wash);
     border: 1px solid var(--jpk-border);
     color: inherit;
     border-radius: 6px;
@@ -70,8 +79,7 @@
     font-size: 1.15rem;
 }
 .jpk-asset-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
-    background: color-mix(in srgb, currentColor 12%, transparent);
+    background: var(--jpk-wash-strong);
 }
 .jpk-asset-btn.danger:hover {
     background: rgba(217, 83, 79, 0.25);

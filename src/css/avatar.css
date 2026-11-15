@@ -1,0 +1,65 @@
+/* Round picture or initials, in three sizes, with an optional status dot */
+/* Example: <span class="jpk-avatar jpk-avatar-medium blue"><span class="jpk-avatar-initials">AB</span></span> */
+.jpk-avatar {
+    position: relative;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--jpk-gray-bg);
+    color: var(--jpk-gray-fg);
+    font-weight: 600;
+    vertical-align: middle;
+}
+.jpk-avatar-small { width: 24px; height: 24px; font-size: 0.7em; }
+.jpk-avatar-large { width: 64px; height: 64px; font-size: 1.4em; }
+.jpk-avatar.blue { background: var(--jpk-blue-bg); color: var(--jpk-blue-fg); }
+.jpk-avatar.green { background: var(--jpk-green-bg); color: var(--jpk-green-fg); }
+.jpk-avatar.red { background: var(--jpk-red-bg); color: var(--jpk-red-fg); }
+.jpk-avatar.orange { background: var(--jpk-orange-bg); color: var(--jpk-orange-fg); }
+.jpk-avatar.purple { background: var(--jpk-purple-bg); color: var(--jpk-purple-fg); }
+.jpk-avatar.teal { background: var(--jpk-teal-bg); color: var(--jpk-teal-fg); }
+.jpk-avatar.pink { background: var(--jpk-pink-bg); color: var(--jpk-pink-fg); }
+.jpk-avatar.yellow { background: var(--jpk-yellow-bg); color: var(--jpk-yellow-fg); }
+.jpk-avatar-image { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+/* Dot at the bottom right of an avatar, ringed in the surface color */
+/* Example: <span class="jpk-avatar-status green" role="img" title="Active" aria-label="Active"></span> */
+.jpk-avatar-status {
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 25%;
+    min-width: 8px;
+    height: 25%;
+    min-height: 8px;
+    box-sizing: border-box;
+    border: 2px solid var(--jpk-surface);
+    border-radius: 50%;
+    background: var(--jpk-gray-fg);
+}
+.jpk-avatar-status.green { background: var(--jpk-green-fg); }
+.jpk-avatar-status.red { background: var(--jpk-red-fg); }
+.jpk-avatar-status.orange { background: var(--jpk-orange-fg); }
+.jpk-avatar-status.purple { background: var(--jpk-purple-fg); }
+.jpk-avatar-status.blue { background: var(--jpk-blue-fg); }
+
+/* Pill with an avatar, a name, and an optional second line */
+/* Example: <span class="jpk-user-chip"><span class="jpk-avatar"></span><span class="jpk-user-chip-body"><span class="jpk-user-chip-name">Ada</span></span></span> */
+.jpk-user-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
+    padding: 3px 12px 3px 3px;
+    border: 1px solid var(--jpk-border);
+    border-radius: 999px;
+    vertical-align: middle;
+}
+.jpk-user-chip .jpk-avatar { width: 28px; height: 28px; font-size: 0.75em; }
+.jpk-user-chip-body { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.jpk-user-chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.jpk-user-chip-text { font-size: 0.8em; opacity: 0.7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

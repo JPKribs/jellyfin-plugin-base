@@ -1,4 +1,4 @@
-/* Full width monospace code editor textarea */
+/* Full width monospace textarea for editing code */
 /* Example: <textarea class="jpk-code"></textarea> */
 .jpk-code {
     display: block;
@@ -23,7 +23,7 @@
     border-color: var(--jpk-accent);
 }
 
-/* A read only block of code or JSON, such as a preview: wraps, and is only as tall as its text */
+/* Read only block of code or JSON that wraps and is only as tall as its text */
 /* Example: <pre class="jpk-code jpk-code-block">{ "event": "Approved" }</pre> */
 .jpk-code.jpk-code-block {
     min-height: 0;
@@ -33,6 +33,6 @@
     font-size: 0.85em;
 }
 
-/* A code field or block whose content is not valid */
+/* Code field or block with a red border for content that is not valid */
 /* Example: <pre class="jpk-code jpk-code-block jpk-code-invalid"></pre> */
 .jpk-code.jpk-code-invalid { border-color: var(--jpk-error); }

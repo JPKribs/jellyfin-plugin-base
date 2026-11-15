@@ -1,0 +1,36 @@
+<!-- title: Sortable Card List -->
+<div id="serverList" class="jpk-card-list"></div>
+<div class="jpk-card-list-actions">
+    <button is="emby-button" type="button" class="raised jpk-icon-btn jpk-button-submit">
+        <span class="material-icons" aria-hidden="true">add</span><span>Add Server</span>
+    </button>
+</div>
+<span id="orderStatus" class="jpk-status-text"></span>
+<div id="editorHolder" class="hidden">
+    <div id="serverEditor">
+        <div class="inputContainer"><label for="txtEditName">Name</label><input is="emby-input" type="text" id="txtEditName" value="Edited in place" /></div>
+    </div>
+</div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const servers = [
+    { name: 'Living room', url: 'http://living:8096', mode: 'Both', dot: 'ok' },
+    { name: 'Cabin', url: 'http://cabin:8096', mode: 'Pull', dot: 'bad' },
+    { name: 'Backup', url: 'http://backup:8096', mode: 'Push', dot: 'checking', disabled: true }
+];
+const colors = { Both: 'purple', Pull: 'green', Push: 'blue' };
+const cards = JPK.createSortableCardList(document.getElementById('serverList'), {
+    items: servers,
+    editor: document.getElementById('serverEditor'),
+    render: (server) => ({
+        title: server.name,
+        subtitle: server.url,
+        dot: server.dot,
+        disabled: server.disabled,
+        badges: [{ label: server.mode, cls: colors[server.mode] }]
+    }),
+    onMove: (from, to) => shared.setStatus('orderStatus', 'Moved ' + (from + 1) + ' to ' + (to + 1) + '.', false, { timeout: 0 })
+});
+cards.setSelected(0);
+</script>

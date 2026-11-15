@@ -20,6 +20,9 @@
     z-index: 1000;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
+
+/* One option row that tints in the accent on hover or when active */
+/* Example: <div class="jpk-combo-option active">value</div> */
 .jpk-combo-option {
     padding: 6px 10px;
     cursor: pointer;

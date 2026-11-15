@@ -1,0 +1,19 @@
+<!-- title: Step -->
+<div class="jpk-collapsible-section">
+    <button type="button" class="jpk-collapsible-header" aria-expanded="true" data-target="stepConnection">
+        <span class="jpk-collapsible-title jpk-step-title"><span class="jpk-step-number">1</span> Connection</span>
+        <span class="jpk-collapsible-icon">&#9660;</span>
+    </button>
+    <div id="stepConnection" class="jpk-collapsible-content"><p>Fields for the first step.</p></div>
+</div>
+<div class="jpk-collapsible-section">
+    <button type="button" class="jpk-collapsible-header collapsed" aria-expanded="false" data-target="stepLibraries">
+        <span class="jpk-collapsible-title jpk-step-title"><span class="jpk-step-number">2</span> Libraries</span>
+        <span class="jpk-collapsible-icon">&#9660;</span>
+    </button>
+    <div id="stepLibraries" class="jpk-collapsible-content collapsed"><p>Fields for the second step.</p></div>
+</div>
+<script type="module">
+const JPK = await window.__jpkReady;
+JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview').initCollapsibles();
+</script>

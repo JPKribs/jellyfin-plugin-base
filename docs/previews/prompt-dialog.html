@@ -1,0 +1,17 @@
+<!-- title: Prompt Dialog -->
+<!-- min-height: 420 -->
+<button type="button" id="btnNew" class="raised jpk-secondary"><span>New Record</span></button>
+<span id="promptStatus" class="jpk-status-text"></span>
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+shared.bindClick('btnNew', () => {
+    JPK.promptDialog(
+        [
+            { name: 'label', label: 'Label', value: 'My record' },
+            { name: 'mode', label: 'Mode', type: 'select', options: [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }] }
+        ],
+        { title: 'New Record', submitText: 'Create' }
+    ).then((values) => shared.setStatus('promptStatus', values ? JSON.stringify(values) : 'Cancelled.', !values, { timeout: 0 }));
+});
+</script>

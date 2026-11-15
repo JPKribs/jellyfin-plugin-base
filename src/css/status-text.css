@@ -7,7 +7,10 @@
     margin-top: 4px;
 }
 
-/* Success/failure coloring applied by shared.setStatus via classes rather than inline styles, so a plugin
-   can theme or override the status text. */
+/* Green status text that setStatus applies for success */
+/* Example: <span class="jpk-status-text jpk-status-ok">Saved</span> */
 .jpk-status-ok { color: var(--jpk-success); }
+
+/* Red status text that setStatus applies for failure */
+/* Example: <span class="jpk-status-text jpk-status-bad">Could not save</span> */
 .jpk-status-bad { color: var(--jpk-error); }

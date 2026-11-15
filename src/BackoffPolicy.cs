@@ -3,25 +3,25 @@ using System;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// Immutable backoff state a caller persists per entity (e.g. on a DNS record or a queue item). Holds the
-/// consecutive-failure count and, once past the threshold, the UTC instant before which the next attempt is
-/// suppressed.
+/// The backoff state a caller persists per entity, such as a DNS record or a queue item.
+/// It holds the failures in a row and, once past the threshold, the UTC instant before which the next attempt is suppressed.
 /// </summary>
-/// <param name="ConsecutiveFailures">Number of failures in a row; reset to zero on success.</param>
-/// <param name="BackoffUntilUtc">Instant before which attempts are paused, or null when not backing off.</param>
+/// <param name="ConsecutiveFailures">The number of failures in a row. It returns to zero on success.</param>
+/// <param name="BackoffUntilUtc">The UTC instant before which attempts are paused, or <c>null</c> when not backing off.</param>
 public readonly record struct BackoffState(int ConsecutiveFailures, DateTime? BackoffUntilUtc)
 {
-    /// <summary>Gets the initial state: no failures, not backing off.</summary>
+    /// <summary>Gets the initial state, with no failures and no pause.</summary>
     public static BackoffState Initial => new(0, null);
 }
 
 /// <summary>
-/// Decides how long to pause a repeatedly-failing operation. Unlike <see cref="CircuitBreaker"/>, which keeps
-/// state in memory for a named service, this policy is stateless: the caller passes in the current
-/// <see cref="BackoffState"/> and stores the returned one, so the pause survives restarts when persisted on the
-/// entity itself. Backoff escalates exponentially from a base delay, capped at a maximum, and only engages once
-/// a failure threshold is crossed.
+/// Decides how long to pause an operation that keeps failing.
+/// The delay doubles from a base delay up to a maximum, and only starts once a failure threshold is reached.
 /// </summary>
+/// <remarks>
+/// Unlike <see cref="CircuitBreaker"/>, which keeps state in memory for a named service, this policy is stateless.
+/// The caller passes in the current <see cref="BackoffState"/> and stores the returned one, so the pause survives a restart when it is persisted.
+/// </remarks>
 public sealed class BackoffPolicy
 {
     private readonly int _failureThreshold;
@@ -31,9 +31,10 @@ public sealed class BackoffPolicy
     /// <summary>
     /// Initializes a new instance of the <see cref="BackoffPolicy"/> class.
     /// </summary>
-    /// <param name="failureThreshold">Consecutive failures required before any backoff engages (default 3).</param>
-    /// <param name="baseDelay">Delay applied at the threshold; doubles per additional failure (default 5 minutes).</param>
-    /// <param name="maxDelay">Ceiling for the escalating delay (default 6 hours).</param>
+    /// <param name="failureThreshold">The failures in a row required before any backoff starts. 3 by default.</param>
+    /// <param name="baseDelay">The delay at the threshold, which doubles for each further failure. 5 minutes by default.</param>
+    /// <param name="maxDelay">The ceiling for the delay. 6 hours by default.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="failureThreshold"/> is less than 1.</exception>
     public BackoffPolicy(int failureThreshold = 3, TimeSpan? baseDelay = null, TimeSpan? maxDelay = null)
     {
         if (failureThreshold < 1)
@@ -46,21 +47,21 @@ public sealed class BackoffPolicy
         _maxDelay = maxDelay ?? TimeSpan.FromHours(6);
     }
 
-    /// <summary>Returns true when <paramref name="state"/> is currently paused as of <paramref name="nowUtc"/>.</summary>
+    /// <summary>Checks whether the state is paused as of the given time.</summary>
     /// <param name="state">The persisted state.</param>
-    /// <param name="nowUtc">The current UTC time (injectable for testing).</param>
-    /// <returns>Whether the next attempt should be suppressed.</returns>
+    /// <param name="nowUtc">The current UTC time.</param>
+    /// <returns><c>true</c> when the next attempt should be suppressed, otherwise <c>false</c>.</returns>
     public bool IsBackingOff(BackoffState state, DateTime nowUtc)
         => state.BackoffUntilUtc is { } until && nowUtc < until;
 
-    /// <summary>Convenience overload using <see cref="DateTime.UtcNow"/>.</summary>
+    /// <summary>Checks whether the state is paused as of <see cref="DateTime.UtcNow"/>.</summary>
     /// <param name="state">The persisted state.</param>
-    /// <returns>Whether the next attempt should be suppressed.</returns>
+    /// <returns><c>true</c> when the next attempt should be suppressed, otherwise <c>false</c>.</returns>
     public bool IsBackingOff(BackoffState state) => IsBackingOff(state, DateTime.UtcNow);
 
     /// <summary>
-    /// Records a failure and returns the updated state. Below the threshold the failure is counted but no
-    /// pause is set; at or beyond it the pause window grows exponentially, capped at the configured maximum.
+    /// Records a failure and returns the updated state.
+    /// Below the threshold the failure is counted and no pause is set, and from the threshold on the pause doubles up to the maximum.
     /// </summary>
     /// <param name="state">The current state.</param>
     /// <param name="nowUtc">The current UTC time.</param>
@@ -73,23 +74,24 @@ public sealed class BackoffPolicy
             return new BackoffState(failures, null);
         }
 
-        var steps = failures - _failureThreshold; // 0 at the threshold, +1 per extra failure
+        var steps = failures - _failureThreshold;
         var delay = ScaleDelay(steps);
         return new BackoffState(failures, nowUtc + delay);
     }
 
-    /// <summary>Convenience overload using <see cref="DateTime.UtcNow"/>.</summary>
+    /// <summary>Records a failure at <see cref="DateTime.UtcNow"/> and returns the updated state.</summary>
     /// <param name="state">The current state.</param>
     /// <returns>The state to persist.</returns>
     public BackoffState RecordFailure(BackoffState state) => RecordFailure(state, DateTime.UtcNow);
 
-    /// <summary>Clears the failure count and any pause after a successful attempt.</summary>
-    /// <returns>The reset state.</returns>
+    /// <summary>Gives the state to persist after a successful attempt.</summary>
+    /// <remarks>This is an instance method that ignores the instance and returns <see cref="BackoffState.Initial"/>.</remarks>
+    /// <returns>The reset state, with no failures and no pause.</returns>
     public BackoffState RecordSuccess() => BackoffState.Initial;
 
     private TimeSpan ScaleDelay(int steps)
     {
-        // Double the base delay per step, guarding against overflow before the cap clamps it.
+        // Doubling can overflow, so a large step or an overflowed product falls back to the cap.
         var maxTicks = _maxDelay.Ticks;
         if (steps >= 62)
         {

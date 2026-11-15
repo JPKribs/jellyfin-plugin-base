@@ -1,0 +1,173 @@
+site_name: Jellyfin Plugin Base
+site_description: Shared C# helpers and configuration page components for Jellyfin plugins.
+site_url: https://jpkribs.github.io/jellyfin-plugin-base/
+repo_url: https://github.com/JPKribs/jellyfin-plugin-base
+repo_name: JPKribs/jellyfin-plugin-base
+edit_uri: edit/main/docs/
+docs_dir: docs
+
+theme:
+  name: material
+  logo: assets/icon.png
+  favicon: assets/icon.png
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: light blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.snippets:
+      base_path: docs/previews
+      check_paths: true
+  - tables
+  - toc:
+      permalink: true
+
+extra_css:
+  - assets/preview.css
+
+extra_javascript:
+  - assets/preview.js
+
+# The preview sources are built into assets/previews by scripts/build-previews.mjs, so the sources stay out of the site.
+exclude_docs: |
+  .*
+  /templates/
+  /previews/
+
+nav:
+  - Overview: index.md
+  - Getting Started:
+      - Using Base: Usage.md
+  - Components:
+      - Web:
+          - Overview: components/web/index.md
+          - Design Tokens: components/web/design-tokens.md
+          - Page Lifecycle and Helpers:
+              - Config Page: components/web/config-page.md
+              - Tabs: components/web/tabs.md
+              - Poller: components/web/poller.md
+              - Change Tracker: components/web/change-tracker.md
+              - Task Progress Button: components/web/task-progress-button.md
+              - Shared Bag: components/web/shared-bag.md
+              - Browser Helpers: components/web/browser-helpers.md
+              - Utility Classes: components/web/utility-classes.md
+          - Layout and Sections:
+              - Section Title: components/web/section-title.md
+              - Section: components/web/section.md
+              - Panel: components/web/panel.md
+              - Subsection Title: components/web/subsection-title.md
+              - Collapsible Section: components/web/collapsible-section.md
+              - Step: components/web/step.md
+              - Indent: components/web/indent.md
+              - Reset Group: components/web/reset-group.md
+              - Sub Tabs: components/web/sub-tabs.md
+              - Breadcrumbs: components/web/breadcrumbs.md
+              - Stepper: components/web/stepper.md
+          - Forms and Inputs:
+              - Form Fields: components/web/form-fields.md
+              - Field and Field Row: components/web/field.md
+              - Edit Input: components/web/edit-input.md
+              - Button: components/web/button.md
+              - Row Button: components/web/row-button.md
+              - Toggle Group: components/web/toggle-group.md
+              - Pill Group: components/web/pill-group.md
+              - Check Grid: components/web/check-grid.md
+              - Code Block: components/web/code-block.md
+              - Secret Field: components/web/secret-field.md
+              - Placeholder Hint: components/web/placeholder-hint.md
+              - Record Selector: components/web/record-selector.md
+          - Selection:
+              - Chip Select: components/web/chip-select.md
+              - Tags: components/web/tags.md
+              - Combo Box: components/web/combo-box.md
+              - Checkbox List: components/web/checkbox-list.md
+              - User Selector: components/web/user-selector.md
+              - User Multi Selector: components/web/user-multi-selector.md
+              - Choice Group: components/web/choice-group.md
+          - Lists and Tables:
+              - Paginated Table: components/web/paginated-table.md
+              - Sortable Card List: components/web/sortable-card-list.md
+              - Ordered List: components/web/ordered-list.md
+              - Record Card: components/web/record-card.md
+              - Asset List: components/web/asset-list.md
+              - Static Table: components/web/static-table.md
+              - Bulk Edit Bar and Edit Row: components/web/bulk-edit.md
+              - Pagination: components/web/pagination.md
+          - Feedback and Status:
+              - Badge: components/web/badge.md
+              - Count Cards: components/web/count-cards.md
+              - Callout: components/web/callout.md
+              - Status Text: components/web/status-text.md
+              - Unsaved Indicator: components/web/unsaved-indicator.md
+              - Empty State: components/web/empty-state.md
+              - Status Page: components/web/status-page.md
+              - Toast: components/web/toast.md
+              - Banner: components/web/banner.md
+              - Status Dot: components/web/status-dot.md
+          - Dialogs and Menus:
+              - Dialog: components/web/dialog.md
+              - Confirm Dialog: components/web/confirm-dialog.md
+              - Prompt Dialog: components/web/prompt-dialog.md
+              - Editor Dialog: components/web/editor-dialog.md
+              - Bound Dialog: components/web/bound-dialog.md
+              - Overflow Menu: components/web/overflow-menu.md
+              - Tooltip: components/web/tooltip.md
+              - Help Hint: components/web/help-hint.md
+          - Editors:
+              - String List: components/web/string-list.md
+              - Key Value Editor: components/web/key-value-editor.md
+              - Tag Input: components/web/tag-input.md
+              - File Picker: components/web/file-picker.md
+              - Number Unit Field: components/web/number-unit-field.md
+              - Slider Field: components/web/slider-field.md
+              - Schedule Picker: components/web/schedule-picker.md
+              - Search Field: components/web/search-field.md
+              - Copy Field: components/web/copy-field.md
+              - Field Message: components/web/field-message.md
+          - Data Display:
+              - Definition List: components/web/definition-list.md
+              - Log Viewer: components/web/log-viewer.md
+              - Stat Card: components/web/stat-card.md
+              - Avatar and User Chip: components/web/avatar.md
+              - Timeline: components/web/timeline.md
+              - Divider: components/web/divider.md
+          - Loading:
+              - Spinner: components/web/spinner.md
+              - Skeleton: components/web/skeleton.md
+              - Progress Ring: components/web/progress-ring.md
+              - Progress Bar: components/web/progress-bar.md
+          - Deprecated: components/web/deprecated.md
+      - C#:
+          - Overview: components/csharp/index.md
+          - Plugin and Tasks: components/csharp/plugin-and-tasks.md
+          - HTTP and Resilience: components/csharp/http-and-resilience.md
+          - Security and Secrets: components/csharp/security-and-secrets.md
+          - Files and Paths: components/csharp/files-and-paths.md
+          - Streams and Throttling: components/csharp/streams-and-throttling.md
+          - Text and Formatting: components/csharp/text-and-formatting.md
+          - Data and Storage: components/csharp/data-and-storage.md
+          - Pages and Templates: components/csharp/pages-and-templates.md
+          - Activity Log: components/csharp/activity-log.md
+  - Development:
+      - Releasing: Releasing.md

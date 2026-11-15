@@ -7,18 +7,20 @@ using MediaBrowser.Controller;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// Resolves the web client's favicon from disk so plugins can serve the server's real icon at a stable
-/// path. The favicon file name is content hashed and changes per build, so it is located by parsing the
-/// web client's <c>index.html</c>. Each call resolves fresh — the favicon endpoint is browser cached, so
-/// it is hit rarely, and a process-wide cache would both go stale and break per-path isolation.
+/// Resolves the web client's favicon from disk, so a plugin can serve the server's real icon at a stable path.
 /// </summary>
+/// <remarks>
+/// The favicon file name is content hashed and changes per build, so it is found by parsing the web client's <c>index.html</c>.
+/// The link tag must put <c>rel</c> before <c>href</c>. Each call reads the disk again and nothing is cached.
+/// Every file that does not end in <c>.png</c> is labeled <c>image/x-icon</c>, including an SVG icon.
+/// </remarks>
 public static partial class FaviconResolver
 {
     /// <summary>
-    /// Resolves the web client favicon bytes.
+    /// Reads the web client's favicon from disk.
     /// </summary>
     /// <param name="paths">The server application paths, used to locate the web client.</param>
-    /// <returns>The favicon bytes and content type, or <c>null</c> when none could be located.</returns>
+    /// <returns>The favicon bytes and content type, or <c>null</c> when none could be found or read.</returns>
     public static (byte[] Bytes, string ContentType)? Resolve(IServerApplicationPaths paths)
     {
         ArgumentNullException.ThrowIfNull(paths);

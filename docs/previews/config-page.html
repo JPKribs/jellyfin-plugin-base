@@ -1,0 +1,34 @@
+<!-- title: Config Page -->
+<!-- min-height: 300 -->
+<div id="demoPage" class="jpk-record-card">The page element. The buttons send the events the dashboard sends.</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0;">
+    <button type="button" id="btnShow" class="raised jpk-button-submit jpk-button-small"><span>viewshow</span></button>
+    <button type="button" id="btnHide" class="raised jpk-secondary jpk-button-small"><span>viewhide</span></button>
+</div>
+<div id="logMount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const log = JPK.createLogViewer({ toolbar: false, emptyText: 'No events yet.' });
+document.getElementById('logMount').appendChild(log.element);
+const say = (text) => log.append({ text: text, level: 'info' });
+
+// The dashboard supplies LibraryMenu. This stub reports the call.
+window.LibraryMenu = { setTabs: (key, index, getTabs) => say('setTabs ' + key + ', active ' + index + ', ' + getTabs().length + ' tabs') };
+
+const page = document.getElementById('demoPage');
+JPK.createConfigPage(page, {
+    pluginId: '00000000-0000-0000-0000-000000000000',
+    apiPrefix: 'Preview',
+    tabsKey: 'myplugin',
+    tabIndex: 1,
+    tabs: [{ href: 'configurationpage?name=myplugin_overview', name: 'Overview' }, { href: 'configurationpage?name=myplugin_settings', name: 'Settings' }],
+    bind: (shared, handle) => {
+        say('bind runs once');
+        handle.addCleanup(() => say('cleanup runs'));
+    },
+    load: () => say('load runs on every viewshow'),
+    onHide: () => say('onHide runs after the cleanups')
+});
+document.getElementById('btnShow').addEventListener('click', () => page.dispatchEvent(new Event('viewshow')));
+document.getElementById('btnHide').addEventListener('click', () => page.dispatchEvent(new Event('viewhide')));
+</script>

@@ -1,0 +1,16 @@
+/* Button that clips and anchors a thin progress fill along its bottom edge */
+/* Example: <button class="jpk-btn-progress-host"><span>Run</span><div class="jpk-btn-progress"></div></button> */
+.jpk-btn-progress-host { position: relative; overflow: hidden; }
+
+/* Thin accent fill along the bottom of a button whose width is the progress */
+/* Example: <div class="jpk-btn-progress" style="width: 40%"></div> */
+.jpk-btn-progress { position: absolute; bottom: 0; left: 0; height: 3px; width: 0; background: var(--jpk-accent); transition: width 0.3s ease; pointer-events: none; }
+
+/* Progress fill on an accent or red button, in the text color of that fill so it stays visible */
+/* Example: <button class="jpk-button-submit jpk-btn-progress-host"><div class="jpk-btn-progress"></div></button> */
+.jpk-button-submit .jpk-btn-progress,
+.jpk-button-destructive .jpk-btn-progress { background: rgba(255, 255, 255, 0.7); }
+@supports (color: color-mix(in srgb, red, blue)) {
+    .jpk-button-submit .jpk-btn-progress,
+    .jpk-button-destructive .jpk-btn-progress { background: color-mix(in srgb, var(--jpk-on-accent) 70%, transparent); }
+}

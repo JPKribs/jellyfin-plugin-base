@@ -1,0 +1,15 @@
+<!-- title: Unsaved Indicator -->
+<h3 style="margin: 0 0 12px;">Settings <span class="jpk-unsaved" id="indicator"><span class="jpk-unsaved-dot"></span>Unsaved changes</span></h3>
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    <button type="button" id="btnShow" class="raised jpk-button-small"><span>Show</span></button>
+    <button type="button" id="btnHide" class="raised jpk-secondary jpk-button-small"><span>Hide</span></button>
+    <button type="button" id="btnSaved" class="raised jpk-secondary jpk-button-small"><span>Saved Look</span></button>
+</div>
+<script type="module">
+await window.__jpkReady;
+const indicator = document.getElementById('indicator');
+document.getElementById('btnShow').addEventListener('click', () => indicator.classList.add('visible'));
+document.getElementById('btnHide').addEventListener('click', () => indicator.classList.remove('visible', 'save-success'));
+document.getElementById('btnSaved').addEventListener('click', () => indicator.classList.add('visible', 'save-success'));
+indicator.classList.add('visible');
+</script>

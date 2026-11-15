@@ -1,0 +1,23 @@
+<!-- title: Editor Dialog -->
+<!-- min-height: 460 -->
+<button type="button" id="btnEdit" class="raised jpk-secondary"><span>Edit Server</span></button>
+<span id="editorStatus" class="jpk-status-text"></span>
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+shared.bindClick('btnEdit', () => {
+    const body = document.createElement('div');
+    body.innerHTML = '<div class="inputContainer"><label for="txtEditorName">Name</label>' +
+        '<input is="emby-input" type="text" id="txtEditorName" value="Living room"></div>';
+    const input = body.querySelector('input');
+    JPK.openEditorDialog({
+        title: 'Edit Server',
+        body: body,
+        isNew: false,
+        serialize: () => input.value,
+        onDone: () => true,
+        onRemove: (close) => close('removed'),
+        onClose: (value) => shared.setStatus('editorStatus', 'Closed with ' + (value || 'a dismissal') + '.', false, { timeout: 0 })
+    });
+});
+</script>

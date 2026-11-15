@@ -1,0 +1,34 @@
+/* Message under a field with an icon and a sentence, in the color of its state */
+/* Example: <div class="jpk-field-message error" aria-live="polite"><span class="material-icons" aria-hidden="true">error</span><span class="jpk-field-message-text">Enter a number.</span></div> */
+.jpk-field-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    font-size: 0.85em;
+    line-height: 1.4;
+}
+/* A message with a state sits a little below its field */
+.jpk-field-message.error,
+.jpk-field-message.warn,
+.jpk-field-message.success,
+.jpk-field-message.info { margin-top: 0.35em; }
+.jpk-field-message .material-icons { font-size: 16px; line-height: 1.4; flex: 0 0 auto; }
+.jpk-field-message.error { color: var(--jpk-red-fg); }
+.jpk-field-message.warn { color: var(--jpk-orange-fg); }
+.jpk-field-message.success { color: var(--jpk-green-fg); }
+.jpk-field-message.info { color: var(--jpk-blue-fg); }
+
+/* Red border on a field that an error message describes */
+/* Example: <input type="text" aria-invalid="true" aria-describedby="msg"> */
+.pluginConfigurationPage input[aria-invalid="true"],
+.jpk-dialog input[aria-invalid="true"],
+.pluginConfigurationPage textarea[aria-invalid="true"],
+.jpk-dialog textarea[aria-invalid="true"],
+.pluginConfigurationPage select[aria-invalid="true"],
+.jpk-dialog select[aria-invalid="true"] { border-color: var(--jpk-error); }
+.pluginConfigurationPage input[aria-invalid="true"]:not([disabled]):not([hidden]),
+.jpk-dialog input[aria-invalid="true"]:not([disabled]):not([hidden]),
+.pluginConfigurationPage textarea[aria-invalid="true"]:not([disabled]):not([hidden]),
+.jpk-dialog textarea[aria-invalid="true"]:not([disabled]):not([hidden]),
+.pluginConfigurationPage select[aria-invalid="true"]:not([disabled]):not([hidden]),
+.jpk-dialog select[aria-invalid="true"]:not([disabled]):not([hidden]) { border-color: var(--jpk-error) !important; }

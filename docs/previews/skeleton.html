@@ -1,0 +1,15 @@
+<!-- title: Skeleton -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+mount.appendChild(JPK.createSkeleton({ lines: 3 }).element);
+const row = document.createElement('div');
+row.style.cssText = 'display:flex;align-items:center;gap:12px;margin-top:14px';
+row.appendChild(JPK.createSkeleton({ type: 'circle' }).element);
+const block = JPK.createSkeleton({ type: 'block', size: 'small' }).element;
+block.style.flex = '1';
+row.appendChild(block);
+mount.appendChild(row);
+</script>

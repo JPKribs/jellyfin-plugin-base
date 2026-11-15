@@ -38,6 +38,8 @@ concurrency:
 
 jobs:
   release:
+    # A dispatch from any other branch must never publish.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -48,12 +50,12 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: 10.0.3xx
 
       - name: Resolve version
         id: ver
@@ -91,6 +93,9 @@ jobs:
           fi
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "Releasing ${VERSION}"
+
+      - name: Test JavaScript
+        run: node --test JPKribs.Jellyfin.Base.Tests/js/*.test.mjs
 
       - name: Test
         run: dotnet test JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Release

@@ -3,22 +3,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using JPKribs.Jellyfin.Base;
 using Xunit;
 
 namespace JPKribs.Jellyfin.Base.Tests;
 
-/// <summary>
-/// The <c>status</c> card is self contained and is frequently rendered on a page that also links the kit
-/// CSS (e.g. a plugin that uses the searchable combo). Any class defined by BOTH the card template and the
-/// kit CSS lets the kit rules clobber the card. This shipped twice (<c>.jpk-card</c>, <c>.jpk-edit-input</c>)
-/// and broke modals, so the invariant is enforced here.
-/// </summary>
+/// <summary>Verifies that the self contained <c>status</c> card template shares no class with the kit CSS, since the kit rules would restyle the card.</summary>
 public class CssCollisionTests
 {
-    // .hidden is intentionally shared and identical (display:none) in both, so it never conflicts.
+    // The hidden class is shared on purpose and is the same rule in both, so it never conflicts.
     private static readonly HashSet<string> Allowed = new(StringComparer.Ordinal) { "hidden" };
 
+    /// <summary>
+    /// No class defined by the status template is also defined by the kit CSS, other than hidden.
+    /// True: a page that links the kit CSS beside a status card keeps the card's look.
+    /// False: the kit rules would restyle the card.
+    /// </summary>
     [Fact]
     public void StatusTemplateClasses_DoNotCollideWithKitCss()
     {
@@ -29,7 +28,7 @@ public class CssCollisionTests
 
         Assert.True(
             collisions.Count == 0,
-            "status.html shares CSS classes with the kit (the kit will clobber the card): " + string.Join(", ", collisions));
+            "status.html shares CSS classes with the kit, so the kit would restyle the card: " + string.Join(", ", collisions));
     }
 
     private static string StatusStyleBlock()
@@ -50,7 +49,7 @@ public class CssCollisionTests
             classes.UnionWith(ExtractClasses(reader.ReadToEnd()));
         }
 
-        Assert.NotEmpty(classes); // guard: the css must actually be embedded
+        Assert.NotEmpty(classes);
         return classes;
     }
 

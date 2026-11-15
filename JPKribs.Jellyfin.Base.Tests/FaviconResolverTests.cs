@@ -1,16 +1,12 @@
 using System;
 using System.IO;
-using JPKribs.Jellyfin.Base;
 using MediaBrowser.Controller;
 using NSubstitute;
 using Xunit;
 
 namespace JPKribs.Jellyfin.Base.Tests;
 
-/// <summary>
-/// Tests for <see cref="FaviconResolver"/>, including the path-containment guard and per-call resolution
-/// (no process-wide cache, so distinct web paths resolve independently).
-/// </summary>
+/// <summary>Verifies that <see cref="FaviconResolver"/> finds the web client's favicon, stays inside the web folder, and resolves on every call.</summary>
 public class FaviconResolverTests
 {
     private static IServerApplicationPaths PathsFor(string webPath)
@@ -20,6 +16,11 @@ public class FaviconResolverTests
         return paths;
     }
 
+    /// <summary>
+    /// The favicon named by the link in index.html is read, with the icon content type.
+    /// True: a content hashed favicon name is found.
+    /// False: the icon would be missed after each web client build.
+    /// </summary>
     [Fact]
     public void Resolve_ReadsHashedFaviconFromIndexHtml()
     {
@@ -41,6 +42,35 @@ public class FaviconResolverTests
         }
     }
 
+    /// <summary>
+    /// A favicon that ends in .png is served as a PNG.
+    /// True: the browser gets the right content type for a PNG icon.
+    /// False: a PNG would be labeled as an icon file.
+    /// </summary>
+    [Fact]
+    public void Resolve_LabelsAPngFaviconAsPng()
+    {
+        var web = NewTempDir();
+        try
+        {
+            File.WriteAllText(Path.Combine(web, "index.html"), "<link rel=\"icon\" href=\"favicon.abc.png\">");
+            File.WriteAllBytes(Path.Combine(web, "favicon.abc.png"), new byte[] { 1 });
+
+            var favicon = FaviconResolver.Resolve(PathsFor(web));
+
+            Assert.Equal("image/png", favicon!.Value.ContentType);
+        }
+        finally
+        {
+            Directory.Delete(web, true);
+        }
+    }
+
+    /// <summary>
+    /// With no link in index.html the first favicon file in the folder is used.
+    /// True: a web client with no link tag still gives an icon.
+    /// False: the icon would be missing.
+    /// </summary>
     [Fact]
     public void Resolve_FallsBackToGlobWhenNoIndexLink()
     {
@@ -60,6 +90,11 @@ public class FaviconResolverTests
         }
     }
 
+    /// <summary>
+    /// A link that points outside the web folder is not followed.
+    /// True: an edited index.html cannot make the plugin serve another file.
+    /// False: a path such as "../evil.ico" would be read.
+    /// </summary>
     [Fact]
     public void Resolve_RejectsHrefThatEscapesWebRoot()
     {
@@ -71,7 +106,7 @@ public class FaviconResolverTests
             File.WriteAllText(Path.Combine(web, "index.html"), "<link rel=\"icon\" href=\"../evil.ico\">");
             File.WriteAllBytes(Path.Combine(root, "evil.ico"), new byte[] { 6, 6, 6 });
 
-            // No favicon*.ico inside web, so a rejected href must yield nothing.
+            // The web folder holds no favicon file, so a rejected link must give nothing.
             Assert.Null(FaviconResolver.Resolve(PathsFor(web)));
         }
         finally
@@ -80,16 +115,25 @@ public class FaviconResolverTests
         }
     }
 
+    /// <summary>
+    /// A web folder that does not exist gives null.
+    /// True: a server with no web client serves no icon.
+    /// False: a missing folder would throw.
+    /// </summary>
     [Fact]
     public void Resolve_ReturnsNullWhenWebPathMissing()
     {
         Assert.Null(FaviconResolver.Resolve(PathsFor(Path.Combine(Path.GetTempPath(), "base-fav-missing-" + Guid.NewGuid()))));
     }
 
+    /// <summary>
+    /// Two web folders resolve independently, and repeated calls read the disk again.
+    /// True: no process wide cache leaks one folder's icon into another.
+    /// False: the second folder would return the first folder's icon.
+    /// </summary>
     [Fact]
     public void Resolve_DistinctPathsAreIndependent()
     {
-        // Guards against a process-wide cache leaking one path's result into another.
         var a = NewTempDir();
         var b = NewTempDir();
         try

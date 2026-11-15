@@ -6,13 +6,14 @@ using MediaBrowser.Controller.Entities.TV;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// Names a library item the way Jellyfin does in its own lists: an episode by its series and number, a
-/// season by its series and season, anything else by its name. "Season 1" or "Pilot" alone names nothing.
+/// Names a library item the way Jellyfin does in its own lists.
+/// An episode is named by its series and number, a season by its series and season, and anything else by its name.
 /// </summary>
 public static class ItemTitles
 {
-    /// <summary>The item's title, as "The Show S01E02", "The Show Season 1", or "Only A (2021)".</summary>
-    /// <param name="item">The item.</param>
+    /// <summary>Builds the item's title, such as "The Show S01E02", "The Show Season 1", or "Only A (2021)".</summary>
+    /// <remarks>An episode or season with no series name falls back to its own name, and an episode with no season or number leaves out the code.</remarks>
+    /// <param name="item">The library item to name.</param>
     /// <returns>The title.</returns>
     public static string TitleOf(BaseItem item)
     {
@@ -32,9 +33,9 @@ public static class ItemTitles
         return item.Name;
     }
 
-    /// <summary>The title with an episode's own name after it, as "The Show S01E02 - Pilot".</summary>
-    /// <param name="item">The item.</param>
-    /// <returns>The line.</returns>
+    /// <summary>Builds the title with an episode's own name after it, such as "The Show S01E02 - Pilot".</summary>
+    /// <param name="item">The library item to name.</param>
+    /// <returns>The line, which is the plain title for any item that is not an episode with a series name and a code.</returns>
     public static string LineOf(BaseItem item)
     {
         ArgumentNullException.ThrowIfNull(item);
@@ -43,9 +44,9 @@ public static class ItemTitles
             : TitleOf(item);
     }
 
-    /// <summary>An episode's season and number, as S01E02, or null when either is unknown.</summary>
-    /// <param name="episode">The episode.</param>
-    /// <returns>The code.</returns>
+    /// <summary>Builds an episode's season and number code, such as S01E02.</summary>
+    /// <param name="episode">The episode to code.</param>
+    /// <returns>The code, or <c>null</c> when either the season or the number is unknown.</returns>
     public static string? EpisodeCode(Episode episode)
     {
         ArgumentNullException.ThrowIfNull(episode);

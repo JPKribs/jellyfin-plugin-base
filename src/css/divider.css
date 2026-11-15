@@ -1,0 +1,18 @@
+/* Horizontal rule with an optional centered label */
+/* Example: <div class="jpk-divider" role="separator"><span class="jpk-divider-label">Or</span></div> */
+.jpk-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 1em 0;
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+.jpk-divider::before,
+.jpk-divider::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid var(--jpk-border);
+}
+.jpk-divider.jpk-divider-plain { gap: 0; }
+.jpk-divider.jpk-divider-plain::after { display: none; }

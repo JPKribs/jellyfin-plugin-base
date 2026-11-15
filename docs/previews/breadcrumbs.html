@@ -1,0 +1,8 @@
+<!-- title: Breadcrumbs -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+mount.appendChild(JPK.createBreadcrumbs({ items: [{ label: 'Servers', value: 'servers' }, { label: 'Library', href: '#library' }, { label: 'Settings' }] }).element);
+</script>

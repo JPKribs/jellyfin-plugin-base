@@ -1,0 +1,15 @@
+<!-- title: Overflow Menu -->
+<!-- min-height: 220 -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+const menu = JPK.createOverflowMenu({
+    items: [{ label: 'Edit', value: 'edit', icon: 'edit' }, { label: 'Duplicate', value: 'duplicate', disabled: true }, { label: 'Remove', value: 'remove', destructive: true, icon: 'delete' }],
+    onSelect: (value) => { note.textContent = 'Chose ' + value + '.'; }
+});
+const note = document.createElement('span');
+mount.appendChild(menu.element);
+mount.appendChild(note);
+</script>

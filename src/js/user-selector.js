@@ -1,28 +1,14 @@
-// User selector components.
-//
-// Two controls for picking Jellyfin users on a config page, both built on the dashboard ApiClient:
-//   * createUserSelector       - a single-user dropdown
-//   * createUserMultiSelector  - a checkbox list for picking many users
-//
-// Both fetch the server's user list once, apply an admin filter, and render. The admin filter lets a
-// caller drop administrators (e.g. an "approved non-admin users" list) or keep only administrators.
-//
-// adminFilter:
-//   'all'     - every user (default)
-//   'exclude' - hide administrators
-//   'only'    - only administrators
-
+// Turns a value into text for textContent, with null and undefined as ''.
 function escapeText(value) {
     return value === null || value === undefined ? '' : String(value);
 }
 
-// Normalized key for comparing ids, so GUIDs differing only by casing or dashes still match
-// (e.g. a value stored as "N" format against an ApiClient id in "D" format).
+// Normalizes an id for comparison, so GUIDs that differ only by case or dashes still match, such as an "N" format id against a "D" format one.
 function idKey(id) {
     return String(id === null || id === undefined ? '' : id).replace(/-/g, '').toLowerCase();
 }
 
-// Normalize a raw record from ApiClient.getUsers() (or a plugin DTO) to { id, name, isAdmin, imageTag }.
+// Normalizes a raw record from ApiClient.getUsers() or a plugin DTO to { id, name, isAdmin, imageTag }.
 function normalizeUser(raw) {
     var policy = raw.Policy || raw.policy || {};
     var isAdmin = policy.IsAdministrator;
@@ -36,16 +22,14 @@ function normalizeUser(raw) {
     };
 }
 
+// Keeps every user, only non administrators for 'exclude', or only administrators for 'only'.
 function applyAdminFilter(users, mode) {
     if (mode === 'exclude') return users.filter(function (u) { return !u.isAdmin; });
     if (mode === 'only') return users.filter(function (u) { return u.isAdmin; });
     return users;
 }
 
-// Fetch the raw user list. Prefer the web client's helper, which tracks whatever endpoint the running
-// server expects. The user-list pull was reworked server-side in the 10.11.x EFCore refactor and the
-// /Users privilege scope is being tightened, so we lean on ApiClient rather than a hard-coded route.
-// Falls back to a direct /Users GET, then to an empty list, and degrades instead of throwing.
+// Fetches the raw user list from options.fetchUsers, else ApiClient.getUsers, else a GET of Users, else an empty list.
 function fetchRawUsers(options) {
     if (typeof options.fetchUsers === 'function') {
         return Promise.resolve(options.fetchUsers());
@@ -61,10 +45,10 @@ function fetchRawUsers(options) {
     return Promise.resolve([]);
 }
 
-// Resolve, normalize, filter and sort the user list. options.fetchUsers overrides the default source.
+// Resolves, normalizes, filters, and sorts the user list by name, giving an empty list when the fetch fails.
 function loadUsers(options) {
     return fetchRawUsers(options).then(function (raw) {
-        // Accept a plain array or a paged { Items: [...] } envelope.
+        // A source may return a plain array or a paged { Items } envelope.
         var list = Array.isArray(raw) ? raw : (raw && raw.Items) || [];
         var users = list.map(normalizeUser);
         users = applyAdminFilter(users, options.adminFilter || 'all');
@@ -73,7 +57,7 @@ function loadUsers(options) {
     }).catch(function () { return []; });
 }
 
-// Best-effort avatar URL that returns null when the user has no image or ApiClient can't build one.
+// Returns the avatar URL for a user, or null when the user has no image or ApiClient cannot build one.
 function avatarUrl(user) {
     if (!user.imageTag || typeof ApiClient === 'undefined' || !ApiClient.getUserImageUrl) return null;
     try {
@@ -84,18 +68,19 @@ function avatarUrl(user) {
 }
 
 // createUserSelector
-// Builds a single-user dropdown. Returns a handle exposing the element, a ready promise, and value access.
+// Builds a single-user dropdown from the server's user list.
 //
 // Param: options | {
-//   adminFilter        : 'all' | 'exclude' | 'only'   (default 'all')
-//   value              : preselected user id
-//   includeEmptyOption : add a "none" entry (default true)
-//   emptyLabel         : label for the none entry (default '— None —')
-//   placeholder        : alias for emptyLabel
-//   showAdminBadge     : append " (admin)" to admin names (default true)
-//   fetchUsers         : override the ApiClient.getUsers() source
-//   onChange           : function(userId) called on selection change
+//   adminFilter        : 'all' | 'exclude' | 'only', to keep everyone, hide administrators, or keep only administrators (default 'all')
+//   value              : preselected user id [optional]
+//   includeEmptyOption : add a none entry (default true)
+//   emptyLabel         : label for the none entry (default 'None')
+//   placeholder        : alias for emptyLabel [optional]
+//   showAdminBadge     : append " (admin)" to administrator names (default true)
+//   fetchUsers         : function returning the user list, which replaces ApiClient.getUsers() [optional]
+//   onChange           : function(userId) called on selection change [optional]
 // }
+// Returns { element, ready, getValue, setValue, refresh, destroy }.
 export function createUserSelector(options) {
     options = options || {};
 
@@ -107,11 +92,11 @@ export function createUserSelector(options) {
     container.appendChild(select);
 
     var includeEmpty = options.includeEmptyOption !== false;
-    var emptyLabel = options.emptyLabel || options.placeholder || '— None —';
+    var emptyLabel = options.emptyLabel || options.placeholder || 'None';
     var showAdminBadge = options.showAdminBadge !== false;
     var pending = options.value || '';
 
-    // Select the option whose id matches (format-insensitively), falling back to the first option.
+    // Selects the option whose id matches, or the first option when none does.
     function selectByValue(value) {
         var want = idKey(value);
         for (var i = 0; i < select.options.length; i++) {
@@ -120,6 +105,7 @@ export function createUserSelector(options) {
         select.selectedIndex = 0;
     }
 
+    // Rebuilds the options and keeps the pending value selected.
     function render(users) {
         select.innerHTML = '';
         if (includeEmpty) {
@@ -151,28 +137,28 @@ export function createUserSelector(options) {
         ready: ready,
         getValue: function () { return select.value; },
         setValue: function (id) { pending = id || ''; selectByValue(pending); pending = select.value; },
-        refresh: function () { var r = loadUsers(options).then(render); return r; },
+        refresh: function () { return loadUsers(options).then(render); },
         destroy: function () { /* no document-level listeners */ }
     };
 }
 
 // createUserMultiSelector
-// Builds a checkbox list for picking many users. Returns a handle exposing the element, a ready promise,
-// and array value access.
+// Builds a checkbox list for picking many users from the server's user list.
 //
 // Param: options | {
-//   adminFilter   : 'all' | 'exclude' | 'only'   (default 'all')
-//   value         : array of preselected user ids
-//   disabledIds   : array of user ids to render non-selectable (e.g. already assigned elsewhere)
-//   noteFor       : function(user) -> string, an optional pill rendered on the row (e.g. a group name)
-//   showSelectAll : add a "Select all" row (default false)
+//   adminFilter   : 'all' | 'exclude' | 'only', to keep everyone, hide administrators, or keep only administrators (default 'all')
+//   value         : array of preselected user ids [optional]
+//   disabledIds   : array of user ids to render non-selectable, such as users already assigned elsewhere [optional]
+//   noteFor       : function(user) returning a string for a pill on the row, such as a group name [optional]
+//   showSelectAll : add a select all row (default false)
+//   selectAllText : the label of the select all row (default 'Select all')
 //   showAvatars   : render user avatars when available (default true)
 //   emptyMessage  : message shown when no users match (default 'No users available.')
-//   fetchUsers    : override the ApiClient.getUsers() source
-//   onChange      : function(idsArray) called whenever the selection changes
+//   fetchUsers    : function returning the user list, which replaces ApiClient.getUsers() [optional]
+//   onChange      : function(idsArray) called whenever the selection changes [optional]
 // }
-// The returned handle's setDisabled(ids) swaps the disabled set and re-renders, so a caller can keep the
-// list in sync as state changes (for example, disabling users that just became members of another group).
+// Returns { element, ready, getValue, setValue, setDisabled, refresh, destroy }.
+// setDisabled(ids) swaps the disabled ids and re-renders without refetching.
 export function createUserMultiSelector(options) {
     options = options || {};
 
@@ -189,7 +175,7 @@ export function createUserMultiSelector(options) {
         selectAllCheck.className = 'jpk-user-multi-check';
         var selectAllName = document.createElement('span');
         selectAllName.className = 'jpk-user-multi-name';
-        selectAllName.textContent = 'Select all';
+        selectAllName.textContent = options.selectAllText || 'Select all';
         selectAllRow.appendChild(selectAllCheck);
         selectAllRow.appendChild(selectAllName);
         container.appendChild(selectAllRow);
@@ -200,16 +186,14 @@ export function createUserMultiSelector(options) {
     listEl.className = 'jpk-user-multi-list';
     container.appendChild(listEl);
 
-    // Preselected ids persist across re-renders even if a user is temporarily filtered out of view.
-    // Keyed by normalized id so a stored "N" GUID still matches an ApiClient "D" GUID.
+    // Keyed by normalized id, so a selection survives a re-render that filters a user out of view.
     var selected = {};
     (options.value || []).forEach(function (id) { selected[idKey(id)] = true; });
 
-    // Non-selectable users, keyed by normalized id. Swappable later via setDisabled().
     var disabled = {};
     (options.disabledIds || []).forEach(function (id) { disabled[idKey(id)] = true; });
 
-    // The most recent rendered user list, so setDisabled() can re-render without refetching.
+    // Kept so setDisabled can re-render without refetching.
     var currentUsers = [];
 
     var showAvatars = options.showAvatars !== false;
@@ -226,6 +210,7 @@ export function createUserMultiSelector(options) {
         return ids;
     }
 
+    // Shows the select all row only while rows exist, and sets its checked and mixed state.
     function syncSelectAll() {
         if (!selectAllCheck) return;
         var checks = rowChecks();
@@ -242,6 +227,7 @@ export function createUserMultiSelector(options) {
         if (options.onChange) options.onChange(getValue());
     }
 
+    // Rebuilds the rows for a user list.
     function render(users) {
         currentUsers = users;
         listEl.innerHTML = '';

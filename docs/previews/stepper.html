@@ -1,0 +1,14 @@
+<!-- title: Stepper -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+const stepper = JPK.createStepper({
+    steps: [{ id: 'a', label: 'Connect', description: 'Pick a server' }, { id: 'b', label: 'Choose', description: 'Select content' }, { id: 'c', label: 'Review' }],
+    value: 'b',
+    clickable: true,
+    onSelect: (id) => stepper.setValue(id)
+});
+mount.appendChild(stepper.element);
+</script>

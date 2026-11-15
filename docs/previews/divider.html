@@ -1,0 +1,9 @@
+<!-- title: Divider -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+mount.appendChild(JPK.createDivider({ label: 'Or' }).element);
+mount.appendChild(JPK.createDivider().element);
+</script>

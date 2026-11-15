@@ -1,0 +1,12 @@
+<!-- title: Definition List -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+mount.appendChild(JPK.createDefinitionList({ items: [
+    { label: 'Version', value: '12.4.14.1' },
+    { label: 'Id', value: '2f40d5d8-5b6a', mono: true },
+    { label: 'Last Sync' }
+] }).element);
+</script>

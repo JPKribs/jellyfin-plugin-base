@@ -7,11 +7,13 @@ using Microsoft.Extensions.Logging;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// Writes a plugin's events to Jellyfin's activity log, where administrators already look. Entries are fire
-/// and forget and failures are swallowed, since an activity entry must never break the flow it documents.
-/// Register one per plugin in DI (<c>services.AddActivityLogger()</c>) and give each entry a <paramref name="type"/> namespaced under the plugin
-/// (for example <c>MyPlugin.SyncCompleted</c>) so entries are attributable.
+/// Writes a plugin's events to Jellyfin's activity log without ever throwing.
+/// Register one per plugin with <c>services.AddActivityLogger()</c>.
 /// </summary>
+/// <remarks>
+/// A failed write is logged at debug level and swallowed, since an entry must never break the flow it documents.
+/// Give each entry a type namespaced under the plugin, such as <c>MyPlugin.SyncCompleted</c>, so entries are attributable.
+/// </remarks>
 public sealed class ActivityLogger
 {
     /// <summary>The longest name or overview the activity log stores.</summary>
@@ -36,28 +38,31 @@ public sealed class ActivityLogger
     }
 
     /// <summary>
-    /// Gets the most recently constructed logger, for the callers outside DI such as the plugin class's
-    /// configuration save hook. Null until DI first resolves the logger.
+    /// Gets the most recently constructed logger, for callers outside DI such as the plugin class's configuration save hook.
+    /// It is <c>null</c> until a logger is constructed.
     /// </summary>
+    /// <remarks>The value is static and the last logger constructed wins. It is never cleared.</remarks>
     public static ActivityLogger? Current { get; private set; }
 
     /// <summary>
     /// Writes an entry to the activity log without awaiting or throwing.
     /// </summary>
     /// <param name="name">The entry headline shown in the activity feed.</param>
-    /// <param name="type">The entry type; namespace it under the plugin (e.g. <c>MyPlugin.Something</c>).</param>
+    /// <param name="type">The entry type, namespaced under the plugin, such as <c>MyPlugin.Something</c>.</param>
     /// <param name="overview">Optional detail text.</param>
     /// <param name="severity">The severity, informational by default.</param>
-    /// <param name="userId">Optional associated user; defaults to none.</param>
+    /// <param name="userId">Optional associated user, none by default.</param>
     public void Log(string name, string type, string? overview = null, LogLevel severity = LogLevel.Information, Guid userId = default)
         => _ = WriteCoreAsync(name, type, overview, severity, userId);
 
     /// <summary>
-    /// Writes an entry to the activity log and completes once it is stored. It never throws, so a caller can
-    /// await it inside the flow it documents. It is deliberately not named <c>LogAsync</c>: the analyzers
-    /// (CA1849) would then flag every <see cref="Log"/> call inside an async method as blocking, though
-    /// <see cref="Log"/> never blocks.
+    /// Writes an entry to the activity log and completes once it is stored.
+    /// It never throws, so a caller can await it inside the flow it documents.
     /// </summary>
+    /// <remarks>
+    /// The name is not <c>LogAsync</c> on purpose, since the analyzers would then flag every <see cref="Log"/>
+    /// call inside an async method as blocking, though <see cref="Log"/> never blocks.
+    /// </remarks>
     /// <param name="name">The entry headline shown in the activity feed.</param>
     /// <param name="type">The entry type, namespaced under the plugin, such as <c>MyPlugin.Something</c>.</param>
     /// <param name="overview">Optional detail text.</param>
@@ -68,10 +73,11 @@ public sealed class ActivityLogger
         => WriteCoreAsync(name, type, overview, severity, userId);
 
     /// <summary>
-    /// Cuts text to the length the activity log stores. Jellyfin keeps at most 512 characters of an entry's
-    /// name and overview.
+    /// Cuts text to the length the activity log stores.
+    /// Jellyfin keeps at most 512 characters of an entry's name and overview.
     /// </summary>
-    /// <param name="text">The text.</param>
+    /// <remarks>The cut counts UTF-16 characters, so it can split a surrogate pair.</remarks>
+    /// <param name="text">The text to cut.</param>
     /// <returns>The text, at most <see cref="MaxTextLength"/> characters long.</returns>
     public static string Trim(string text)
     {

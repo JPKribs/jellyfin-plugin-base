@@ -1,0 +1,20 @@
+/* Bordered sub card on the surface color, for a group inside a section or a dialog */
+/* Example: <div class="jpk-panel"><div class="jpk-panel-header">Schedule</div><div class="jpk-panel-body">Fields go here.</div></div> */
+.jpk-panel {
+    background: var(--jpk-surface);
+    border: 1px solid var(--jpk-border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Header strip of a panel with a divider under it */
+/* Example: <div class="jpk-panel-header">Schedule</div> */
+.jpk-panel-header {
+    padding: 0.6em 1em;
+    font-weight: 600;
+    border-bottom: 1px solid var(--jpk-border);
+}
+
+/* Padded body of a panel */
+/* Example: <div class="jpk-panel-body">Fields go here.</div> */
+.jpk-panel-body { padding: 0.9em 1em; }

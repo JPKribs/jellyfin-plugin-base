@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Model.Plugins;
@@ -9,10 +8,10 @@ using MediaBrowser.Model.Serialization;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// Base class for JPKribs Jellyfin plugins. Provides the singleton accessor, a lock-guarded
-/// configuration read/mutate pair, a locked save hook, and registration of the shared CSS/JS assets that this package
-/// injects into the consuming plugin's assembly.
+/// Base class for JPKribs Jellyfin plugins, with a singleton accessor, a locked configuration read and mutate pair, and a locked save hook.
+/// It also registers the shared CSS and JS pages that this package embeds into the plugin's assembly.
 /// </summary>
+/// <remarks><see cref="Instance"/> is set by the constructor and never cleared.</remarks>
 /// <typeparam name="TPlugin">The concrete plugin type.</typeparam>
 /// <typeparam name="TConfiguration">The plugin configuration type.</typeparam>
 public abstract class PluginBase<TPlugin, TConfiguration> : BasePlugin<TConfiguration>, IHasWebPages
@@ -38,9 +37,9 @@ public abstract class PluginBase<TPlugin, TConfiguration> : BasePlugin<TConfigur
 #pragma warning restore CA1000
 
     /// <summary>
-    /// Atomically mutates and (optionally) persists the configuration under a per-plugin lock.
+    /// Mutates the configuration under the plugin's configuration lock and saves it when asked.
     /// </summary>
-    /// <param name="mutate">Mutation to apply; return <c>true</c> to persist the change.</param>
+    /// <param name="mutate">The mutation to apply. It returns <c>true</c> to persist the change.</param>
     public void MutateConfiguration(Func<TConfiguration, bool> mutate)
     {
         ArgumentNullException.ThrowIfNull(mutate);
@@ -54,10 +53,10 @@ public abstract class PluginBase<TPlugin, TConfiguration> : BasePlugin<TConfigur
     }
 
     /// <summary>
-    /// Reads from the configuration under the same lock (safe against concurrent mutation).
+    /// Reads from the configuration under the same lock as <see cref="MutateConfiguration"/>, so a read cannot interleave with a mutation.
     /// </summary>
-    /// <typeparam name="T">The read result type.</typeparam>
-    /// <param name="read">The read projection.</param>
+    /// <typeparam name="T">The type of the value read.</typeparam>
+    /// <param name="read">The projection that picks the value out of the configuration.</param>
     /// <returns>The projected value.</returns>
     public T ReadConfiguration<T>(Func<TConfiguration, T> read)
     {
@@ -69,10 +68,10 @@ public abstract class PluginBase<TPlugin, TConfiguration> : BasePlugin<TConfigur
     }
 
     /// <summary>
-    /// Replaces and persists the configuration under the same lock as <see cref="MutateConfiguration"/>, so a
-    /// save from the dashboard cannot interleave with a mutation. Runs <see cref="OnConfigurationSaving"/>
-    /// first; override that rather than this to validate, normalize, or protect secrets on the way in.
+    /// Replaces and persists the configuration under the same lock as <see cref="MutateConfiguration"/>, so a save from the dashboard cannot interleave with a mutation.
+    /// It runs <see cref="OnConfigurationSaving"/> first.
     /// </summary>
+    /// <remarks>Override <see cref="OnConfigurationSaving"/> rather than this to validate, normalize, or protect secrets on the way in. A configuration that is not a <typeparamref name="TConfiguration"/> throws <see cref="InvalidCastException"/>.</remarks>
     /// <param name="configuration">The incoming configuration.</param>
     public override void UpdateConfiguration(BasePluginConfiguration configuration)
     {
@@ -86,9 +85,8 @@ public abstract class PluginBase<TPlugin, TConfiguration> : BasePlugin<TConfigur
     }
 
     /// <summary>
-    /// Called under the configuration lock before an incoming configuration replaces the stored one. Mutate
-    /// <paramref name="incoming"/> to change what is saved (for example resolving kept secrets against
-    /// <paramref name="stored"/>), or throw to reject the save and keep the stored configuration.
+    /// Runs under the configuration lock before an incoming configuration replaces the stored one.
+    /// Change <paramref name="incoming"/> to change what is saved, such as resolving kept secrets against <paramref name="stored"/>, or throw to reject the save and keep the stored configuration.
     /// </summary>
     /// <param name="incoming">The configuration about to be saved.</param>
     /// <param name="stored">The configuration currently in effect.</param>
@@ -100,16 +98,14 @@ public abstract class PluginBase<TPlugin, TConfiguration> : BasePlugin<TConfigur
     public abstract IEnumerable<PluginPageInfo> GetPages();
 
     /// <summary>
-    /// Page registrations for the shared <c>jpkribs_shared.css</c>/<c>jpkribs_shared.js</c> assets that
-    /// this package embeds into the plugin assembly. The page name is prefixed per plugin so the
-    /// configurationpage registry, which is server wide, never collides across installed plugins.
+    /// Builds the page registrations for the shared <c>jpkribs_shared.css</c> and <c>jpkribs_shared.js</c> assets that this package embeds into the plugin assembly.
+    /// Each page name starts with the prefix, so the server wide <c>configurationpage</c> registry never collides across plugins.
     /// </summary>
-    /// <param name="prefix">A per plugin prefix; reference the same name from the page markup, for example <c>configurationpage?name=PREFIX_jpkribs_shared.css</c>.</param>
+    /// <param name="prefix">A per plugin prefix. The page markup uses the same name, such as <c>configurationpage?name=PREFIX_jpkribs_shared.css</c>.</param>
     /// <returns>The shared asset page registrations.</returns>
     protected IEnumerable<PluginPageInfo> GetSharedPages(string prefix)
     {
-        // The targets file embeds the assets under the project's RootNamespace, which need not be the plugin
-        // class's namespace, so the names are looked up in the assembly rather than assumed.
+        // The assets are embedded under the project's root namespace, which may differ from the plugin class's, so the names are looked up.
         var type = GetType();
         yield return new PluginPageInfo
         {
@@ -122,32 +118,5 @@ public abstract class PluginBase<TPlugin, TConfiguration> : BasePlugin<TConfigur
             Name = prefix + "_jpkribs_shared.js",
             EmbeddedResourcePath = SharedAssets.ResolveResourceName(type.Assembly, type.Namespace, "jpkribs_shared.js")
         };
-    }
-}
-
-/// <summary>Finds the shared assets the targets file embeds into the plugin assembly.</summary>
-internal static class SharedAssets
-{
-    /// <summary>
-    /// Returns the embedded resource name of a shared asset. The targets file names it
-    /// <c>$(RootNamespace).Configuration.&lt;file&gt;</c>. The plugin class's namespace is tried first, since it
-    /// usually is the root namespace; otherwise the one resource with that suffix is used.
-    /// </summary>
-    /// <param name="assembly">The plugin assembly.</param>
-    /// <param name="pluginNamespace">The plugin class's namespace.</param>
-    /// <param name="fileName">The asset file name, such as <c>jpkribs_shared.css</c>.</param>
-    /// <returns>The resource name, or the namespace-based name when no resource matches.</returns>
-    internal static string ResolveResourceName(Assembly assembly, string? pluginNamespace, string fileName)
-    {
-        var expected = pluginNamespace + ".Configuration." + fileName;
-        var names = assembly.GetManifestResourceNames();
-        if (Array.IndexOf(names, expected) >= 0)
-        {
-            return expected;
-        }
-
-        var suffix = ".Configuration." + fileName;
-        var matches = Array.FindAll(names, n => n.EndsWith(suffix, StringComparison.Ordinal));
-        return matches.Length == 1 ? matches[0] : expected;
     }
 }

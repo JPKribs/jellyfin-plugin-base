@@ -1,0 +1,21 @@
+<!-- title: Field Message -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+mount.innerHTML = '<div class="inputContainer"><label for="port">Port</label><input id="port" type="text" value="99999"></div>';
+const input = document.getElementById('port');
+const message = JPK.setFieldState(input, 'error', 'Enter a port from 1 to 65535.');
+const row = document.createElement('div');
+row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px';
+['error', 'warn', 'success', 'info', ''].forEach((state) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'raised jpk-button-small';
+    button.textContent = state || 'clear';
+    button.addEventListener('click', () => message.set(state, 'This is a ' + (state || 'cleared') + ' message.'));
+    row.appendChild(button);
+});
+mount.appendChild(row);
+</script>

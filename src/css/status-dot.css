@@ -1,0 +1,19 @@
+/* Small round dot in a status color, which needs a title and an aria-label */
+/* Example: <span class="jpk-dot green" role="img" title="Active" aria-label="Active"></span> */
+.jpk-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--jpk-gray-fg);
+    vertical-align: middle;
+}
+.jpk-dot.green { background: var(--jpk-green-fg); }
+.jpk-dot.red { background: var(--jpk-red-fg); }
+.jpk-dot.orange { background: var(--jpk-orange-fg); }
+.jpk-dot.purple { background: var(--jpk-purple-fg); }
+.jpk-dot.blue { background: var(--jpk-blue-fg); }
+.jpk-dot.gray { background: var(--jpk-gray-fg); }
+.jpk-dot.yellow { background: var(--jpk-yellow-fg); }
+.jpk-dot.pink { background: var(--jpk-pink-fg); }
+.jpk-dot.teal { background: var(--jpk-teal-fg); }

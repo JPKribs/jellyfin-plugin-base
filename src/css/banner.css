@@ -1,0 +1,12 @@
+/* Callout row with an icon, a message, and a dismiss button, which takes its colors from the callout classes */
+/* Example: <div class="jpk-banner jpk-warn"><span class="material-icons" aria-hidden="true">warning</span><div class="jpk-banner-body"><div class="jpk-banner-text">Back up first.</div></div></div> */
+.jpk-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+.jpk-banner > .material-icons { font-size: 20px; flex: 0 0 auto; }
+.jpk-banner-body { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.jpk-banner-title { font-weight: 600; }
+.jpk-banner-close { flex: 0 0 auto; margin: -2px -4px -2px 0; }
+.jpk-banner-close:focus-visible { outline: 2px solid var(--jpk-accent); outline-offset: 1px; }

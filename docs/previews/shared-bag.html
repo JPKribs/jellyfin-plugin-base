@@ -1,0 +1,37 @@
+<!-- title: Shared Bag -->
+<div class="inputContainer">
+    <label for="txtName">Name</label>
+    <input is="emby-input" type="text" id="txtName" />
+</div>
+<div class="checkboxContainer">
+    <label class="emby-checkbox-label"><input type="checkbox" is="emby-checkbox" id="chkEnabled" /><span class="checkboxLabel">Enabled</span></label>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+    <button type="button" id="btnSave" class="raised jpk-button-submit jpk-button-small"><span>Save</span></button>
+    <span id="saveStatus" class="jpk-status-text"></span>
+</div>
+<div id="out" style="margin-top: 14px;"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const out = JPK.createDefinitionList({ items: [] });
+document.getElementById('out').appendChild(out.element);
+const show = () => out.setItems([
+    { label: 'getValue', value: JSON.stringify(shared.getValue('txtName', 'none')), mono: true },
+    { label: 'getChecked', value: String(shared.getChecked('chkEnabled')), mono: true },
+    { label: 'formatSize', value: shared.formatSize(5368709120), mono: true },
+    { label: 'formatDuration', value: shared.formatDuration(3725), mono: true },
+    { label: 'getFileName', value: shared.getFileName('/media/shows/episode.mkv'), mono: true }
+]);
+
+shared.getConfig().then((config) => {
+    shared.setValue('txtName', config.Name || 'Living room');
+    shared.setChecked('chkEnabled', config.Demo);
+    show();
+});
+shared.bindEvent('txtName', 'input', show);
+shared.bindEvent('chkEnabled', 'change', show);
+shared.bindClick('btnSave', () => shared.saveConfigWith(
+    (config) => { config.Name = shared.getValue('txtName'); config.Demo = shared.getChecked('chkEnabled'); },
+    'saveStatus', { success: 'Settings saved.', error: 'Could not save the settings.' }));
+</script>

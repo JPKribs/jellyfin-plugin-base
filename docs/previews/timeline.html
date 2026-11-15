@@ -1,0 +1,12 @@
+<!-- title: Timeline -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+mount.appendChild(JPK.createTimeline({ items: [
+    { time: '10:00', datetime: '2026-03-10T10:00', title: 'Sync started', body: 'Two servers in the pool.', status: 'purple', icon: 'sync' },
+    { time: '10:04', title: 'Library synced', body: '1,204 items.', status: 'green', icon: 'check' },
+    { time: '10:07', title: 'Could not reach a server', status: 'red' }
+] }).element);
+</script>

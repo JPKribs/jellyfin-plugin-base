@@ -9,12 +9,15 @@
     color: var(--jpk-warning);
     vertical-align: middle;
     opacity: 0;
-    /* Hidden from screen readers too until it applies, while still fading. */
+    /* Hidden from screen readers until it applies, while still fading. */
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s;
 }
 .jpk-unsaved.visible { opacity: 1; visibility: visible; }
 .jpk-unsaved.save-success { color: var(--jpk-success); }
+
+/* Small dot before the unsaved label in the current color */
+/* Example: <span class="jpk-unsaved-dot"></span> */
 .jpk-unsaved-dot {
     width: 8px;
     height: 8px;

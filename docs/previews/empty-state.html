@@ -1,0 +1,11 @@
+<!-- title: Empty State -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const mount = document.getElementById('mount');
+mount.innerHTML =
+    shared.emptySection('No servers yet. Add one below.') +
+    '<div style="height: 12px"></div>' +
+    shared.emptySection('No records yet', { inline: true });
+</script>

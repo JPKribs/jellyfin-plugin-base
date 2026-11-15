@@ -1,0 +1,12 @@
+<!-- title: Pagination -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+const note = document.createElement('div');
+note.className = 'jpk-status-text';
+const pager = JPK.createPagination({ total: 245, pageSize: 10, page: 4, onChange: (v) => { note.textContent = 'skip ' + v.skip + ', take ' + v.take; } });
+mount.appendChild(pager.element);
+mount.appendChild(note);
+</script>

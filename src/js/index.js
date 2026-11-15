@@ -1,4 +1,3 @@
-// Bundle entry. esbuild merges the component modules into jpkribs_shared.js.
 export * from './core.js';
 export * from './table.js';
 export * from './user-selector.js';
@@ -7,6 +6,38 @@ export * from './chip-select.js';
 export * from './checkbox-list.js';
 export * from './card-list.js';
 export * from './choice.js';
+export * from './ordered-list.js';
+export * from './pill-group.js';
 export * from './placeholders.js';
-// The kit's HTML escaping, for plugin code that builds markup outside a component.
+export * from './clipboard.js';
+export * from './field-message.js';
+export * from './overflow-menu.js';
+export * from './tooltip.js';
+export * from './help-hint.js';
+export * from './copy-field.js';
+export * from './string-list.js';
+export * from './key-value-editor.js';
+export * from './file-picker.js';
+export * from './toast.js';
+export * from './spinner.js';
+export * from './skeleton.js';
+export * from './definition-list.js';
+export * from './log-viewer.js';
+export * from './sub-tabs.js';
+export * from './pagination.js';
+export * from './search-field.js';
+export * from './number-unit-field.js';
+export * from './slider-field.js';
+export * from './schedule-picker.js';
+export * from './tag-input.js';
+export * from './breadcrumbs.js';
+export * from './stepper.js';
+export * from './banner.js';
+export * from './divider.js';
+export * from './avatar.js';
+export * from './stat-card.js';
+export * from './progress-ring.js';
+export * from './timeline.js';
+export * from './status-dot.js';
+// Exported on its own so a plugin script with no shared bag can import it directly.
 export { escapeHtml } from './escape.js';

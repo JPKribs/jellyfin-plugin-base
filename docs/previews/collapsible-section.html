@@ -1,0 +1,30 @@
+<!-- title: Collapsible Section -->
+<div class="jpk-collapsible-section">
+    <button type="button" class="jpk-collapsible-header" aria-expanded="true" data-target="generalBody">
+        <span class="jpk-collapsible-title">General</span>
+        <span class="jpk-collapsible-icon">&#9660;</span>
+    </button>
+    <div id="generalBody" class="jpk-collapsible-content">
+        <div class="inputContainer">
+            <label for="txtName">Name</label>
+            <input is="emby-input" type="text" id="txtName" value="Living room" />
+        </div>
+        <div class="jpk-collapsible-actions">
+            <button is="emby-button" type="button" class="raised jpk-button-submit jpk-button-small"><span>Save</span></button>
+        </div>
+    </div>
+</div>
+<div class="jpk-collapsible-section">
+    <button type="button" class="jpk-collapsible-header collapsed" aria-expanded="false" data-target="advancedBody">
+        <span class="jpk-collapsible-title">Advanced</span>
+        <span class="jpk-collapsible-icon">&#9660;</span>
+    </button>
+    <div id="advancedBody" class="jpk-collapsible-content collapsed">
+        <p>Hidden until the header is pressed.</p>
+    </div>
+</div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+shared.initCollapsibles();
+</script>

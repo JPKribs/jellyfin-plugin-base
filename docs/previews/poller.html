@@ -1,0 +1,21 @@
+<!-- title: Poller -->
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+    <button type="button" id="btnStart" class="raised jpk-button-submit jpk-button-small"><span>Start</span></button>
+    <button type="button" id="btnStop" class="raised jpk-secondary jpk-button-small"><span>Stop</span></button>
+    <span id="ticks" class="jpk-mono">0 ticks</span>
+    <span id="running" class="jpk-mono">stopped</span>
+</div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+let ticks = 0;
+const poller = shared.createPoller(() => {
+    ticks++;
+    document.getElementById('ticks').textContent = ticks + ' ticks';
+    // A slow tick never overlaps the next one.
+    return new Promise((resolve) => setTimeout(resolve, 1500));
+}, 1000);
+const show = () => { document.getElementById('running').textContent = poller.isRunning() ? 'running' : 'stopped'; };
+shared.bindClick('btnStart', () => { poller.start(); show(); });
+shared.bindClick('btnStop', () => { poller.stop(); show(); });
+</script>

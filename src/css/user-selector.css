@@ -1,16 +1,18 @@
-/* Checkbox list for picking many users (createUserMultiSelector). */
+/* Checkbox list for picking many users, built by createUserMultiSelector */
 /* Example: <div class="jpk-user-multi"><div class="jpk-user-multi-list"><label class="jpk-user-multi-option"></label></div></div> */
 .jpk-user-multi {
     display: flex;
     flex-direction: column;
 }
 
+/* Column that holds the user rows */
+/* Example: <div class="jpk-user-multi-list"><label class="jpk-user-multi-option"></label></div> */
 .jpk-user-multi-list {
     display: flex;
     flex-direction: column;
 }
 
-/* One selectable user row: checkbox, optional avatar, name, optional admin badge */
+/* One selectable user row with a checkbox, an optional avatar, a name, and an optional admin badge */
 /* Example: <label class="jpk-user-multi-option"><input class="jpk-user-multi-check" /><span class="jpk-user-multi-name"></span></label> */
 .jpk-user-multi-option {
     display: flex;
@@ -25,6 +27,8 @@
     background: color-mix(in srgb, currentColor 5%, transparent);
 }
 
+/* Checkbox at the start of a user row */
+/* Example: <input type="checkbox" class="jpk-user-multi-check"> */
 .jpk-user-multi-check {
     flex: 0 0 auto;
     margin: 0;
@@ -40,6 +44,8 @@
     flex: 0 0 auto;
 }
 
+/* User name that takes the free width of the row */
+/* Example: <span class="jpk-user-multi-name">viewer</span> */
 .jpk-user-multi-name {
     flex: 1 1 auto;
 }
@@ -57,7 +63,7 @@
     padding: 1px 6px;
 }
 
-/* "Select all" row sits above the list with a divider */
+/* Select all row that sits above the list with a divider */
 /* Example: <label class="jpk-user-multi-option jpk-user-multi-selectall"></label> */
 .jpk-user-multi-selectall {
     font-weight: 600;
@@ -66,7 +72,7 @@
     margin-bottom: 4px;
 }
 
-/* Placeholder shown when no users match the filter */
+/* Dimmed message shown when no users match the filter */
 /* Example: <div class="jpk-user-multi-empty">No users available.</div> */
 .jpk-user-multi-empty {
     opacity: 0.6;
@@ -74,7 +80,7 @@
     padding: 6px 8px;
 }
 
-/* Non-selectable row, e.g. a user already assigned elsewhere */
+/* Dimmed row that cannot be selected, such as a user already assigned elsewhere */
 /* Example: <label class="jpk-user-multi-option jpk-user-multi-disabled"></label> */
 .jpk-user-multi-option.jpk-user-multi-disabled {
     opacity: 0.5;
@@ -84,7 +90,7 @@
     cursor: not-allowed;
 }
 
-/* Faint pill noting context for a row, e.g. the group a user already belongs to */
+/* Faint pill noting context for a row, such as the group a user already belongs to */
 /* Example: <span class="jpk-user-multi-note">Family</span> */
 .jpk-user-multi-note {
     flex: 0 0 auto;

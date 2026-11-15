@@ -1,11 +1,10 @@
-/* Static (non collapsible) section. Same look as jpk-collapsible-section but always open, with no toggle */
-/* and no chevron. Use it for content that should stay visible, e.g. a list, beside collapsible forms. */
+/* Section that is always open, with the same look as a collapsible section but no toggle or chevron */
 /* Example: <div class="jpk-section"><div class="jpk-section-title">Title</div><div class="jpk-section-content"></div></div> */
 .jpk-section {
     overflow: visible;
 }
 
-/* Header row, matched to .jpk-collapsible-header but static (no button, no pointer, no chevron) */
+/* Static header row styled like a collapsible header, with no button, pointer, or chevron */
 /* Example: <div class="jpk-section-title">Title</div> */
 .jpk-section-title {
     width: 100%;
@@ -19,28 +18,8 @@
     text-transform: capitalize;
 }
 
-/* Section body, flush left, matched to .jpk-collapsible-content */
+/* Section body that sits flush left, styled like a collapsible body */
 /* Example: <div class="jpk-section-content"></div> */
 .jpk-section-content {
     padding: 16px 0 0 0;
 }
-
-/* Smaller, muted, uppercase header for a subsection grouped inside a section or form. */
-/* Example: <h3 class="jpk-subsection-title">Authentication</h3> */
-.jpk-subsection-title {
-    font-size: 0.95em;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.6);
-    color: color-mix(in srgb, currentColor 60%, transparent);
-    margin: 16px 0 12px 0;
-    padding-bottom: 6px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-/* The title fades its own text, so its rule takes the theme's text colour (--jpk-fg): a share of currentColor here would
-   be a share of the faded colour. */
-@supports (color: color-mix(in srgb, red, blue)) {
-    .jpk-subsection-title { border-bottom-color: color-mix(in srgb, var(--jpk-fg) 8%, transparent); }
-}
-.jpk-subsection-title:first-child { margin-top: 0; }

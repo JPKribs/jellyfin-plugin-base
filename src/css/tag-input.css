@@ -1,0 +1,29 @@
+/* Field box that holds tag pills and a text input that grows to the free width */
+/* Example: <div class="jpk-tag-input"><div class="jpk-tag-input-box"><div class="jpk-tags"></div><input class="jpk-tag-input-field" type="text"></div></div> */
+.jpk-tag-input-box {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    min-height: 40px;
+    box-sizing: border-box;
+    background: var(--jpk-surface);
+    border: 1px solid var(--jpk-border);
+    border-radius: 4px;
+    cursor: text;
+}
+.jpk-tag-input-box:focus-within { border-color: var(--jpk-accent); }
+.jpk-tag-input-box .jpk-tags { margin-top: 0; display: contents; }
+.pluginConfigurationPage .jpk-tag-input-box input.jpk-tag-input-field,
+.jpk-dialog .jpk-tag-input-box input.jpk-tag-input-field,
+.jpk-tag-input-box input.jpk-tag-input-field {
+    flex: 1 1 120px;
+    width: auto !important;
+    min-width: 80px;
+    padding: 4px 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    outline: none !important;
+}

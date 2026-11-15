@@ -6,25 +6,25 @@ using Xunit;
 
 namespace JPKribs.Jellyfin.Base.Tests;
 
-/// <summary>
-/// A config-page dropdown must show exactly one chevron.
-/// </summary>
+/// <summary>Verifies that a config page dropdown shows exactly one chevron.</summary>
 /// <remarks>
-/// Two things want to draw it. The kit paints its own on <c>.pluginConfigurationPage select</c>,
-/// and jellyfin-web's emby-select injects a <c>.selectArrowContainer</c> holding a Material
-/// keyboard_arrow_down — but only for selects carrying <c>emby-select-withcolor</c>, which is the
-/// class the dashboard's own settings pages use and which therefore gets copied into plugins.
-/// When both apply the field renders two overlapping arrows. Four plugins shipped that way before
-/// the kit started suppressing the injected one, so both halves of the invariant are pinned here.
+/// Two things draw it. The kit paints its own on <c>.pluginConfigurationPage select</c>, and jellyfin-web's emby-select injects a <c>.selectArrowContainer</c> holding a Material arrow.
+/// It does so only for selects with <c>emby-select-withcolor</c>, the class the dashboard's own settings pages use, which plugins copy.
+/// When both apply the field renders two overlapping arrows, so both halves of the invariant are pinned here.
 /// </remarks>
 public class SelectChevronTests
 {
-    // form.css scopes its rules to config pages and to kit dialogs, which open outside the page. The two are written as
-    // a plain selector list (older engines can't parse :is()), so each rule must name both.
+    // The form CSS scopes its rules to config pages and to kit dialogs, which open outside the page.
+    // The two are written as a plain selector list, since older engines cannot parse :is(), so each rule names both.
     private const string Scope = @"(?:\.pluginConfigurationPage|\.jpk-dialog)";
 
     private static readonly string[] Scopes = { ".pluginConfigurationPage", ".jpk-dialog" };
 
+    /// <summary>
+    /// The table CSS hides its own filter arrow on config pages and in dialogs.
+    /// True: the filter dropdown shows the chevron the select rule paints and no second one.
+    /// False: the filter would show two arrows.
+    /// </summary>
     [Fact]
     public void TableFilterArrow_IsHiddenOnConfigPagesAndInDialogs()
     {
@@ -38,6 +38,11 @@ public class SelectChevronTests
         }
     }
 
+    /// <summary>
+    /// The form CSS paints a background image chevron on selects in config pages and dialogs.
+    /// True: every dropdown shows one chevron.
+    /// False: a dropdown would show none.
+    /// </summary>
     [Fact]
     public void Kit_PaintsAChevronOnConfigPageSelects()
     {
@@ -51,6 +56,11 @@ public class SelectChevronTests
         }
     }
 
+    /// <summary>
+    /// The form CSS hides the arrow container that emby-select injects, in config pages and dialogs.
+    /// True: a select with emby-select-withcolor shows one chevron.
+    /// False: it would show two.
+    /// </summary>
     [Fact]
     public void Kit_SuppressesTheArrowEmbySelectInjects()
     {
@@ -65,8 +75,9 @@ public class SelectChevronTests
     }
 
     /// <summary>
-    /// The suppression has to outrank jellyfin-web's own <c>.selectArrowContainer</c> rules, which
-    /// are element-scoped and load from the dashboard rather than from this kit.
+    /// The suppression is scoped to config pages and dialogs and never applies to the whole document.
+    /// True: dropdowns outside a config page keep their own arrow.
+    /// False: the rule would hide the arrow on every page of the dashboard.
     /// </summary>
     [Fact]
     public void Suppression_IsScopedToConfigPagesOnly()

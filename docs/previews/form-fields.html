@@ -1,0 +1,24 @@
+<!-- title: Form Fields -->
+<div class="inputContainer">
+    <label for="txtServerName">Name</label>
+    <input is="emby-input" type="text" id="txtServerName" placeholder="Default" />
+    <div class="fieldDescription">Names the server in tables and logs.</div>
+</div>
+<div class="selectContainer">
+    <label for="selMode">Mode</label>
+    <select is="emby-select" id="selMode">
+        <option value="Allow">Allowlist</option>
+        <option value="Block">Blocklist</option>
+    </select>
+</div>
+<div class="inputContainer">
+    <label for="txtNotes">Notes</label>
+    <textarea is="emby-textarea" id="txtNotes" rows="2">A multi-line text area.</textarea>
+</div>
+<div class="checkboxContainer checkboxContainer-withDescription">
+    <label class="emby-checkbox-label">
+        <input type="checkbox" is="emby-checkbox" id="chkEnabled" checked />
+        <span class="checkboxLabel">Enabled</span>
+    </label>
+    <div class="fieldDescription checkboxFieldDescription">Keeps the settings and skips this server while off.</div>
+</div>

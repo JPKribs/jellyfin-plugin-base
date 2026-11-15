@@ -18,33 +18,38 @@
     background: rgba(255, 255, 255, 0.03);
     background: color-mix(in srgb, currentColor 3%, transparent);
 }
+/* Large bold count at the top of a card */
+/* Example: <span class="jpk-card-count">5</span> */
 .jpk-card-count {
     display: block;
     font-size: 1.5em;
     font-weight: bold;
     margin-bottom: 4px;
 }
+/* Small label under the count */
+/* Example: <span class="jpk-card-label">Users</span> */
 .jpk-card-label {
     display: block;
     font-size: 0.85em;
     opacity: 0.9;
 }
+/* Status color modifiers for a card, each tinting the fill, text, and border */
+/* Example: <div class="jpk-card orange"><span class="jpk-card-count">2</span><span class="jpk-card-label">Queued</span></div> */
 .jpk-card.green { background: var(--jpk-green-bg); color: var(--jpk-green-fg); border-color: var(--jpk-green-fg); }
 .jpk-card.red { background: var(--jpk-red-bg); color: var(--jpk-red-fg); border-color: var(--jpk-red-fg); }
 .jpk-card.orange { background: var(--jpk-orange-bg); color: var(--jpk-orange-fg); border-color: var(--jpk-orange-fg); }
 .jpk-card.purple { background: var(--jpk-purple-bg); color: var(--jpk-purple-fg); border-color: var(--jpk-purple-fg); }
 .jpk-card.blue { background: var(--jpk-blue-bg); color: var(--jpk-blue-fg); border-color: var(--jpk-blue-fg); }
 .jpk-card.gray { background: var(--jpk-gray-bg); color: var(--jpk-gray-fg); border-color: var(--jpk-gray-fg); }
-.jpk-card.yellow { background: rgba(224, 200, 78, 0.18); color: #e0c84e; border-color: #e0c84e; }
-.jpk-card.pink { background: rgba(232, 93, 154, 0.2); color: #e85d9a; border-color: #e85d9a; }
-.jpk-card.teal { background: rgba(38, 166, 154, 0.2); color: #26a69a; border-color: #26a69a; }
+.jpk-card.yellow { background: var(--jpk-yellow-bg); color: var(--jpk-yellow-fg); border-color: var(--jpk-yellow-fg); }
+.jpk-card.pink { background: var(--jpk-pink-bg); color: var(--jpk-pink-fg); border-color: var(--jpk-pink-fg); }
+.jpk-card.teal { background: var(--jpk-teal-bg); color: var(--jpk-teal-fg); border-color: var(--jpk-teal-fg); }
 
-/* Status cards that share one row when they fit and wrap to a second otherwise, never a third: a column
-   is at most a fifth of the row. Every card is the same width, so a wrapped row lines up under the
-   first, and hidden cards take no column. */
+/* Cards of one width that share a row when they fit and wrap to a second row at most, with hidden cards taking no column. --jpk-cards-per-row caps the columns */
+/* Example: <div class="jpk-cards jpk-cards-rows" style="--jpk-cards-per-row: 4"><div class="jpk-card green"></div><div class="jpk-card hidden"></div></div> */
 .jpk-cards.jpk-cards-rows {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(72px, calc((100% - 48px) / 5)), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(max(min(72px, calc((100% - 48px) / 5)), calc((100% - (var(--jpk-cards-per-row, 99) - 1) * 12px) / var(--jpk-cards-per-row, 99))), 1fr));
 }
 .jpk-cards.jpk-cards-rows .jpk-card.hidden { display: none; }
 .jpk-cards.jpk-cards-rows .jpk-card { min-width: 0; padding-left: 4px; padding-right: 4px; }
@@ -63,6 +68,8 @@
     border-radius: 8px;
     padding: 0.9em 1em;
 }
+/* Label and value pair on one line */
+/* Example: <div class="jpk-record-row"><span class="jpk-record-label">Status</span><span>OK</span></div> */
 .jpk-record-row {
     display: flex;
     justify-content: space-between;
@@ -72,12 +79,14 @@
 .jpk-record-row + .jpk-record-row {
     margin-top: 0.35em;
 }
+/* Dimmed label that keeps its natural width */
+/* Example: <span class="jpk-record-label">Status</span> */
 .jpk-record-label {
     opacity: 0.7;
     flex: 0 0 auto;
 }
-/* The value may be a long id or path; it breaks anywhere rather than running past the card */
-/* Example: <div class="jpk-record-row"><span class="jpk-record-label">ID</span><span class="jpk-mono">2f40d5d8…</span></div> */
+/* Right aligned value that breaks anywhere rather than running past the card */
+/* Example: <div class="jpk-record-row"><span class="jpk-record-label">ID</span><span class="jpk-mono">2f40d5d8</span></div> */
 .jpk-record-row > :last-child:not(.jpk-record-label) {
     min-width: 0;
     text-align: right;

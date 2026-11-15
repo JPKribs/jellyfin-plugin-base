@@ -1,0 +1,12 @@
+<!-- title: Key Value Editor -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+mount.appendChild(JPK.createKeyValueEditor({
+    values: [{ key: 'Accept', value: 'application/json' }, { key: 'X-Mode', value: 'fast' }],
+    keyPlaceholder: 'Accept',
+    valuePlaceholder: 'application/json'
+}).element);
+</script>

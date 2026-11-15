@@ -1,0 +1,21 @@
+<!-- title: Tabs -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const mount = document.getElementById('mount');
+const list = JPK.createDefinitionList({ items: [] });
+mount.appendChild(list.element);
+
+// The dashboard supplies LibraryMenu. This stub shows what it receives.
+window.LibraryMenu = {
+    setTabs: (key, index, getTabs) => list.setItems([
+        { label: 'Key', value: key, mono: true },
+        { label: 'Active', value: String(index) },
+        { label: 'Tabs', value: getTabs().map((tab) => tab.name).join(', ') }
+    ])
+};
+JPK.setTabs('myplugin', 1, [
+    { href: 'configurationpage?name=myplugin_overview', name: 'Overview' },
+    { href: 'configurationpage?name=myplugin_settings', name: 'Settings' }
+]);
+</script>

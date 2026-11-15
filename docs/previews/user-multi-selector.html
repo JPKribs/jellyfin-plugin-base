@@ -1,0 +1,13 @@
+<!-- title: User Multi Selector -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const allowed = shared.createUserMultiSelector({
+    adminFilter: 'all',
+    showSelectAll: true,
+    value: ['u1', 'u3'],
+    noteFor: (user) => (user.id === 'u2' ? 'Family' : '')
+});
+document.getElementById('mount').appendChild(allowed.element);
+</script>

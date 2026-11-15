@@ -1,0 +1,14 @@
+<!-- title: Ordered List -->
+<div id="mount"></div>
+<span id="orderedStatus" class="jpk-status-text"></span>
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const order = JPK.createOrderedList({
+    items: ['Intro', 'Verse', 'Chorus', 'Outro'],
+    render: (item, index) => '<strong>' + shared.escapeHtml(item) + '</strong> <span style="opacity: 0.6">Position ' + (index + 1) + '</span>',
+    label: (item) => item,
+    onMove: (from, to, items) => shared.setStatus('orderedStatus', 'Order: ' + items.join(', ') + '.', false, { timeout: 0 })
+});
+document.getElementById('mount').appendChild(order.element);
+</script>

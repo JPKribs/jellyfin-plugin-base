@@ -9,13 +9,15 @@
     white-space: nowrap;
     border: none;
 }
-.jpk-badge.green, .jpk-table-status-badge.Active, .jpk-table-status-badge.Synced, .jpk-table-status-badge.Downloaded { background: var(--jpk-green-bg); color: var(--jpk-green-fg); }
-.jpk-badge.red, .jpk-table-status-badge.Disabled, .jpk-table-status-badge.Errored, .jpk-table-status-badge.Error, .jpk-table-status-badge.Deleting, .jpk-table-status-badge.Pending-Deletion { background: var(--jpk-red-bg); color: var(--jpk-red-fg); }
-.jpk-badge.orange, .jpk-table-status-badge.Expired, .jpk-table-status-badge.Queued { background: var(--jpk-orange-bg); color: var(--jpk-orange-fg); }
-.jpk-badge.purple, .jpk-table-status-badge.Locked, .jpk-table-status-badge.Downloading, .jpk-table-status-badge.Pending, .jpk-table-status-badge.Pending-Download { background: var(--jpk-purple-bg); color: var(--jpk-purple-fg); }
+.jpk-badge.green, .jpk-table-status-badge.Active, .jpk-table-status-badge.Synced, .jpk-table-status-badge.Downloaded, .jpk-table-status-badge.Completed, .jpk-table-status-badge.Enabled { background: var(--jpk-green-bg); color: var(--jpk-green-fg); }
+.jpk-badge.red, .jpk-table-status-badge.Disabled, .jpk-table-status-badge.Errored, .jpk-table-status-badge.Error, .jpk-table-status-badge.Deleting, .jpk-table-status-badge.Pending-Deletion, .jpk-table-status-badge.Failed { background: var(--jpk-red-bg); color: var(--jpk-red-fg); }
+.jpk-badge.orange, .jpk-table-status-badge.Expired, .jpk-table-status-badge.Queued, .jpk-table-status-badge.Paused { background: var(--jpk-orange-bg); color: var(--jpk-orange-fg); }
+.jpk-badge.purple, .jpk-table-status-badge.Locked, .jpk-table-status-badge.Running, .jpk-table-status-badge.Downloading, .jpk-table-status-badge.Pending, .jpk-table-status-badge.Pending-Download { background: var(--jpk-purple-bg); color: var(--jpk-purple-fg); }
 .jpk-badge.blue, .jpk-table-status-badge.Admin, .jpk-table-status-badge.Imported, .jpk-table-status-badge.Pending-Replacement { background: var(--jpk-blue-bg); color: var(--jpk-blue-fg); }
-.jpk-badge.gray, .jpk-table-status-badge.Ignored, .jpk-table-status-badge.Group { background: var(--jpk-gray-bg); color: var(--jpk-gray-fg); }
-.jpk-badge.yellow { background: rgba(224, 200, 78, 0.2); color: #e0c84e; }
+.jpk-badge.gray, .jpk-table-status-badge.Ignored, .jpk-table-status-badge.Group, .jpk-table-status-badge.Skipped, .jpk-table-status-badge.Unknown { background: var(--jpk-gray-bg); color: var(--jpk-gray-fg); }
+.jpk-badge.yellow { background: var(--jpk-yellow-bg); color: var(--jpk-yellow-fg); }
+.jpk-badge.pink { background: var(--jpk-pink-bg); color: var(--jpk-pink-fg); }
+.jpk-badge.teal { background: var(--jpk-teal-bg); color: var(--jpk-teal-fg); }
 
 @media (max-width: 768px) {
     .jpk-table-status-badge, .jpk-badge { padding: 3px 8px; font-size: 0.8em; }

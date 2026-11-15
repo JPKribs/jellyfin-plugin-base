@@ -5,14 +5,17 @@ using System.Linq;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// String-array normalisation used by source/local blob builders.
+/// Normalizes string arrays so two lists with the same entries compare equal.
 /// </summary>
 public static class StringNormalizationUtility
 {
     /// <summary>
-    /// Collapses null, empty array, and arrays containing only whitespace into a canonical null.
-    /// Surviving entries are whitespace-filtered and case-insensitively sorted.
+    /// Collapses <c>null</c>, an empty list, and a list of only blank entries into <c>null</c>.
+    /// The other entries are kept in a case insensitive order.
     /// </summary>
+    /// <remarks>Blank entries are removed, but the others are not trimmed and duplicates are kept.</remarks>
+    /// <param name="source">The entries, or <c>null</c>.</param>
+    /// <returns>The sorted non blank entries, or <c>null</c> when there are none.</returns>
     public static string[]? NormalizeStringArray(IReadOnlyList<string>? source)
     {
         if (source == null)

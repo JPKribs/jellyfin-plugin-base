@@ -1,23 +1,23 @@
 // createCheckboxList
-// A searchable list of checkbox rows for picking many arbitrary items — the generalization of
-// createUserMultiSelector for things that are not users (series, libraries, files, ...). Rows can show a
-// thumbnail, a label, a sublabel, and a note pill; items can be disabled; an optional "select all" row and a
-// search box are built in. Fed by a static array or an async fetch.
+// A searchable list of checkbox rows for picking many items, with an optional thumbnail, sublabel, and note on each row. It reads a static array or an async fetch.
 //
 // Param: options | {
-//   items        : static array of item objects [optional]
-//   fetchItems   : function() -> array | Promise<array>, overrides items [optional]
-//   idKey        : property name or function(item)->id (default 'id')
-//   value        : array of preselected ids [optional]
-//   disabledIds  : array of ids to render non-selectable [optional]
-//   renderRow    : function(item) -> { label, sublabel, imageUrl, note } (default reads item.name) [optional]
-//   search       : show a search box (default true)
-//   searchKeys   : properties to match the query against (default ['name']) — ignored when renderRow given
-//   showSelectAll: add a select-all row (default false)
-//   emptyMessage : message when no items match (default 'No items available.')
-//   onChange     : function(idsArray) called on every selection change [optional]
+//   items         : static array of item objects [optional]
+//   fetchItems    : function() returning an array or a promise of one, which overrides items [optional]
+//   idKey         : property name or function(item) returning the id (default 'id')
+//   value         : array of preselected ids [optional]
+//   disabledIds   : array of ids to render non-selectable [optional]
+//   renderRow     : function(item) returning { label, sublabel, imageUrl, note } (default reads item.name) [optional]
+//   search        : show a search box (default true)
+//   placeholder   : search box placeholder (default 'Search')
+//   searchKeys    : item properties the query is matched against, whether or not renderRow is given (default ['name'])
+//   showSelectAll : add a select all row (default false)
+//   selectAllText : the label of the select all row (default 'Select all')
+//   emptyMessage  : message when no items match (default 'No items available.')
+//   onChange      : function(idsArray) called on every selection change [optional]
 // }
 // Returns { element, ready, getValue, setValue, setDisabled, refresh, destroy }.
+// getValue returns the selected ids as strings, and ready resolves to the loaded items.
 export function createCheckboxList(options) {
     options = options || {};
 
@@ -29,7 +29,7 @@ export function createCheckboxList(options) {
         searchInput = document.createElement('input');
         searchInput.type = 'text';
         searchInput.className = 'jpk-edit-input jpk-check-list-search';
-        searchInput.placeholder = options.placeholder || 'Search…';
+        searchInput.placeholder = options.placeholder || 'Search';
         container.appendChild(searchInput);
     }
 
@@ -42,7 +42,7 @@ export function createCheckboxList(options) {
         selectAllCheck.type = 'checkbox';
         var selectAllName = document.createElement('span');
         selectAllName.className = 'jpk-check-label';
-        selectAllName.textContent = 'Select all';
+        selectAllName.textContent = options.selectAllText || 'Select all';
         selectAllRow.appendChild(selectAllCheck);
         selectAllRow.appendChild(selectAllName);
         container.appendChild(selectAllRow);
@@ -71,6 +71,7 @@ export function createCheckboxList(options) {
         return { label: item.name != null ? item.name : String(idOf(item)) };
     }
 
+    // Whether the item matches the search query on any of the search keys.
     function matches(item) {
         if (!query) return true;
         var keys = options.searchKeys || ['name'];
@@ -93,6 +94,7 @@ export function createCheckboxList(options) {
         return Object.keys(selected).filter(function (k) { return selected[k]; });
     }
 
+    // Shows the select all row only while rows exist, and sets its checked and mixed state.
     function syncSelectAll() {
         if (!selectAllCheck) return;
         var checks = rowChecks();
@@ -108,6 +110,7 @@ export function createCheckboxList(options) {
         if (options.onChange) options.onChange(getValue());
     }
 
+    // Rebuilds the rows for the items that match the search.
     function render() {
         body.innerHTML = '';
         var items = visibleItems();
@@ -200,6 +203,7 @@ export function createCheckboxList(options) {
         });
     }
 
+    // Reads the items from fetchItems or items and renders them, or renders none when the read fails.
     function load() {
         var source = typeof options.fetchItems === 'function' ? options.fetchItems() : (options.items || []);
         return Promise.resolve(source).then(function (list) {

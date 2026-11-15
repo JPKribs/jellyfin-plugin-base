@@ -1,0 +1,8 @@
+/* A number input and a unit select side by side, with a message under them */
+/* Example: <div class="jpk-number-unit"><div class="jpk-number-unit-row"><input type="number"><select><option>MB</option></select></div></div> */
+.jpk-number-unit-row {
+    display: flex;
+    gap: 8px;
+}
+.jpk-number-unit-row > input { flex: 1 1 auto; min-width: 0; box-sizing: border-box; }
+.jpk-number-unit-row > select { flex: 0 0 auto; width: auto; min-width: 84px; }

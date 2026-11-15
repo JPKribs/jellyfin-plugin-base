@@ -1,7 +1,7 @@
 /* A field's Placeholders hint, under the field where Jellyfin puts a field's help */
 /* Example: <div class="jpk-placeholder-hint"><button class="jpk-hint-button" data-jpk-hint>Placeholders</button></div> */
 .jpk-placeholder-hint { margin-top: 0.4em; font-size: 0.85em; }
-/* Under a field the container's margin reset would put it hard against the box, so it keeps a small gap there. */
+/* The field container margin reset would put the hint against the box, so it keeps a small gap there. */
 .pluginConfigurationPage .inputContainer > .jpk-placeholder-hint,
 .jpk-dialog .inputContainer > .jpk-placeholder-hint { margin-top: 0.5em !important; }
 
@@ -26,7 +26,7 @@
     color: var(--jpk-accent);
 }
 
-/* The placeholders a hint shows */
+/* List of placeholder tags that a hint shows */
 /* Example: <div class="jpk-placeholders"><span class="jpk-tags"><button class="jpk-tag jpk-tag-button">{title}</button></span></div> */
 .jpk-placeholders { margin-top: 6px; }
 .jpk-placeholders .jpk-tags { margin: 0; gap: 4px; }
@@ -42,7 +42,7 @@
     padding: 2px 6px;
 }
 .jpk-tag-button:hover { background: rgba(0, 164, 220, 0.25); }
-/* The theme's accent where color-mix() works; in @supports because a var() value would wipe the fallback above. */
+/* The accent mix sits in @supports because a var() value is accepted when parsed and would wipe the fallback. */
 @supports (color: color-mix(in srgb, red, blue)) {
     .jpk-tag-button:hover { background: color-mix(in srgb, var(--jpk-accent) 25%, transparent); }
 }

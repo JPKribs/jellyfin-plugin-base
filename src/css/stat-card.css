@@ -1,0 +1,14 @@
+/* Status card that adds a trend line under its count and label, built by createStatCard */
+/* Example: <div class="jpk-card jpk-stat blue"><span class="jpk-card-count">1,204</span><span class="jpk-card-label">Items</span><span class="jpk-stat-trend good"><span class="material-icons" aria-hidden="true">arrow_upward</span><span>12%</span></span></div> */
+.jpk-stat-trend {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    margin-top: 6px;
+    font-size: 0.8em;
+}
+.jpk-stat-trend .material-icons { font-size: 16px; }
+.jpk-stat-trend.good { color: var(--jpk-green-fg); }
+.jpk-stat-trend.bad { color: var(--jpk-red-fg); }
+.jpk-stat-trend.flat { opacity: 0.7; }

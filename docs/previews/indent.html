@@ -1,0 +1,18 @@
+<!-- title: Indent -->
+<div class="checkboxContainer">
+    <label class="emby-checkbox-label">
+        <input type="checkbox" is="emby-checkbox" id="chkRecycle" />
+        <span class="checkboxLabel">Use a recycling bin</span>
+    </label>
+</div>
+<div id="recycleSettings" class="jpk-indent hidden">
+    <div class="inputContainer">
+        <label for="txtRecyclePath">Recycling bin path</label>
+        <input is="emby-input" type="text" id="txtRecyclePath" value="/media/.recycle" />
+    </div>
+</div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+shared.bindReveal('chkRecycle', 'recycleSettings');
+</script>

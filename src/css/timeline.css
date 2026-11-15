@@ -1,0 +1,51 @@
+/* Vertical list of events joined by a line, each with a colored marker */
+/* Example: <ol class="jpk-timeline"><li class="jpk-timeline-item green"><span class="jpk-timeline-marker"></span><div class="jpk-timeline-body"><div class="jpk-timeline-title">Synced</div></div></li></ol> */
+.jpk-timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.jpk-timeline-item {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    padding-bottom: 16px;
+}
+.jpk-timeline-item:last-child { padding-bottom: 0; }
+.jpk-timeline-item:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    bottom: 0;
+    left: 9px;
+    border-left: 2px solid var(--jpk-border);
+}
+
+/* Round marker in the status color, with an optional icon in it */
+/* Example: <span class="jpk-timeline-marker" aria-hidden="true"></span> */
+.jpk-timeline-marker {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    background: var(--jpk-gray-fg);
+    color: var(--jpk-on-warning);
+}
+.jpk-timeline-marker .material-icons { font-size: 14px; }
+.jpk-timeline-item.green .jpk-timeline-marker { background: var(--jpk-green-fg); color: var(--jpk-on-warning); }
+.jpk-timeline-item.red .jpk-timeline-marker { background: var(--jpk-red-fg); }
+.jpk-timeline-item.orange .jpk-timeline-marker { background: var(--jpk-orange-fg); color: var(--jpk-on-warning); }
+.jpk-timeline-item.purple .jpk-timeline-marker { background: var(--jpk-purple-fg); }
+.jpk-timeline-item.blue .jpk-timeline-marker { background: var(--jpk-blue-fg); }
+.jpk-timeline-item.yellow .jpk-timeline-marker { background: var(--jpk-yellow-fg); color: var(--jpk-on-warning); }
+.jpk-timeline-item.pink .jpk-timeline-marker { background: var(--jpk-pink-fg); }
+.jpk-timeline-item.teal .jpk-timeline-marker { background: var(--jpk-teal-fg); }
+.jpk-timeline-body { min-width: 0; overflow-wrap: anywhere; }
+.jpk-timeline-time { display: block; font-size: 0.8em; opacity: 0.7; }
+.jpk-timeline-title { font-weight: 600; }
+.jpk-timeline-text { font-size: 0.9em; opacity: 0.85; margin-top: 2px; }
+.jpk-timeline-empty { opacity: 0.7; font-size: 0.9em; }

@@ -1,0 +1,13 @@
+<!-- title: Placeholder Hint -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const mount = document.getElementById('mount');
+mount.innerHTML =
+    '<div class="inputContainer">' +
+        '<label for="txtTitleFormat">Title format</label>' +
+        '<input is="emby-input" type="text" id="txtTitleFormat" value="Now playing " />' +
+        JPK.placeholderHint([['title', 'The item title'], ['year', 'The release year']]) +
+    '</div>';
+JPK.bindPlaceholders(mount, () => {});
+</script>

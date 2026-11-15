@@ -8,13 +8,12 @@ using System.Text.RegularExpressions;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// Replaces characters and patterns that are illegal in cross-platform file names. The same fixed set is
-/// replaced on every OS, so a name made on Linux is still valid when the library is read from Windows.
+/// Replaces characters and patterns that are illegal in cross-platform file names.
+/// The same fixed set is replaced on every OS, so a name made on Linux is still valid on Windows.
 /// </summary>
 public static partial class FileNameSanitizer
 {
-    // Both separators and everything Windows rejects, whatever the host OS. Control characters, which
-    // Windows also rejects, are caught by char.IsControl.
+    // Both separators and everything Windows rejects, whatever the host OS. Control characters are caught by char.IsControl.
     private static readonly HashSet<char> AllInvalidChars = new() { '/', '\\', ':', '*', '?', '"', '<', '>', '|', '\0' };
 
     private static readonly Regex UnderscoreCollapseRegex = new(@"_+", RegexOptions.Compiled);
@@ -22,8 +21,17 @@ public static partial class FileNameSanitizer
     private const int MaxFileNameLength = 200;
 
     /// <summary>
-    /// Returns a cross-platform-safe file name. Empty or null input becomes "unnamed_{guid}".
+    /// Makes a file name safe on every OS.
     /// </summary>
+    /// <remarks>
+    /// Invalid characters become the replacement, runs of it collapse to one, and leading and trailing spaces and dots are removed.
+    /// A Windows reserved name such as <c>CON</c> gets an underscore added, and a name over 200 characters is cut while keeping its extension.
+    /// An empty, <c>null</c>, or blank result becomes <c>unnamed_</c> and a new random GUID, so that output differs on every call.
+    /// The replacement itself is not checked, so an invalid replacement character is not removed.
+    /// </remarks>
+    /// <param name="fileName">The file name, not a path. A separator in it is replaced.</param>
+    /// <param name="replacement">The character that stands in for each invalid one. An underscore by default.</param>
+    /// <returns>The safe file name.</returns>
     public static string Sanitize(string? fileName, char replacement = '_')
     {
         if (string.IsNullOrWhiteSpace(fileName))
@@ -64,8 +72,12 @@ public static partial class FileNameSanitizer
     }
 
     /// <summary>
-    /// Sanitizes a temp file name as "{sanitized-id}_{sanitized-original-name}".
+    /// Builds a temp file name from an item id and an original path, as "{sanitized-id}_{sanitized-file-name}".
     /// </summary>
+    /// <remarks>Only the file name part of the path is used. A missing path gives a random <c>unnamed_</c> name, as <see cref="Sanitize"/> does.</remarks>
+    /// <param name="sourceItemId">The id of the item the file belongs to.</param>
+    /// <param name="originalPath">The original path or file name, or <c>null</c> when it is unknown.</param>
+    /// <returns>The temp file name.</returns>
     public static string SanitizeTempFileName(string sourceItemId, string? originalPath)
     {
         var originalName = !string.IsNullOrEmpty(originalPath)

@@ -1,0 +1,10 @@
+/* Time input and day toggles, side by side where there is room and stacked where there is not */
+/* Example: <div class="jpk-schedule"><input type="time" class="jpk-schedule-time"><div class="jpk-toggle-group jpk-schedule-days" role="group"></div></div> */
+.jpk-schedule {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+.jpk-schedule-time { flex: 0 0 auto; }
+.jpk-schedule-days .jpk-toggle { padding: 6px 12px; }

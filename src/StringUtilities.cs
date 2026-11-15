@@ -4,18 +4,19 @@ using System.Text;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// Small string helpers shared across plugins that generate markup or embed untrusted text.
+/// Small string helpers for plugins that generate markup or embed untrusted text.
 /// </summary>
 public static class StringUtilities
 {
     /// <summary>
-    /// Escapes a string for safe embedding inside a single- or double-quoted JavaScript string literal.
-    /// Backslashes and quotes are escaped, line breaks are turned into escape sequences, and the angle
-    /// brackets and JS line separators that can break out of an inline <c>&lt;script&gt;</c> block are
-    /// neutralised. The result is <em>not</em> wrapped in quotes; the caller supplies those.
+    /// Escapes a string for safe embedding inside a single or double quoted JavaScript string literal.
     /// </summary>
+    /// <remarks>
+    /// Backslashes and quotes are escaped, line breaks become escape sequences, and the angle brackets, ampersands, and JS line separators that can break out of an inline <c>&lt;script&gt;</c> block are neutralized.
+    /// The result is not wrapped in quotes, and the caller supplies those.
+    /// </remarks>
     /// <param name="value">The raw value, possibly from untrusted input.</param>
-    /// <returns>The escaped value, safe to place between quotes in generated JavaScript.</returns>
+    /// <returns>The escaped value, safe to place between quotes in generated JavaScript, or an empty string when the value is <c>null</c> or empty.</returns>
     public static string EscapeJsString(string? value)
     {
         if (string.IsNullOrEmpty(value))

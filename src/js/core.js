@@ -1,23 +1,23 @@
+import { copyToClipboard } from './clipboard.js';
 import { createUserSelector, createUserMultiSelector } from './user-selector.js';
 import { escapeHtml, classNames } from './escape.js';
 import { insertAtCursor, placeholderHint, bindPlaceholders } from './placeholders.js';
+import { bindComboAria } from './combo-aria.js';
 
 // setTabs
 // Wires the dashboard tab bar for a config page. Call it inside viewshow with the active tab index.
 //
 // Param: key   | string grouping the plugin's tabs
 // Param: index | active tab index
-// Param: tabs  | array of { href, name }
+// Param: tabs  | array of { href, name }, or a function returning one that runs each time the tabs are shown
 export function setTabs(key, index, tabs) {
     if (typeof LibraryMenu !== 'undefined' && LibraryMenu.setTabs) {
-        LibraryMenu.setTabs(key, index, function () { return tabs; });
+        LibraryMenu.setTabs(key, index, function () { return typeof tabs === 'function' ? tabs() : tabs; });
     }
 }
 
 // initCollapsibles
-// Binds every collapsible header in the view so a click toggles its target. Safe to call more than once per header.
-// The header's arrow becomes the web client's own expand_more icon (it draws icons by class), whatever glyph the
-// markup carries, and the header says which section it opens and whether it is open.
+// Binds every collapsible header in the view so a click toggles its target, once per header. The arrow becomes the web client expand_more icon, and the header gets aria-controls and aria-expanded.
 //
 // Param: view | page element to search within
 export function initCollapsibles(view) {
@@ -55,20 +55,15 @@ export function generateGuid(opts) {
 }
 
 // SECRET_KEPT
-// Sentinel a config page posts back in a secret field to mean "keep the stored value unchanged", so the real
-// secret never travels to the browser. Mirrors SecretProtector.KeptSentinel on the C# side; feed the posted
-// value through SecretProtector.ResolveIncoming there.
+// Sentinel a config page posts back in a secret field to keep the stored value, so the real secret never travels to the browser. It mirrors SecretProtector.KeptSentinel, and the C# side reads the posted value through SecretProtector.ResolveIncoming.
 export var SECRET_KEPT = '__JPK_SECRET_KEPT__';
 
 // bindSecretField
-// Prepares a secret input so the stored secret never reaches the browser. When a secret is stored, the field is
-// left empty with a placeholder saying so; readSecretField then posts SECRET_KEPT for an untouched field. Call it
-// after every load, since a save may have changed whether a secret is stored.
+// Prepares a secret input so the stored secret never reaches the browser, leaving the field empty with a placeholder when a secret is stored. Call it after every load, since a save may change whether a secret is stored.
 //
 // Param: input     | the input element
-// Param: hasStored | whether a secret is currently stored (the C# side's SecretProtector.HasSecret)
-// Param: opts      | { placeholder: shown when a secret is stored (default "Saved, leave blank to keep"),
-//                     clearButton: a button shown while a secret is stored, which clears it [optional] }
+// Param: hasStored | whether a secret is stored, from SecretProtector.HasSecret on the C# side
+// Param: opts      | { placeholder (default "Saved, leave blank to keep"), clearButton } where clearButton is shown while a secret is stored and clears it [optional]
 export function bindSecretField(input, hasStored, opts) {
     if (!input) return;
     opts = opts || {};
@@ -110,8 +105,7 @@ export function clearSecretField(input) {
 }
 
 // readSecretField
-// Returns the value to post for a bound secret field: SECRET_KEPT when it is empty and a secret is stored, ''
-// when clearSecretField was called, and otherwise the typed value (a replacement secret).
+// Returns the value to post for a bound secret field. That is SECRET_KEPT when it is empty and a secret is stored, '' after clearSecretField, and otherwise the typed replacement.
 //
 // Param: input | the input element
 export function readSecretField(input) {
@@ -125,10 +119,10 @@ export function readSecretField(input) {
 // Resolves to the reason a failed request gave, such as the Error of a 400 response's JSON body, or to fallback.
 //
 // Param: err      | what apiRequest rejected with, or a { Error } object
-// Param: fallback | text when there is no reason (default "It could not be saved.")
+// Param: fallback | text when there is no reason (default "Could not save.")
 export function errorText(err, fallback) {
-    var otherwise = fallback || 'It could not be saved.';
-    // A plugin's own { Error }, or the title and detail of ASP.NET's problem details.
+    var otherwise = fallback || 'Could not save.';
+    // Reads a plugin's own { Error } or the title and detail of ASP.NET problem details.
     var pick = function (body) { return (body && (body.Error || body.error || body.detail || body.title || body.message)) || otherwise; };
     if (err && typeof err.json === 'function') {
         return err.json().then(pick, function () { return otherwise; });
@@ -137,8 +131,7 @@ export function errorText(err, fallback) {
 }
 
 // debounce
-// Returns a function that runs fn once calls have paused for ms milliseconds, with the latest arguments.
-// The returned function has cancel() to drop a pending call (for example on viewhide).
+// Returns a function that runs fn once calls have paused for ms milliseconds, with the latest arguments. The returned function has cancel() to drop a pending call.
 //
 // Param: fn | the function to debounce
 // Param: ms | quiet period in milliseconds (default 300)
@@ -173,10 +166,7 @@ export function downloadJson(filename, value) {
 }
 
 // pickJsonFile
-// Opens a file picker for a JSON file and resolves to its parsed value, or null when the picker is cancelled.
-// Rejects when the file is not valid JSON, so a caller can report the error.
-//
-// No parameters
+// Opens a file picker for a JSON file and resolves to its parsed value, or to null when the picker is cancelled. It rejects when the file is not valid JSON or cannot be read.
 export function pickJsonFile() {
     return new Promise(function (resolve, reject) {
         var input = document.createElement('input');
@@ -201,66 +191,54 @@ export function pickJsonFile() {
     });
 }
 
+// plural
+// Returns the count, a space, and the matching word, such as "1 item" and "3 items". Only a count of exactly 1 takes the singular.
+//
+// Param: count | number
+// Param: one   | the singular word
+// Param: many  | the plural word (default the singular word and "s")
+export function plural(count, one, many) {
+    return count + ' ' + (count === 1 ? one : (many === undefined || many === null ? one + 's' : many));
+}
+
 // BADGE_STATES
-// The status names badges.css tints, plus the raw color modifiers. Reference these instead of hardcoding
-// state strings so a plugin's C#-enum-to-badge mapping has one source of truth and drift is detectable.
+// The state names that badges.css tints, in names, and the color modifiers that jpk-badge takes, in colors. A plugin maps its own statuses onto these so the mapping has one source.
 export var BADGE_STATES = {
-    // Named states mapped to colors by badges.css (used with shared.statusBadge(text, state)).
     names: [
         'Active', 'Synced', 'Downloaded', 'Imported',
         'Queued', 'Downloading', 'Pending', 'Pending-Download', 'Pending-Replacement',
         'Errored', 'Error', 'Disabled', 'Deleting', 'Pending-Deletion',
-        'Expired', 'Locked', 'Admin', 'Ignored', 'Group'
+        'Expired', 'Locked', 'Admin', 'Ignored', 'Group',
+        'Completed', 'Enabled', 'Failed', 'Paused', 'Running', 'Skipped', 'Unknown'
     ],
-    // Raw color modifiers for jpk-badge / jpk-card.
-    colors: ['green', 'red', 'orange', 'purple', 'blue', 'gray', 'yellow']
+    colors: ['green', 'red', 'orange', 'purple', 'blue', 'gray', 'yellow', 'pink', 'teal']
 };
 
-// Copies text via a hidden textarea and execCommand. The fallback for HTTP dashboards where
-// navigator.clipboard is unavailable. Returns whether the copy reportedly succeeded.
-function legacyCopy(text) {
-    var area = document.createElement('textarea');
-    area.value = text == null ? '' : String(text);
-    area.setAttribute('readonly', '');
-    area.style.position = 'fixed';
-    area.style.top = '-9999px';
-    area.style.opacity = '0';
-    document.body.appendChild(area);
-    area.select();
-    var ok = false;
-    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
-    document.body.removeChild(area);
-    return ok;
-}
-
 // createConfigPage
-// Wires the config-page lifecycle every plugin repeats: builds the shared bag, sets the dashboard tabs,
-// runs bind() once, runs load() on every viewshow, and runs registered cleanups (pollers, table observers)
-// plus onHide() on viewhide. Import it at the top of a page module and call it from the default export.
+// Wires the config page lifecycle by building the shared bag, setting the tabs, running bind once, and running load on every viewshow. On viewhide it runs the registered cleanups and onHide.
 //
 // Param: view | the page element the framework passes to the module's default export
 // Param: opts | {
-//   pluginId  : plugin GUID string (required)
-//   apiPrefix : controller name for shared.apiRequest [optional]
-//   tabsKey   : LibraryMenu tab group key [optional]
-//   tabIndex  : active tab index [optional, default 0]
-//   tabs      : array of { href, name } [optional]
-//   bind      : function(shared, page) run once, for event wiring
-//   load      : function(shared, page) run on every viewshow, for (re)loading data
-//   onHide    : function(shared, page) run on viewhide, after automatic cleanups
-//   isDirty   : function() returning whether there are unsaved changes; when true, leaving the page asks
-//               first and closing the tab warns [optional; page.guardUnsaved sets it later]
-//   leaveMessage : the question asked before leaving with unsaved changes [optional]
+//   pluginId     : plugin GUID string [required]
+//   apiPrefix    : controller name for shared.apiRequest [optional]
+//   tabsKey      : LibraryMenu tab group key [optional]
+//   tabIndex     : active tab index (default 0)
+//   tabs         : array of { href, name }, or a function returning one that runs each time the tabs are shown, set only when tabsKey is also given [optional]
+//   bind         : function(shared, page) run once, for event wiring [optional]
+//   load         : function(shared, page) run on every viewshow, for loading data [optional]
+//   onHide       : function(shared, page) run on viewhide, after the automatic cleanups [optional]
+//   isDirty      : function() returning whether there are unsaved changes, so leaving the page asks first and closing the tab warns [optional]
+//   leaveMessage : the question asked before leaving with unsaved changes (default 'You have unsaved changes. Leave without saving?')
 // }
-// Returns a page handle: { view, shared, addCleanup(fn), createPoller(fn, ms), guardUnsaved(isDirty, message) }.
-// guardUnsaved accepts a function or a createChangeTracker tracker.
+// Returns a page handle { view, shared, addCleanup(fn), createPoller(fn, ms, opts), guardUnsaved(isDirty, message), trackEditor(dialog), untrackEditor(dialog) }.
+// guardUnsaved takes a function or a createChangeTracker tracker, and a poller from createPoller stops on viewhide.
 export function createConfigPage(view, opts) {
     opts = opts || {};
     var shared = createShared(view, opts.pluginId, opts.apiPrefix);
     var cleanups = [];
     var bound = false;
     var isDirty = opts.isDirty || null;
-    // Editor dialogs open over the page (openEditorDialog), whose unsaved edits count as the page's.
+    // Editor dialogs from openEditorDialog, whose unsaved edits count as the page.
     var editors = [];
     var leaveMessage = opts.leaveMessage || 'You have unsaved changes. Leave without saving?';
 
@@ -279,20 +257,16 @@ export function createConfigPage(view, opts) {
     var page = {
         view: view,
         shared: shared,
-        // Register a teardown callback run on the next viewhide (and cleared afterward).
         addCleanup: function (fn) { if (typeof fn === 'function') cleanups.push(fn); return fn; },
-        // Create a poller whose stop() is auto-registered for cleanup. Start it yourself.
-        createPoller: function (fn, intervalMs) {
-            var poller = shared.createPoller(fn, intervalMs);
+        createPoller: function (fn, intervalMs, pollerOpts) {
+            var poller = shared.createPoller(fn, intervalMs, pollerOpts);
             cleanups.push(poller.stop);
             return poller;
         },
-        // Ask before leaving while there are unsaved changes. Pass a function or a change tracker.
         guardUnsaved: function (dirty, message) {
             isDirty = dirty && typeof dirty.isDirty === 'function' ? dirty.isDirty : dirty;
             if (message) leaveMessage = message;
         },
-        // Used by openEditorDialog: an open editor counts toward the guard and closes when the page hides.
         trackEditor: function (dialog) { if (editors.indexOf(dialog) < 0) editors.push(dialog); },
         untrackEditor: function (dialog) { editors = editors.filter(function (d) { return d !== dialog; }); }
     };
@@ -323,7 +297,7 @@ export function createConfigPage(view, opts) {
     view.addEventListener('viewbeforehide', function (e) {
         if (hasUnsaved() && !window.confirm(leaveMessage)) {
             e.preventDefault();
-            // The dashboard has already moved the tab highlight; put it back on this page.
+            // The dashboard has already moved the tab highlight, so put it back on this page.
             applyTabs();
         }
     });
@@ -339,11 +313,12 @@ export function createConfigPage(view, opts) {
 }
 
 // createShared
-// Builds the per view helper bag used by a config page. Bind it once on viewshow and reuse the returned object.
+// Builds the per view helper bag that a config page uses. Create it once on viewshow and reuse it.
 //
 // Param: view      | page element the helpers operate on
 // Param: pluginId  | plugin GUID string
 // Param: apiPrefix | controller name for apiRequest [optional]
+// Returns the helper bag, whose methods the web components page lists.
 export function createShared(view, pluginId, apiPrefix) {
     return {
         pluginId: pluginId,
@@ -361,13 +336,15 @@ export function createShared(view, pluginId, apiPrefix) {
             }
         },
 
-        // Sets a status line's text and colors it via classes (jpk-status-ok / jpk-status-bad) rather than
-        // inline styles, so a plugin can theme or override it. Auto-clears after opts.timeout ms (default
-        // 5000; pass 0 to keep it). Accepts an element id or the element itself.
         setStatus: function (elementId, message, isError, opts) {
             var el = typeof elementId === 'string' ? view.querySelector('#' + elementId) : elementId;
             if (!el) return;
             opts = opts || {};
+            // The role goes on before the text, so a screen reader announces the change.
+            if (message) {
+                var role = isError ? 'alert' : 'status';
+                if (el.getAttribute('role') !== role) el.setAttribute('role', role);
+            }
             el.textContent = message || '';
             el.classList.remove('jpk-status-ok', 'jpk-status-bad');
             if (message) el.classList.add(isError ? 'jpk-status-bad' : 'jpk-status-ok');
@@ -412,13 +389,11 @@ export function createShared(view, pluginId, apiPrefix) {
             return el ? el.value : (fallback === undefined ? '' : fallback);
         },
 
-        // Parses a field as an integer, returning fallback when it is empty or not a number.
         getIntValue: function (id, fallback) {
             var v = parseInt(this.getValue(id, ''), 10);
             return isNaN(v) ? fallback : v;
         },
 
-        // Secret field helpers bound to this view; each accepts an element id or the element.
         bindSecretField: function (id, hasStored, opts) {
             bindSecretField(typeof id === 'string' ? this.getEl(id) : id, hasStored, opts);
         },
@@ -435,10 +410,6 @@ export function createShared(view, pluginId, apiPrefix) {
         downloadJson: downloadJson,
         pickJsonFile: pickJsonFile,
 
-        // Show/hide a target element based on a checkbox, and bind it so the target
-        // follows the checkbox. Binds once (guarded), and applies the current state
-        // on every call, so call it after loading config to set the initial state.
-        // Pass invert=true to show the target when the checkbox is UNchecked.
         bindReveal: function (checkboxId, targetId, invert) {
             var self = this;
             var cb = this.getEl(checkboxId);
@@ -456,6 +427,7 @@ export function createShared(view, pluginId, apiPrefix) {
         },
 
         escapeHtml: escapeHtml,
+        plural: plural,
         errorText: errorText,
         insertAtCursor: insertAtCursor,
         placeholderHint: placeholderHint,
@@ -465,14 +437,10 @@ export function createShared(view, pluginId, apiPrefix) {
             return '<span class="jpk-badge ' + classNames(cls) + '">' + this.escapeHtml(label) + '</span>';
         },
 
-        // Renders a table status badge. stateClass is one of the badge states styled in badges.css
-        // (e.g. Queued, Downloading, Downloaded, Imported, Error, Active, Disabled). A plugin maps its
-        // own status codes to one of those state names and passes the display text.
         statusBadge: function (text, stateClass) {
             return '<span class="jpk-table-status-badge ' + classNames(stateClass) + '">' + this.escapeHtml(text) + '</span>';
         },
 
-        // A bordered box for an empty region; { inline: true } is a single muted line, for an empty list.
         emptySection: function (message, opts) {
             var cls = opts && opts.inline ? 'jpk-empty' : 'jpk-empty-section';
             return '<div class="' + cls + '">' + this.escapeHtml(message) + '</div>';
@@ -506,7 +474,6 @@ export function createShared(view, pluginId, apiPrefix) {
             return 'Just now';
         },
 
-        // The date and time in the viewer's locale; { seconds: false } leaves the seconds out.
         formatDate: function (value, opts) {
             if (!value) return '';
             var d = new Date(value);
@@ -516,8 +483,11 @@ export function createShared(view, pluginId, apiPrefix) {
 
         toDateInput: function (value) {
             if (!value) return '';
+            // A date only string already is the local date, and parsing it would read it as UTC.
+            if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
             var d = new Date(value);
-            return isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+            if (isNaN(d.getTime())) return '';
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
         },
 
         getFileName: function (path) {
@@ -535,10 +505,6 @@ export function createShared(view, pluginId, apiPrefix) {
             return ApiClient.updatePluginConfiguration(this.pluginId, config);
         },
 
-        // Re-reads the freshest config, applies a mutator, and saves. The mutator either mutates the config
-        // in place or returns a replacement object. Reports success/failure on the optional status element.
-        // Collapses the getConfig -> mutate -> saveConfig -> setStatus -> catch chain every page repeats.
-        // Example: shared.saveConfigWith(function (c) { c.Enabled = true; }, 'statusId', { success: 'Saved.' })
         saveConfigWith: function (mutator, statusId, messages) {
             var self = this;
             messages = messages || {};
@@ -554,8 +520,6 @@ export function createShared(view, pluginId, apiPrefix) {
             });
         },
 
-        // Renders a row of count cards into a container by id, from [{ label, count, color }] where color is a
-        // card tint (green/red/orange/purple/blue/gray/yellow). Replaces the hand-built jpk-card HTML strings.
         renderCards: function (containerId, cards) {
             var el = typeof containerId === 'string' ? this.getEl(containerId) : containerId;
             if (!el) return;
@@ -569,20 +533,10 @@ export function createShared(view, pluginId, apiPrefix) {
             }).join('');
         },
 
-        // Copies text to the clipboard, falling back to a hidden textarea + execCommand on HTTP dashboards
-        // where navigator.clipboard is unavailable. Returns a Promise resolving to whether the copy succeeded.
         copyToClipboard: function (text) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                return navigator.clipboard.writeText(text)
-                    .then(function () { return true; })
-                    .catch(function () { return legacyCopy(text); });
-            }
-            return Promise.resolve(legacyCopy(text));
+            return copyToClipboard(text);
         },
 
-        // Copies text and briefly swaps the button's label to say whether it worked, then restores it.
-        // The label is the button's last <span> when it has one (icon buttons), else the button itself.
-        // Resolves to whether the copy succeeded.
         copyWithFeedback: function (btn, text, opts) {
             opts = opts || {};
             var label = btn ? (btn.querySelector('span:last-child') || btn) : null;
@@ -590,7 +544,7 @@ export function createShared(view, pluginId, apiPrefix) {
                 if (label) {
                     var original = label.dataset.jpkCopyLabel || label.textContent;
                     label.dataset.jpkCopyLabel = original;
-                    label.textContent = ok ? (opts.copiedText || 'Copied!') : (opts.failedText || 'Copy failed');
+                    label.textContent = ok ? (opts.copiedText || 'Copied.') : (opts.failedText || 'Copy failed.');
                     setTimeout(function () {
                         label.textContent = original;
                         delete label.dataset.jpkCopyLabel;
@@ -600,9 +554,6 @@ export function createShared(view, pluginId, apiPrefix) {
             });
         },
 
-        // Fetches an authenticated endpoint (under apiPrefix) as a blob and returns an object URL for an <img>
-        // or download link. The session token travels in the Authorization header, never in the URL, so it
-        // stays out of proxy logs and browser caches. Revoke the URL when done (img onload is a good place).
         fetchObjectUrl: function (endpoint, params) {
             var url = this.apiPrefix ? this.apiPrefix + '/' + endpoint : endpoint;
             return ApiClient.fetch({ url: ApiClient.getUrl(url, params), type: 'GET' }).then(function (response) {
@@ -613,42 +564,70 @@ export function createShared(view, pluginId, apiPrefix) {
             });
         },
 
-        // Builds a self-guarding interval poller. tick() never overlaps a slow async fn, errors are swallowed
-        // so one bad tick doesn't stop the loop, and start()/stop() are idempotent. Register stop() for
-        // cleanup on viewhide (createConfigPage.createPoller does this automatically).
-        // Returns { start(immediate=true), stop, isRunning }.
-        createPoller: function (fn, intervalMs) {
+        createPoller: function (fn, intervalMs, opts) {
             var timer = null;
             var inFlight = false;
+            var pauseWhenHidden = !!(opts && opts.pauseWhenHidden);
             function tick() {
                 if (inFlight) return;
                 inFlight = true;
                 Promise.resolve()
                     .then(fn)
-                    .catch(function () { /* transient; try again next tick */ })
+                    .catch(function () { /* transient, try again next tick */ })
                     .then(function () { inFlight = false; });
+            }
+            // A hidden tab skips its ticks when pauseWhenHidden is set.
+            function scheduled() {
+                if (pauseWhenHidden && document.hidden) return;
+                tick();
+            }
+            function onVisibility() {
+                if (!document.hidden) tick();
             }
             return {
                 start: function (immediate) {
                     if (timer) return;
-                    if (immediate !== false) tick();
-                    timer = setInterval(tick, intervalMs || 3000);
+                    if (immediate !== false) scheduled();
+                    timer = setInterval(scheduled, intervalMs || 3000);
+                    if (pauseWhenHidden) document.addEventListener('visibilitychange', onVisibility);
                 },
-                stop: function () { if (timer) { clearInterval(timer); timer = null; } },
+                stop: function () {
+                    if (timer) { clearInterval(timer); timer = null; }
+                    if (pauseWhenHidden) document.removeEventListener('visibilitychange', onVisibility);
+                },
                 isRunning: function () { return !!timer; }
             };
         },
 
-        // Tracks unsaved changes by comparing a serialized snapshot of the form/state. Drives the shared
-        // jpk-unsaved indicator (pass its element id). markClean() after load/save; check() after edits;
-        // flashSaved() pulses the indicator green. Serialize should return a stable string of the tracked state.
         createChangeTracker: function (opts) {
             opts = opts || {};
             var serialize = opts.serialize || function () { return ''; };
             var indicator = opts.indicatorId ? this.getEl(opts.indicatorId) : (opts.indicator || null);
             var snapshot = serialize();
+            var savedText = opts.savedText;
+            var flashTimer = null;
+            var flashOriginal = null;
+            // The indicator announces itself politely when it appears.
+            if (indicator && !indicator.getAttribute('role')) indicator.setAttribute('role', 'status');
             function setVisible(dirty) {
                 if (indicator) indicator.classList.toggle('visible', dirty);
+            }
+            // The last text of the indicator, so the dot before it stays.
+            function labelNode() {
+                var nodes = indicator.childNodes || [];
+                for (var i = nodes.length - 1; i >= 0; i--) {
+                    if (nodes[i].nodeType === 3 && String(nodes[i].nodeValue).trim()) return nodes[i];
+                }
+                return null;
+            }
+            function readLabel() {
+                var node = labelNode();
+                return node ? node.nodeValue : indicator.textContent;
+            }
+            function writeLabel(text) {
+                var node = labelNode();
+                if (node) node.nodeValue = text;
+                else if (!indicator.children || !indicator.children.length) indicator.textContent = text;
             }
             return {
                 isDirty: function () { return serialize() !== snapshot; },
@@ -657,8 +636,17 @@ export function createShared(view, pluginId, apiPrefix) {
                 flashSaved: function () {
                     snapshot = serialize();
                     if (!indicator) return;
+                    if (flashTimer) clearTimeout(flashTimer);
+                    if (savedText) {
+                        if (flashOriginal === null) flashOriginal = readLabel();
+                        writeLabel(savedText);
+                    }
                     indicator.classList.add('visible', 'save-success');
-                    setTimeout(function () { indicator.classList.remove('visible', 'save-success'); }, 1500);
+                    flashTimer = setTimeout(function () {
+                        indicator.classList.remove('visible', 'save-success');
+                        if (flashOriginal !== null) { writeLabel(flashOriginal); flashOriginal = null; }
+                        flashTimer = null;
+                    }, 1500);
                 }
             };
         },
@@ -678,18 +666,6 @@ export function createShared(view, pluginId, apiPrefix) {
 
         showAlert: function (message) {
             Dashboard.alert(message);
-        },
-
-        buildSourceImageUrl: function (serverUrl, apiKey, itemId, imageType, maxHeight) {
-            if (!serverUrl || !apiKey || !itemId) return null;
-            return serverUrl + '/Items/' + encodeURIComponent(itemId) + '/Images/' + (imageType || 'Primary') +
-                '?maxHeight=' + (maxHeight || 80) + '&api_key=' + encodeURIComponent(apiKey);
-        },
-
-        buildSourceUserImageUrl: function (serverUrl, apiKey, userId, maxHeight) {
-            if (!serverUrl || !apiKey || !userId) return null;
-            return serverUrl + '/Users/' + encodeURIComponent(userId) + '/Images/Primary' +
-                '?maxHeight=' + (maxHeight || 80) + '&api_key=' + encodeURIComponent(apiKey);
         },
 
         createDebouncedSearch: function (endpoint, delay) {
@@ -714,10 +690,6 @@ export function createShared(view, pluginId, apiPrefix) {
             return createUserMultiSelector(options);
         },
 
-        // Single-value searchable input with a floating results dropdown. searchFn(query, cb) supplies
-        // results as strings or { value, label } objects; onSelect receives (value, item). Supports arrow-key
-        // navigation and Enter/Escape, and cleans up its own document listener on destroy(). getValue returns
-        // the selected value (or the free-typed text when nothing was picked).
         createSearchableComboBox: function (options) {
             var container = document.createElement('div');
             container.className = 'jpk-combo';
@@ -729,10 +701,13 @@ export function createShared(view, pluginId, apiPrefix) {
             dropdown.className = 'jpk-combo-dropdown hidden';
             container.appendChild(input);
             container.appendChild(dropdown);
+            var aria = bindComboAria(input, dropdown);
 
             var selectedValue = null;
             var results = [];
             var activeIndex = -1;
+            // Each search takes a number, and an answer that is not the latest, or that comes after the dropdown closed, is dropped.
+            var requestId = 0;
 
             function itemLabel(item) { return item && typeof item === 'object' ? (item.label != null ? item.label : String(item.value)) : String(item); }
             function itemValue(item) { return item && typeof item === 'object' ? item.value : item; }
@@ -740,7 +715,8 @@ export function createShared(view, pluginId, apiPrefix) {
             function choose(item) {
                 selectedValue = itemValue(item);
                 input.value = itemLabel(item);
-                dropdown.classList.add('hidden');
+                requestId++;
+                aria.setOpen(false);
                 activeIndex = -1;
                 if (options.onSelect) options.onSelect(selectedValue, item);
             }
@@ -748,27 +724,30 @@ export function createShared(view, pluginId, apiPrefix) {
             function highlight(delta) {
                 if (!results.length) return;
                 activeIndex = (activeIndex + delta + results.length) % results.length;
-                dropdown.querySelectorAll('.jpk-combo-option').forEach(function (o, i) {
-                    o.classList.toggle('active', i === activeIndex);
-                });
+                aria.activate(activeIndex);
             }
 
             input.addEventListener('input', function () {
-                selectedValue = null; // free typing invalidates a prior pick
+                // Typing again invalidates an earlier pick.
+                selectedValue = null;
                 if (options.onInput) options.onInput();
+                var mine = ++requestId;
                 options.searchFn(input.value, function (list) {
+                    if (mine !== requestId) return;
                     results = list || [];
                     activeIndex = -1;
                     dropdown.innerHTML = '';
-                    if (!results.length) { dropdown.classList.add('hidden'); return; }
-                    results.forEach(function (item) {
+                    aria.setOpen(false);
+                    if (!results.length) return;
+                    results.forEach(function (item, i) {
                         var opt = document.createElement('div');
                         opt.className = 'jpk-combo-option';
                         opt.textContent = itemLabel(item);
+                        aria.option(opt, i);
                         opt.addEventListener('mousedown', function (e) { e.preventDefault(); choose(item); });
                         dropdown.appendChild(opt);
                     });
-                    dropdown.classList.remove('hidden');
+                    aria.setOpen(true);
                 });
             });
 
@@ -776,11 +755,13 @@ export function createShared(view, pluginId, apiPrefix) {
                 if (e.key === 'ArrowDown') { e.preventDefault(); highlight(1); }
                 else if (e.key === 'ArrowUp') { e.preventDefault(); highlight(-1); }
                 else if (e.key === 'Enter' && activeIndex >= 0 && results[activeIndex]) { e.preventDefault(); choose(results[activeIndex]); }
-                else if (e.key === 'Escape') { dropdown.classList.add('hidden'); }
+                else if (e.key === 'Escape') { requestId++; aria.setOpen(false); }
             });
 
+            input.addEventListener('blur', function () { requestId++; });
+
             function onDocClick(e) {
-                if (!container.contains(e.target)) dropdown.classList.add('hidden');
+                if (!container.contains(e.target)) { requestId++; aria.setOpen(false); }
             }
             document.addEventListener('click', onDocClick);
 
@@ -788,7 +769,7 @@ export function createShared(view, pluginId, apiPrefix) {
                 element: container,
                 getValue: function () { return selectedValue != null ? selectedValue : input.value; },
                 setValue: function (val) { input.value = val || ''; selectedValue = val || null; },
-                destroy: function () { document.removeEventListener('click', onDocClick); }
+                destroy: function () { requestId++; document.removeEventListener('click', onDocClick); }
             };
         },
 
@@ -797,8 +778,9 @@ export function createShared(view, pluginId, apiPrefix) {
             var progressBar = btn.querySelector('.btn-progress');
             if (!progressBar) {
                 progressBar = document.createElement('div');
-                progressBar.className = 'btn-progress';
+                progressBar.className = 'btn-progress jpk-btn-progress';
                 btn.appendChild(progressBar);
+                btn.classList.add('jpk-btn-progress-host');
             }
             btn.disabled = true;
 
@@ -812,6 +794,7 @@ export function createShared(view, pluginId, apiPrefix) {
             var send = ApiClient && (ApiClient.sendMessage || ApiClient.sendWebSocketMessage);
             if (send) send = send.bind(ApiClient);
 
+            // Shows a percent that never goes backward and never passes 100.
             function setPct(pct) {
                 if (typeof pct !== 'number' || isNaN(pct)) pct = lastPct;
                 if (pct < lastPct) pct = lastPct;
@@ -821,6 +804,7 @@ export function createShared(view, pluginId, apiPrefix) {
                 progressBar.style.width = pct + '%';
             }
 
+            // Stops the socket and the poll, resets the button, and calls onComplete once.
             function finish() {
                 if (done) return;
                 done = true;
@@ -835,6 +819,7 @@ export function createShared(view, pluginId, apiPrefix) {
                 if (onComplete) onComplete();
             }
 
+            // Shows a running task's progress, and finishes once it is idle after running or after a run that ended since the start.
             function apply(task) {
                 if (!task) return;
                 if (task.State === 'Running') {

@@ -1,6 +1,5 @@
 // createChoiceGroup
-// Wires a group of jpk-choice radio cards: keeps the selected class in step with the checked input for
-// browsers without :has(), and reports changes. Pass the group element that holds the labels.
+// Wires a group of jpk-choice radio cards, keeping the selected class in step with the checked input for browsers without :has(). It reports each change to onChange.
 //
 // Param: groupEl | element with the jpk-choice-group class
 // Param: options | { onChange: function(value) [optional] }

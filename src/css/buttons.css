@@ -3,7 +3,7 @@
 .jpk-button-submit,
 .jpk-button-primary {
     background-color: var(--jpk-accent) !important;
-    color: #fff !important;
+    color: var(--jpk-on-accent) !important;
 }
 .jpk-button-submit:hover,
 .jpk-button-primary:hover {
@@ -14,7 +14,7 @@
 /* Example: <button class="raised jpk-button-destructive">Delete</button> */
 .jpk-button-destructive {
     background-color: var(--jpk-error) !important;
-    color: #fff !important;
+    color: var(--jpk-on-accent) !important;
 }
 .jpk-button-destructive:hover {
     background-color: var(--jpk-error-hover) !important;

@@ -40,12 +40,15 @@ public enum SchemaAction
 }
 
 /// <summary>
-/// Versions a SQLite database a plugin owns. The schema version lives in <c>PRAGMA user_version</c>, and a
-/// small <c>SchemaInfo</c> table records the oldest version that can still read the file. A build that only adds
-/// tables, columns, or indexes leaves that minimum alone, so going back to an older build keeps the database
-/// instead of discarding it. Raise the minimum only when a migration changes or removes something older builds
-/// rely on. Written against <see cref="DbConnection"/>, so plugins without SQLite take on no dependency.
+/// Versions a SQLite database a plugin owns.
+/// The schema version lives in <c>PRAGMA user_version</c>, and a small <c>SchemaInfo</c> table records the oldest version that can still read the file.
 /// </summary>
+/// <remarks>
+/// A build that only adds tables, columns, or indexes leaves the minimum alone, so going back to an older build keeps the database.
+/// Raise the minimum only when a migration changes or removes something older builds rely on.
+/// The class takes a <see cref="DbConnection"/>, so a plugin takes on no SQLite dependency, but its SQL is SQLite specific.
+/// A <c>user_version</c> of 0 counts as an empty database even when tables exist.
+/// </remarks>
 public static class DatabaseSchema
 {
     /// <summary>The table that records the oldest version that can read the database.</summary>
@@ -78,11 +81,10 @@ public static class DatabaseSchema
     }
 
     /// <summary>
-    /// Reads the oldest version the database says can still read it, or null when the build that wrote it
-    /// recorded none.
+    /// Reads the oldest version the database says can still read it.
     /// </summary>
     /// <param name="connection">An open connection.</param>
-    /// <returns>The version, or null.</returns>
+    /// <returns>The version, or <c>null</c> when the build that wrote the database recorded none.</returns>
     public static int? GetMinReaderVersion(DbConnection connection)
     {
         ArgumentNullException.ThrowIfNull(connection);
@@ -100,7 +102,7 @@ public static class DatabaseSchema
     }
 
     /// <summary>
-    /// Marks the database as written by this build: the oldest version that can read it, then the version.
+    /// Marks the database as written by this build, recording the oldest version that can read it and then the version.
     /// </summary>
     /// <param name="connection">An open connection.</param>
     /// <param name="version">This build's schema version.</param>
@@ -123,7 +125,7 @@ public static class DatabaseSchema
 
     /// <summary>Decides what opening a database should do, without touching it.</summary>
     /// <param name="storedVersion">The version stored in the database.</param>
-    /// <param name="storedMinReader">The oldest reader the database names, or null.</param>
+    /// <param name="storedMinReader">The oldest reader the database names, or <c>null</c>.</param>
     /// <param name="currentVersion">This build's schema version.</param>
     /// <returns>The action. Never <see cref="SchemaAction.MigrationFailed"/>.</returns>
     public static SchemaAction Decide(int storedVersion, int? storedMinReader, int currentVersion)
@@ -147,23 +149,25 @@ public static class DatabaseSchema
     }
 
     /// <summary>
-    /// Brings an open database to this build's schema. An empty database is created, an older one migrated,
-    /// and either is stamped. A current one gets the marker when it lacks it. A newer one this build can read is
-    /// left untouched. For <see cref="SchemaAction.TooNew"/> and <see cref="SchemaAction.MigrationFailed"/>
-    /// nothing is written by this method, and the caller moves the file aside and opens a fresh one.
+    /// Brings an open database to this build's schema.
+    /// An empty database is created and an older one migrated, and either is stamped.
+    /// </summary>
+    /// <remarks>
+    /// A current database gets the marker when it lacks it, and a newer one this build can read is left untouched.
+    /// For <see cref="SchemaAction.TooNew"/> and <see cref="SchemaAction.MigrationFailed"/> this method writes nothing, and the caller moves the file aside and opens a fresh one.
     /// <para>
     /// With <paramref name="transactional"/> the create or migrate and the version stamp run in one transaction,
-    /// so a crash or a throwing step leaves the database as it was, and a migration that returns false is rolled
-    /// back. Only pass it when <paramref name="create"/> and <paramref name="migrate"/> open no transaction of
-    /// their own and run nothing SQLite refuses inside one (such as <c>VACUUM</c> or a <c>journal_mode</c> change).
+    /// so a crash or a throwing step leaves the database as it was, and a migration that returns <c>false</c> is rolled back.
+    /// Only pass it when <paramref name="create"/> and <paramref name="migrate"/> open no transaction of their own
+    /// and run nothing SQLite refuses inside one, such as <c>VACUUM</c> or a <c>journal_mode</c> change.
     /// </para>
-    /// </summary>
+    /// </remarks>
     /// <param name="connection">An open connection.</param>
     /// <param name="currentVersion">This build's schema version.</param>
     /// <param name="minReaderVersion">The oldest version that can read what this build writes.</param>
     /// <param name="create">Creates the whole schema in an empty database.</param>
-    /// <param name="migrate">Migrates from the given version, and returns false when it could not.</param>
-    /// <param name="transactional">Whether to run the schema change and the stamp in one transaction.</param>
+    /// <param name="migrate">Migrates from the given version, and returns <c>false</c> when it could not.</param>
+    /// <param name="transactional">Whether to run the schema change and the stamp in one transaction. <c>false</c> by default.</param>
     /// <returns>What was done.</returns>
     public static SchemaAction Open(
         DbConnection connection,
@@ -209,7 +213,7 @@ public static class DatabaseSchema
                 break;
 
             case SchemaAction.Current:
-                // A database at this version written by a build that did not record the marker gets it now.
+                // A database at this version from a build that recorded no marker gets the marker added.
                 if (GetMinReaderVersion(connection) != minReaderVersion)
                 {
                     Apply(connection, transactional, () =>
@@ -225,9 +229,6 @@ public static class DatabaseSchema
         return action;
     }
 
-    // Runs a schema change, inside one transaction when asked: committed when it returns true, rolled back when
-    // it returns false or throws. Plain SQL rather than BeginTransaction, so the callbacks' commands need no
-    // transaction handed to them.
     private static bool Apply(DbConnection connection, bool transactional, Func<bool> change)
     {
         if (!transactional)
@@ -235,6 +236,7 @@ public static class DatabaseSchema
             return change();
         }
 
+        // Plain SQL rather than BeginTransaction, so the callbacks' commands need no transaction handed to them.
         Execute(connection, "BEGIN IMMEDIATE");
         bool done;
         try
@@ -267,7 +269,7 @@ public static class DatabaseSchema
         }
         catch (DbException)
         {
-            // SQLite already rolled back after the failure, so there is no transaction left to end.
+            // SQLite already rolled back after the failure, so no transaction is left to end.
         }
     }
 
@@ -280,16 +282,20 @@ public static class DatabaseSchema
     }
 
     /// <summary>
-    /// Moves a database file aside as <c>[name].[reason]-[UTC time]</c>, carrying its <c>-wal</c> and
-    /// <c>-shm</c> files along, since the journal may hold commits that were never checkpointed. Only the
-    /// newest <paramref name="keep"/> backups for the same reason are kept. When the move fails the file is
-    /// deleted instead, so a fresh database can still be created. Close every connection first.
+    /// Moves a database file aside as <c>[name].[reason]-[UTC time]</c>, carrying its <c>-wal</c> and <c>-shm</c> files along.
+    /// Only the newest <paramref name="keep"/> backups for the same reason are kept.
     /// </summary>
+    /// <remarks>
+    /// The journal files travel with the file because the journal may hold commits that were never checkpointed.
+    /// When the move fails the file is deleted instead, so a fresh database can still be created. Close every connection first.
+    /// A <paramref name="keep"/> of 0 removes the backup just made and still returns its path, and a negative value prunes nothing.
+    /// Two calls for the same reason within one second use the same backup name, so the second move fails and the file is deleted instead.
+    /// </remarks>
     /// <param name="databasePath">The database file.</param>
     /// <param name="reason">A short word for the backup name, such as <c>newer</c> or <c>corrupt</c>.</param>
     /// <param name="keep">How many backups to keep for this reason.</param>
-    /// <param name="logger">Logger.</param>
-    /// <returns>The backup path, or null when there was no file or it could only be deleted.</returns>
+    /// <param name="logger">The logger that reports the move, a failed move, and a failed prune.</param>
+    /// <returns>The backup path, or <c>null</c> when there was no file or it could only be deleted.</returns>
     public static string? SetAside(string databasePath, string reason, int keep, ILogger logger)
     {
         ArgumentException.ThrowIfNullOrEmpty(databasePath);
@@ -350,7 +356,6 @@ public static class DatabaseSchema
         }
     }
 
-    // A backup's journal files travel with it, so they neither count toward the limit nor outlive it.
     private static void PruneBackups(string databasePath, string reason, int keep, ILogger logger)
     {
         var directory = Path.GetDirectoryName(databasePath);
@@ -361,6 +366,7 @@ public static class DatabaseSchema
 
         try
         {
+            // A backup's journal files travel with it, so they neither count toward the limit nor outlive it.
             var backups = Directory.GetFiles(directory, Path.GetFileName(databasePath) + "." + reason + "-*")
                 .Where(f => !f.EndsWith("-wal", StringComparison.Ordinal) && !f.EndsWith("-shm", StringComparison.Ordinal))
                 .OrderByDescending(f => f, StringComparer.Ordinal)

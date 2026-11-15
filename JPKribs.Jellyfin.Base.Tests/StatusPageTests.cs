@@ -3,9 +3,14 @@ using Xunit;
 
 namespace JPKribs.Jellyfin.Base.Tests;
 
-/// <summary>Tests for <see cref="StatusPage"/> rendering and the shared <c>status</c> card template.</summary>
+/// <summary>Verifies that <see cref="StatusPage"/> renders the shared status card with every value encoded and no template token left over.</summary>
 public class StatusPageTests
 {
+    /// <summary>
+    /// The heading and message appear in the card and no template token is left in the output.
+    /// True: the page shows what the plugin passed.
+    /// False: a literal token would show on the page.
+    /// </summary>
     [Fact]
     public void Render_FillsHeadingAndMessage_AndLeavesNoTokens()
     {
@@ -14,10 +19,15 @@ public class StatusPageTests
         Assert.Contains("Sign in required", html, System.StringComparison.Ordinal);
         Assert.Contains("Please sign in.", html, System.StringComparison.Ordinal);
         Assert.Contains("jpk-status-card", html, System.StringComparison.Ordinal);
-        // CONTENT defaults to empty, so the slot must not leak as a literal token.
+        // The content slot defaults to empty, so it must not leak as a literal token.
         Assert.DoesNotContain("{{", html, System.StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// The heading and message are HTML encoded.
+    /// True: text from a request cannot inject markup.
+    /// False: a tag in the heading would render as markup.
+    /// </summary>
     [Fact]
     public void Render_EncodesHtml()
     {
@@ -26,10 +36,15 @@ public class StatusPageTests
         Assert.Contains("a &amp; b", html, System.StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// The spinner and the action button appear only when asked for.
+    /// True: a plain message page shows neither.
+    /// False: an unwanted spinner or button would show.
+    /// </summary>
     [Fact]
     public void Render_SpinnerAndButtonAreOptional()
     {
-        // Assert on the elements, not the class names (the template's <style> always defines the classes).
+        // The assertions look for the elements, since the template's style block always defines the classes.
         var withButton = StatusPage.Render("H", "M", buttonText: "Back", buttonHref: "../web/", showSpinner: true);
         Assert.Contains("<div class=\"jpk-spinner\"", withButton, System.StringComparison.Ordinal);
         Assert.Contains("<a class=\"jpk-btn\"", withButton, System.StringComparison.Ordinal);
@@ -41,8 +56,9 @@ public class StatusPageTests
     }
 
     /// <summary>
-    /// Regression guards for the shared card template. These caught real shipped breakages: a missing
-    /// <c>.hidden</c> rule (stacked multi-state shells) and a missing tab favicon link.
+    /// The shared card template keeps the rules and tokens a page depends on.
+    /// True: a missing hidden rule or favicon link is caught here.
+    /// False: a broken template would ship.
     /// </summary>
     [Theory]
     [InlineData(".hidden{display:none}")]
@@ -60,9 +76,9 @@ public class StatusPageTests
     }
 
     /// <summary>
-    /// The modal card must use <c>.jpk-status-card</c>, not <c>.jpk-card</c> — the latter is the kit's stat
-    /// card (cards.css), and a page that links the kit CSS alongside this self-contained card would have
-    /// the stat-card rules clobber the modal. (This collision shipped once and broke the YouTube modal.)
+    /// The card uses <c>.jpk-status-card</c> and not <c>.jpk-card</c>, which is the kit's stat card.
+    /// True: a page that links the kit CSS beside this card keeps its look.
+    /// False: the stat card rules would restyle the status card.
     /// </summary>
     [Fact]
     public void StatusTemplate_UsesUncollidingCardClass()
@@ -71,5 +87,18 @@ public class StatusPageTests
         Assert.Contains("jpk-status-card", html, System.StringComparison.Ordinal);
         Assert.DoesNotContain("class=\"jpk-card\"", html, System.StringComparison.Ordinal);
         Assert.DoesNotContain(".jpk-card{", html, System.StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// The content argument is placed in the card as raw markup.
+    /// True: a plugin can add a form or a script slot to the card.
+    /// False: the markup would be encoded and show as text.
+    /// </summary>
+    [Fact]
+    public void Render_PlacesRawContent()
+    {
+        var html = StatusPage.Render("Heading", "Message", content: "<form id=\"f\"></form>");
+
+        Assert.Contains("<form id=\"f\"></form>", html, System.StringComparison.Ordinal);
     }
 }

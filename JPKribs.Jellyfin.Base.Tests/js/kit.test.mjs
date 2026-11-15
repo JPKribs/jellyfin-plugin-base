@@ -1,8 +1,8 @@
-// Behaviour tests for the kit's JavaScript, run with node's built-in test runner and a stub DOM (no dependencies):
+// Behavior tests for the kit JavaScript, run with the node test runner and a stub DOM with no dependencies:
 //   node --test 'JPKribs.Jellyfin.Base.Tests/js/*.test.mjs'
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from './fake-dom.mjs';
+import { installFakeDom, all } from './fake-dom.mjs';
 
 var dom = installFakeDom();
 var { openDialog, bindDialog, openEditorDialog } = await import('../../src/js/dialog.js');
@@ -13,8 +13,6 @@ var { escapeHtml } = await import('../../src/js/index.js');
 beforeEach(function () {
     dom = installFakeDom();
 });
-
-// ---- generateGuid ----
 
 test('generateGuid gives a dashed v4 GUID by default and 32 hex digits when compact', function () {
     for (var i = 0; i < 50; i++) {
@@ -27,8 +25,6 @@ test('escapeHtml is exported from the bundle entry', function () {
     assert.equal(escapeHtml('<a href="x">\'&'), '&lt;a href=&quot;x&quot;&gt;&#39;&amp;');
     assert.equal(escapeHtml(null), '');
 });
-
-// ---- dialog focus ----
 
 function bodyWith(children) {
     return dom.el('div', {}, children);
@@ -154,7 +150,7 @@ test('openEditorDialog disables Done while onDone is pending and re-enables it o
         isNew: true,
         onDone: function () { calls++; return new Promise(function (res, rej) { reject = rej; }); }
     });
-    var done = handle.element.querySelectorAll('.jpk-modal-button').filter(function (b) { return b.textContent === 'Done'; })[0];
+    var done = all(handle.element, '.jpk-modal-button').filter(function (b) { return b.textContent === 'Done'; })[0];
     done.click();
     assert.equal(done.disabled, true);
     done.click();
@@ -166,8 +162,6 @@ test('openEditorDialog disables Done while onDone is pending and re-enables it o
     process.off('unhandledRejection', onUnhandled);
     handle.close();
 });
-
-// ---- table ----
 
 // A table whose container hands back stub elements for the parts the controller caches.
 function makeTable(options, shared) {

@@ -6,12 +6,14 @@ using Microsoft.Extensions.Logging;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// A small, thread-safe JSON file store for a single value of type <typeparamref name="T"/>, for the runtime
-/// state a plugin keeps beside its configuration (usage counters, lockouts, cursors). Reads tolerate a missing
-/// or corrupt file by returning a fresh value; writes are atomic (written to a temp file then swapped in) so a
-/// crash mid-write cannot leave a truncated file. All access is serialised on a per-instance lock.
+/// A small, thread safe JSON file store for one value of type <typeparamref name="T"/>, for the runtime state a plugin keeps beside its configuration.
+/// Usage counters, lockouts, and cursors are examples.
 /// </summary>
-/// <typeparam name="T">The stored type. Must be JSON round-trippable and have a public parameterless constructor.</typeparam>
+/// <remarks>
+/// A read of a missing or corrupt file returns a fresh value. A write goes to a temp file that is then swapped in, so a crash mid-write cannot leave a truncated file.
+/// All access is serialized on a lock per instance, so two instances on the same file do not exclude each other.
+/// </remarks>
+/// <typeparam name="T">The stored type. It must round-trip through JSON and have a public parameterless constructor.</typeparam>
 public sealed class JsonFileStore<T>
     where T : class, new()
 {
@@ -24,8 +26,8 @@ public sealed class JsonFileStore<T>
     /// <summary>
     /// Initializes a new instance of the <see cref="JsonFileStore{T}"/> class.
     /// </summary>
-    /// <param name="path">Absolute path to the backing JSON file. Its directory is created on first save.</param>
-    /// <param name="logger">Optional logger; when given, an unreadable file is logged as a warning before starting fresh.</param>
+    /// <param name="path">The absolute path of the backing JSON file. Its directory is created on the first save.</param>
+    /// <param name="logger">An optional logger. When given, an unreadable file is logged as a warning before a fresh value is returned.</param>
     public JsonFileStore(string path, ILogger? logger = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(path);
@@ -35,7 +37,7 @@ public sealed class JsonFileStore<T>
 
     /// <summary>
     /// Loads the stored value, or a new <typeparamref name="T"/> when the file is absent, empty, or unreadable.
-    /// Never throws for a missing or corrupt file.
+    /// It does not throw for a missing or corrupt file.
     /// </summary>
     /// <returns>The deserialized value, or a fresh instance.</returns>
     public T Load()
@@ -66,8 +68,9 @@ public sealed class JsonFileStore<T>
     }
 
     /// <summary>
-    /// Persists <paramref name="value"/> atomically, creating the parent directory if needed.
+    /// Persists <paramref name="value"/> by swapping in a temp file, creating the parent directory if needed.
     /// </summary>
+    /// <remarks>An I/O failure is not caught. The temp file is removed and the exception propagates.</remarks>
     /// <param name="value">The value to store.</param>
     public void Save(T value)
     {
@@ -82,46 +85,12 @@ public sealed class JsonFileStore<T>
             }
 
             var json = JsonSerializer.SerializeToUtf8Bytes(value, _options);
-
-            // A temp name of its own, so another store or process writing the same file never shares it.
-            var temp = _path + "." + Guid.NewGuid().ToString("N") + ".tmp";
-            try
-            {
-                using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
-                {
-                    stream.Write(json);
-
-                    // Reach the disk before the swap, or a power loss can leave the renamed file empty.
-                    stream.Flush(flushToDisk: true);
-                }
-
-                // Swap the temp file into place. File.Move(overwrite) is an atomic rename on the same volume; the
-                // temp lives in the same directory as the target so the rename never crosses a filesystem boundary.
-                File.Move(temp, _path, overwrite: true);
-            }
-            catch
-            {
-                TryDeleteTemp(temp);
-                throw;
-            }
-        }
-    }
-
-    private void TryDeleteTemp(string temp)
-    {
-        try
-        {
-            File.Delete(temp);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            _logger?.LogWarning(ex, "Could not remove the temp file {Path}.", temp);
+            AtomicFile.WriteAllBytes(_path, json, logger: _logger);
         }
     }
 
     /// <summary>
-    /// Loads the value, applies <paramref name="mutate"/>, and saves the result under the same lock, so a
-    /// read-modify-write is atomic against concurrent callers on this instance.
+    /// Loads the value, applies <paramref name="mutate"/>, and saves the result under one lock, so a read, change, and write cannot interleave with another caller on this instance.
     /// </summary>
     /// <param name="mutate">The mutation to apply to the loaded value.</param>
     /// <returns>The mutated value that was saved.</returns>
@@ -139,10 +108,10 @@ public sealed class JsonFileStore<T>
     }
 
     /// <summary>
-    /// Loads the value, applies <paramref name="mutate"/>, and saves only when it returns <c>true</c>, all under
-    /// the same lock. Use it when most calls change nothing, such as checking a counter before bumping it.
+    /// Loads the value, applies <paramref name="mutate"/>, and saves only when it returns <c>true</c>, all under one lock.
+    /// Use it when most calls change nothing, such as checking a counter before bumping it.
     /// </summary>
-    /// <param name="mutate">The mutation; return <c>true</c> to persist the change.</param>
+    /// <param name="mutate">The mutation. It returns <c>true</c> to persist the change.</param>
     /// <returns>Whether the value was saved.</returns>
     public bool UpdateIf(Func<T, bool> mutate)
     {

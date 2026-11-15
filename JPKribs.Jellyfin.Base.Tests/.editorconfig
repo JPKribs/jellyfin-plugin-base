@@ -1,0 +1,13 @@
+# Applies to the test files only. src/*.cs, which the test project compiles, keeps the strict rules.
+
+[*.cs]
+# CA1707: test names follow Method_Scenario_Expectation, per skills/testing.md.
+dotnet_diagnostic.CA1707.severity = none
+# CA1861: a constant array argument in a test runs once, so a static field adds noise.
+dotnet_diagnostic.CA1861.severity = none
+# CA1034: small nested fakes and stubs sit beside the one test class that uses them.
+dotnet_diagnostic.CA1034.severity = none
+# CA2100: the SQL in a test is fixed text written in the test.
+dotnet_diagnostic.CA2100.severity = none
+# CA2007: xUnit runs tests without a synchronization context, so ConfigureAwait adds nothing.
+dotnet_diagnostic.CA2007.severity = none

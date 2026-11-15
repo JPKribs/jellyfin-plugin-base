@@ -10,7 +10,7 @@
 /* Example: <span class="jpk-mono">10.0.0.1</span> */
 .jpk-mono { font-family: var(--jpk-mono); }
 
-/* Mono, dimmed text for read only values */
+/* Mono, slightly dimmed text for read only values */
 /* Example: <span class="jpk-readonly">read only</span> */
 .jpk-readonly { font-family: var(--jpk-mono); opacity: 0.9; }
 
@@ -30,4 +30,18 @@
 }
 .jpk-url a {
     color: var(--jpk-accent);
+}
+
+/* Visually hidden text that screen readers still read, such as a label for an icon only control */
+/* Example: <button><span class="material-icons" aria-hidden="true">delete</span><span class="jpk-sr-only">Delete</span></button> */
+.jpk-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }

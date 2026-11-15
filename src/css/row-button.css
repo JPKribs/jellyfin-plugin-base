@@ -1,4 +1,4 @@
-/* Low emphasis icon button for table and list rows */
+/* Low emphasis icon button for table and list rows, with save, success, and dirty states */
 /* Example: <button class="jpk-row-btn"><span class="material-icons">edit</span></button> */
 .jpk-row-btn {
     background: transparent;
@@ -21,7 +21,6 @@
     color: var(--jpk-success) !important;
     opacity: 1 !important;
 }
-/* Dirty state: an unsaved change is pending on the row */
 .jpk-row-btn.dirty {
     color: var(--jpk-warning) !important;
     opacity: 1 !important;

@@ -1,0 +1,15 @@
+<Project>
+
+  <!--
+    Base's own build uses the settings every consuming plugin uses, so a warning in src/*.cs fails here
+    before it fails a plugin. These only apply to building and testing this repository. The package ships
+    neither this file nor jellyfin.ruleset, since JPKribs.Jellyfin.Base.csproj packs a fixed list of files.
+  -->
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)jellyfin.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+</Project>

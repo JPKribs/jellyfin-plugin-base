@@ -18,19 +18,24 @@
     justify-content: space-between;
     align-items: center;
     color: inherit;
-    /* A button doesn't take the page's font of itself. */
+    /* A button does not take the page font on its own. */
     font: inherit;
     font-size: 1.1em;
     font-weight: 500;
     text-align: left;
 }
 .jpk-collapsible-header:hover {
-    color: var(--jf-palette-text-primary, #fff);
+    color: var(--jpk-fg);
 }
+
+/* Capitalized header title that takes the free width */
+/* Example: <span class="jpk-collapsible-title">Title</span> */
 .jpk-collapsible-title {
     flex: 1;
     text-transform: capitalize;
 }
+/* Small chevron that turns when its header is collapsed */
+/* Example: <span class="jpk-collapsible-icon">&#9660;</span> */
 .jpk-collapsible-icon {
     font-size: 0.8em;
     transition: transform 0.2s;
@@ -39,7 +44,7 @@
     transform: rotate(-90deg);
 }
 
-/* Section body, flush left, hides when collapsed */
+/* Section body, flush left, hidden when collapsed */
 /* Example: <div id="body" class="jpk-collapsible-content"></div> */
 .jpk-collapsible-content {
     padding: 16px 0 0 0;

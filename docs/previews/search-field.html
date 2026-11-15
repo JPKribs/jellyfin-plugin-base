@@ -1,0 +1,11 @@
+<!-- title: Search Field -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+const note = document.createElement('div');
+note.className = 'jpk-status-text';
+mount.appendChild(JPK.createSearchField({ placeholder: 'alice', onInput: (value) => { note.textContent = 'Searched "' + value + '"'; } }).element);
+mount.appendChild(note);
+</script>

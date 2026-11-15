@@ -1,26 +1,25 @@
+import { bindComboAria } from './combo-aria.js';
+
 // createChipSelect
-// A typeahead multi-select: type to search, click a result to add it as a removable chip. Backed either by a
-// static option list or an async search function. Built on the shared jpk-combo (input + dropdown) and
-// jpk-tags/jpk-tag (chips) styles, so it matches the rest of the kit.
+// A typeahead multi-select where typing searches and picking a result adds a removable chip. It reads a static option list or an async search function.
 //
 // Param: options | {
-//   value       : preselected values — array of strings or { value, label } pairs [optional]
-//   options     : static list of choices — strings or { value, label } [optional]
-//   searchFn    : function(query, cb) -> cb([{ value, label }]) — async source, overrides options [optional]
+//   value       : preselected values, as strings or { value, label } pairs [optional]
+//   options     : static list of choices, as strings or { value, label } [optional]
+//   searchFn    : function(query, cb) calling cb([{ value, label }]), an async source that overrides options [optional]
 //   placeholder : input placeholder [optional]
 //   single      : keep at most one selection, replacing it on the next pick (default false)
-//   allowCreate : add the typed text as a value on Enter when it matches no option (default false)
+//   allowCreate : add the typed text as a value on Enter when no result is active (default false)
 //   maxResults  : cap the dropdown length (default 50)
-//   onChange    : function(valuesArray, itemsArray) called whenever the selection changes [optional]
+//   pill        : draw each chip as a round jpk-tag-pill (default false)
+//   removeText  : the start of each remove button's label, which reads "Remove Name" (default 'Remove')
+//   onChange    : function(valuesArray, itemsArray) called when a pick, removal, or clear changes the selection [optional]
 // }
 // Returns { element, getValue, getItems, setValue, setOptions, clear, refresh, destroy }.
-// getValue returns the selected values; getItems returns the { value, label } pairs (so a caller keying an
-// opaque id can persist and later restore the friendly label without re-fetching). setOptions swaps the
-// static choice list after construction (for a list that loads asynchronously).
+// getItems returns the { value, label } pairs, so a caller can restore a friendly label without refetching. setValue does not call onChange.
 export function createChipSelect(options) {
     options = options || {};
 
-    // Static choices, swappable post-construction via setOptions (searchFn takes precedence when given).
     var staticOptions = options.options || [];
 
     var container = document.createElement('div');
@@ -41,10 +40,10 @@ export function createChipSelect(options) {
     combo.appendChild(input);
     combo.appendChild(dropdown);
     container.appendChild(combo);
+    var aria = bindComboAria(input, dropdown);
 
     var maxResults = options.maxResults || 50;
 
-    // Selection stored as ordered { value, label } pairs, keyed by String(value) for de-dup.
     var selected = [];
     function key(v) { return String(v); }
     function has(value) { return selected.some(function (s) { return key(s.value) === key(value); }); }
@@ -75,11 +74,13 @@ export function createChipSelect(options) {
         tags.innerHTML = '';
         selected.forEach(function (item) {
             var chip = document.createElement('span');
-            chip.className = 'jpk-tag';
+            chip.className = 'jpk-tag' + (options.pill ? ' jpk-tag-pill' : '');
             var text = document.createElement('span');
             text.textContent = item.label;
-            var remove = document.createElement('span');
+            var remove = document.createElement('button');
+            remove.type = 'button';
             remove.className = 'jpk-tag-remove';
+            remove.setAttribute('aria-label', (options.removeText || 'Remove') + ' ' + item.label);
             remove.textContent = '×';
             remove.addEventListener('click', function () { removeAt(key(item.value)); });
             chip.appendChild(text);
@@ -105,10 +106,13 @@ export function createChipSelect(options) {
 
     var activeIndex = -1;
     var currentResults = [];
+    // Each search takes a number, and an answer that is not the latest, or that comes after the dropdown closed, is dropped.
+    var requestId = 0;
 
     function search(query, cb) {
+        var mine = ++requestId;
         if (typeof options.searchFn === 'function') {
-            options.searchFn(query, cb);
+            options.searchFn(query, function (list) { if (mine === requestId) cb(list || []); });
             return;
         }
         var q = (query || '').toLowerCase();
@@ -122,27 +126,35 @@ export function createChipSelect(options) {
         currentResults = results.map(normalize).filter(function (o) { return !has(o.value); }).slice(0, maxResults);
         activeIndex = -1;
         dropdown.innerHTML = '';
-        if (!currentResults.length) { dropdown.classList.add('hidden'); return; }
+        aria.setOpen(false);
+        if (!currentResults.length) return;
         currentResults.forEach(function (item, i) {
             var opt = document.createElement('div');
             opt.className = 'jpk-combo-option';
             opt.textContent = item.label;
+            aria.option(opt, i);
             opt.addEventListener('mousedown', function (e) {
-                e.preventDefault(); // keep focus in the input
+                // A default mousedown would blur the input before the pick lands.
+                e.preventDefault();
                 addItem(item);
                 input.value = '';
-                dropdown.classList.add('hidden');
+                closeDropdown();
             });
             dropdown.appendChild(opt);
         });
-        dropdown.classList.remove('hidden');
+        aria.setOpen(true);
+    }
+
+    // Closes the dropdown and drops any search still waiting, so a late answer cannot open it again.
+    function closeDropdown() {
+        requestId++;
+        aria.setOpen(false);
     }
 
     function highlight(delta) {
         if (!currentResults.length) return;
         activeIndex = (activeIndex + delta + currentResults.length) % currentResults.length;
-        var opts = dropdown.querySelectorAll('.jpk-combo-option');
-        opts.forEach(function (o, i) { o.classList.toggle('active', i === activeIndex); });
+        aria.activate(activeIndex);
     }
 
     input.addEventListener('input', function () {
@@ -157,25 +169,27 @@ export function createChipSelect(options) {
             if (activeIndex >= 0 && currentResults[activeIndex]) {
                 addItem(currentResults[activeIndex]);
                 input.value = '';
-                dropdown.classList.add('hidden');
+                closeDropdown();
             } else if (options.allowCreate && input.value.trim()) {
                 addItem(input.value.trim());
                 input.value = '';
-                dropdown.classList.add('hidden');
+                closeDropdown();
             }
         } else if (e.key === 'Backspace' && !input.value && selected.length) {
             removeAt(key(selected[selected.length - 1].value));
         } else if (e.key === 'Escape') {
-            dropdown.classList.add('hidden');
+            closeDropdown();
         }
     });
+
+    input.addEventListener('blur', function () { requestId++; });
 
     input.addEventListener('focus', function () {
         if (!input.value) search('', renderDropdown);
     });
 
     function onDocClick(e) {
-        if (!container.contains(e.target)) dropdown.classList.add('hidden');
+        if (!container.contains(e.target)) closeDropdown();
     }
     document.addEventListener('click', onDocClick);
 
@@ -196,6 +210,6 @@ export function createChipSelect(options) {
         setOptions: function (list) { staticOptions = list || []; },
         clear: function () { selected = []; renderChips(); emit(); },
         refresh: function () { search(input.value, renderDropdown); },
-        destroy: function () { document.removeEventListener('click', onDocClick); }
+        destroy: function () { requestId++; document.removeEventListener('click', onDocClick); }
     };
 }

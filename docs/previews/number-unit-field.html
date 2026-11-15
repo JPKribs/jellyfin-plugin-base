@@ -1,0 +1,8 @@
+<!-- title: Number Unit Field -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+mount.appendChild(JPK.createNumberUnitField({ units: [{ value: 'MB', factor: 1 }, { value: 'GB', factor: 1024 }], value: 512, unit: 'MB', min: 1, max: 4096 }).element);
+</script>

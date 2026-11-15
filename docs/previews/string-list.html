@@ -1,0 +1,14 @@
+<!-- title: String List -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+mount.appendChild(JPK.createStringList({
+    values: ['one.example.test', 'two.example.test'],
+    reorder: true,
+    placeholder: 'host.example.test',
+    emptyText: 'Nothing added yet.',
+    validate: (value) => value.indexOf(' ') === -1 ? '' : 'No spaces allowed.'
+}).element);
+</script>

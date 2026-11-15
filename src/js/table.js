@@ -1,14 +1,26 @@
 import { classNames } from './escape.js';
 
 // createPaginatedTable
-// Builds a searchable, filterable, infinite scrolling table backed by an endpoint that returns Items and TotalCount. Returns a controller with load, reload, setSearch, setFilter, and selection helpers.
+// Builds a searchable, filterable, infinite scrolling table backed by an endpoint that returns Items and TotalCount. It renders into the container and returns a controller.
 //
 // Param: view    | page element containing the table container
 // Param: shared  | helper bag from createShared, used for escapeHtml and apiRequest
-// Param: options | table config such as containerId, endpoint, columns, selection, and filters
-//                   ({ options, buildParams, onChange(value), initialValue, allValue, allLabel }). The All option's
-//                   value is allValue (default ''); give it one when buildParams must also run for All, as it is only
-//                   called for a non-empty value. initialValue is the filter the first load already carries.
+// Param: options | {
+//   containerId   : id of the element the table renders into [required]
+//   endpoint      : path that takes skip, take, search, and filter parameters [required]
+//   columns       : [{ key, type: 'status' | 'custom', render(item, value), label, className, hidden }], where label is written on each cell as data-label [required]
+//   getDisplayStatus : function(item, value) returning the text of a status column [optional]
+//   getStatusClass   : function(item, value) returning the state class of a status column [optional]
+//   selection     : { enabled, idKey, onSelectionChange(ids) }, where idKey is a property name or a function (default 'id')
+//   pagination    : { pageSize (default 50), loadMore }, where loadMore swaps infinite scroll for Load More and Load All buttons
+//   filters       : { options: [{ value, label, id, hidden }], buildParams(value), onChange(value), initialValue, allValue, allLabel }, or null for none
+//   search        : { enabled, placeholder, debounceMs } (defaults true, 'Search items', 300)
+//   actions       : { onRowClick(item), onReload() }
+//   emptyState    : { message } (default 'No items found.')
+// }
+// Returns { load, reload, setFilter, setSearch, getSelectedIds, getSelectedItems, clearSelection, getItems, getTotalCount, getBulkActionsContainer, getControlsContainer, disconnectObserver, reconnectObserver, refresh, destroy, setFilterValue, setFilterOptionVisible }.
+// load resolves to the page result, or to null when a newer load superseded it. refresh reloads and keeps the selection, which reload clears. destroy stops the observer and the search timer, so call it on viewhide.
+// The All filter value is allValue (default ''), and buildParams runs only for a non-empty value, so give allValue one when buildParams must also run for All. initialValue is the filter the first load carries.
 export function createPaginatedTable(view, shared, options) {
     var table = {
         options: {
@@ -18,19 +30,18 @@ export function createPaginatedTable(view, shared, options) {
             selection: { enabled: false, idKey: 'id' },
             pagination: { pageSize: 50 },
             filters: { options: [] },
-            search: { enabled: true, placeholder: 'Search items...', debounceMs: 300 },
+            search: { enabled: true, placeholder: 'Search items', debounceMs: 300 },
             actions: {},
-            emptyState: { message: 'No items found' }
+            emptyState: { message: 'No items found.' }
         },
         state: null,
         elements: {},
         searchTimeout: null,
-        // Each load gets a number; an answer for an older one is dropped, so a newer load never waits on or loses to it.
+        // An answer to an older load is dropped, so a newer load never loses to it.
         loadSeq: 0,
         loadedOnce: false,
         destroyed: false,
-        // Whether the caller wants the infinite-scroll observer. The first load creates it, and that can land after
-        // the caller disconnected it (a tab hidden while the first page was still loading); this keeps it off then.
+        // Keeps the observer off when the caller disconnected it before the first load landed.
         wantObserver: true
     };
 
@@ -42,7 +53,7 @@ export function createPaginatedTable(view, shared, options) {
         }
     });
 
-    // filters may be passed as null to mean none.
+    // A null filters option means none.
     var initialFilters = table.options.filters || {};
     table.state = {
         items: [], totalCount: 0, currentPage: 1,
@@ -82,12 +93,13 @@ export function createPaginatedTable(view, shared, options) {
         };
     }
 
+    // Returns the markup for the controls, selection header, body, and footer.
     function _buildHTML() {
         var opts = table.options;
         var html = '<div class="jpk-table-wrapper"><div class="jpk-table-controls">';
         if (opts.search && opts.search.enabled !== false) {
             html += '<input type="text" class="jpk-table-search" placeholder="' +
-                shared.escapeHtml(opts.search.placeholder || 'Search items...') + '" />';
+                shared.escapeHtml(opts.search.placeholder || 'Search items') + '" />';
         }
         if (opts.filters && opts.filters.options && opts.filters.options.length) {
             html += '<div class="jpk-table-filter-wrapper"><select class="jpk-table-filter"><option value="' +
@@ -114,8 +126,8 @@ export function createPaginatedTable(view, shared, options) {
 
         var loadMore = opts.pagination && opts.pagination.loadMore;
         html += '<div class="jpk-table-body"></div>' +
-            '<div class="jpk-table-loading-more" style="display:none;">Loading more...</div>' +
-            '<div class="jpk-table-scroll-sentinel" style="height:1px;"></div>' +
+            '<div class="jpk-table-loading-more" style="display:none;">Loading more…</div>' +
+            '<div class="jpk-table-scroll-sentinel"></div>' +
             '<div class="jpk-table-footer"><span class="jpk-table-item-count"></span>' +
             (loadMore ?
                 '<span class="jpk-table-footer-actions" style="display:none;">' +
@@ -126,6 +138,7 @@ export function createPaginatedTable(view, shared, options) {
         return html;
     }
 
+    // Binds the search, filter, select all, reload, and load more controls.
     function _bindEvents() {
         if (table.elements.search) {
             table.elements.search.addEventListener('input', function (e) {
@@ -146,17 +159,13 @@ export function createPaginatedTable(view, shared, options) {
         }
         var loadMore = table.options.pagination && table.options.pagination.loadMore;
         if (loadMore) {
-            // Manual pagination: Load More fetches the next page, Load All fetches the rest.
-            if (table.elements.loadMoreBtn) table.elements.loadMoreBtn.addEventListener('click', _loadMore);
+                if (table.elements.loadMoreBtn) table.elements.loadMoreBtn.addEventListener('click', _loadMore);
             if (table.elements.loadAllBtn) table.elements.loadAllBtn.addEventListener('click', _loadAll);
         }
-        // The infinite-scroll observer starts once the first page is in (see load), so it never pages past one
-        // that hasn't arrived.
         if (table.elements.filter) table.elements.filter.value = table.state.filterValue;
     }
 
-    // Builds and attaches the infinite-scroll observer. Shared by initial binding and reconnectObserver so
-    // the construction lives in one place.
+    // Starts the infinite scroll observer once the first page is in, so it never pages past a page that has not arrived.
     function _createScrollObserver() {
         if (table._scrollObserver || !table.elements.scrollSentinel || !table.loadedOnce || table.destroyed || !table.wantObserver) return;
         if (typeof IntersectionObserver === 'undefined') return;
@@ -172,7 +181,7 @@ export function createPaginatedTable(view, shared, options) {
         table.state.items = [];
         table.state.currentPage = 1;
         table.state.hasMore = true;
-        // Through clearSelection, so the checkboxes and anyone listening hear of it.
+        // Goes through clearSelection so the checkboxes and any listener update.
         if (!keepSelection) publicAPI.clearSelection();
     }
 
@@ -182,6 +191,7 @@ export function createPaginatedTable(view, shared, options) {
         if (table.elements.loadAllBtn) table.elements.loadAllBtn.disabled = loading;
     }
 
+    // Loads every remaining page one after another.
     function _loadAll() {
         if (table.state.isLoading || !table.state.hasMore) return;
         _setFooterLoading(true);
@@ -194,6 +204,7 @@ export function createPaginatedTable(view, shared, options) {
         step();
     }
 
+    // Reloads from the first page with the spinner on, then calls onReload.
     function _handleReload() {
         var btn = table.elements.reloadBtn;
         if (btn) { btn.classList.add('spinning'); btn.disabled = true; }
@@ -203,12 +214,11 @@ export function createPaginatedTable(view, shared, options) {
             if (table.options.actions && table.options.actions.onReload) table.options.actions.onReload();
         }
         publicAPI.load().then(function (result) {
-            // null means a newer load (a search or filter typed meanwhile) replaced this one. The spinner stops, but
-            // onReload isn't told of a reload whose result was thrown away.
+            // A null result means a newer load replaced this one, so onReload is not told of it.
             if (result !== null) done();
             else if (btn) { btn.classList.remove('spinning'); btn.disabled = false; }
         }, function () {
-            // A failure is reported by apiRequest; it is handled here so it doesn't also surface as unhandled.
+            // A failed load still ends the reload, and is swallowed here so it does not surface as unhandled.
             done();
         });
     }
@@ -245,12 +255,14 @@ export function createPaginatedTable(view, shared, options) {
         _bindRowEvents();
     }
 
+    // Returns the markup for one row, including its selection checkbox and cells.
     function _renderRow(item) {
         var opts = table.options;
         var itemId = _getItemId(item);
         // A row that opens something is reached and opened from the keyboard too.
         var opens = opts.actions && opts.actions.onRowClick ? ' jpk-table-row-clickable" tabindex="0' : '';
-        var html = '<div class="jpk-table-row' + opens + '" data-id="' + shared.escapeHtml(String(itemId)) + '">';
+        var picked = table.state.selectedIds.has(String(itemId)) ? ' selected' : '';
+        var html = '<div class="jpk-table-row' + picked + opens + '" data-id="' + shared.escapeHtml(String(itemId)) + '">';
         if (opts.selection && opts.selection.enabled) {
             var checked = table.state.selectedIds.has(String(itemId)) ? ' checked' : '';
             html += '<div class="jpk-table-cell jpk-table-cell-checkbox"><input type="checkbox" class="jpk-table-row-checkbox" data-id="' +
@@ -272,11 +284,13 @@ export function createPaginatedTable(view, shared, options) {
             } else {
                 content = value !== null && value !== undefined ? shared.escapeHtml(String(value)) : '';
             }
-            html += '<div class="' + cellClass + '">' + content + '</div>';
+            var labelAttr = col.label ? ' data-label="' + shared.escapeHtml(col.label) + '"' : '';
+            html += '<div class="' + cellClass + '"' + labelAttr + '>' + content + '</div>';
         });
         return html + '</div>';
     }
 
+    // Binds click and key handling on the rendered rows, status buttons, and checkboxes.
     function _bindRowEvents() {
         var body = table.elements.body;
         if (!body) return;
@@ -315,6 +329,7 @@ export function createPaginatedTable(view, shared, options) {
                 e.stopPropagation();
                 if (checkbox.checked) table.state.selectedIds.add(checkbox.dataset.id);
                 else table.state.selectedIds.delete(checkbox.dataset.id);
+                _markRow(checkbox, checkbox.checked);
                 _updateSelectionUI();
                 _notifySelectionChange();
             });
@@ -326,6 +341,7 @@ export function createPaginatedTable(view, shared, options) {
         return table.state.items.find(function (item) { return String(_getItemId(item)) === String(id); });
     }
 
+    // Writes the item count and shows the footer buttons while more rows remain.
     function _updateItemCount() {
         if (!table.elements.itemCount) return;
         var loaded = table.state.items.length, total = table.state.totalCount;
@@ -350,14 +366,21 @@ export function createPaginatedTable(view, shared, options) {
         }
     }
 
+    // Selects or clears every loaded row.
     function _toggleSelectAll(checked) {
         table.state.selectedIds.clear();
         if (checked) table.state.items.forEach(function (item) { table.state.selectedIds.add(String(_getItemId(item))); });
         if (table.elements.body) {
-            table.elements.body.querySelectorAll('.jpk-table-row-checkbox').forEach(function (cb) { cb.checked = checked; });
+            table.elements.body.querySelectorAll('.jpk-table-row-checkbox').forEach(function (cb) { cb.checked = checked; _markRow(cb, checked); });
         }
         _updateSelectionUI();
         _notifySelectionChange();
+    }
+
+    // Adds or removes the selected class on the row that holds a checkbox.
+    function _markRow(checkbox, on) {
+        var row = checkbox.closest && checkbox.closest('.jpk-table-row');
+        if (row) row.classList.toggle('selected', on);
     }
 
     function _notifySelectionChange() {
@@ -367,7 +390,6 @@ export function createPaginatedTable(view, shared, options) {
     }
 
     var publicAPI = {
-        // Resolves to the page's result, or null when a newer load superseded it.
         load: function () {
             var state = table.state, opts = table.options;
             var seq = ++table.loadSeq;
@@ -434,7 +456,7 @@ export function createPaginatedTable(view, shared, options) {
             _updateSelectionUI();
             _notifySelectionChange();
             if (table.elements.body) {
-                table.elements.body.querySelectorAll('.jpk-table-row-checkbox').forEach(function (cb) { cb.checked = false; });
+                table.elements.body.querySelectorAll('.jpk-table-row-checkbox').forEach(function (cb) { cb.checked = false; _markRow(cb, false); });
             }
             if (table.elements.selectAll) {
                 table.elements.selectAll.checked = false;
@@ -444,7 +466,6 @@ export function createPaginatedTable(view, shared, options) {
         getItems: function () { return table.state.items; },
         getTotalCount: function () { return table.state.totalCount; },
         getBulkActionsContainer: function () { return table.elements.bulkActions; },
-        // The row the search box and filter sit in, for a caller's own extra filter controls.
         getControlsContainer: function () { return table.elements.container && table.elements.container.querySelector('.jpk-table-controls'); },
         disconnectObserver: function () {
             table.wantObserver = false;
@@ -455,12 +476,10 @@ export function createPaginatedTable(view, shared, options) {
             table.wantObserver = true;
             _createScrollObserver();
         },
-        // Reloads keeping the current selection (unlike reload(), which clears it).
         refresh: function () {
             _resetState(true);
             return this.load();
         },
-        // Tears down the table's observer and pending search timer. Call on viewhide to avoid leaks.
         destroy: function () {
             table.destroyed = true;
             this.disconnectObserver();

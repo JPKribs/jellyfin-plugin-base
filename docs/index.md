@@ -1,0 +1,18 @@
+# Jellyfin Plugin Base
+
+Shared configuration page components and C# helpers for Jellyfin plugins, delivered as the `JPKribs.Jellyfin.Base` NuGet package. The source and assets are compiled into each plugin at build time, so a plugin stays a single DLL with nothing extra to ship.
+
+## What It Provides
+
+* **C# components.** A plugin base class, scheduled tasks, outbound HTTP, retry and backoff, secrets at rest, the activity log, paging, SQLite versioning, and text and file helpers. See [C# Components](components/csharp/index.md).
+* **Web components.** Dialogs, tables, card lists, selectors, badges, steps, and the page lifecycle every configuration page repeats, built on `jpk-` classes and `--jpk-` tokens. See [Web Components](components/web/index.md).
+
+## Where to Go
+
+| To | Read |
+| :--- | :--- |
+| Add Base to a plugin | [Using Base](Usage.md) |
+| Find a C# helper | [C# Components](components/csharp/index.md) |
+| Find a page component | [Web Components](components/web/index.md) |
+| Release Base or raise it in a plugin | [Releasing](Releasing.md) |
+| Add or change a component | [Start Here](https://github.com/JPKribs/jellyfin-plugin-base/blob/main/starthere.md) |

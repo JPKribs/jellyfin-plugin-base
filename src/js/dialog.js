@@ -1,19 +1,10 @@
-// Dialog helpers.
-//
-// The kit ships the jpk-dialog / jpk-modal-* CSS but no behavior, so every plugin re-implemented open/close,
-// backdrop-click, Escape, and focus trapping. These build that behavior on the shared markup:
-//   * openDialog   - a general modal with a title, body, and footer buttons; returns a handle
-//   * confirmDialog - a yes/no prompt; resolves to a boolean
-//   * promptDialog  - a small form of labelled fields; resolves to the values, or null when cancelled
-//   * bindDialog    - the same behavior for a jpk-dialog already written into the page markup
-
 import { escapeHtml } from './escape.js';
+
+var dialogCount = 0;
 
 var FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-// Whether el can take focus as the user sees it. A control that is hidden (display:none, a hidden input, inside a
-// [hidden] or .hidden block) is still matched by FOCUSABLE, but focusing it does nothing, so the first one would leave
-// focus outside the dialog and the trap would never fire.
+// Whether el is visible, since FOCUSABLE also matches hidden controls that cannot take focus.
 function isVisible(el) {
     if (el.type === 'hidden') return false;
     if (el.closest && el.closest('[hidden], .hidden')) return false;
@@ -49,14 +40,14 @@ function trapFocus(container, e) {
     }
 }
 
-// A text field puts the on-screen keyboard up when it takes focus, which on a phone covers most of a full-screen
-// editor before the user has seen it.
+// Whether el is a text field, which raises the on-screen keyboard when it takes focus.
 function isTextEntry(el) {
     if (el.tagName === 'TEXTAREA') return true;
     if (el.tagName !== 'INPUT') return el.isContentEditable === true;
     return !/^(checkbox|radio|button|submit|reset|range|color|file|image)$/i.test(el.type || 'text');
 }
 
+// Whether the primary pointer is a touch screen.
 function coarsePointer() {
     return !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
 }
@@ -67,13 +58,7 @@ function focusContainer(container) {
     container.focus();
 }
 
-// Puts focus somewhere sensible in a dialog that just opened, so Escape and the focus trap work at once:
-//   * opts.autofocus, when given: an element or a selector within the dialog; false focuses the container only
-//   * else the first visible field in the body
-//   * else a footer button that isn't destructive (Cancel, say), so Enter can't confirm a removal by accident
-//   * else the corner close button, else the container
-// A destructive button is never chosen. On a touch screen a text field is not focused either: the container is, so the
-// keyboard doesn't open over the dialog before the user taps a field.
+// Focuses opts.autofocus, else the first visible body field, else a footer button that is not destructive, else the close button, else the container.
 function focusFirst(container, opts) {
     opts = opts || {};
     var touch = coarsePointer();
@@ -91,8 +76,7 @@ function focusFirst(container, opts) {
     var body = container.querySelector('.jpk-modal-body');
     var field = focusables(body).filter(safe)[0];
     if (field) {
-        // The first field is the one meant to be filled in; on a touch screen it waits for a tap rather than falling
-        // through to a button further down.
+        // On a touch screen the first field waits for a tap instead of falling through to a button.
         if (usable(field)) field.focus();
         else focusContainer(container);
         return;
@@ -104,10 +88,12 @@ function focusFirst(container, opts) {
     else focusContainer(container);
 }
 
-// Where focus goes back to when a dialog closes. The control that opened it, if it is still in the page; when it has
-// gone (a list re-rendered while the dialog was open), opts.returnFocus (an element, a selector, or a function
-// returning one), else the first visible heading of the config page (or the page itself), so focus isn't simply
-// dropped on the body, where a keyboard or screen reader user would have to start again from the top.
+// Whether the event came from a component that is about to use Escape itself, which marks itself with data-jpk-escape.
+function escapeClaimed(e) {
+    return !!(e.target && e.target.closest && e.target.closest('[data-jpk-escape]'));
+}
+
+// Returns focus to the control that opened the dialog, else opts.returnFocus, else the first visible heading of the config page or the page itself.
 function restoreFocus(previouslyFocused, opts) {
     function tryFocus(el) {
         if (!el || !el.focus || !el.isConnected || !isVisible(el)) return false;
@@ -129,47 +115,44 @@ function restoreFocus(previouslyFocused, opts) {
 }
 
 // openDialog
-// Opens a modal and returns { element, content, close, dismiss, setTitle }. The overlay closes on backdrop click
-// (unless opts.dismissable === false), on Escape, and on the corner close button, each asking opts.beforeClose
-// first. Focus is trapped within the panel and restored to the previously focused element on close.
+// Opens a modal that closes on backdrop click, Escape, and the corner close button, each asking opts.beforeClose first. Focus is trapped in the panel and restored on close.
 //
 // Param: opts | {
 //   title       : heading text [optional]
+//   ariaLabel   : accessible name when there is no title (default the start of the body text, else 'Dialog') [optional]
 //   body        : HTML string or a DOM node for the modal body [optional]
 //   narrow      : constrain width for a compact dialog (default false)
 //   wide        : a wide editor that fills the screen on a phone, with its buttons kept in view (default false)
 //   className   : classes added to the panel, such as pluginConfigurationPage for the page's form look [optional]
 //   dismissable : allow backdrop/Escape/close-button dismissal (default true)
-//   closeButton : render the corner close button (default true)
+//   closeButton : render the corner close button, which also needs dismissable (default true)
 //   beforeClose : function() returning false, or a promise of false, to keep the dialog open when it is
 //                 dismissed, such as to confirm discarding changes [optional]
-//   buttons     : [{ text, className, value, action(close, dismiss, button) }] rendered in the footer row; dismiss
-//                 closes as Escape does, asking beforeClose first, and button is the clicked element [optional]
+//   buttons     : [{ text, className, value, action(close, dismiss, button) }] rendered in the footer row, where dismiss closes
+//                 as Escape does, asking beforeClose first, and button is the clicked element [optional]
 //   onClose     : function(value) called once when the dialog closes [optional]
-//   autofocus   : the element (or a selector within the dialog) to focus on open, or false to focus the panel itself;
-//                 by default the first visible field, else a non-destructive footer button [optional]
-//   returnFocus : where focus goes on close when the control that opened the dialog is gone, such as after its list
-//                 re-rendered: an element, a selector, or a function returning one [optional]
+//   autofocus   : the element or a selector within the dialog to focus on open, or false to focus the panel itself (default the first visible field, else a non-destructive footer button) [optional]
+//   returnFocus : an element, a selector, or a function returning one, to focus on close when the control that opened the dialog is gone [optional]
 // }
+// Returns { element, content, close, dismiss, setTitle }, where content is the modal body.
 export function openDialog(opts) {
     opts = opts || {};
     var previouslyFocused = document.activeElement;
 
     var overlay = document.createElement('div');
-    // jpk-dialog-wide lets the phone layout match without :has(), which older engines don't have.
+    // jpk-dialog-wide lets the phone layout match without :has(), which older engines lack.
     overlay.className = 'jpk-dialog' + (opts.wide ? ' jpk-dialog-wide' : '');
 
     var content = document.createElement('div');
     content.className = 'jpk-dialog-content' + (opts.narrow ? ' jpk-dialog-content-narrow' : '')
         + (opts.wide ? ' jpk-dialog-content-wide' : '') + (opts.className ? ' ' + opts.className : '');
-    // Announced as a dialog, named by its title when it has one.
     content.setAttribute('role', 'dialog');
     content.setAttribute('aria-modal', 'true');
     overlay.appendChild(content);
 
     var closed = false;
     var asking = false;
-    // Closes as a dismissal does, once beforeClose agrees.
+    // Closes the way Escape does, once beforeClose agrees.
     function dismiss() {
         if (closed || asking) return;
         var verdict = opts.beforeClose ? opts.beforeClose() : true;
@@ -180,12 +163,13 @@ export function openDialog(opts) {
             close();
         }
     }
+    // Removes the dialog, returns focus, and calls onClose once with the value.
     function close(value) {
         if (closed) return;
         closed = true;
         document.removeEventListener('keydown', onKeyDown, true);
         if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-        // A dialog still open underneath keeps focus; otherwise it returns to the page.
+        // A dialog still open underneath keeps focus, and otherwise focus returns to the page.
         var below = topDialog();
         if (below && !below.contains(previouslyFocused)) focusFirst(below.querySelector('.jpk-dialog-content') || below);
         else restoreFocus(previouslyFocused, opts);
@@ -208,7 +192,7 @@ export function openDialog(opts) {
     title.className = 'jpk-modal-title';
     title.id = 'jpk-dialog-title-' + (++dialogCount);
     title.textContent = opts.title || '';
-    // Only point at the title while it is in the panel: a reference to a missing element names the dialog nothing.
+    // The label points at the title only while the title is in the panel.
     if (opts.title) {
         content.appendChild(title);
         content.setAttribute('aria-labelledby', title.id);
@@ -222,6 +206,10 @@ export function openDialog(opts) {
         bodyEl.innerHTML = opts.body;
     }
     content.appendChild(bodyEl);
+    if (!opts.title) {
+        var name = opts.ariaLabel || String(bodyEl.textContent || '').replace(/\s+/g, ' ').trim();
+        content.setAttribute('aria-label', (name.slice(0, 80) || 'Dialog'));
+    }
 
     if (opts.buttons && opts.buttons.length) {
         var row = document.createElement('div');
@@ -240,9 +228,10 @@ export function openDialog(opts) {
         content.appendChild(row);
     }
 
+    // Escape dismisses and Tab stays inside the panel, for the dialog on top only.
     function onKeyDown(e) {
         // Only the dialog on top answers Escape.
-        if (e.key === 'Escape' && dismissable && overlay === topDialog()) {
+        if (e.key === 'Escape' && dismissable && overlay === topDialog() && !escapeClaimed(e)) {
             e.preventDefault();
             e.stopPropagation();
             dismiss();
@@ -279,10 +268,7 @@ export function openDialog(opts) {
     };
 }
 
-var dialogCount = 0;
-
-// The dialog shown on top, when one opens over another. An in-page dialog stays in the markup while closed (hidden by
-// class, by style, or inside a page that isn't showing), so only the ones actually rendered count.
+// Returns the rendered dialog on top, skipping in-page dialogs that stay in the markup while closed.
 function topDialog() {
     var all = Array.prototype.filter.call(document.querySelectorAll('.jpk-dialog'), function (d) {
         return !d.classList.contains('hidden') && !d.hidden && d.getClientRects().length > 0;
@@ -291,9 +277,7 @@ function topDialog() {
 }
 
 // bindDialog
-// Gives a jpk-dialog already in the page markup the same behavior openDialog builds: it shows and hides by the
-// hidden class, closes on backdrop click, Escape, and any .jpk-dialog-close button inside it, traps focus while
-// open, and restores focus on close. Use it for a modal whose body is static markup the page fills in.
+// Gives a jpk-dialog already in the page markup the behavior openDialog builds, so it shows and hides by the hidden class, closes on backdrop click, Escape, and any .jpk-dialog-close button, and traps and restores focus. The panel gets dialog semantics when the markup does not set them.
 //
 // Param: overlay | the .jpk-dialog element, or its id within root
 // Param: opts    | {
@@ -303,7 +287,6 @@ function topDialog() {
 //   onClose     : function(value) called once per close [optional]
 //   autofocus, returnFocus : as openDialog [optional]
 // }
-// The panel (.jpk-dialog-content) is given role="dialog" and aria-modal="true" when the markup doesn't set them.
 // Returns { element, open, close(value), isOpen, destroy }.
 export function bindDialog(overlay, opts) {
     opts = opts || {};
@@ -313,8 +296,7 @@ export function bindDialog(overlay, opts) {
     if (!overlay) throw new Error('bindDialog: dialog element not found');
 
     var content = overlay.querySelector('.jpk-dialog-content') || overlay;
-    // Announced as a modal dialog like openDialog's, unless the page's markup already says what it is (on the panel,
-    // or on the overlay as some pages write it; a second role there would announce two nested dialogs).
+    // A role on the overlay already names the dialog, and a second one on the panel would announce two nested dialogs.
     var described = overlay !== content && overlay.hasAttribute('role');
     if (!described) {
         if (!content.hasAttribute('role')) content.setAttribute('role', 'dialog');
@@ -335,6 +317,7 @@ export function bindDialog(overlay, opts) {
     function onKeyDown(e) {
         if (overlay !== topDialog()) return;
         if (e.key === 'Escape' && dismissable) {
+            if (escapeClaimed(e)) return;
             e.preventDefault();
             e.stopPropagation();
             close();
@@ -351,6 +334,7 @@ export function bindDialog(overlay, opts) {
         if (dismissable && e.target.closest && e.target.closest('.jpk-dialog-close')) close();
     }
 
+    // Shows the dialog, remembers the focused control, and focuses into the panel.
     function show() {
         if (open) return;
         open = true;
@@ -361,6 +345,7 @@ export function bindDialog(overlay, opts) {
         if (opts.onOpen) opts.onOpen();
     }
 
+    // Hides the dialog, returns focus, and calls onClose with the value.
     function close(value) {
         if (!open) return;
         open = false;
@@ -387,10 +372,10 @@ export function bindDialog(overlay, opts) {
 }
 
 // confirmDialog
-// Opens a yes/no dialog and resolves to true when confirmed, false otherwise.
+// Opens a yes or no dialog that resolves to true when confirmed and false otherwise.
 //
-// Param: message | body text (or HTML when opts.html is true)
-// Param: opts    | { title, confirmText, cancelText, destructive, html }
+// Param: message | body text, or HTML when opts.html is true
+// Param: opts    | { title, confirmText (default 'Confirm'), cancelText (default 'Cancel'), destructive, html } [optional]
 export function confirmDialog(message, opts) {
     opts = opts || {};
     return new Promise(function (resolve) {
@@ -398,7 +383,8 @@ export function confirmDialog(message, opts) {
         function done(value) { if (!settled) { settled = true; resolve(value); } }
 
         openDialog({
-            title: opts.title || 'Confirm',
+            title: opts.title,
+            ariaLabel: opts.html ? String(message).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : String(message),
             narrow: true,
             body: opts.html ? message : '<p>' + escapeHtml(message) + '</p>',
             buttons: [
@@ -415,23 +401,21 @@ export function confirmDialog(message, opts) {
 }
 
 // openEditorDialog
-// An editor for one record, as every config page builds them: Remove (for one that already exists), Cancel and Done,
-// a question before throwing away edits when it is dismissed with changes, and its own change tracker. Given the
-// page handle from createConfigPage, it counts toward the page's unsaved-changes guard while open and closes when
-// the page hides. Returns the openDialog handle plus isDirty() and markClean().
+// Opens an editor dialog for one record with Remove, Cancel, and Done buttons, and asks before it discards edits. Given the createConfigPage handle, it counts toward the page unsaved guard and closes when the page hides.
 //
 // Param: opts | {
 //   title, body, className, narrow : as openDialog (it is wide unless narrow is set)
 //   page       : the createConfigPage handle [optional]
-//   isNew      : true for a record not saved yet; it has no Remove button (default false)
+//   isNew      : true for a record not saved yet, which has no Remove button (default false)
 //   serialize  : function() returning a stable string of the editor's state, for its change tracking
 //   ready      : a promise to wait on before taking the clean snapshot, such as fields still loading [optional]
-//   doneText, removeText : button labels (default Done, Remove)
+//   doneText, removeText, cancelText : button labels (default Done, Remove, Cancel)
 //   onDone     : function(close) returning false (or a promise of false) to stay open, such as on invalid input
-//   onRemove   : function(close) for Remove; it closes the dialog itself when done [optional]
+//   onRemove   : function(close) for Remove, which closes the dialog itself when done [optional]
 //   onClose    : function(value) called once when the dialog closes [optional]
 //   autofocus, returnFocus : as openDialog [optional]
 // }
+// Returns the openDialog handle plus isDirty() and markClean().
 export function openEditorDialog(opts) {
     opts = opts || {};
     var serialize = opts.serialize || function () { return ''; };
@@ -443,10 +427,8 @@ export function openEditorDialog(opts) {
     if (!opts.isNew && opts.onRemove) {
         buttons.push({ text: opts.removeText || 'Remove', className: 'jpk-button-destructive', action: function (close) { opts.onRemove(close); } });
     }
-    buttons.push({ text: 'Cancel', className: 'jpk-secondary', action: function (close, dismiss) { dismiss(); } });
-    // While onDone's promise is pending (a save, say) Done is disabled, so a second click can't save twice. A failure
-    // re-enables it so the user can try again; onDone reports its own error, so the rejection stops here rather than
-    // surfacing as an unhandled one.
+    buttons.push({ text: opts.cancelText || 'Cancel', className: 'jpk-secondary', action: function (close, dismiss) { dismiss(); } });
+    // Done stays disabled while onDone is pending, and a rejection re-enables it since onDone reports its own error.
     var busy = false;
     buttons.push({
         text: opts.doneText || 'Done',
@@ -495,11 +477,10 @@ export function openEditorDialog(opts) {
 }
 
 // promptDialog
-// Opens a small form and resolves to a { name: value } map, or null when cancelled.
+// Opens a small form that resolves to a { name: value } map, or to null when cancelled.
 //
-// Param: fields | [{ name, label, type, value, placeholder, options }] where type is text/number/password/
-//                 textarea/select (default text); select uses options: [{ value, label }]
-// Param: opts   | { title, submitText, cancelText }
+// Param: fields | [{ name, label, type, value, placeholder, options }], where type is text, number, password, textarea, or select (default text) and a select reads options as [{ value, label }]
+// Param: opts   | { title, submitText (default 'Done'), cancelText (default 'Cancel') } [optional]
 export function promptDialog(fields, opts) {
     opts = opts || {};
     fields = fields || [];
@@ -553,19 +534,18 @@ export function promptDialog(fields, opts) {
             body: form,
             buttons: [
                 { text: opts.cancelText || 'Cancel', className: 'jpk-secondary', action: function (close) { close(null); } },
-                { text: opts.submitText || 'OK', className: 'jpk-button-submit', action: function (close) { close(collect()); } }
+                { text: opts.submitText || 'Done', className: 'jpk-button-submit', action: function (close) { close(collect()); } }
             ],
             onClose: function (value) { done(value || null); }
         });
 
-        // openDialog has put focus in the first field (except on a touch screen, where the keyboard waits for a tap);
-        // a prefilled value is selected so typing replaces it.
+        // A prefilled first field is selected so typing replaces it.
         var firstControl = fields.length ? controls[fields[0].name] : null;
         if (firstControl && document.activeElement === firstControl && firstControl.select && firstControl.tagName !== 'SELECT') {
             firstControl.select();
         }
 
-        // Submit on Enter from any single-line input.
+        // Enter in a single line input submits the form.
         form.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
                 e.preventDefault();

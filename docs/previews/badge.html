@@ -1,0 +1,16 @@
+<!-- title: Badge -->
+<!-- min-height: 0 -->
+<div id="colors" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+<div id="states" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
+
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+
+JPK.BADGE_STATES.colors.forEach(color => {
+    document.getElementById('colors').insertAdjacentHTML('beforeend', shared.badge(color, color));
+});
+JPK.BADGE_STATES.names.forEach(name => {
+    document.getElementById('states').insertAdjacentHTML('beforeend', shared.statusBadge(name, name));
+});
+</script>

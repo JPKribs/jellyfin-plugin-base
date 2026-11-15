@@ -1,0 +1,22 @@
+<!-- title: Log Viewer -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+const log = JPK.createLogViewer({ maxLines: 50, lines: [
+    { text: 'Starting the session', level: 'info', time: '10:00:01' },
+    { text: 'Retrying in 5 seconds', level: 'warn', time: '10:00:03' },
+    { text: 'Could not reach the server', level: 'error', time: '10:00:08' },
+    { text: 'Detail line', level: 'debug', time: '10:00:08' }
+] });
+mount.appendChild(log.element);
+let n = 0;
+const button = document.createElement('button');
+button.type = 'button';
+button.className = 'raised jpk-button-small';
+button.style.marginTop = '10px';
+button.textContent = 'Append Lines';
+button.addEventListener('click', () => { for (let i = 0; i < 5; i++) log.append('Line ' + (++n)); });
+mount.appendChild(button);
+</script>

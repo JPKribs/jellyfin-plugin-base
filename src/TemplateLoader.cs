@@ -7,9 +7,12 @@ using System.Text.RegularExpressions;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// Loads and fills HTML templates from the package's <c>templates/</c> folder, which are embedded into
-/// the consuming plugin's assembly at build time. Templates are cached after first read.
+/// Loads and fills HTML templates from the package's <c>templates/</c> folder, which are embedded into the consuming plugin's assembly at build time.
 /// </summary>
+/// <remarks>
+/// A template is found by name suffix, and the first match wins. It is read once and then cached for the process lifetime.
+/// The targets file embeds only the package's own templates.
+/// </remarks>
 public static partial class TemplateLoader
 {
     private static readonly ConcurrentDictionary<string, string> Cache = new(StringComparer.Ordinal);
@@ -17,8 +20,9 @@ public static partial class TemplateLoader
     /// <summary>
     /// Loads a template by name (the file name without the <c>.html</c> extension).
     /// </summary>
-    /// <param name="name">The template name, e.g. <c>status</c>.</param>
+    /// <param name="name">The template name, such as <c>status</c>.</param>
     /// <returns>The raw template text.</returns>
+    /// <exception cref="InvalidOperationException">No embedded template has that name.</exception>
     public static string Load(string name)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
@@ -43,9 +47,9 @@ public static partial class TemplateLoader
     }
 
     /// <summary>
-    /// Loads a template and replaces its <c>{{KEY}}</c> tokens in a single pass, so substituted values
-    /// are never rescanned for further tokens.
+    /// Loads a template and replaces its <c>{{KEY}}</c> tokens in a single pass, so substituted values are never rescanned for further tokens.
     /// </summary>
+    /// <remarks>A token with no value is left in the output as written. Values are inserted as they are, without encoding.</remarks>
     /// <param name="name">The template name.</param>
     /// <param name="values">Token values keyed by name (without braces).</param>
     /// <returns>The filled template.</returns>

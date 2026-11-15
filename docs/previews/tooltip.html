@@ -1,0 +1,14 @@
+<!-- title: Tooltip -->
+<!-- min-height: 140 -->
+<div id="mount"></div>
+<script type="module">
+const JPK = await window.__jpkReady;
+const view = document.getElementById('view');
+const mount = document.getElementById('mount');
+const target = JPK.setTooltip(document.createElement('button'), 'Shown on hover and on keyboard focus.');
+target.type = 'button';
+target.className = 'raised jpk-button-small';
+target.textContent = 'Hover or focus me';
+mount.appendChild(target);
+JPK.bindTooltips(mount);
+</script>

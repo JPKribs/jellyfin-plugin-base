@@ -1,7 +1,18 @@
 /* Vertical wrapper for the whole paginated table */
 /* Example: <div class="jpk-table-wrapper"></div> */
 .jpk-table-wrapper { display: flex; flex-direction: column; }
-.jpk-table-wrapper.jpk-table-loading { opacity: 0.6; pointer-events: none; }
+
+/* Dims the rows while the first page loads, with the search and filters still usable */
+/* Example: <div class="jpk-table-loading"><div class="jpk-table-wrapper"></div></div> */
+.jpk-table-loading .jpk-table-body { opacity: 0.6; pointer-events: none; }
+
+/* One pixel strip below the rows that triggers loading the next page when it scrolls into view */
+/* Example: <div class="jpk-table-scroll-sentinel"></div> */
+.jpk-table-scroll-sentinel { height: 1px; }
+
+/* Status badge that acts as a button */
+/* Example: <button class="jpk-table-status-badge Active jpk-table-status-btn">Active</button> */
+.jpk-table-status-btn { border: none; cursor: pointer; font: inherit; }
 
 /* Toolbar row holding the search box and filter */
 /* Example: <div class="jpk-table-controls"></div> */
@@ -29,10 +40,13 @@
 }
 .jpk-table-search:focus { border-color: var(--jpk-accent); }
 .jpk-table-search::placeholder { color: rgba(255, 255, 255, 0.5); color: color-mix(in srgb, currentColor 50%, transparent); }
+
+/* Wrapper that anchors the filter dropdown and its chevron */
+/* Example: <div class="jpk-table-filter-wrapper"><select class="jpk-table-filter"></select></div> */
 .jpk-table-filter-wrapper { position: relative; flex-shrink: 0; min-width: 140px; }
 
-/* Filter dropdown with a chevron affordance */
-/* Example: <div class="jpk-table-filter-wrapper"><select class="jpk-table-filter"></select></div> */
+/* Filter dropdown on the field surface */
+/* Example: <select class="jpk-table-filter"><option>All</option></select> */
 .jpk-table-filter {
     width: 100%;
     box-sizing: border-box;
@@ -52,7 +66,10 @@
     outline: none;
 }
 .jpk-table-filter:focus { border-color: var(--jpk-accent); }
-.jpk-table-filter option { background: var(--jpk-surface); color: var(--jf-palette-text-primary, #fff); }
+.jpk-table-filter option { background: var(--jpk-surface); color: var(--jpk-fg); }
+
+/* Chevron drawn over the filter dropdown, hidden where the shared select rule paints one */
+/* Example: <span class="jpk-table-filter-arrow">&#9660;</span> */
 .jpk-table-filter-arrow {
     position: absolute;
     right: 12px;
@@ -62,8 +79,7 @@
     opacity: 0.7;
     font-size: 0.9em;
 }
-/* On a config page, and in a kit dialog, the shared select rule already paints a chevron, so the table's own would
-   make two */
+/* The shared select rule already paints a chevron on a config page and in a dialog, so the table arrow would make two. */
 .pluginConfigurationPage .jpk-table-filter-arrow,
 .jpk-dialog .jpk-table-filter-arrow { display: none; }
 
@@ -78,8 +94,14 @@
     background: rgba(0, 0, 0, 0.2);
     border-radius: 4px;
 }
+
+/* Label that wraps the select all checkbox and its text */
+/* Example: <label class="jpk-table-select-all-label"><input type="checkbox"><span class="jpk-table-checkbox-custom"></span></label> */
 .jpk-table-select-all-label { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
 .jpk-table-select-all-label input[type="checkbox"] { display: none; }
+
+/* Custom checkbox box that shows the accent and a check mark when checked */
+/* Example: <span class="jpk-table-checkbox-custom"></span> */
 .jpk-table-checkbox-custom {
     width: 18px;
     height: 18px;
@@ -97,14 +119,23 @@
 }
 .jpk-table-select-all-label input[type="checkbox"]:checked + .jpk-table-checkbox-custom::after {
     content: '\2713';
-    color: #fff;
+    color: var(--jpk-on-accent);
     font-size: 12px;
     font-weight: bold;
 }
+
+/* Dimmed count of the selected rows */
+/* Example: <span class="jpk-table-selected-count">3 selected</span> */
 .jpk-table-selected-count { opacity: 0.7; min-width: 80px; }
+
+/* Row of buttons that act on the selected rows */
+/* Example: <div class="jpk-table-bulk-actions"><button>Remove</button></div> */
 .jpk-table-bulk-actions { display: flex; gap: 8px; }
 .jpk-table-bulk-actions button { padding: 4px 12px !important; min-width: auto !important; }
 .jpk-table-bulk-actions button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Flexible gap that pushes the controls after it to the end of the header */
+/* Example: <span class="jpk-table-header-spacer"></span> */
 .jpk-table-header-spacer { flex: 1; }
 
 /* Icon button that reloads the table */
@@ -123,6 +154,9 @@
 }
 .jpk-table-reload-btn:hover { opacity: 1; background: rgba(255, 255, 255, 0.1); background: color-mix(in srgb, currentColor 10%, transparent); }
 .jpk-table-reload-btn.spinning .jpk-table-reload-icon { animation: jpk-spin 0.8s linear infinite; }
+
+/* Reload glyph that spins while the table loads */
+/* Example: <span class="jpk-table-reload-icon">&#8635;</span> */
 .jpk-table-reload-icon { font-size: 20px; color: inherit; }
 
 /* Bordered container for the table rows */
@@ -142,6 +176,10 @@
 .jpk-table-row:hover { background: rgba(255, 255, 255, 0.05); background: color-mix(in srgb, currentColor 5%, transparent); }
 .jpk-table-row:last-child { border-bottom: none; }
 
+/* A row whose id is selected, tinted in the accent. createPaginatedTable adds and removes it with the row checkbox */
+/* Example: <div class="jpk-table-row selected"><div class="jpk-table-cell">Name</div></div> */
+.jpk-table-row.selected { background: var(--jpk-accent-wash); }
+
 /* A row that opens something (actions.onRowClick): it takes the pointer, and a keyboard user sees which row has focus */
 /* Example: <div class="jpk-table-row jpk-table-row-clickable" tabindex="0"></div> */
 .jpk-table-row.jpk-table-row-clickable { cursor: pointer; }
@@ -151,19 +189,34 @@
 /* Single cell within a row */
 /* Example: <div class="jpk-table-cell">value</div> */
 .jpk-table-cell { flex: 1; padding: 4px 8px; min-width: 0; }
+
+/* Narrow cell for a row checkbox */
+/* Example: <div class="jpk-table-cell jpk-table-cell-checkbox"><input class="jpk-table-row-checkbox" type="checkbox"></div> */
 .jpk-table-cell.jpk-table-cell-checkbox { flex: 0 0 40px; padding: 4px; }
+
+/* Fixed width cell that right aligns a status badge */
+/* Example: <div class="jpk-table-cell jpk-table-cell-status"><span class="jpk-table-status-badge Active">Active</span></div> */
 .jpk-table-cell.jpk-table-cell-status { flex: 0 0 130px; text-align: right; }
+
+/* Checkbox that selects one row */
+/* Example: <input class="jpk-table-row-checkbox" type="checkbox"> */
 .jpk-table-row-checkbox { cursor: pointer; width: 18px; height: 18px; }
 
-/* Title over subtext block for a row cell */
+/* Title over sub text block for a row cell */
 /* Example: <div class="jpk-table-item-info"><div class="jpk-table-item-title">Name</div><div class="jpk-table-item-sub">path</div></div> */
 .jpk-table-item-info, .jpk-table-cell .jpk-table-item-info { flex: 1; min-width: 0; }
+
+/* Medium weight title that clips with an ellipsis */
+/* Example: <div class="jpk-table-item-title">Name</div> */
 .jpk-table-item-title {
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+/* Small dimmed sub line that clips with an ellipsis */
+/* Example: <div class="jpk-table-item-sub">path</div> */
 .jpk-table-item-sub {
     font-size: 0.85em;
     opacity: 0.7;
@@ -184,24 +237,31 @@
 }
 
 /* Centered message shown when the table has no rows */
-/* Example: <div class="jpk-table-empty">No items found</div> */
+/* Example: <div class="jpk-table-empty">No items found.</div> */
 .jpk-table-empty { padding: 32px 16px; text-align: center; opacity: 0.7; }
+
+/* Dimmed line shown while the next page loads */
+/* Example: <div class="jpk-table-loading-more">Loading</div> */
 .jpk-table-loading-more { padding: 12px; text-align: center; opacity: 0.7; font-size: 0.9em; }
 
 /* Footer line showing the loaded and total counts */
 /* Example: <div class="jpk-table-footer"><span class="jpk-table-item-count"></span></div> */
 .jpk-table-footer { display: flex; align-items: center; gap: 12px; padding: 8px 12px; font-size: 0.9em; }
+
+/* Dimmed count of the loaded and total rows */
+/* Example: <span class="jpk-table-item-count">20 of 85</span> */
 .jpk-table-item-count { opacity: 0.7; }
 
-/* Manual pagination controls (pagination.loadMore) shown in the footer when more items remain */
+/* Manual pagination buttons shown in the footer when more rows remain */
 /* Example: <span class="jpk-table-footer-actions"><button class="jpk-table-load-more">Load More</button></span> */
 .jpk-table-footer-actions { display: flex; gap: 8px; }
+
+/* Quiet button that loads more rows or all of them */
+/* Example: <button class="jpk-table-load-more">Load More</button> */
 .jpk-table-load-more,
 .jpk-table-load-all {
-    background: rgba(255, 255, 255, 0.06);
-    background: color-mix(in srgb, currentColor 6%, transparent);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+    background: var(--jpk-wash);
+    border: 1px solid var(--jpk-wash-strong);
     color: inherit;
     border-radius: 4px;
     padding: 3px 10px;
@@ -209,16 +269,28 @@
     font-size: 0.95em;
 }
 .jpk-table-load-more:hover,
-.jpk-table-load-all:hover { background: rgba(255, 255, 255, 0.12); background: color-mix(in srgb, currentColor 12%, transparent); }
+.jpk-table-load-all:hover { background: var(--jpk-wash-strong); }
 .jpk-table-load-more:disabled,
 .jpk-table-load-all:disabled { opacity: 0.5; cursor: default; }
 
+/* Cell that lines a thumbnail up beside its text */
+/* Example: <div class="jpk-table-cell jpk-table-cell-with-thumb"><img class="jpk-table-row-thumb jpk-table-row-thumb-portrait"></div> */
+.jpk-table-cell.jpk-table-cell-with-thumb { display: flex; align-items: center; }
+
 /* Thumbnail image for a row, portrait by default */
 /* Example: <img class="jpk-table-row-thumb jpk-table-row-thumb-portrait" /> */
-.jpk-table-cell.jpk-table-cell-with-thumb { display: flex; align-items: center; }
 .jpk-table-row-thumb { height: 60px; border-radius: 4px; object-fit: cover; background: rgba(255, 255, 255, 0.05); background: color-mix(in srgb, currentColor 5%, transparent); margin-right: 10px; }
+
+/* Narrow portrait size for a row thumbnail */
+/* Example: <img class="jpk-table-row-thumb jpk-table-row-thumb-portrait"> */
 .jpk-table-row-thumb-portrait { width: 40px; flex: 0 0 40px; }
+
+/* Wide landscape size for a row thumbnail */
+/* Example: <img class="jpk-table-row-thumb jpk-table-row-thumb-landscape"> */
 .jpk-table-row-thumb-landscape { width: 106px; flex: 0 0 106px; }
+
+/* Icon box that stands in for a missing portrait thumbnail */
+/* Example: <div class="jpk-table-row-thumb-placeholder material-icons">movie</div> */
 .jpk-table-row-thumb-placeholder {
     flex: 0 0 40px;
     width: 40px;
@@ -233,6 +305,9 @@
     color: color-mix(in srgb, currentColor 20%, transparent);
     font-size: 24px;
 }
+
+/* Round user avatar for a row */
+/* Example: <img class="jpk-table-row-thumb-user" src="avatar.png"> */
 .jpk-table-row-thumb-user {
     flex: 0 0 48px;
     width: 48px;
@@ -243,6 +318,9 @@
     background: color-mix(in srgb, currentColor 5%, transparent);
     margin-right: 10px;
 }
+
+/* Icon circle that stands in for a missing user avatar */
+/* Example: <div class="jpk-table-row-thumb-user-placeholder material-icons">person</div> */
 .jpk-table-row-thumb-user-placeholder {
     flex: 0 0 48px;
     width: 48px;
@@ -257,8 +335,7 @@
     color: color-mix(in srgb, currentColor 20%, transparent);
     font-size: 20px;
 }
-/* The placeholders fade their own colour for the icon, so their wash takes the theme's text colour (--jpk-fg) rather
-   than currentColor, which would make it a share of an already faded colour. */
+/* The placeholders fade their own icon color, so their wash mixes the theme text color, not the faded currentColor. */
 @supports (color: color-mix(in srgb, red, blue)) {
     .jpk-table-row-thumb-placeholder,
     .jpk-table-row-thumb-user-placeholder { background: color-mix(in srgb, var(--jpk-fg) 5%, transparent); }
@@ -273,10 +350,7 @@
     .jpk-table-selection-header { flex-wrap: wrap; gap: 8px; padding: 8px; }
 }
 
-/* On a phone a row of several columns would squeeze each to a sliver. The row wraps instead: the first column after
-   any checkbox (the title, by convention) keeps at least 60% of the row, and the other columns size to their content
-   and move to the next line when they don't fit beside it. Only the basis of a plain column changes, so a plugin's own
-   column widths still win. */
+/* On a phone the first column after any checkbox keeps 60% of the row and the other columns wrap beneath it */
 @media (max-width: 600px) {
     .jpk-table-row { flex-wrap: wrap; }
     .jpk-table-cell { flex-basis: auto; }

@@ -1,0 +1,45 @@
+<!-- title: Chip Select -->
+<!-- min-height: 360 -->
+<div id="mount"></div>
+<span id="langStatus" class="jpk-status-text"></span>
+<script type="module">
+const JPK = await window.__jpkReady;
+const shared = JPK.createShared(document.getElementById('view'), 'preview-plugin', 'Preview');
+const mount = document.getElementById('mount');
+
+const genres = JPK.createChipSelect({
+    placeholder: 'Add genres',
+    value: ['drama'],
+    options: [
+        { value: 'action', label: 'Action' }, { value: 'comedy', label: 'Comedy' },
+        { value: 'drama', label: 'Drama' }, { value: 'scifi', label: 'Sci-Fi' },
+        { value: 'horror', label: 'Horror' }
+    ],
+    allowCreate: true
+});
+mount.appendChild(genres.element);
+
+const pills = JPK.createChipSelect({
+    pill: true,
+    placeholder: 'Add genres as pills',
+    value: [{ value: 'drama', label: 'Drama' }],
+    options: [{ value: 'action', label: 'Action' }, { value: 'drama', label: 'Drama' }]
+});
+pills.element.style.marginTop = '14px';
+mount.appendChild(pills.element);
+
+const languages = [
+    { value: 'eng', label: 'English' }, { value: 'fra', label: 'French' }, { value: 'deu', label: 'German' },
+    { value: 'spa', label: 'Spanish' }, { value: 'jpn', label: 'Japanese' }
+];
+const language = JPK.createChipSelect({
+    single: true,
+    placeholder: 'Search a language',
+    value: [{ value: 'eng', label: 'English' }],
+    searchFn: (query, cb) => cb(languages.filter((l) => l.label.toLowerCase().indexOf(query.toLowerCase()) >= 0)),
+    onChange: (values, items) => shared.setStatus('langStatus',
+        items.length ? 'Stored code ' + values[0] + ', label ' + items[0].label + '.' : 'Cleared.', false, { timeout: 0 })
+});
+language.element.style.marginTop = '14px';
+mount.appendChild(language.element);
+</script>

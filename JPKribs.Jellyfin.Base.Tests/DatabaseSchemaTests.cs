@@ -1,20 +1,15 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using Jellyfin.Database.Implementations.Entities;
-using JPKribs.Jellyfin.Base;
-using MediaBrowser.Model.Activity;
+using System.Data.Common;
+using System.Globalization;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
 using Xunit;
 
 namespace JPKribs.Jellyfin.Base.Tests;
 
-/// <summary>Tests for the database schema versioning and the activity log text limit.</summary>
-// Both classes construct ActivityLogger, which sets the static ActivityLogger.Current, so they run in one collection.
-[Collection("ActivityLogger.Current")]
+/// <summary>Verifies that <see cref="DatabaseSchema"/> versions a database, migrates it safely, and moves an unreadable file aside.</summary>
 public sealed class DatabaseSchemaTests : IDisposable
 {
     private readonly string _dir = Path.Combine(Path.GetTempPath(), "jpk-schema-" + Guid.NewGuid().ToString("N"));
@@ -36,11 +31,20 @@ public sealed class DatabaseSchemaTests : IDisposable
         return connection;
     }
 
-    private static void CreateItems(System.Data.Common.DbConnection c)
+    private static void CreateItems(DbConnection c) => Exec(c, "CREATE TABLE Items (Id INTEGER PRIMARY KEY)");
+
+    private static void Exec(DbConnection c, string sql)
     {
         using var command = c.CreateCommand();
-        command.CommandText = "CREATE TABLE Items (Id INTEGER PRIMARY KEY)";
+        command.CommandText = sql;
         command.ExecuteNonQuery();
+    }
+
+    private static bool TableExists(DbConnection c, string name)
+    {
+        using var command = c.CreateCommand();
+        command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = '" + name + "'";
+        return Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture) > 0;
     }
 
     /// <summary>
@@ -74,6 +78,7 @@ public sealed class DatabaseSchemaTests : IDisposable
         Assert.Equal(SchemaAction.Created, action);
         Assert.Equal(5, DatabaseSchema.GetVersion(connection));
         Assert.Equal(4, DatabaseSchema.GetMinReaderVersion(connection));
+        Assert.True(TableExists(connection, DatabaseSchema.InfoTable));
     }
 
     /// <summary>
@@ -163,26 +168,103 @@ public sealed class DatabaseSchemaTests : IDisposable
     }
 
     /// <summary>
-    /// Activity log text is cut to the length Jellyfin stores, and the awaitable write never throws.
-    /// True: a long reason never fails the write that records it.
-    /// False: an overlong overview could be rejected by the database and the entry lost.
+    /// A transactional create that throws part way leaves the database empty and unstamped.
+    /// True: the next start creates the schema cleanly.
+    /// False: half a schema would be left behind.
     /// </summary>
     [Fact]
-    public async Task ActivityLogger_TrimsTextAndSwallowsFailures()
+    public void Open_TransactionalCreateRollsBackOnFailure()
     {
-        var manager = Substitute.For<IActivityManager>();
-        ActivityLog? written = null;
-        manager.CreateAsync(Arg.Do<ActivityLog>(e => written = e)).Returns(Task.CompletedTask);
-        var logger = new ActivityLogger(manager, NullLogger<ActivityLogger>.Instance);
+        using var connection = OpenDb();
+        Assert.Throws<InvalidOperationException>(() => DatabaseSchema.Open(
+            connection,
+            5,
+            5,
+            c =>
+            {
+                Exec(c, "CREATE TABLE Items (Id INTEGER PRIMARY KEY)");
+                throw new InvalidOperationException("crash mid create");
+            },
+            (_, _) => true,
+            transactional: true));
 
-        await logger.LogAndWaitAsync(new string('n', 600), "Test.Entry", new string('o', 600));
+        Assert.False(TableExists(connection, "Items"));
+        Assert.Equal(0, DatabaseSchema.GetVersion(connection));
 
-        Assert.NotNull(written);
-        Assert.Equal(ActivityLogger.MaxTextLength, written!.Name.Length);
-        Assert.Equal(ActivityLogger.MaxTextLength, written.ShortOverview!.Length);
-        Assert.Equal("short", ActivityLogger.Trim("short"));
+        Assert.Equal(SchemaAction.Created, DatabaseSchema.Open(connection, 5, 5, CreateItems, (_, _) => true, transactional: true));
+        Assert.True(TableExists(connection, "Items"));
+        Assert.Equal(5, DatabaseSchema.GetVersion(connection));
+    }
 
-        manager.CreateAsync(Arg.Any<ActivityLog>()).Returns(Task.FromException(new InvalidOperationException("down")));
-        await logger.LogAndWaitAsync("name", "Test.Entry");
+    /// <summary>
+    /// A transactional migration that reports failure has its changes rolled back.
+    /// True: MigrationFailed means nothing was written.
+    /// False: a half migrated file would be left for the caller to set aside.
+    /// </summary>
+    [Fact]
+    public void Open_TransactionalMigrationFailureRollsBack()
+    {
+        using var connection = OpenDb();
+        CreateItems(connection);
+        DatabaseSchema.SetVersion(connection, 2);
+
+        var action = DatabaseSchema.Open(
+            connection,
+            5,
+            5,
+            _ => { },
+            (c, _) =>
+            {
+                Exec(c, "ALTER TABLE Items ADD COLUMN Name TEXT");
+                return false;
+            },
+            transactional: true);
+
+        Assert.Equal(SchemaAction.MigrationFailed, action);
+        Assert.Equal(2, DatabaseSchema.GetVersion(connection));
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT COUNT(*) FROM pragma_table_info('Items') WHERE name = 'Name'";
+        Assert.Equal(0L, command.ExecuteScalar());
+    }
+
+    /// <summary>
+    /// Without the flag, callbacks that open their own transactions keep working.
+    /// True: a plugin's existing migrations are unaffected.
+    /// False: a nested BEGIN would fail every migration.
+    /// </summary>
+    [Fact]
+    public void Open_DefaultLeavesCallbackTransactionsAlone()
+    {
+        using var connection = OpenDb();
+        DatabaseSchema.SetVersion(connection, 2);
+
+        var action = DatabaseSchema.Open(connection, 5, 5, _ => { }, (c, _) =>
+        {
+            using var transaction = ((SqliteConnection)c).BeginTransaction();
+            using var command = ((SqliteConnection)c).CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = "CREATE TABLE Items (Id INTEGER PRIMARY KEY)";
+            command.ExecuteNonQuery();
+            transaction.Commit();
+            return true;
+        });
+
+        Assert.Equal(SchemaAction.Migrated, action);
+        Assert.True(TableExists(connection, "Items"));
+        Assert.Equal(5, DatabaseSchema.GetVersion(connection));
+    }
+
+    /// <summary>
+    /// A negative version, or a minimum reader above the version, is rejected.
+    /// True: a bad stamp fails at once.
+    /// False: a database could be stamped as unreadable by its own build.
+    /// </summary>
+    [Fact]
+    public void SetVersionAndStamp_RejectBadValues()
+    {
+        using var connection = OpenDb();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => DatabaseSchema.SetVersion(connection, -1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => DatabaseSchema.Stamp(connection, 3, 4));
     }
 }

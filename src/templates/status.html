@@ -4,9 +4,10 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex, nofollow" />
-<!-- Relative href resolves to the consuming plugin's sibling favicon endpoint (e.g. /pages/favicon.ico). -->
+<!-- favicon, a relative href that resolves to the favicon endpoint beside the consuming plugin page -->
 <link rel="icon" href="favicon.ico" />
 <title>{{TITLE}}</title>
+<!-- styles -->
 <style>
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -36,11 +37,17 @@ p{margin:0;color:rgba(255,255,255,0.55);font-size:0.95rem;line-height:1.5}
 <body>
 <!-- card -->
 <div class="jpk-status-card">
+<!-- logo -->
 <img class="jpk-logo" src="../web/favicons/touchicon.png" alt="" />
+<!-- heading -->
 <h1>{{HEADING}}</h1>
+<!-- message -->
 <p>{{MESSAGE}}</p>
+<!-- spinner -->
 {{SPINNER}}
+<!-- button -->
 {{BUTTON}}
+<!-- content -->
 {{CONTENT}}
 </div>
 </body>

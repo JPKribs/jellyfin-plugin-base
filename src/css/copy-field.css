@@ -1,0 +1,13 @@
+/* Read-only value with a copy button and an optional reveal button in one row */
+/* Example: <div class="jpk-copy-field"><input type="text" readonly class="jpk-mono"><button type="button" class="jpk-row-btn jpk-copy-button"></button></div> */
+.jpk-copy-field {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.jpk-copy-field > input {
+    flex: 1 1 auto;
+    min-width: 0;
+    box-sizing: border-box;
+}
+.jpk-copy-field .jpk-row-btn { flex: 0 0 auto; }
