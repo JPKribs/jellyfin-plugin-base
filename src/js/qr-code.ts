@@ -1,4 +1,6 @@
-import { make, icon, listen, runAll, toText, nextId } from './lib/dom.js';
+import { make, icon, iconButton, listen, runAll, toText, nextId } from './lib/dom.js';
+import { openDialog } from './dialog.js';
+import type { DialogHandle } from './dialog.js';
 import { encodeQr } from './lib/qr.js';
 import { svgEl } from './lib/chart.js';
 import { canvasBlob, copyImage } from './lib/canvas.js';
@@ -11,6 +13,9 @@ import type { ComponentHandle } from './types.js';
 /** What createQrCode takes. value is the text the code holds, such as a URL. */
 export interface QrCodeOptions {
     value?: string;
+    layout?: 'full' | 'inline';
+    showText?: string;
+    dialogTitle?: string;
     label?: string;
     showValue?: boolean;
     fileName?: string;
@@ -25,6 +30,7 @@ export interface QrCodeOptions {
 /** What createQrCode returns. toBlob draws the code as a PNG. */
 export interface QrCodeHandle extends ComponentHandle {
     getValue(): string;
+    open(): DialogHandle | null;
     setValue(value: string | null): void;
     toBlob(): Promise<Blob | null>;
     destroy(): void;
@@ -73,11 +79,17 @@ function qrPaths(grid: boolean[][]): { dots: string; eyes: string } {
 }
 
 /**
+ * With layout 'inline' it draws only the text as a Copy Field, with a QR button beside Copy that opens the full code,
+ * with its Copy Image and Download, in a dialog. A text too long to encode disables that button and shows the message.
+ *
  * A QR code of a short text, such as a URL, drawn as SVG in the text color on the surface in a rounded style: round dots, and rounded finder eyes in the accent color, with Copy Image and Download buttons for a PNG and the text under it as a Copy Field.
  * It encodes in byte mode at error correction level M, up to 213 bytes, and shows a message under the frame for a longer text.
  *
  * @param options {
  *   value          : the text the code holds, such as a URL [optional]
+ *   layout         : 'full', the code with its buttons and text, or 'inline', the text with a QR button that opens the code in a dialog (default 'full')
+ *   showText       : the inline QR button's title and aria-label (default 'Show QR Code')
+ *   dialogTitle    : the inline dialog's title (default 'QR Code')
  *   label          : the code's accessible name (default 'QR code for' and the text)
  *   showValue      : false hides the Copy Field under the code (default true)
  *   fileName       : the name of the downloaded PNG (default 'qr-code.png')
@@ -88,7 +100,7 @@ function qrPaths(grid: boolean[][]): { dots: string; eyes: string } {
  *   tooLongText    : the message for a text too long to encode (default 'This text is too long for a QR code.')
  *   feedbackMs     : how long the feedback stays (default 1500)
  * }
- * @returns { element, getValue, setValue, toBlob, destroy }. toBlob resolves to a PNG of the code, or null.
+ * @returns { element, getValue, setValue, toBlob, open, destroy }. toBlob resolves to a PNG of the code, or null. open shows the code in a dialog, the inline QR button's action, and returns the dialog, or null for an empty or too long text.
  */
 export function createQrCode(options?: QrCodeOptions): QrCodeHandle {
     var opts = options || {};
@@ -97,7 +109,9 @@ export function createQrCode(options?: QrCodeOptions): QrCodeHandle {
     var grid: boolean[][] | null = null;
     var timer: ReturnType<typeof setTimeout> | null = null;
 
-    var root = make('div', 'base-qr-code');
+    var inline = opts.layout === 'inline';
+    var root = make('div', 'base-qr-code' + (inline ? ' inline' : ''));
+    var dialog: DialogHandle | null = null;
     var frame = make('div', 'base-qr-code-frame', { role: 'img' });
     var actions = make('div', 'base-button-row base-qr-code-actions');
     var copyBtn = make('button', 'raised base-button secondary fill base-qr-code-copy', { type: 'button' });
@@ -114,20 +128,32 @@ export function createQrCode(options?: QrCodeOptions): QrCodeHandle {
     var message = createFieldMessage({});
     // The buttons and the text sit beside the code on a wide line and under it on a narrow one.
     var side = make('div', 'base-qr-code-side');
-    root.appendChild(frame);
-    root.appendChild(side);
-    side.appendChild(message.element);
-    side.appendChild(actions);
     var field: CopyFieldHandle | null = null;
-    if (opts.showValue !== false) {
+    var showBtn: HTMLButtonElement | null = null;
+    if (inline) {
+        // Inline, the text is the component, and its QR button opens the full code in a dialog.
         field = createCopyField({ value: '', label: opts.label || 'Link' });
-        side.appendChild(field.element);
+        var showLabel = opts.showText || 'Show QR Code';
+        showBtn = iconButton('base-row-btn base-qr-code-open', 'qr_code_2', showLabel);
+        field.element.appendChild(showBtn);
+        root.appendChild(field.element);
+        root.appendChild(message.element);
+        cleanups.push(listen(showBtn, 'click', function () { open(); }));
+    } else {
+        root.appendChild(frame);
+        root.appendChild(side);
+        side.appendChild(message.element);
+        side.appendChild(actions);
+        if (opts.showValue !== false) {
+            field = createCopyField({ value: '', label: opts.label || 'Link' });
+            side.appendChild(field.element);
+        }
     }
     var fit = function (): void {
         var width = root.clientWidth || 0;
-        root.classList.toggle('compact', !!width && width < 480);
+        root.classList.toggle('compact', !inline && !!width && width < 480);
     };
-    if (typeof ResizeObserver !== 'undefined') {
+    if (!inline && typeof ResizeObserver !== 'undefined') {
         var watch = new ResizeObserver(fit);
         watch.observe(root);
         cleanups.push(function () { watch.disconnect(); });
@@ -142,6 +168,7 @@ export function createQrCode(options?: QrCodeOptions): QrCodeHandle {
         else message.clear();
         // The empty line would add a gap above the buttons, so it is out of the layout until there is a message.
         message.element.hidden = !tooLong;
+        if (showBtn) showBtn.disabled = !grid;
         frame.hidden = !grid;
         actions.hidden = !grid;
         frame.setAttribute('aria-label', opts.label || ('QR code for ' + value));
@@ -199,6 +226,26 @@ export function createQrCode(options?: QrCodeOptions): QrCodeHandle {
         toBlob().then(function (blob) { if (blob) downloadBlob(opts.fileName || 'qr-code.png', blob); });
     }));
 
+    // The full code, its buttons, and nothing else, in a small dialog. Its own handle is destroyed when the dialog closes.
+    function open(): DialogHandle | null {
+        if (!grid) return null;
+        if (dialog) dialog.close();
+        var full = createQrCode({
+            value: value, label: opts.label, showValue: false, fileName: opts.fileName, copyImageText: opts.copyImageText,
+            downloadText: opts.downloadText, copiedText: opts.copiedText, copyFailedText: opts.copyFailedText, feedbackMs: opts.feedbackMs
+        });
+        full.element.classList.add('compact', 'base-qr-code-dialog');
+        dialog = openDialog({
+            title: opts.dialogTitle || 'QR Code',
+            body: full.element,
+            size: 'small',
+            className: 'pluginConfigurationPage',
+            returnFocus: showBtn,
+            onClose: function () { full.destroy(); dialog = null; }
+        });
+        return dialog;
+    }
+
     function setValue(next: string | null): void {
         value = toText(next);
         if (field) field.setValue(value);
@@ -212,7 +259,9 @@ export function createQrCode(options?: QrCodeOptions): QrCodeHandle {
         getValue: function () { return value; },
         setValue: setValue,
         toBlob: toBlob,
+        open: open,
         destroy: function () {
+            if (dialog) dialog.close();
             if (timer !== null) clearTimeout(timer);
             runAll(cleanups);
             if (field) field.destroy();

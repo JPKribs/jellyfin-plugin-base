@@ -233,7 +233,7 @@
     "preview-frame": 3634,
     "progress-ring": 1473,
     "prompt-dialog": 2430,
-    "qr-code": 4787,
+    "qr-code": 5853,
     "record-list": 2691,
     "relative-time": 2968,
     "repeater": 5391,
@@ -268,5 +268,5 @@
     "user-selector": 1509,
     "world-map": 6166
   },
-  "bytes": 444413
+  "bytes": 445479
 }

@@ -87,3 +87,26 @@ test('a text too long shows a message and hides the code and its buttons', funct
 test('showValue false leaves out the copy field', function () {
     assert.equal(createQrCode({ value: 'a', showValue: false }).element.querySelector('.base-copy-field'), null);
 });
+
+test('inline draws the text with a QR button beside Copy that opens the full code in a dialog', function () {
+    var qr = createQrCode({ value: 'https://example.com', layout: 'inline' });
+    assert.ok(qr.element.classList.contains('inline'));
+    assert.equal(qr.element.querySelector('.base-qr-code-frame'), null, 'no code on the page');
+    assert.equal(qr.element.querySelector('.base-copy-field input').value, 'https://example.com');
+    var btn = qr.element.querySelector('.base-copy-field .base-qr-code-open');
+    assert.equal(btn.getAttribute('aria-label'), 'Show QR Code');
+    assert.equal(btn.disabled, false);
+    var dialog = qr.open();
+    assert.ok(dialog, 'open returns the dialog');
+    assert.ok(dialog.content.querySelector('.base-qr-code-dialog .base-qr-code-frame svg'), 'the dialog holds the code');
+    assert.equal(dialog.content.querySelector('.base-copy-field'), null, 'the dialog leaves out the text it came from');
+    dialog.close();
+    qr.destroy();
+});
+
+test('inline with a text too long disables the QR button and shows the message', function () {
+    var qr = createQrCode({ value: 'x'.repeat(300), layout: 'inline' });
+    assert.equal(qr.element.querySelector('.base-qr-code-open').disabled, true);
+    assert.equal(qr.open(), null);
+    assert.match(qr.element.querySelector('.base-field-message').textContent, /too long for a QR code/);
+});

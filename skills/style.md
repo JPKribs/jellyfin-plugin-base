@@ -191,6 +191,7 @@ Icons come from the Material Icons font that Jellyfin's dashboard loads, drawn t
 | A rising or falling trend, a sort direction, and the folder above | `arrow_upward`, `arrow_downward` |
 | A route from one place to the next, turned down when the places stack | `arrow_forward` |
 | Removes, clears, or closes | `close` |
+| Shows a link as a QR code | `qr_code_2` |
 | Reloads | `refresh` |
 | A user with no picture | `person`, on the avatar's gray circle |
 | A state in a message | `check_circle`, `error`, `warning`, `info` |

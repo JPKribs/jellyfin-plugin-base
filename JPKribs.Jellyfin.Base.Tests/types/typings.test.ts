@@ -170,6 +170,9 @@ grid.setColumnHidden('limit', true);
 var section = B.createCollapsibleSection({ title: 'Movies', icon: 'movie', subtitle: 'Living Room to Office', collapsible: false });
 section.setSubtitle(null);
 section.setAside(document.createElement('span'));
+B.createQrCode({ value: 'https://example.com', layout: 'inline', showText: 'Show QR Code' }).open();
+// @ts-expect-error The layout is full or inline.
+B.createQrCode({ layout: 'popup' });
 var thumbColumn: B.TableColumn<Row> = { key: 'name', label: 'Name', image: function () { return function () { return Promise.resolve(new Blob()); }; } };
 
 export { page, table, result, secret, label, kept, states, safe };

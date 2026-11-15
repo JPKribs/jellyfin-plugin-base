@@ -27,6 +27,7 @@ The handle is `{ element, getValue, setValue, toBlob, destroy }`. `toBlob()` res
 * A longer text shows "This text is too long for a QR code." under the frame, which `tooLongText` replaces, and hides the code.
 * Copy Image copies a PNG to the clipboard where the browser allows it, and its label shows "Copied." or "Copy failed." for `feedbackMs`, 1500 milliseconds by default. `copyImageText`, `downloadText`, `copiedText`, and `copyFailedText` replace the labels. Download saves `fileName` ("qr-code.png").
 * On a wide line the code sits on the left, with Copy Image and Download as two equal buttons over the Copy Field filling the space beside it, level with the code's bottom edge. When the component is narrower than 480px, it stacks: the code the full width, then the buttons and the text under it.
+* `layout: 'inline'` draws only the text as a Copy Field, with a QR button beside Copy. The button, named by `showText` ("Show QR Code"), opens the full code with Copy Image and Download in a small dialog titled `dialogTitle` ("QR Code"). `open()` does the same from code. A text too long to encode disables the button and shows the message under the field.
 * The PNG takes the shapes and colors the code shows on the page, drawn at 12 pixels per module so the dots stay smooth.
 * The eyes take `--base-accent`. A page can restyle them with `.base-qr-code-eyes { fill: ... }`, and the PNG follows.
 * `showValue: false` hides the Copy Field.
@@ -42,11 +43,14 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 
 <code>function createQrCode(options?: QrCodeOptions): QrCodeHandle</code>
 
-A QR code of a short text, such as a URL, drawn as SVG in the text color on the surface in a rounded style: round dots, and rounded finder eyes in the accent color, with Copy Image and Download buttons for a PNG and the text under it as a Copy Field. It encodes in byte mode at error correction level M, up to 213 bytes, and shows a message under the frame for a longer text.
+With layout 'inline' it draws only the text as a Copy Field, with a QR button beside Copy that opens the full code, with its Copy Image and Download, in a dialog. A text too long to encode disables that button and shows the message.
 
 | Option | Type | What it does |
 | :--- | :--- | :--- |
 | `value` | <code>string</code> | the text the code holds, such as a URL [optional] |
+| `layout` | <code>'full' &#124; 'inline'</code> | 'full', the code with its buttons and text, or 'inline', the text with a QR button that opens the code in a dialog (default 'full') |
+| `showText` | <code>string</code> | the inline QR button's title and aria-label (default 'Show QR Code') |
+| `dialogTitle` | <code>string</code> | the inline dialog's title (default 'QR Code') |
 | `label` | <code>string</code> | the code's accessible name (default 'QR code for' and the text) |
 | `showValue` | <code>boolean</code> | false hides the Copy Field under the code (default true) |
 | `fileName` | <code>string</code> | the name of the downloaded PNG (default 'qr-code.png') |
@@ -60,6 +64,7 @@ A QR code of a short text, such as a URL, drawn as SVG in the text color on the 
 | Handle member | Type |
 | :--- | :--- |
 | `getValue` | <code>(): string</code> |
+| `open` | <code>(): DialogHandle &#124; null</code> |
 | `setValue` | <code>(value: string &#124; null): void</code> |
 | `toBlob` | <code>(): Promise&lt;Blob &#124; null&gt;</code> |
 | `destroy` | <code>(): void</code> |
@@ -67,6 +72,8 @@ A QR code of a short text, such as a URL, drawn as SVG in the text color on the 
 | Class | What it looks like |
 | :--- | :--- |
 | `base-qr-code.compact` | A narrow QR code stacks: the code the full width, then the buttons and the text under it at the same width |
+| `base-qr-code.base-qr-code-dialog` | The code in its dialog: stacked, a code-sized column centered in the dialog |
+| `base-qr-code.inline` | An inline QR code: its text as a Copy Field with a QR button beside Copy that opens the code in a dialog |
 | `base-qr-code-actions` | The Copy Image and Download buttons, two equal halves of a button row the code's width, a field tall like the Copy Field under them |
 
 <!-- reference:end -->

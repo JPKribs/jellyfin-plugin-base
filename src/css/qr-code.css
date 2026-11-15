@@ -28,12 +28,24 @@
 /* The buttons and the Copy Field are part of the code, so they take none of the page's field spacing and end level with the frame */
 .pluginConfigurationPage .base-qr-code-side > [class],
 .base-dialog .base-qr-code-side > [class] { margin: 0 !important; }
-.base-qr-code-side > .base-field-message[hidden] { display: none; }
+.base-qr-code .base-field-message[hidden] { display: none; }
 
 /* A narrow QR code stacks: the code the full width, then the buttons and the text under it at the same width */
 /* Example: <div class="base-qr-code compact"></div> */
-.base-qr-code.compact { flex-direction: column; align-items: stretch; }
-.base-qr-code.compact > .base-qr-code-frame { width: 100%; }
+.base-qr-code.compact,
+.base-qr-code.base-qr-code-dialog { flex-direction: column; align-items: stretch; }
+.base-qr-code.compact > .base-qr-code-frame,
+.base-qr-code.base-qr-code-dialog > .base-qr-code-frame { width: 100%; }
+
+/* The code in its dialog: stacked, a code-sized column centered in the dialog */
+/* Example: <div class="base-qr-code compact base-qr-code-dialog"></div> */
+.base-qr-code.base-qr-code-dialog { width: calc(var(--base-size-large) * 8); max-width: 100%; margin: 0 auto; }
+
+/* An inline QR code: its text as a Copy Field with a QR button beside Copy that opens the code in a dialog */
+/* Example: <div class="base-qr-code inline"><div class="base-copy-field"><input type="text" readonly class="base-mono"><button class="base-row-btn base-copy-button"></button><button class="base-row-btn base-qr-code-open" aria-label="Show QR Code"><span class="material-icons">qr_code_2</span></button></div></div> */
+.base-qr-code.inline { flex-direction: column; align-items: stretch; gap: var(--base-gap-narrow); }
+.pluginConfigurationPage .base-qr-code.inline > [class],
+.base-dialog .base-qr-code.inline > [class] { margin: 0 !important; }
 
 .base-qr-code-frame[hidden],
 .base-qr-code-actions[hidden],
