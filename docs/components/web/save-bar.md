@@ -36,6 +36,7 @@ The handle is `{ element, button, status, getState, setState, setDirty, save, de
 * `save()` runs Save from code and resolves `true` when it saved.
 * Every line and the button label can be replaced: `saveText`, `pendingText`, `savingText`, `savedText`, `failedText`.
 * `fill` makes the button span the width.
+* Save is set at weight 600, as Jellyfin's buttons are. A `base-button-row` right above the bar sits one narrow gap above it, and a row's buttons drop Jellyfin's button margin, so they line up with Save.
 * With `form`, Save first checks every field in it through the [validation core](field-message.md#validation). While one is invalid it does not run `onSave`, shows every message, focuses the first invalid field, and shows the failed line "Fix the fields marked in red.", which `invalidText` replaces.
 
 ## Reference
@@ -81,6 +82,7 @@ A Save button with a status line above it, built on the status line every messag
 | Class | What it looks like |
 | :--- | :--- |
 | `base-save-bar` | A Save button with its status line above it, the line in the state's color with its icon centered on the first line |
+| `base-button-row` | A row of buttons right above a Save Bar sits one narrow gap above it |
 
 <!-- reference:end -->
 

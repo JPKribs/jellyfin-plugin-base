@@ -145,6 +145,21 @@ public class CssFallbackTests
     }
 
     /// <summary>
+    /// A button row and a Save Bar drop Jellyfin's button margin, the row sits one narrow gap above the bar, and Save is weight 600.
+    /// True: the row's buttons and Save share a left edge and a weight, a gap apart.
+    /// False: Jellyfin's margin insets the buttons, the row touches Save, or Save reads lighter.
+    /// </summary>
+    [Fact]
+    public void ButtonRowAndSaveBar_LineUp()
+    {
+        Assert.Contains("margin: 0 !important", CssRules.BodyFor(Source("button.css"), ".base-button-row > .base-button") ?? string.Empty, StringComparison.Ordinal);
+        Assert.Contains("margin-top: var(--base-gap-narrow)", CssRules.BodyFor(Source("save-bar.css"), ".base-button-row + .base-save-bar") ?? string.Empty, StringComparison.Ordinal);
+        var save = CssRules.BodyFor(Source("save-bar.css"), ".base-save-bar > .base-save-button") ?? string.Empty;
+        Assert.Contains("margin: 0 !important", save, StringComparison.Ordinal);
+        Assert.Contains("font-weight: 600", save, StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// The form CSS does not use :is().
     /// True: the oldest engines parse every form rule.
     /// False: an engine without :is() would drop the whole rule.

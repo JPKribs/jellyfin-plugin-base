@@ -9,3 +9,8 @@
 .base-save-bar > .base-save-status { margin-top: 0; }
 .base-save-bar > .base-save-status:empty { display: none; }
 .base-save-bar > .base-save-button.fill { align-self: stretch; }
+.base-save-bar > .base-save-button { margin: 0 !important; font-weight: 600; }
+
+/* A row of buttons right above a Save Bar sits one narrow gap above it */
+/* Example: <div class="base-button-row"><button class="raised base-button secondary">Reset</button></div><div class="base-save-bar"></div> */
+.base-button-row + .base-save-bar { margin-top: var(--base-gap-narrow); }

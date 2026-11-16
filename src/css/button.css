@@ -97,6 +97,8 @@
     width: auto;
     min-width: 0;
 }
+/* Jellyfin's button margin would inset a row's buttons from the buttons and fields beside it */
+.base-button-row > .base-button { margin: 0 !important; }
 
 /* A button that turns on and off by aria-pressed, filled with the accent while on and muted while off, whatever variant it names */
 /* Example: <button class="raised base-button" aria-pressed="true">Daily</button><button class="raised base-button" aria-pressed="false">Weekly</button> */
