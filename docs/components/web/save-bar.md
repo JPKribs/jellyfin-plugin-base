@@ -30,7 +30,7 @@ The handle is `{ element, button, status, getState, setState, setDirty, save, de
 | `saved` | Changes saved. | Check icon, green. Fades after `savedMs`, 4000 ms by default |
 | `failed` | Could not save. | Error icon, red, announced as an alert. Stays until the next change or save |
 
-* Save runs `onSave`. A promise it returns decides saved or failed, and anything else counts as saved.
+* Save runs `onSave`. A promise it returns decides saved or failed, and anything else counts as saved. When `onSave` throws or rejects with an Error, or with text, that message is the failed line, such as the server's reason, and `failedText` is the line otherwise.
 * `setDirty(true)` shows the pending line, and `setDirty(false)` clears a pending or failed line.
 * `setState(state, text)` shows any state, with its own text if given, and `''` shows nothing. `state` in the options sets the state to start in.
 * `save()` runs Save from code and resolves `true` when it saved.
@@ -48,7 +48,7 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 
 <code>function createSaveBar(options?: SaveBarOptions): SaveBarHandle</code>
 
-A Save button with a status line above it, built on the status line every message uses. The line says the page has unsaved changes, that it is saving, that the changes saved, or that the save failed, each with its state's icon and color. Save runs onSave, shows Saving while a promise it returns is pending, then Changes Saved or Could Not Save. The saved line fades after savedMs, and a failure stays until the next change or save. With form, Save first checks every field in it through the validation core, and refuses to save while one is invalid.
+A Save button with a status line above it, built on the status line every message uses. The line says the page has unsaved changes, that it is saving, that the changes saved, or that the save failed, each with its state's icon and color. Save runs onSave, shows Saving while a promise it returns is pending, then Changes Saved or Could Not Save. When onSave throws or rejects with an Error, or with text, that message is the failed line, such as the server's reason. The saved line fades after savedMs, and a failure stays until the next change or save. With form, Save first checks every field in it through the validation core, and refuses to save while one is invalid.
 
 | Option | Type | What it does |
 | :--- | :--- | :--- |
@@ -58,7 +58,7 @@ A Save button with a status line above it, built on the status line every messag
 | `pendingText` | <code>string</code> | the line while changes are unsaved (default 'Unsaved changes.') |
 | `savingText` | <code>string</code> | the line while saving (default 'Saving…') |
 | `savedText` | <code>string</code> | the line after a save (default 'Changes saved.') |
-| `failedText` | <code>string</code> | the line after a failed save (default 'Could not save.') |
+| `failedText` | <code>string</code> | the line after a failed save, when onSave gives no message of its own (default 'Could not save.') |
 | `savedMs` | <code>number</code> | how long the saved line stays (default 4000) |
 | `fill` | <code>boolean</code> | true makes the button span the width (default false) |
 | `state` | <code>SaveBarState</code> | the state to start in [optional] |

@@ -52,7 +52,7 @@ export interface ChipSelectHandle extends ComponentHandle {
  *   searchFn    : function(query, cb) calling cb([{ value, label }]), an async source that overrides options [optional]
  *   placeholder : input placeholder [optional]
  *   single      : keep at most one selection, replacing it on the next pick (default false)
- *   allowCreate : add the typed text as a value on Enter when no result is active (default false)
+ *   allowCreate : add the typed text as a value on Enter when no result is active and none is labeled with it (default false). Enter always picks a result whose label is the typed text
  *   maxResults  : cap the dropdown length (default 50)
  *   pill        : draw each chip as a round base-tag-pill (default false)
  *   removeText  : the start of each remove button's title and aria-label, which reads "Remove Name" (default 'Remove')
@@ -156,7 +156,17 @@ export function createChipSelect(options?: ChipSelectOptions): ChipSelectHandle 
             input.value = '';
         },
         onEnter: function (query) {
-            if (!opts.allowCreate || !query.trim()) return;
+            var typed = query.trim().toLowerCase();
+            if (!typed) return;
+            // Enter with no active option picks the result whose label is what was typed.
+            var match = typeahead.results().filter(function (r) { return r.label.trim().toLowerCase() === typed; })[0];
+            if (match) {
+                addItem(match);
+                input.value = '';
+                typeahead.close();
+                return;
+            }
+            if (!opts.allowCreate) return;
             addItem(query.trim());
             input.value = '';
             typeahead.close();

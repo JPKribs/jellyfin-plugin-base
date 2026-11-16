@@ -6,7 +6,7 @@ import type { ComponentHandle } from './types.js';
 /** The states a save bar shows above its button. '' shows nothing. */
 export type SaveBarState = '' | 'pending' | 'saving' | 'saved' | 'failed';
 
-/** What createSaveBar takes. onSave runs on Save, and a promise it returns decides saved or failed. form is checked first, and an invalid field stops the save. */
+/** What createSaveBar takes. onSave runs on Save, and a promise it returns decides saved or failed, where an Error it rejects with gives the failed line its message. form is checked first, and an invalid field stops the save. */
 export interface SaveBarOptions {
     form?: ParentNode | null;
     invalidText?: string;
@@ -32,10 +32,18 @@ export interface SaveBarHandle extends ComponentHandle {
     destroy(): void;
 }
 
+// The message a failed save carries: an Error's message, or text. Anything else falls back to the failed line.
+function reasonText(reason: unknown): string | undefined {
+    var text = reason instanceof Error ? reason.message : typeof reason === 'string' ? reason : '';
+    text = String(text || '').trim();
+    return text || undefined;
+}
+
 /**
  * A Save button with a status line above it, built on the status line every message uses. The line says the page has
  * unsaved changes, that it is saving, that the changes saved, or that the save failed, each with its state's icon and
  * color. Save runs onSave, shows Saving while a promise it returns is pending, then Changes Saved or Could Not Save.
+ * When onSave throws or rejects with an Error, or with text, that message is the failed line, such as the server's reason.
  * The saved line fades after savedMs, and a failure stays until the next change or save. With form, Save first checks
  * every field in it through the validation core, and refuses to save while one is invalid.
  *
@@ -46,7 +54,7 @@ export interface SaveBarHandle extends ComponentHandle {
  *   pendingText : the line while changes are unsaved (default 'Unsaved changes.')
  *   savingText  : the line while saving (default 'Saving…')
  *   savedText   : the line after a save (default 'Changes saved.')
- *   failedText  : the line after a failed save (default 'Could not save.')
+ *   failedText  : the line after a failed save, when onSave gives no message of its own (default 'Could not save.')
  *   savedMs     : how long the saved line stays (default 4000)
  *   fill        : true makes the button span the width (default false)
  *   state       : the state to start in [optional]
@@ -96,8 +104,8 @@ export function createSaveBar(options?: SaveBarOptions): SaveBarHandle {
         return Promise.resolve().then(function () { return opts.onSave ? opts.onSave() : undefined; }).then(function () {
             setState('saved');
             return true;
-        }, function () {
-            setState('failed');
+        }, function (reason: unknown) {
+            setState('failed', reasonText(reason));
             return false;
         });
     }

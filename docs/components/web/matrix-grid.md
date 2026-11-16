@@ -57,6 +57,7 @@ Classes: `base-matrix-grid`, `base-matrix-cell`, `base-matrix-label`, `base-matr
 * A row's `cells` changes its own cell in a column by the column's key. A part of a column, such as `{ type: 'time' }` or `{ unit: 'to', max: 23 }`, replaces those settings for that one cell, and `null` leaves the cell empty, with no control and no value.
 * A `badge` cell shows its value as a [Badge](badge.md). The value is the label, or `{ label, color }` where color is a status color name, a hex code, or a badge state name, gray by default. A `static` cell shows its value as text. Neither takes input, their values pass through `getValue` as given, and `isValid` skips them. A cell with no value is blank.
 * `hidden: true` starts a column hidden, and `setColumnHidden(key, hidden)` hides or shows its heading and its cells. The other columns share the width, and `isValid` skips a hidden column, while its values stay in `getValue`.
+* `disabled: true` on a column, or on a row's part of one, greys out the cell's control. It shows its value, takes no input, and `isValid` skips it.
 * `note` is a dimmed line under the grid, for a rule that applies to every row.
 * Each control is named "{column} for {row}" by `cellLabel`, and checks through the validation core, so a number out of range shows its message in the cell. `isValid()` checks every shown cell that takes input.
 * `rowHeader` heads the label column, empty by default. `label` names the grid, "Grid" by default, and `emptyText` shows while there is no row, "Nothing to show." by default.
@@ -78,7 +79,7 @@ A grid of row labels, each with a hint, by column headers, with a control in eac
 | Option | Type | What it does |
 | :--- | :--- | :--- |
 | `rows` (required) | <code>MatrixGridRow[]</code> | array of { key, label, hint, cells (by column key, part of a column that changes this row's cell, or null for an empty cell) } [required] |
-| `columns` (required) | <code>MatrixGridColumn[]</code> | array of { key, label, icon, type ('toggle', 'select', 'number', 'text', 'time', or the read only 'badge' and 'static'; default 'toggle'), options, min, max, step, placeholder, unit (a number's suffix inside its box), hidden (default false) } [required] |
+| `columns` (required) | <code>MatrixGridColumn[]</code> | array of { key, label, icon, type ('toggle', 'select', 'number', 'text', 'time', or the read only 'badge' and 'static'; default 'toggle'), options, min, max, step, placeholder, unit (a number's suffix inside its box), hidden (default false), disabled (greys out the cells, which keep their value; default false) } [required] |
 | `value` | <code>MatrixGridValue &#124; null</code> | object of row key to an object of column key to value [optional] |
 | `rowHeader` | <code>string</code> | header of the label column (default '') |
 | `cellLabel` | <code>string</code> | aria-label of a cell's control, where {column} and {row} are the labels (default '{column} for {row}') |
@@ -100,7 +101,7 @@ A grid of row labels, each with a hint, by column headers, with a control in eac
 | Type | What it is |
 | :--- | :--- |
 | `MatrixGridRow` | One row of the grid: its key, its label, and a dimmed hint under the label. cells changes a cell of this row by column key, such as its type, options, or unit, or null leaves that cell empty. |
-| `MatrixGridColumn` | One column: its key, its header, an icon the header shows when the grid is narrow, and the control in each of its cells. badge and static cells show their value and take no input. unit is a number's fixed suffix inside its box. |
+| `MatrixGridColumn` | One column: its key, its header, an icon the header shows when the grid is narrow, and the control in each of its cells. badge and static cells show their value and take no input. unit is a number's fixed suffix inside its box, and disabled greys out the control so it shows its value and takes no input, as a row's cells can do for one cell. |
 | `MatrixGridBadge` | A badge cell's value: its label, or { label, color } where color is a status color name, a hex code, or a badge state name. |
 | `MatrixGridValue` | Every cell's value, by row key and then column key. |
 
@@ -112,6 +113,7 @@ A grid of row labels, each with a hint, by column headers, with a control in eac
 | `base-matrix-badge` | A read only cell that shows its value as a badge or as text, centered on the row's line, with no control |
 | `base-matrix-note` | A dimmed line under the grid, inset to its rows |
 | `base-matrix-grid.has-units` | A grid with a unit in its number boxes, whose columns keep room for the digits, the unit, and the arrows, and scroll sideways before they would hide digits |
+| `base-matrix-cell.disabled` | A disabled cell, its control greyed out with its value still shown |
 
 <!-- reference:end -->
 

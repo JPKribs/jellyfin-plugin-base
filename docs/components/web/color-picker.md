@@ -31,6 +31,7 @@ The handle is `{ element, input, getValue, setValue, getRgba, isValid, setSize, 
 * Text that is not a color shows "Enter a color such as #3498db." under the field when the field is left, and the value stays as it was. `invalidText` replaces the message, and `validate(value)` adds a rule of the plugin's own. Both check through the [validation core](field-message.md#validation).
 * The opacity box takes 0 to 100. A value outside it, such as 1200, shows "Enter a number from 0 to 100." and leaves the color as it was.
 * `format: 'argb'` reads and writes `#aarrggbb`, as .NET colors take it, and turns on the opacity box unless `alpha` is `false`.
+* `opacityOnly: true` hides the color and shows only the opacity box, for a color that comes from elsewhere, such as an image, and turns on `alpha`. `setOpacityOnly(on)` switches between the two and keeps the color.
 * The swatch shows the color over a checkerboard, so a see-through color reads as one.
 * `size` is `small`, `medium` (default), or `large`, as every field.
 * `parseColor(text)` and `toHexColor(rgba, alpha)` are exported for a plugin's own color handling.
@@ -55,7 +56,8 @@ A color field: a swatch inside the box that opens the browser's color picker, th
 | Option | Type | What it does |
 | :--- | :--- | :--- |
 | `value` | <code>string</code> | first color, as hex or rgb() text (default '#000000') |
-| `alpha` | <code>boolean</code> | true adds the opacity box and gives #rrggbbaa values (default false, and true with format 'argb') |
+| `alpha` | <code>boolean</code> | true adds the opacity box and gives #rrggbbaa values (default false, and true with format 'argb' or opacityOnly) |
+| `opacityOnly` | <code>boolean</code> | true hides the color and shows only the opacity box, for a color that comes from elsewhere, such as an image (default false) |
 | `format` | <code>'hex' &#124; 'argb'</code> | 'hex' for #rrggbb or #rrggbbaa, or 'argb' to read and write #aarrggbb, as .NET colors take it (default 'hex') |
 | `label` | <code>string</code> | aria-label of the hex field (default 'Color') |
 | `pickLabel` | <code>string</code> | title and aria-label of the swatch (default 'Pick a color') |
@@ -73,6 +75,7 @@ A color field: a swatch inside the box that opens the browser's color picker, th
 | `getRgba` | <code>(): Rgba</code> |
 | `isValid` | <code>(): boolean</code> |
 | `setSize` | <code>(size?: 'small' &#124; 'medium' &#124; 'large'): void</code> |
+| `setOpacityOnly` | <code>(on: boolean): void</code> |
 | `destroy` | <code>(): void</code> |
 
 | Class | What it looks like |
@@ -81,6 +84,7 @@ A color field: a swatch inside the box that opens the browser's color picker, th
 | `base-color-hash` | The # before the hex digits, part of the box so it is never typed |
 | `base-color-swatch` | The square at the leading end of the box showing the color, over a soft checkerboard so a see-through color reads as one |
 | `base-color-alpha` | The opacity box in percent beside the hex box, with the shared up and down arrows and a percent sign before them |
+| `base-color-picker.opacity-only` | Only the opacity box, for a color that comes from elsewhere, such as an image |
 
 <!-- reference:end -->
 

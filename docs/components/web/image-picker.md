@@ -37,6 +37,8 @@ Parts: `base-image-picker-label`, `base-image-picker-image`, `base-image-picker-
 * The defaults are "Select Image" (`chooseText`), "Replace" (`replaceText`), "Remove" (`removeText`), "No image." (`emptyText`), "The image is larger than {value}." (`tooLargeText`, where `{value}` is the limit such as 2 MB), "This file is not an image." (`wrongTypeText`), and "Could not read this file." (`readErrorText`).
 * Remove moves focus to the choose button.
 * `crop: true` crops a picked image from its center to the frame's shape, and a number crops it to that width over height. `maxSize` scales the longer side down to that many pixels, never up. Either one draws the image on a canvas, keeps a PNG, JPEG, or WebP type and makes anything else a PNG, and adds `width` and `height` to the value.
+* `removable: false` never shows Remove, for an image that must always be set.
+* `fallback` may also be the URL of an image, such as a generated logo, shown in the empty frame without being the value, and `fallbackDataUrl()` returns it as it is. `setFallback(fallback)` swaps the fallback.
 * `fallback: { text, icon, color }` fills the empty frame with the initials of `text`, such as "AL" for Ada Lovelace, or else `icon`, on a status color or hex code (default blue). `fallbackDataUrl(size)` draws it as a square PNG data URL, so a page can save it as the image, and returns `''` without a fallback. `initials(text)` is exported on its own.
 
 ## Reference
@@ -68,7 +70,8 @@ Picks an image file, shows it in a frame, and hands the caller the file data. It
 | `shape` | <code>'square' &#124; 'portrait' &#124; 'wide'</code> | frame shape, 'square', 'portrait', or 'wide' (default 'square') |
 | `crop` | <code>boolean &#124; number</code> | true crops a picked image from its center to the frame's shape, or a number crops it to that width over height (default false) |
 | `maxSize` | <code>number</code> | the longest side in pixels a picked image is scaled down to [optional] |
-| `fallback` | <code>ImagePickerFallback &#124; null</code> | { text, icon, color } drawn in the empty frame, initials from text or else an icon, on a status color or hex code (default blue) [optional] |
+| `fallback` | <code>ImagePickerFallback &#124; string &#124; null</code> | { text, icon, color } drawn in the empty frame, initials from text or else an icon, on a status color or hex code (default blue), or the URL of an image shown in the empty frame, such as a generated logo [optional] |
+| `removable` | <code>boolean</code> | false never shows Remove, for an image that must always be set (default true) |
 | `onChange` | <code>(value: ImagePickerValue &#124; null): void</code> | function(value) called with { name, type, size, dataUrl, base64 } after a pick, and null after Remove [optional] |
 
 | Handle member | Type |
@@ -76,6 +79,7 @@ Picks an image file, shows it in a frame, and hands the caller the file data. It
 | `input` | <code>HTMLInputElement</code> |
 | `getValue` | <code>(): ImagePickerValue &#124; string &#124; null</code> |
 | `setValue` | <code>(url: string &#124; null): void</code> |
+| `setFallback` | <code>(fallback: ImagePickerFallback &#124; string &#124; null): void</code> |
 | `fallbackDataUrl` | <code>(size?: number): string</code> |
 | `destroy` | <code>(): void</code> |
 

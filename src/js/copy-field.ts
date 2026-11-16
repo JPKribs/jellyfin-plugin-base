@@ -3,9 +3,10 @@ import { make, iconButton, nextId, listen, runAll, applyFieldSize, toText } from
 import { copyToClipboard } from './browser-helpers.js';
 import type { ComponentHandle } from './types.js';
 
-/** What createCopyField takes. secret masks the value, and allowExpose adds an eye inside the box that shows it. */
+/** What createCopyField takes. secret masks the value, allowExpose adds an eye inside the box that shows it, and inline sits it in a row with no space below. */
 export interface CopyFieldOptions {
     value?: unknown;
+    inline?: boolean;
     secret?: boolean;
     allowExpose?: boolean;
     mono?: boolean;
@@ -38,6 +39,7 @@ export interface CopyFieldHandle extends ComponentHandle {
  *   value        : the text to show and copy [optional]
  *   secret       : true masks the value (default false)
  *   allowExpose  : true adds an eye inside a secret's box that shows and hides it (default false)
+ *   inline       : true sits the field in a row or a table cell, with none of a form field's space below it (default false)
  *   mono         : true shows the value in the mono font (default true)
  *   label        : aria-label of the value (default 'Value')
  *   copyLabel    : title and aria-label of the copy button (default 'Copy')
@@ -57,7 +59,7 @@ export function createCopyField(options?: CopyFieldOptions): CopyFieldHandle {
     var timer: ReturnType<typeof setTimeout> | null = null;
     var copyLabel = options.copyLabel || 'Copy';
 
-    var root = make('div', 'base-copy-field');
+    var root = make('div', 'base-copy-field' + (options.inline ? ' inline' : ''));
     applyFieldSize(root, options.size);
     var input = make('input', options.mono === false ? '' : 'base-mono', { type: options.secret ? 'password' : 'text', 'aria-label': options.label || 'Value', autocomplete: 'off' });
     input.setAttribute('readonly', '');

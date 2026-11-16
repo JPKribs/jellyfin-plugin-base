@@ -1,4 +1,4 @@
-import { make, icon, listen, runAll, has } from './lib/dom.js';
+import { make, icon, listen, runAll, has, clear } from './lib/dom.js';
 import { MESSAGE_ICONS, dismissButton } from './lib/message.js';
 import type { ComponentHandle } from './types.js';
 
@@ -19,7 +19,15 @@ export interface BannerValue {
     dismissed?: boolean;
 }
 
-/** What createBanner takes. A key and a storage together remember a dismissal. */
+/** A button under a banner's text. primary draws it as the main action, and onClick gets the button, which it may disable while it works. */
+export interface BannerAction {
+    text: string;
+    primary?: boolean;
+    className?: string;
+    onClick?(button: HTMLButtonElement): void;
+}
+
+/** What createBanner takes. A key and a storage together remember a dismissal, and actions are buttons under the text. */
 export interface BannerOptions {
     kind?: BannerKind | string;
     title?: string;
@@ -28,6 +36,7 @@ export interface BannerOptions {
     dismissLabel?: string;
     key?: string;
     storage?: BannerStorage | null;
+    actions?: BannerAction[] | null;
     onDismiss?(): void;
 }
 
@@ -37,6 +46,7 @@ export interface BannerHandle extends ComponentHandle {
     setValue(next: BannerValue): void;
     show(): void;
     dismiss(): void;
+    setActions(actions: BannerAction[] | null | undefined): void;
     destroy(): void;
 }
 
@@ -53,9 +63,10 @@ var GLYPHS: Record<BannerKind, string> = { info: MESSAGE_ICONS.info, success: ME
  *   dismissLabel : title and aria-label of the button (default 'Dismiss')
  *   key          : name that identifies this banner in the storage [optional]
  *   storage      : { get: function(key), set: function(key, true) } that remembers a dismissal [optional]
+ *   actions      : array of { text, primary, className, onClick(button) } drawn as small buttons under the text, such as Apply [optional]
  *   onDismiss    : function() called when the user dismisses it [optional]
  * }
- * @returns { element, getValue, setValue, show, dismiss, destroy }. getValue returns { kind, title, text, dismissed }, and setValue takes kind, title, and text.
+ * @returns { element, getValue, setValue, show, dismiss, setActions, destroy }. setActions replaces the buttons, and null removes them. getValue returns { kind, title, text, dismissed }, and setValue takes kind, title, and text.
  * With a key and a storage whose get(key) is true, the banner starts hidden.
  */
 export function createBanner(options?: BannerOptions): BannerHandle {
@@ -71,8 +82,11 @@ export function createBanner(options?: BannerOptions): BannerHandle {
     var body = make('div', 'base-banner-body');
     var titleEl = make('div', 'base-banner-title');
     var textEl = make('div', 'base-banner-text');
+    var actionRow = make('div', 'base-button-row base-banner-actions');
+    var actionOff: Array<() => void> = [];
     body.appendChild(titleEl);
     body.appendChild(textEl);
+    body.appendChild(actionRow);
     root.appendChild(glyph);
     root.appendChild(body);
     var close = dismissButton('base-banner-close', options.dismissLabel || 'Dismiss');
@@ -95,6 +109,23 @@ export function createBanner(options?: BannerOptions): BannerHandle {
         if (options!.onDismiss) options!.onDismiss();
     }
 
+    function setActions(list: BannerAction[] | null | undefined): void {
+        runAll(actionOff);
+        actionOff = [];
+        clear(actionRow);
+        (list || []).forEach(function (action) {
+            if (!action || !action.text) return;
+            var button = make('button', 'raised base-button small ' + (action.primary ? 'primary' : 'secondary') + (action.className ? ' ' + action.className : ''), { type: 'button' }, action.text);
+            if (action.onClick) {
+                var run = action.onClick;
+                actionOff.push(listen(button, 'click', function () { run(button); }));
+            }
+            actionRow.appendChild(button);
+        });
+        actionRow.hidden = !actionRow.children.length;
+    }
+    setActions(options.actions);
+
     if (options.key && options.storage && options.storage.get && options.storage.get(options.key)) dismissed = true;
     cleanups.push(listen(close, 'click', dismiss));
     reflect();
@@ -111,6 +142,7 @@ export function createBanner(options?: BannerOptions): BannerHandle {
         },
         show: function (): void { dismissed = false; reflect(); },
         dismiss: dismiss,
-        destroy: function (): void { runAll(cleanups); }
+        setActions: setActions,
+        destroy: function (): void { runAll(cleanups); runAll(actionOff); }
     };
 }

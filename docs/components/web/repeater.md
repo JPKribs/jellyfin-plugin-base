@@ -37,7 +37,12 @@ The handle is `{ element, getValue, setValue, setItems, addRow, isValid, setHeig
 
 ## States and Modifiers
 
-* A field is `{ key, label, type, options, placeholder, required, requiredText, min, max, step, allowExpose, width, validate, render }`.
+* A field is `{ key, label, type, options, placeholder, required, requiredText, min, max, step, allowExpose, width, hidden, visible, labelFor, clearable, clearText, transform, validate, render }`.
+* An item's keys that no field shows ride along with its row, and so does a `hidden: true` field, which draws nothing. `getValue()` gives them back, so an id or a name a row was saved under is never lost. A row is blank, and left out, when every field it shows is empty.
+* `visible(item)` shows a field only in the rows it returns true for. An inline row keeps the field's place, and a hidden field never stops a save. `labelFor(item)` gives a label that follows the row, falling back to `label`.
+* `newItem()` returns the values a new row starts with, for Add and `addRow()`.
+* `clearable: true` on a secret adds a Clear button after its box while a secret is stored, "Clear {value}" by `clearText`. Clear empties it, and the row then posts `''` for it.
+* `transform(text)` rewrites a text or secret field as it is typed, such as to upper case, keeping the caret.
 * `type` picks the control. `text` is a text box, `secret` a secret field with its three states and the eye with `allowExpose`, `select` the form select of `options`, `number` a number box with Base's arrows, `tags` the [Tag Input](tag-input.md), `time` a time box with its picker icon, `toggle` an on and off control a field tall, and `custom` the control `render(value, change)` returns as `{ element, input, getValue, setValue, destroy }`.
 * A secret's value is the kept sentinel, `SECRET_KEPT`, while a secret is stored but not on the page, and `getValue()` gives it back for a field left untouched.
 * `required`, `min`, `max`, and `validate(value, item, index)` check through the validation core, with the field's label as the noun, such as "Enter a name.". A message shows under its field once the reader leaves it, then follows each change. `isValid()` checks every field, shows every message, and moves focus to the first invalid one.
@@ -69,7 +74,7 @@ The base for any list of rows or cards of mixed fields, built on the row editor 
 
 | Option | Type | What it does |
 | :--- | :--- | :--- |
-| `fields` (required) | <code>RepeaterField[]</code> | array of { key, label, type ('text', 'secret', 'select', 'number', 'tags', 'time', 'toggle', or 'custom'), options, placeholder, required, requiredText, min, max, step, allowExpose, width, validate(value, item, index), render(value, change) } [required] |
+| `fields` (required) | <code>RepeaterField[]</code> | array of { key, label, type ('text', 'secret', 'select', 'number', 'tags', 'time', 'toggle', or 'custom'), options, placeholder, required, requiredText, min, max, step, allowExpose, width, hidden (true carries the value with no control), visible(item), labelFor(item), clearable (a Clear button on a stored secret), clearText (default 'Clear {value}'), transform(text), validate(value, item, index), render(value, change) } [required] |
 | `layout` | <code>'inline' &#124; 'card'</code> | 'inline' for one row of fields per item, or 'card' for a boxed card per item (default 'inline') |
 | `value` | <code>RepeaterItem[] &#124; null</code> | array of items, each an object of values by field key [optional] |
 | `addText` | <code>string</code> | text of the add button (default 'Add') |
@@ -88,6 +93,7 @@ The base for any list of rows or cards of mixed fields, built on the row editor 
 | `maxHeight` | <code>number &#124; string &#124; null</code> |  |
 | `minHeight` | <code>number &#124; string &#124; null</code> |  |
 | `size` | <code>'small' &#124; 'medium' &#124; 'large'</code> | 'small', 'medium', or 'large' for its fields (default 'medium') |
+| `newItem` | <code>(): RepeaterItem &#124; null &#124; undefined</code> | function() returning the values a new row starts with, for Add and addRow() [optional] |
 | `onChange` | <code>(value: RepeaterItem[]): void</code> | function(value) after each change [optional] |
 
 | Handle member | Type |
@@ -102,7 +108,7 @@ The base for any list of rows or cards of mixed fields, built on the row editor 
 
 | Type | What it is |
 | :--- | :--- |
-| `RepeaterField` | One field of a repeater row. type picks the control: a text box, a secret with its three states and allowExpose, the form select with options, a number with min, max, and step, the tag input, a time box, a toggle, or a custom control from render(value, change). validate(value, item, index) returns an error sentence, or an empty value when the value is valid. width is the field's grid track in the inline layout, such as '2fr' or '8rem'. |
+| `RepeaterField` | One field of a repeater row. type picks the control: a text box, a secret with its three states and allowExpose, the form select with options, a number with min, max, and step, the tag input, a time box, a toggle, or a custom control from render(value, change). validate(value, item, index) returns an error sentence, or an empty value when the value is valid. width is the field's grid track in the inline layout, such as '2fr' or '8rem'. hidden carries a value with no control, visible(item) shows the field only in the rows it returns true for, labelFor(item) gives a label that follows the row, clearable adds a Clear button to a stored secret, and transform(text) rewrites text as it is typed. |
 | `RepeaterFieldType` | The kinds of control a repeater field can be. |
 | `RepeaterChoice` | One choice of a select field, as { value, label } or as plain text. |
 | `RepeaterControl` | What a custom field's render returns: its element, the input its label names, and how to read and set its value. |
@@ -119,6 +125,7 @@ The base for any list of rows or cards of mixed fields, built on the row editor 
 | `base-repeater.inline` | One inline row: a cell per field on the shared tracks, then the row buttons |
 | `base-field-cell` | A field's cell: its label, its control, and its message under it |
 | `base-control-toggle` | A toggle field: the shared Checkbox a field tall, its box centered on the line of the fields beside it |
+| `base-control-secret.clearable` | A secret with a Clear button after its box, shown while a secret is stored |
 | `base-repeater-actions` | The row buttons, the moves and the remove, at the row's end and centered on its first field |
 | `base-repeater.card` | One card: a head with the title and the row buttons at the top right, over its fields in a grid |
 | `base-field-group.grid` | Fields in as many columns as fit, each under its label |

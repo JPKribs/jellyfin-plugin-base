@@ -59,6 +59,11 @@
 /* Example: <div class="base-control base-control-toggle"><label class="base-check-row base-checkbox field"><input type="checkbox" class="base-check-row-input base-checkbox-input base-control-switch" aria-label="Enabled" checked></label></div> */
 .base-control-toggle { display: flex; align-items: center; }
 
+/* A secret with a Clear button after its box, shown while a secret is stored */
+/* Example: <div class="base-control base-control-secret clearable"><input type="password"><button class="base-row-btn base-control-clear" aria-label="Clear Token"><span class="material-icons">backspace</span></button></div> */
+.base-control-secret.clearable { display: flex; align-items: center; gap: calc(var(--base-gap-narrow) / 2); }
+.base-control-secret.clearable > input { flex: 1 1 auto; }
+
 /* The row buttons, the moves and the remove, at the row's end and centered on its first field */
 /* Example: <div class="base-repeater-actions"><button class="base-row-btn base-repeater-remove"></button></div> */
 .base-repeater-actions {

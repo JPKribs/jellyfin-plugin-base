@@ -1,5 +1,5 @@
 import { classNames } from './lib/class-names.js';
-import { make, iconButton, listen, runAll, toText, idOf } from './lib/dom.js';
+import { make, iconButton, listen, runAll, toText, idOf, clear } from './lib/dom.js';
 import { plural } from './browser-helpers.js';
 import { createFilteredList } from './filtered-list.js';
 import { buildThumb, SHAPE_ICONS } from './lib/thumb.js';
@@ -101,6 +101,7 @@ export interface TableHandle<T = any> {
     refresh(): Promise<PagedResult<T> | null>;
     destroy(): void;
     setFilterValue(value: string, name?: string): void;
+    setFilterOptions(options: TableFilterOption[] | null | undefined, name?: string): void;
     setFilterOptionVisible(optionId: string, visible: boolean): void;
 }
 
@@ -133,10 +134,11 @@ type TableConfig<T> = Omit<TableOptions<T>, 'pagination' | 'search' | 'emptyStat
  *   emptyState    : { message } (default 'No items found.')
  *   size          : 'small', 'medium', or 'large' for its fields (default 'medium')
  * }
- * @returns { load, reload, setFilter, setSearch, getSelectedIds, getSelectedItems, clearSelection, getItems, getTotalCount, getBulkActionsContainer, getControlsContainer, disconnectObserver, reconnectObserver, refresh, destroy, setFilterValue, setFilterOptionVisible }.
+ * @returns { load, reload, setFilter, setSearch, getSelectedIds, getSelectedItems, clearSelection, getItems, getTotalCount, getBulkActionsContainer, getControlsContainer, disconnectObserver, reconnectObserver, refresh, destroy, setFilterValue, setFilterOptions, setFilterOptionVisible }.
+ * setFilterOptions(options, name) swaps a filter's choices in place, and a picked choice that is gone falls back to All and reloads.
  * load starts from the first page and resolves to the page result, or to null when a newer load superseded it. refresh reloads and keeps the selection, which reload clears. destroy stops the observer and any pending search, so call it on viewhide.
  * The All filter value is allValue (default ''), and buildParams runs only for a non-empty value, so give allValue one when buildParams must also run for All. initialValue is the filter the first load carries.
- * setFilter and setFilterValue act on the filter named by name, or the first one.
+ * setFilter, setFilterValue, and setFilterOptions act on the filter named by name, or the first one.
  */
 export function createPaginatedTable<T = any>(view: ParentNode, shared: Shared, options: TableOptions<T>): TableHandle<T> {
     var opts = {
@@ -313,21 +315,30 @@ export function createPaginatedTable<T = any>(view: ParentNode, shared: Shared, 
     if (searchField) searchField.classList.add('base-table-search');
 
     var filterSelects: Record<string, HTMLSelectElement> = {};
-    filterList.forEach(function (filter, i) {
-        if (!filter.options || !filter.options.length) return;
-        var name = names[i];
-        var select = make('select', 'base-filtered-select base-table-filter', filter.label ? { 'aria-label': filter.label } : null);
+    // Fills a filter's select with All and its choices, keeping the select's place.
+    function fillFilter(select: HTMLSelectElement, filter: TableFilters): void {
+        clear(select);
         select.appendChild(make('option', '', { value: filter.allValue || '' }, filter.allLabel || 'All'));
-        filter.options.forEach(function (opt) {
+        (filter.options || []).forEach(function (opt) {
             var option = make('option', '', { value: opt.value }, opt.label);
             if (opt.id) option.id = opt.id;
             if (opt.hidden) option.hidden = true;
             select.appendChild(option);
         });
-        controls.appendChild(select);
+    }
+    function buildFilter(filter: TableFilters, name: string): HTMLSelectElement {
+        var select = make('select', 'base-filtered-select base-table-filter', filter.label ? { 'aria-label': filter.label } : null);
+        fillFilter(select, filter);
+        var after = names.slice(names.indexOf(name) + 1).map(function (n) { return filterSelects[n]; }).filter(Boolean)[0];
+        controls.insertBefore(select, after || null);
         select.value = filterValues[name];
         filterSelects[name] = select;
         listen(select, 'change', function () { publicAPI.setFilter(select.value, name); });
+        return select;
+    }
+    filterList.forEach(function (filter, i) {
+        if (!filter.options || !filter.options.length) return;
+        buildFilter(filter, names[i]);
     });
 
     function filterQuery(): Record<string, string[]> {
@@ -458,6 +469,24 @@ export function createPaginatedTable<T = any>(view: ParentNode, shared: Shared, 
             if (key === null) return;
             filterValues[key] = value;
             if (filterSelects[key]) filterSelects[key].value = value;
+        },
+        setFilterOptions: function (choices, name?: string) {
+            var found = nameOf(name);
+            if (found === null) return;
+            var key: string = found;
+            var filter = filterList[names.indexOf(key)];
+            filter.options = (choices || []).slice();
+            var select = filterSelects[key] || buildFilter(filter, key);
+            fillFilter(select, filter);
+            var all = filter.allValue || '';
+            var kept = filter.options.some(function (o) { return o.value === filterValues[key]; });
+            // A picked choice that is gone falls back to All, and the rows follow it.
+            if (filterValues[key] !== all && !kept) {
+                select.value = all;
+                publicAPI.setFilter(all, key);
+                return;
+            }
+            select.value = filterValues[key];
         },
         setFilterOptionVisible: function (optionId: string, visible: boolean) {
             Object.keys(filterSelects).forEach(function (key) {

@@ -71,3 +71,11 @@ test('an empty list shows its empty sentence', function () {
     var list = createRecordList({ emptyText: 'No destinations.' });
     assert.equal(list.element.querySelector('.base-list-empty').textContent, 'No destinations.');
 });
+
+test('a tag takes a status color or a hex code', function () {
+    var list = createRecordList({ items: [{ id: 1, title: 'Ada', tags: [{ label: 'Invited', color: 'green' }, { label: 'Reset', color: '#ff8800' }, { label: 'Plain' }] }] });
+    var tags = all(list.element, '.base-tag');
+    assert.equal(tags[0].classList.contains('green'), true);
+    assert.equal(tags[1].classList.contains('custom'), true);
+    assert.equal(tags[2].className, 'base-tag');
+});

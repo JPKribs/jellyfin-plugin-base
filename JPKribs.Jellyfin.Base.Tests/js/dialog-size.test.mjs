@@ -47,3 +47,14 @@ test('confirm and prompt dialogs are small, and an editor dialog is large unless
     assert.equal(panel().classList.contains('medium'), true);
     medium.close();
 });
+
+test('a dialog given the page closes when the page cleans up', function () {
+    var cleanups = [];
+    var closed = [];
+    openDialog({ title: 'Edit', page: { addCleanup: function (fn) { cleanups.push(fn); return fn; } }, onClose: function (v) { closed.push(v); } });
+    assert.equal(cleanups.length, 1);
+    cleanups[0]();
+    assert.equal(closed.length, 1);
+    cleanups[0]();
+    assert.equal(closed.length, 1);
+});

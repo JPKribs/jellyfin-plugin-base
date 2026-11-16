@@ -288,3 +288,13 @@ test('a compact card puts the episode first on its second line, then the user an
         assert.deepEqual(Array.from(sub.children).map(function (c) { return c.className; }), ['base-media-card-episode', 'base-media-card-user', 'base-media-card-subtitle']);
     });
 });
+
+test('a disabled action is greyed out in its place, so the actions keep their column', function () {
+    var clicked = [];
+    var card = build({ title: 'Song', actions: [{ label: 'Retry', icon: 'refresh', value: 'retry', disabled: true }], onAction: function (v) { clicked.push(v); } });
+    var btn = q(card, '.base-media-card-action');
+    assert.equal(btn.disabled, true);
+    btn.click();
+    assert.deepEqual(clicked, []);
+    assert.equal(card.element.classList.contains('has-actions'), true);
+});

@@ -126,3 +126,8 @@ test('createCopyField puts size small or large on data-base-size, and leaves it 
     handle.setSize('medium');
     assert.equal(handle.element.hasAttribute('data-base-size'), false);
 });
+
+test('inline marks the field for a row, with no space below it', function () {
+    assert.equal(createCopyField({ value: 'a', inline: true }).element.className, 'base-copy-field inline');
+    assert.equal(createCopyField({ value: 'a' }).element.className, 'base-copy-field');
+});

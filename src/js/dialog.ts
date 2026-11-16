@@ -25,6 +25,7 @@ export interface DialogOptions {
     onClose?(value: unknown): void;
     autofocus?: HTMLElement | string | false | null;
     returnFocus?: HTMLElement | string | (() => HTMLElement | string | null) | null;
+    page?: { addCleanup(fn: () => void): unknown } | null;
 }
 
 /** What openDialog returns, where content is the modal body. */
@@ -54,6 +55,7 @@ export interface DialogHandle extends ComponentHandle {
  *   onClose     : function(value) called once when the dialog closes [optional]
  *   autofocus   : the element or a selector within the dialog to focus on open, or false to focus the panel itself (default the first visible field, else a non-destructive footer button) [optional]
  *   returnFocus : an element, a selector, or a function returning one, to focus on close when the control that opened the dialog is gone [optional]
+ *   page        : the page handle from createConfigPage, so the dialog closes when the page hides [optional]
  * }
  * @returns { element, content, close, dismiss, setTitle }, where content is the modal body.
  */
@@ -89,6 +91,8 @@ export function openDialog(opts?: DialogOptions): DialogHandle {
     if (row) content.appendChild(row);
 
     shell.show();
+    // Leaving the page closes the dialog, without asking beforeClose, since the page is gone.
+    if (opts.page && typeof opts.page.addCleanup === 'function') opts.page.addCleanup(function () { shell.close(); });
 
     return {
         element: shell.overlay,

@@ -407,3 +407,32 @@ test('rowClass marks a row from its first draw, cleans the names, and follows a 
     await t.table.refresh();
     assert.deepEqual(selected(t), [true, false]);
 });
+
+test('setFilterOptions swaps a filter select in place, and a picked choice that is gone falls back to All and reloads', async function () {
+    var urls = [];
+    var api = function (url) { urls.push(url); return answerWith(['a'])(); };
+    var t = makeTable({ filters: { name: 'user', options: [{ value: 'ada', label: 'Ada' }] } }, api);
+    await t.table.load();
+    var select = t.container.querySelector('.base-table-filter');
+    await t.table.setFilter('ada', 'user');
+    var before = urls.length;
+    t.table.setFilterOptions([{ value: 'ada', label: 'Ada' }, { value: 'bob', label: 'Bob' }], 'user');
+    assert.equal(t.container.querySelector('.base-table-filter'), select);
+    assert.deepEqual(Array.from(select.options).map(function (o) { return o.value; }), ['', 'ada', 'bob']);
+    assert.equal(select.value, 'ada');
+    assert.equal(urls.length, before);
+    t.table.setFilterOptions([{ value: 'bob', label: 'Bob' }], 'user');
+    assert.equal(select.value, '');
+    await tick();
+    assert.equal(urls.length, before + 1);
+    assert.equal(urls[urls.length - 1].indexOf('user='), -1);
+});
+
+test('setFilterOptions draws the select of a filter that started with no choices', function () {
+    var t = makeTable({ filters: { name: 'user', label: 'Requester', options: [] } });
+    assert.equal(t.container.querySelector('.base-table-filter'), null);
+    t.table.setFilterOptions([{ value: 'ada', label: 'Ada' }]);
+    var select = t.container.querySelector('.base-table-filter');
+    assert.equal(select.getAttribute('aria-label'), 'Requester');
+    assert.equal(select.options.length, 2);
+});

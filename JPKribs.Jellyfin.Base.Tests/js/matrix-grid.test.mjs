@@ -141,3 +141,14 @@ test('a note is a dimmed line under the grid', function () {
     assert.ok(note.classList.contains('fieldDescription'));
     assert.equal(build().grid.element.querySelector('.base-matrix-note'), null);
 });
+
+test('a disabled cell greys out its control, keeps its value, and isValid skips it', function () {
+    var ui = build({ rows: [{ key: 'movies', label: 'Movies', cells: { limit: { disabled: true } } }, { key: 'shows', label: 'Shows' }], value: { movies: { limit: 99 } } });
+    var cell = row(ui, 'movies').querySelector('.base-data-cell[data-column="limit"] .base-matrix-cell');
+    assert.equal(cell.classList.contains('disabled'), true);
+    assert.equal(cell.querySelector('input').disabled, true);
+    assert.equal(ui.grid.getValue().movies.limit, 99);
+    assert.equal(ui.grid.isValid(), true);
+    assert.equal(row(ui, 'shows').querySelector('.base-data-cell[data-column="limit"] input').disabled, false);
+    assert.equal(ui.grid.element.querySelector('.base-data-resize'), null);
+});

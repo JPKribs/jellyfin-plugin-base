@@ -101,4 +101,20 @@ public class StatusPageTests
 
         Assert.Contains("<form id=\"f\"></form>", html, System.StringComparison.Ordinal);
     }
+
+    /// <summary>
+    /// The template styles an error line, a secondary button, and a stack of buttons for the content slot.
+    /// True: a plugin's content needs no style block of its own for them.
+    /// False: an error line or a second button would show unstyled.
+    /// </summary>
+    [Fact]
+    public void Render_StylesErrorLineSecondaryButtonAndStack()
+    {
+        var html = StatusPage.Render("Sign up", "Pick a name.", content: "<p class=\"base-status-error\">Taken.</p><div class=\"base-btn-stack\"><a class=\"base-btn base-btn-secondary\" href=\"#\">Help</a></div>");
+
+        Assert.Contains(".base-status-error{", html, System.StringComparison.Ordinal);
+        Assert.Contains(".base-btn-secondary{", html, System.StringComparison.Ordinal);
+        Assert.Contains(".base-btn-stack{", html, System.StringComparison.Ordinal);
+        Assert.Contains("<p class=\"base-status-error\">Taken.</p>", html, System.StringComparison.Ordinal);
+    }
 }

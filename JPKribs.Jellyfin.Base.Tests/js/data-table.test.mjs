@@ -153,3 +153,69 @@ test('rowClass marks a data table row from its first draw and on every redraw', 
     table.setRows(ROWS.slice());
     assert.deepEqual(marked(), ['1']);
 });
+
+function columnsTrack(table) { return table.element.style.getPropertyValue('--base-data-columns'); }
+
+test('an auto column sizes to its widest value up to its limit, and the others share what is left', function () {
+    var table = createDataTable({ columns: [{ key: 'name', label: 'Name', width: 'auto' }, { key: 'country', label: 'Country' }], rows: [{ id: 1, name: 'A much longer name here', country: 'US' }] });
+    var track = columnsTrack(table);
+    assert.match(track, /^max\(var\(--base-data-min\), min\(24ch, var\(--base-data-auto-max\)\)\) minmax\(var\(--base-data-min\), 1fr\)/);
+    var limited = createDataTable({ columns: [{ key: 'name', label: 'Name', width: 'auto', maxWidth: '12rem' }], rows: [{ id: 1, name: 'x' }] });
+    assert.match(columnsTrack(limited), /min\(\d+ch, 12rem\)/);
+});
+
+test('the least width counts fixed widths, so columns wider than the table scroll instead of spilling out', function () {
+    var table = createDataTable({ columns: [{ key: 'name', label: 'Name', width: '20rem' }, { key: 'count', label: 'Count', align: 'end' }, { key: 'country', label: 'Country', width: '2fr' }], rows: ROWS });
+    assert.equal(table.element.style.getPropertyValue('--base-data-span'), 'calc(20rem + var(--base-data-number) + var(--base-data-min))');
+});
+
+test('a resize handle on each heading resizes from the keyboard, fits on double-click, and remembers widths under widthKey', function () {
+    var store = {};
+    globalThis.localStorage = { getItem: function (k) { return store[k] === undefined ? null : store[k]; }, setItem: function (k, v) { store[k] = String(v); }, removeItem: function (k) { delete store[k]; } };
+    try {
+        var table = createDataTable({ columns: COLUMNS, rows: ROWS, widthKey: 'activity' });
+        var handle = table.element.querySelector('.base-data-resize');
+        assert.equal(handle.getAttribute('role'), 'separator');
+        assert.equal(handle.getAttribute('aria-label'), 'Resize Name');
+        handle.dispatch('keydown', { key: 'ArrowRight', altKey: true });
+        assert.equal(table.getColumnWidths().name, 76);
+        assert.match(columnsTrack(table), /^max\(var\(--base-size-medium\), 76px\)/);
+        assert.deepEqual(JSON.parse(store['base-data-widths:activity']), { name: 76 });
+        heading(table, 'name').dispatch('keydown', { key: 'ArrowLeft', altKey: true });
+        assert.equal(table.getColumnWidths().name, 60);
+        handle.dispatch('dblclick');
+        assert.equal(table.getColumnWidths().name, 'fit');
+        var again = createDataTable({ columns: COLUMNS, rows: ROWS, widthKey: 'activity' });
+        assert.equal(again.getColumnWidths().name, 'fit');
+        assert.match(columnsTrack(again), /^max\(var\(--base-data-min\), min\(\d+ch/);
+        again.setColumnWidth('name', null);
+        assert.equal(store['base-data-widths:activity'], undefined);
+    } finally {
+        delete globalThis.localStorage;
+    }
+});
+
+test('dragging a handle sets the column width in pixels, and resizable false leaves the handles out', function () {
+    var table = createDataTable({ columns: COLUMNS, rows: ROWS });
+    var handle = table.element.querySelector('.base-data-resize');
+    handle.dispatch('pointerdown', { button: 0, clientX: 100 });
+    document.dispatch('pointermove', { clientX: 140 });
+    document.dispatch('pointerup', {});
+    assert.equal(table.getColumnWidths().name, 100);
+    document.dispatch('pointermove', { clientX: 400 });
+    assert.equal(table.getColumnWidths().name, 100);
+    var plain = createDataTable({ columns: COLUMNS, rows: ROWS, resizable: false });
+    assert.equal(plain.element.querySelector('.base-data-resize'), null);
+});
+
+test('a clipped cell shows its full text on hover, and loses it once it fits', function () {
+    var table = createDataTable({ columns: COLUMNS, rows: ROWS });
+    var cell = table.element.querySelector('.base-data-row[data-key="1"] .base-data-cell');
+    cell.scrollWidth = 200;
+    cell.clientWidth = 50;
+    cell.dispatch('mouseover');
+    assert.equal(cell.title, 'Ada');
+    cell.scrollWidth = 50;
+    cell.dispatch('mouseover');
+    assert.equal(cell.hasAttribute('title'), false);
+});

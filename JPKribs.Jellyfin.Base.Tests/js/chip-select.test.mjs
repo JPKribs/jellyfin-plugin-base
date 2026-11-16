@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { installFakeDom } from './fake-dom.mjs';
 
 var dom = installFakeDom();
-var { createChipSelect, createShared } = await import('../../src/js/index.js');
+var { createChipSelect, createShared, createComboBox } = await import('../../src/js/index.js');
 
 beforeEach(function () {
     dom = installFakeDom();
@@ -218,4 +218,43 @@ test('an item with an image draws a round picture in its chip, and getItems keep
     assert.equal(ui.chips.children[1].querySelector('.base-tag-thumb'), null);
     assert.equal(ui.select.getItems()[0].image, 'a.png');
     assert.equal('image' in ui.select.getItems()[1], false);
+});
+
+test('Enter picks the result whose label is what was typed, even with no option active', function () {
+    var seen = null;
+    var ui = build({ onChange: function (values) { seen = values; } });
+    ui.input.value = 'beta';
+    ui.input.dispatch('input');
+    ui.input.dispatch('keydown', { key: 'Enter' });
+    assert.deepEqual(seen, ['b']);
+    assert.equal(ui.input.value, '');
+    ui.input.value = 'Gam';
+    ui.input.dispatch('input');
+    ui.input.dispatch('keydown', { key: 'Enter' });
+    assert.deepEqual(ui.select.getValue(), ['b']);
+});
+
+test('createComboBox takes any text, offers matching suggestions with no search icon, and puts a pick in the field', function () {
+    var changes = [];
+    var box = createComboBox({ value: 'Old', suggestions: ['Artist One', { value: '{{Title}}', label: 'Title' }], onChange: function (v) { changes.push(v); } });
+    dom.document.body.appendChild(box.element);
+    var input = box.input;
+    assert.equal(box.getValue(), 'Old');
+    assert.equal(input.hasAttribute('data-base-search'), false);
+    assert.equal(box.element.querySelector('.base-adorned-search'), null);
+    input.value = 'tit';
+    input.dispatch('input');
+    var options = box.element.querySelectorAll('.base-combo-option');
+    assert.equal(options.length, 1);
+    assert.equal(options[0].textContent, 'Title');
+    options[0].dispatch('mousedown');
+    assert.equal(box.getValue(), '{{Title}}');
+    input.value = 'nothing like it';
+    input.dispatch('input');
+    assert.equal(box.element.querySelector('.base-combo-message').hidden, true);
+    assert.equal(box.getValue(), 'nothing like it');
+    assert.deepEqual(changes, ['tit', '{{Title}}', 'nothing like it']);
+    box.setValue(null);
+    assert.equal(box.getValue(), '');
+    box.destroy();
 });

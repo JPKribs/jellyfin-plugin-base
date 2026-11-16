@@ -25,7 +25,8 @@ public static class StatusPage
     /// <param name="showSpinner">Whether to show a loading spinner. <c>false</c> by default.</param>
     /// <param name="content">
     /// Raw HTML placed in the card below the message, such as a form or a page the plugin's script fills in.
-    /// It is not encoded, so pass only markup the plugin owns.
+    /// It is not encoded, so pass only markup the plugin owns. It may use <c>base-status-error</c> for a red error line,
+    /// <c>base-btn base-btn-secondary</c> for a quieter link button, and <c>base-btn-stack</c> to stack buttons full width.
     /// </param>
     /// <returns>A complete HTML document.</returns>
     public static string Render(

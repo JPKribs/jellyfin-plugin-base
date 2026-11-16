@@ -166,3 +166,52 @@ test('validateAll on a form around a repeater checks its fields and shows the me
     assert.equal(input.getAttribute('aria-invalid'), 'true');
     assert.equal(dom.document.activeElement, input);
 });
+
+test('a row keeps the keys no field shows, and a hidden field, so an id is never lost', function () {
+    var ui = build({ fields: [{ key: 'Id', label: 'Id', hidden: true }, { key: 'name', label: 'Name' }], value: [{ Id: 'x1', PreviousName: 'old', name: 'a' }] });
+    assert.equal(rows(ui)[0].querySelectorAll('.base-field-cell').length, 1);
+    assert.equal(ui.r.element.querySelectorAll('.base-repeater-head > span').length, 1);
+    assert.deepEqual(ui.r.getValue(), [{ Id: 'x1', PreviousName: 'old', name: 'a' }]);
+    var input = field(rows(ui)[0], 'name').querySelector('input');
+    input.value = 'b';
+    input.dispatch('input');
+    assert.deepEqual(ui.changes[ui.changes.length - 1], [{ Id: 'x1', PreviousName: 'old', name: 'b' }]);
+});
+
+test('visible hides a field for the rows it returns false for, labelFor follows the row, and newItem fills an added row', function () {
+    var fields = [
+        { key: 'kind', label: 'Kind', type: 'select', options: ['url', 'file'] },
+        { key: 'url', label: 'URL', required: true, visible: function (item) { return item.kind === 'url'; }, labelFor: function (item) { return item.kind === 'url' ? 'Address' : ''; } }
+    ];
+    var ui = build({ fields: fields, value: [{ kind: 'file', url: '' }], newItem: function () { return { kind: 'url', url: 'http://', Id: 'new' }; } });
+    var url = field(rows(ui)[0], 'url');
+    assert.equal(url.style.visibility, 'hidden');
+    assert.equal(ui.r.isValid(), true);
+    var select = field(rows(ui)[0], 'kind').querySelector('select');
+    select.value = 'url';
+    select.dispatch('change');
+    assert.equal(url.style.visibility, '');
+    assert.equal(url.querySelector('.base-field-cell-label').textContent, 'Address');
+    ui.r.element.querySelector('.base-repeater-add').click();
+    assert.deepEqual(ui.r.getValue()[1], { kind: 'url', url: 'http://', Id: 'new' });
+});
+
+test('a clearable secret shows Clear while one is stored, and Clear posts an empty secret', function () {
+    var ui = build({ fields: [{ key: 'name', label: 'Name' }, { key: 'token', label: 'Token', type: 'secret', clearable: true }], value: [{ name: 'a', token: SECRET_KEPT }] });
+    var clear = rows(ui)[0].querySelector('.base-control-clear');
+    assert.equal(clear.getAttribute('aria-label'), 'Clear Token');
+    assert.equal(clear.classList.contains('hidden'), false);
+    assert.deepEqual(ui.r.getValue(), [{ name: 'a', token: SECRET_KEPT }]);
+    clear.click();
+    assert.equal(clear.classList.contains('hidden'), true);
+    assert.deepEqual(ui.r.getValue(), [{ name: 'a', token: '' }]);
+});
+
+test('transform rewrites a text field as it is typed', function () {
+    var ui = build({ fields: [{ key: 'name', label: 'Name', transform: function (t) { return t.toUpperCase(); } }], value: [{ name: '' }] });
+    var input = field(rows(ui)[0], 'name').querySelector('input');
+    input.value = 'api_key';
+    input.dispatch('input');
+    assert.equal(input.value, 'API_KEY');
+    assert.deepEqual(ui.changes[ui.changes.length - 1], [{ name: 'API_KEY' }]);
+});

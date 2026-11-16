@@ -43,7 +43,7 @@ Classes: `base-chip-select`, plus the chip and dropdown classes on [Tags](tags.m
 ## States and Modifiers
 
 * `getItems()` returns `{ value, label }` pairs, so a caller keying an opaque id can persist the label too.
-* `pill: true` draws each chip as a `base-tag-pill`. `allowCreate: true` lets Enter add typed text as a value when no option is highlighted.
+* `pill: true` draws each chip as a `base-tag-pill`. Enter with no option highlighted picks the result whose label is the typed text, without regard to case. `allowCreate: true` lets Enter add typed text as a value when no result has that label.
 * The list opens on input and on focus, and shows all unselected choices when the input is empty. Selected values are hidden from the list.
 * Arrow Down and Up move through the results, wrapping. Enter adds the highlighted result. Backspace on an empty input removes the last chip. Escape closes the list.
 * Each chip has a real remove button with the label "Remove Name". `removeText` replaces its first word, "Remove". A removed chip passes focus to the next remove button, or to the input.

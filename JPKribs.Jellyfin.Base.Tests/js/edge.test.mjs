@@ -220,3 +220,18 @@ test('the avatar, status dot, banner, and toast kind lookups ignore inherited na
     assert.equal(createBanner({ kind: 'warn' }).getValue().kind, 'warn');
     assert.equal(createAvatar({ name: 'A', status: 'red' }).getValue().status, 'red');
 });
+
+test('a banner draws its actions as buttons under the text, and setActions replaces them', function () {
+    var clicked = [];
+    var banner = createBanner({ text: 'Settings changed.', actions: [{ text: 'Apply', primary: true, onClick: function (b) { clicked.push(b.textContent); } }, { text: 'Later' }] });
+    var buttons = banner.element.querySelectorAll('.base-banner-actions button');
+    assert.equal(buttons.length, 2);
+    assert.equal(buttons[0].className, 'raised base-button small primary');
+    assert.equal(buttons[1].className, 'raised base-button small secondary');
+    buttons[0].click();
+    assert.deepEqual(clicked, ['Apply']);
+    banner.setActions(null);
+    assert.equal(banner.element.querySelectorAll('.base-banner-actions button').length, 0);
+    assert.equal(banner.element.querySelector('.base-banner-actions').hidden, true);
+    assert.equal(createBanner({ text: 'x' }).element.querySelector('.base-banner-actions').hidden, true);
+});

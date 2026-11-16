@@ -10,7 +10,9 @@ import type { ComponentHandle } from './types.js';
  * One field of a repeater row. type picks the control: a text box, a secret with its three states and allowExpose,
  * the form select with options, a number with min, max, and step, the tag input, a time box, a toggle, or a custom
  * control from render(value, change). validate(value, item, index) returns an error sentence, or an empty value when
- * the value is valid. width is the field's grid track in the inline layout, such as '2fr' or '8rem'.
+ * the value is valid. width is the field's grid track in the inline layout, such as '2fr' or '8rem'. hidden carries a
+ * value with no control, visible(item) shows the field only in the rows it returns true for, labelFor(item) gives a label
+ * that follows the row, clearable adds a Clear button to a stored secret, and transform(text) rewrites text as it is typed.
  */
 export type RepeaterField = FieldSpec;
 
@@ -47,6 +49,7 @@ export interface RepeaterOptions {
     maxHeight?: number | string | null;
     minHeight?: number | string | null;
     size?: 'small' | 'medium' | 'large';
+    newItem?(): RepeaterItem | null | undefined;
     onChange?(value: RepeaterItem[]): void;
 }
 
@@ -81,6 +84,7 @@ export interface RepeaterParts {
 /** One drawn row of a repeater, with its field group. Internal to the web components. */
 export interface RepeaterRow extends RowSetRow {
     group: FieldGroupHandle;
+    extra(): RepeaterItem;
     title: HTMLElement | null;
     label(): void;
     destroy(): void;
@@ -99,7 +103,7 @@ export interface RepeaterBuild extends RepeaterHandle {
  * with reorder. Every field validates through the field core, with its message under it.
  *
  * @param options {
- *   fields     : array of { key, label, type ('text', 'secret', 'select', 'number', 'tags', 'time', 'toggle', or 'custom'), options, placeholder, required, requiredText, min, max, step, allowExpose, width, validate(value, item, index), render(value, change) } [required]
+ *   fields     : array of { key, label, type ('text', 'secret', 'select', 'number', 'tags', 'time', 'toggle', or 'custom'), options, placeholder, required, requiredText, min, max, step, allowExpose, width, hidden (true carries the value with no control), visible(item), labelFor(item), clearable (a Clear button on a stored secret), clearText (default 'Clear {value}'), transform(text), validate(value, item, index), render(value, change) } [required]
  *   layout     : 'inline' for one row of fields per item, or 'card' for a boxed card per item (default 'inline')
  *   value      : array of items, each an object of values by field key [optional]
  *   addText    : text of the add button (default 'Add')
@@ -115,9 +119,10 @@ export interface RepeaterBuild extends RepeaterHandle {
  *   emptyText  : sentence shown while there is no row [optional]
  *   height, maxHeight, minHeight : the rows' height, as createList takes it (default 'auto')
  *   size       : 'small', 'medium', or 'large' for its fields (default 'medium')
+ *   newItem    : function() returning the values a new row starts with, for Add and addRow() [optional]
  *   onChange   : function(value) after each change [optional]
  * }
- * @returns { element, getValue, setValue, setItems, addRow, isValid, setHeight, destroy }. getValue leaves out a row whose fields are all empty.
+ * @returns { element, getValue, setValue, setItems, addRow, isValid, setHeight, destroy }. getValue leaves out a row whose fields are all empty, and keeps each item's keys that no field shows, such as an id.
  */
 export function createRepeater(options: RepeaterOptions): RepeaterHandle {
     var built = buildRepeater(options, null);
@@ -143,7 +148,9 @@ export function createRepeater(options: RepeaterOptions): RepeaterHandle {
 export function buildRepeater(options: RepeaterOptions, parts: RepeaterParts | null): RepeaterBuild {
     var opts = options || ({ fields: [] } as RepeaterOptions);
     var p = parts || {};
-    var fields = opts.fields || [];
+    var allFields = opts.fields || [];
+    // A hidden field draws nothing, so the columns and the head are of the fields shown.
+    var fields = allFields.filter(function (f) { return !f.hidden; });
     var card = opts.layout === 'card';
     var cleanups: Array<() => void> = [];
 
@@ -204,9 +211,18 @@ export function buildRepeater(options: RepeaterOptions, parts: RepeaterParts | n
         var remove = make('button', 'base-row-btn' + (p.removeClass ? ' ' + p.removeClass : ' base-repeater-remove'), { type: 'button' });
         remove.appendChild(make('span', 'material-icons', { 'aria-hidden': 'true' }, 'close'));
         var row = {} as RepeaterRow;
-        var group = createFieldGroup(fields, data, {
+        var start = data === null || data === undefined ? (opts.newItem ? opts.newItem() : null) : data;
+        // The keys no field shows ride along with the row, so an id or a name it was saved under is never lost.
+        var extra: RepeaterItem = {};
+        if (start && typeof start === 'object') {
+            Object.keys(start).forEach(function (k) {
+                if (!allFields.some(function (f) { return f.key === k; })) extra[k] = start![k];
+            });
+        }
+        var group = createFieldGroup(allFields, start, {
             element: holder,
             eager: p.eager,
+            keepPlace: !card,
             cellClass: p.cellClass,
             context: function () { return { item: group.getValue(), index: set.rows().indexOf(row) }; },
             onChange: function (key) { rowChanged(row, key); }
@@ -230,6 +246,7 @@ export function buildRepeater(options: RepeaterOptions, parts: RepeaterParts | n
         row.remove = remove;
         row.off = off;
         row.group = group;
+        row.extra = function () { return extra; };
         row.title = title;
         row.label = function () {
             var all = set.rows();
@@ -258,12 +275,13 @@ export function buildRepeater(options: RepeaterOptions, parts: RepeaterParts | n
         changed();
     }
 
+    // A row is blank when every field it shows is empty, whatever it carries.
     function blank(item: RepeaterItem): boolean {
-        return Object.keys(item).every(function (k) { return isEmptyValue(item[k]); });
+        return fields.every(function (f) { return isEmptyValue(item[f.key]); });
     }
 
     function getValue(): RepeaterItem[] {
-        return set.rows().map(function (r) { return r.group.getValue(); }).filter(function (item) { return !blank(item); });
+        return set.rows().map(function (r) { return Object.assign({}, r.extra(), r.group.getValue()); }).filter(function (item) { return !blank(item); });
     }
 
     // Checks every row again, since a field's validate may read the other rows, then reports the value.

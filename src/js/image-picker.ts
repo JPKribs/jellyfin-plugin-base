@@ -41,7 +41,8 @@ export interface ImagePickerOptions {
     shape?: 'square' | 'portrait' | 'wide';
     crop?: boolean | number;
     maxSize?: number;
-    fallback?: ImagePickerFallback | null;
+    fallback?: ImagePickerFallback | string | null;
+    removable?: boolean;
     onChange?(value: ImagePickerValue | null): void;
 }
 
@@ -50,6 +51,7 @@ export interface ImagePickerHandle extends ComponentHandle {
     input: HTMLInputElement;
     getValue(): ImagePickerValue | string | null;
     setValue(url: string | null): void;
+    setFallback(fallback: ImagePickerFallback | string | null): void;
     fallbackDataUrl(size?: number): string;
     destroy(): void;
 }
@@ -90,10 +92,11 @@ export function initials(text: string | null | undefined): string {
  *   shape        : frame shape, 'square', 'portrait', or 'wide' (default 'square')
  *   crop         : true crops a picked image from its center to the frame's shape, or a number crops it to that width over height (default false)
  *   maxSize      : the longest side in pixels a picked image is scaled down to [optional]
- *   fallback     : { text, icon, color } drawn in the empty frame, initials from text or else an icon, on a status color or hex code (default blue) [optional]
+ *   fallback     : { text, icon, color } drawn in the empty frame, initials from text or else an icon, on a status color or hex code (default blue), or the URL of an image shown in the empty frame, such as a generated logo [optional]
+ *   removable    : false never shows Remove, for an image that must always be set (default true)
  *   onChange     : function(value) called with { name, type, size, dataUrl, base64 } after a pick, and null after Remove [optional]
  * }
- * @returns { element, input, getValue, setValue, fallbackDataUrl, destroy }. fallbackDataUrl(size) draws the fallback as a PNG data URL, or '' without one. getValue returns the picked file's data, the URL string while it shows a URL from value or setValue, or null while empty. setValue(url) shows a URL, or empties the frame for null, without onChange.
+ * @returns { element, input, getValue, setValue, setFallback, fallbackDataUrl, destroy }. setFallback swaps the fallback. fallbackDataUrl(size) draws the fallback as a PNG data URL, returns a URL fallback as it is, or '' without one. getValue returns the picked file's data, the URL string while it shows a URL from value or setValue, or null while empty. setValue(url) shows a URL, or empties the frame for null, without onChange.
  */
 export function createImagePicker(options?: ImagePickerOptions): ImagePickerHandle {
     options = options || {};
@@ -120,15 +123,25 @@ export function createImagePicker(options?: ImagePickerOptions): ImagePickerHand
     // The empty text names the state, so a screen reader reads it.
     placeholder.removeAttribute('aria-hidden');
     placeholder.appendChild(make('span', 'base-image-picker-empty', null, options.emptyText || 'No image.'));
-    var fallback = options.fallback || null;
+    var fallback: ImagePickerFallback | null = null;
+    var fallbackUrl = '';
     var fallbackEl: HTMLElement | null = null;
-    if (fallback && (fallback.text || fallback.icon)) {
-        fallbackEl = make('span', 'base-image-picker-fallback', { 'aria-hidden': 'true' }, initials(fallback.text) || null);
-        if (!initials(fallback.text)) fallbackEl.appendChild(make('span', 'material-icons', null, fallback.icon || 'image'));
-        applyColor(fallbackEl, fallback.color, 'blue');
-        frame.appendChild(fallbackEl);
-        root.classList.add('has-fallback');
+    // A fallback is drawn initials or an icon, or an image by its URL, shown while the picker is empty.
+    function placeFallback(next: ImagePickerFallback | string | null | undefined): void {
+        if (fallbackEl && fallbackEl.parentNode) fallbackEl.parentNode.removeChild(fallbackEl);
+        fallbackEl = null;
+        fallback = null;
+        fallbackUrl = typeof next === 'string' ? next.trim() : '';
+        if (next && typeof next === 'object' && (next.text || next.icon)) {
+            fallback = next;
+            fallbackEl = make('span', 'base-image-picker-fallback', { 'aria-hidden': 'true' }, initials(next.text) || null);
+            if (!initials(next.text)) fallbackEl.appendChild(make('span', 'material-icons', null, next.icon || 'image'));
+            applyColor(fallbackEl, next.color, 'blue');
+            frame.appendChild(fallbackEl);
+        }
+        root.classList.toggle('has-fallback', !!(fallbackEl || fallbackUrl));
     }
+    placeFallback(options.fallback);
     var actions = make('div', 'base-image-picker-actions');
     var choose = make('button', 'raised base-button small base-image-picker-choose', { type: 'button' });
     var remove = make('button', 'raised base-button small secondary base-image-picker-remove', { type: 'button' }, options.removeText || 'Remove');
@@ -170,6 +183,7 @@ export function createImagePicker(options?: ImagePickerOptions): ImagePickerHand
     }
 
     function fallbackDataUrl(size?: number): string {
+        if (fallbackUrl) return fallbackUrl;
         if (!fallbackEl || typeof document === 'undefined') return '';
         var side = size && size > 0 ? size : 256;
         var canvas = document.createElement('canvas');
@@ -201,11 +215,12 @@ export function createImagePicker(options?: ImagePickerOptions): ImagePickerHand
 
     function render(): void {
         var url = shownUrl();
+        var src = url || fallbackUrl;
         root.classList.toggle('filled', !!url);
         if (fallbackEl) fallbackEl.hidden = !!url;
-        if (url !== image.getAttribute('src')) thumb.setSrc(url);
+        if (src !== (image.getAttribute('src') || '')) thumb.setSrc(src);
         image.setAttribute('alt', value && typeof value !== 'string' ? value.name : (options!.label || ''));
-        remove.hidden = !url;
+        remove.hidden = !url || options!.removable === false;
         choose.textContent = url ? (options!.replaceText || 'Replace') : (options!.chooseText || 'Select Image');
     }
 
@@ -278,6 +293,7 @@ export function createImagePicker(options?: ImagePickerOptions): ImagePickerHand
         input: input,
         getValue: function () { return value && typeof value !== 'string' ? { name: value.name, type: value.type, size: value.size, dataUrl: value.dataUrl, base64: value.base64 } : value; },
         setValue: setValue,
+        setFallback: function (next) { placeFallback(next); render(); },
         fallbackDataUrl: fallbackDataUrl,
         destroy: function () { stopReading(); runAll(cleanups); intake.destroy(); thumb.destroy(); message.destroy(); }
     };

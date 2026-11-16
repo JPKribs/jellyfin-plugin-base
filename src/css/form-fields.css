@@ -198,10 +198,10 @@
     margin: 0 0 var(--base-gap-narrow) 0 !important;
 }
 
-/* Inputs, text areas, and selects that fill the row so every field shares one left and right edge */
+/* Inputs, text areas, and selects that fill the row so every field shares one left and right edge. A checkbox or radio keeps its own size */
 /* Example: <div class="inputContainer"><input is="emby-input" type="text"></div> */
-.pluginConfigurationPage .inputContainer input,
-.base-dialog .inputContainer input,
+.pluginConfigurationPage .inputContainer input:not([type="checkbox"]):not([type="radio"]),
+.base-dialog .inputContainer input:not([type="checkbox"]):not([type="radio"]),
 .pluginConfigurationPage .inputContainer textarea,
 .base-dialog .inputContainer textarea,
 .pluginConfigurationPage .selectContainer select,

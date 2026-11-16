@@ -1,7 +1,7 @@
 // field-control.ts
 // One form control built from a field spec, and a group of them with labels and messages. The repeater, the rule builder, the matrix grid, the mapping table, and the data table's row editor share it. None of it is exported from the bundle.
 
-import { make, listen, runAll, nextId, toText, has, clear } from './dom.js';
+import { make, listen, runAll, nextId, toText, has, clear, iconButton, fill } from './dom.js';
 import { adornField } from '../field-adornments.js';
 import { createFieldMessage } from '../field-message.js';
 import type { FieldMessageHandle } from '../field-message.js';
@@ -29,7 +29,9 @@ export interface FieldControlParts {
 /**
  * One field of a row or a card. type picks the control, options are a select's choices, and validate returns an
  * error sentence for a value, or an empty value when it is valid. width is the field's grid track, such as '2fr', and unit a
- * number's fixed suffix drawn dimmed inside its box, such as 'Mbps'.
+ * number's fixed suffix drawn dimmed inside its box, such as 'Mbps'. hidden carries a value with no control, visible(item)
+ * shows the field only for the rows it returns true for, labelFor(item) gives a label that follows the row, clearable adds a
+ * Clear button to a secret while one is stored, and transform(text) rewrites a text or secret field as it is typed.
  */
 export interface FieldSpec {
     key: string;
@@ -45,6 +47,12 @@ export interface FieldSpec {
     unit?: string;
     allowExpose?: boolean;
     width?: string;
+    hidden?: boolean;
+    clearable?: boolean;
+    clearText?: string;
+    visible?(item: Record<string, any>): boolean;
+    labelFor?(item: Record<string, any>): string | null | undefined;
+    transform?(text: string): string;
     validate?(value: any, item: Record<string, any>, index: number): string | null | undefined;
     render?(value: any, change: () => void): FieldControlParts;
 }
@@ -160,14 +168,34 @@ export function buildControl(field: FieldSpec, value: unknown, change: () => voi
     }
     holder.appendChild(input);
     if (type === 'number' || type === 'time') adorned = adornField(input);
+    var clearButton: HTMLButtonElement | null = null;
+    if (type === 'secret' && field.clearable) {
+        clearButton = iconButton('base-row-btn base-control-clear', 'backspace', fill(field.clearText || 'Clear {value}', label));
+        holder.classList.add('clearable');
+        holder.appendChild(clearButton);
+    }
 
     function put(v: unknown): void {
         if (type !== 'secret') { input.value = toText(v); return; }
         // A secret is stored but kept off the page when its value is the kept sentinel, and known otherwise.
-        bindSecretField(input, v === SECRET_KEPT, { allowExpose: field.allowExpose === true });
+        bindSecretField(input, v === SECRET_KEPT, { allowExpose: field.allowExpose === true, clearButton: clearButton });
         if (v !== SECRET_KEPT && v) input.value = String(v);
     }
     put(value);
+    if (field.transform && (type === 'text' || type === 'secret')) {
+        var transform = field.transform;
+        // Rewrites the text as it is typed, keeping the caret where it was.
+        off.push(listen(input, 'input', function () {
+            var before = input.value;
+            var after = toText(transform(before));
+            if (after === before) return;
+            var at = input.selectionStart;
+            input.value = after;
+            if (typeof at === 'number' && input.setSelectionRange) {
+                try { input.setSelectionRange(at, at); } catch (e) { return; }
+            }
+        }));
+    }
     off.push(listen(input, 'input', change));
 
     return {
@@ -257,10 +285,11 @@ export interface FieldCell {
     touched: boolean;
 }
 
-/** What createFieldGroup takes. element is where the cells go (default a new div), eager shows a problem as soon as there is one, and context gives the row and its place for validate. */
+/** What createFieldGroup takes. element is where the cells go (default a new div), eager shows a problem as soon as there is one, keepPlace keeps a hidden cell's place in a row, and context gives the row and its place for validate. */
 export interface FieldGroupOptions {
     element?: HTMLElement;
     eager?: boolean;
+    keepPlace?: boolean;
     cellClass?: Record<string, string>;
     name?(field: FieldSpec): string;
     context?(): { item: Record<string, any>; index: number };
@@ -289,14 +318,19 @@ export interface FieldGroupHandle {
  *
  * @param fields the field specs
  * @param item the values the controls start with, by key
- * @param options element, eager, cellClass, name, context, and onChange
+ * @param options element, eager, keepPlace, cellClass, name, context, and onChange
  */
 export function createFieldGroup(fields: FieldSpec[], item: Record<string, any> | null | undefined, options?: FieldGroupOptions): FieldGroupHandle {
     var opts = options || {};
     var root = opts.element || make('div', 'base-field-group');
     var values = item || {};
     var off: Array<() => void> = [];
-    var cells: FieldCell[] = fields.map(function (field) {
+    // A hidden field has no control, and carries its value through.
+    var carried: Record<string, any> = {};
+    var offKeys: Record<string, boolean> = {};
+    var hiddenFields = fields.filter(function (f) { return f.hidden; });
+    hiddenFields.forEach(function (f) { if (has(values, f.key)) carried[f.key] = values[f.key]; });
+    var cells: FieldCell[] = fields.filter(function (f) { return !f.hidden; }).map(function (field) {
         var control = buildControl(field, has(values, field.key) ? values[field.key] : undefined, function () {
             refresh();
             if (opts.onChange) opts.onChange(field.key);
@@ -338,12 +372,44 @@ export function createFieldGroup(fields: FieldSpec[], item: Record<string, any> 
 
     function getValue(): Record<string, any> {
         var out: Record<string, any> = {};
+        hiddenFields.forEach(function (f) { if (has(carried, f.key)) out[f.key] = carried[f.key]; });
         cells.forEach(function (c) { out[c.field.key] = c.control.getValue(); });
         return out;
     }
 
+    // Shows each cell only for the rows its visible allows, keeping its place in a row when keepPlace is set, and sets each label that follows the row.
+    function follow(ctx: { item: Record<string, any>; index: number }): void {
+        cells.forEach(function (c) {
+            if (c.field.visible) {
+                var on = !!c.field.visible(ctx.item);
+                if (opts.keepPlace) {
+                    c.element.style.visibility = on ? '' : 'hidden';
+                    c.element.hidden = false;
+                } else {
+                    c.element.hidden = !on;
+                }
+                if (on) delete offKeys[c.field.key];
+                else offKeys[c.field.key] = true;
+            }
+            if (c.field.labelFor) {
+                var text = c.field.labelFor(ctx.item);
+                var name = text === null || text === undefined || text === '' ? c.field.label : String(text);
+                if (c.label.textContent !== name) c.label.textContent = name;
+                var input = c.control.input;
+                if (input && input.tagName !== 'BUTTON' && !opts.name) input.setAttribute('aria-label', name);
+            }
+        });
+    }
+
     // Checks one cell, shows its message when it may, and returns whether it is valid.
     function checkCell(cell: FieldCell, ctx: { item: Record<string, any>; index: number }): boolean {
+        // A field hidden for this row is never wrong, so it never stops a save.
+        if (offKeys[cell.field.key]) {
+            if (cell.binding) cell.binding.clear();
+            else cell.message.set('', '');
+            cell.element.classList.remove('invalid');
+            return true;
+        }
         var shown = !!(opts.eager || cell.touched);
         var ok: boolean;
         if (cell.binding) {
@@ -364,8 +430,10 @@ export function createFieldGroup(fields: FieldSpec[], item: Record<string, any> 
 
     function refresh(): void {
         var ctx = context();
+        follow(ctx);
         cells.forEach(function (c) { checkCell(c, ctx); });
     }
+    follow({ item: getValue(), index: 0 });
 
     return {
         element: root,
@@ -373,12 +441,15 @@ export function createFieldGroup(fields: FieldSpec[], item: Record<string, any> 
         getValue: getValue,
         setValue: function (next) {
             var v = next || {};
+            carried = {};
+            hiddenFields.forEach(function (f) { if (has(v, f.key)) carried[f.key] = v[f.key]; });
             cells.forEach(function (c) { c.touched = false; c.control.setValue(has(v, c.field.key) ? v[c.field.key] : undefined); });
             refresh();
         },
         check: function (force) {
             if (force) cells.forEach(function (c) { c.touched = true; });
             var ctx = context();
+            follow(ctx);
             return cells.map(function (c) { return checkCell(c, ctx); }).every(Boolean);
         },
         cell: function (key) { return cells.filter(function (c) { return c.field.key === key; })[0] || null; },

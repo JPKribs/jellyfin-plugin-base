@@ -99,3 +99,16 @@ button.base-tag-remove:focus-visible { outline: 2px solid var(--base-accent); ou
     background: color-mix(in srgb, currentColor 30%, transparent);
     color: var(--base-on-warning);
 }
+
+/* A tag tinted with a status color, or a hex code through custom */
+/* Example: <span class="base-tag green"><span>Invited</span></span> */
+.base-tag.green { background: var(--base-green-bg); color: var(--base-green-fg); }
+.base-tag.red { background: var(--base-red-bg); color: var(--base-red-fg); }
+.base-tag.orange { background: var(--base-orange-bg); color: var(--base-orange-fg); }
+.base-tag.purple { background: var(--base-purple-bg); color: var(--base-purple-fg); }
+.base-tag.blue { background: var(--base-blue-bg); color: var(--base-blue-fg); }
+.base-tag.gray { background: var(--base-gray-bg); color: var(--base-gray-fg); }
+.base-tag.yellow { background: var(--base-yellow-bg); color: var(--base-yellow-fg); }
+.base-tag.pink { background: var(--base-pink-bg); color: var(--base-pink-fg); }
+.base-tag.teal { background: var(--base-teal-bg); color: var(--base-teal-fg); }
+.base-tag.custom { background: var(--base-custom-bg); color: var(--base-custom-fg); }

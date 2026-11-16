@@ -47,6 +47,8 @@ export type * from './editor-dialog.js';
 export { promptDialog } from './prompt-dialog.js';
 export type * from './prompt-dialog.js';
 export { createChipSelect } from './chip-select.js';
+export { createComboBox } from './combo-box.js';
+export type { ComboBoxFieldOptions, ComboBoxFieldHandle } from './combo-box.js';
 export type * from './chip-select.js';
 export { createCheckboxList } from './checkbox-list.js';
 export type * from './checkbox-list.js';

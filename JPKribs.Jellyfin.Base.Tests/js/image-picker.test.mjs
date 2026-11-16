@@ -290,3 +290,18 @@ test('crop and maxSize draw the picked image on a canvas at the fitted size', fu
         assert.equal(v.base64, 'QUJD');
     }, function (e) { restore(); throw e; });
 });
+
+test('removable false never shows Remove, and a URL fallback shows in the empty frame without being the value', function () {
+    var ui = build({ value: 'poster.png', removable: false, fallback: 'logo.png' });
+    assert.equal(ui.remove.hidden, true);
+    ui.picker.setValue(null);
+    assert.equal(ui.image.getAttribute('src'), 'logo.png');
+    assert.equal(ui.picker.getValue(), null);
+    assert.equal(ui.picker.element.classList.contains('filled'), false);
+    assert.equal(ui.picker.element.classList.contains('has-fallback'), true);
+    assert.equal(ui.picker.fallbackDataUrl(), 'logo.png');
+    ui.picker.setFallback('logo-2.png');
+    assert.equal(ui.image.getAttribute('src'), 'logo-2.png');
+    ui.picker.setFallback(null);
+    assert.equal(ui.picker.element.classList.contains('has-fallback'), false);
+});

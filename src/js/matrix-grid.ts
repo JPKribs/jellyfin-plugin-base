@@ -23,7 +23,8 @@ export interface MatrixGridRow {
 
 /**
  * One column: its key, its header, an icon the header shows when the grid is narrow, and the control in each of its
- * cells. badge and static cells show their value and take no input. unit is a number's fixed suffix inside its box.
+ * cells. badge and static cells show their value and take no input. unit is a number's fixed suffix inside its box, and
+ * disabled greys out the control so it shows its value and takes no input, as a row's cells can do for one cell.
  */
 export interface MatrixGridColumn {
     key: string;
@@ -37,6 +38,7 @@ export interface MatrixGridColumn {
     placeholder?: string;
     unit?: string;
     hidden?: boolean;
+    disabled?: boolean;
 }
 
 /** A badge cell's value: its label, or { label, color } where color is a status color name, a hex code, or a badge state name. */
@@ -74,6 +76,7 @@ export interface MatrixGridHandle extends ComponentHandle {
 interface MatrixCell {
     row: string;
     column: MatrixGridColumn;
+    disabled: boolean;
     control: FieldControl;
     message: FieldMessageHandle;
     binding: ValidationHandle | null;
@@ -86,7 +89,7 @@ interface MatrixCell {
  *
  * @param options {
  *   rows      : array of { key, label, hint, cells (by column key, part of a column that changes this row's cell, or null for an empty cell) } [required]
- *   columns   : array of { key, label, icon, type ('toggle', 'select', 'number', 'text', 'time', or the read only 'badge' and 'static'; default 'toggle'), options, min, max, step, placeholder, unit (a number's suffix inside its box), hidden (default false) } [required]
+ *   columns   : array of { key, label, icon, type ('toggle', 'select', 'number', 'text', 'time', or the read only 'badge' and 'static'; default 'toggle'), options, min, max, step, placeholder, unit (a number's suffix inside its box), hidden (default false), disabled (greys out the cells, which keep their value; default false) } [required]
  *   value     : object of row key to an object of column key to value [optional]
  *   rowHeader : header of the label column (default '')
  *   cellLabel : aria-label of a cell's control, where {column} and {row} are the labels (default '{column} for {row}')
@@ -96,7 +99,7 @@ interface MatrixCell {
  *   note      : a dimmed line under the grid [optional]
  *   onChange  : function(value, rowKey, columnKey) after a cell changes [optional]
  * }
- * @returns { element, getValue, setValue, setRows, isValid, setColumnHidden, destroy }. A badge cell's value is its label or { label, color }, and a static cell's is its text. Neither changes, and isValid skips them and hidden columns.
+ * @returns { element, getValue, setValue, setRows, isValid, setColumnHidden, destroy }. A badge cell's value is its label or { label, color }, and a static cell's is its text. Neither changes, and isValid skips them, disabled cells, and hidden columns.
  */
 export function createMatrixGrid(options: MatrixGridOptions): MatrixGridHandle {
     var opts = options || ({ rows: [], columns: [] } as unknown as MatrixGridOptions);
@@ -114,6 +117,7 @@ export function createMatrixGrid(options: MatrixGridOptions): MatrixGridHandle {
     }
 
     function check(cell: MatrixCell): boolean {
+        if (cell.disabled) return true;
         return cell.binding ? cell.binding.check() : true;
     }
 
@@ -168,13 +172,15 @@ export function createMatrixGrid(options: MatrixGridOptions): MatrixGridHandle {
         var message = createFieldMessage({ input: control.input });
         cell.row = row.key;
         cell.column = column;
+        cell.disabled = !!column.disabled;
+        if (cell.disabled) control.element.querySelectorAll<HTMLInputElement>('input, select, textarea, button').forEach(function (el) { el.disabled = true; });
         cell.control = control;
         cell.message = message;
         // A cell checks through the validation core, so validateAll on a form around the grid checks it too.
         var spec = { key: column.key, label: column.label, type: type, min: column.min, max: column.max };
         cell.binding = control.input && control.input.tagName !== 'BUTTON' ? bindValidation(control.input, Object.assign(validationFor(spec, function () { return control.getValue(); }, function () { return { item: values[row.key] || {}, index: 0 }; }), { message: message })) : null;
         cells.push(cell);
-        var box = make('span', 'base-matrix-cell');
+        var box = make('span', 'base-matrix-cell' + (cell.disabled ? ' disabled' : ''));
         box.appendChild(control.element);
         box.appendChild(message.element);
         return box;
@@ -200,7 +206,8 @@ export function createMatrixGrid(options: MatrixGridOptions): MatrixGridHandle {
         rowKey: 'key',
         label: opts.label || 'Grid',
         emptyText: opts.emptyText || 'Nothing to show.',
-        size: opts.size
+        size: opts.size,
+        resizable: false
     });
     var root = table.element;
     root.classList.add('base-matrix-grid');

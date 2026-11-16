@@ -28,7 +28,7 @@ Classes: `base-record-list`, `base-record-list-row`, `base-record-list-body`, `b
 
 ## States and Modifiers
 
-* An item is `{ id, title, secondary, tags, aside }`. A tag is `{ label, icon, off }`. An off tag is faded and struck through, `base-tag-off`, with a hidden word, "off" by `offText`.
+* An item is `{ id, title, secondary, tags, aside }`. A tag is `{ label, icon, color, off }`, where `color` is a status color name or a hex code that tints it. An off tag is faded and struck through, `base-tag-off`, with a hidden word, "off" by `offText`.
 * With `onOpen` a row opens by a click, by Enter or Space, and by its chevron, "Open {value}" by `openLabel`.
 * `aside` is a node or a handle with an `element`, such as a button, drawn in place of the chevron. A click on it opens nothing.
 * `label` sets the list's `aria-label`.
@@ -49,7 +49,7 @@ A List of static rows, each a title, a secondary line, tags with an icon and an 
 
 | Option | Type | What it does |
 | :--- | :--- | :--- |
-| `items` | <code>RecordListItem[] &#124; null</code> | array of { id, title, secondary, tags: [{ label, icon, off }], aside } [optional] |
+| `items` | <code>RecordListItem[] &#124; null</code> | array of { id, title, secondary, tags: [{ label, icon, color, off }], aside }, where color is a status color name or a hex code [optional] |
 
 | Handle member | Type |
 | :--- | :--- |
@@ -61,7 +61,7 @@ A List of static rows, each a title, a secondary line, tags with an icon and an 
 
 | Type | What it is |
 | :--- | :--- |
-| `RecordListTag` | A tag on a record row. icon is a Material icon before its label, and off shows it faded and struck through, such as a destination that is turned off. |
+| `RecordListTag` | A tag on a record row. icon is a Material icon before its label, color tints it with a status color name or a hex code, and off shows it faded and struck through, such as a destination that is turned off. |
 | `RecordListItem` | One record row. aside is a control drawn at the row's end in place of the chevron, such as a button or a toggle. |
 
 | Class | What it looks like |

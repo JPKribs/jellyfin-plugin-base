@@ -67,7 +67,7 @@ Parts: `base-media-card-slot`, `base-media-card-thumb`, `base-media-card-placeho
 * `image` wins over `imageUrl`, and `imageUrl` wins over `itemId`. `image` is an address, or a function that returns an address, a Blob, or a promise of one, with the placeholder shown until it arrives. `itemId` builds the address through `ApiClient.getImageUrl` with `imageType` (default `'Primary'`) and `imageMaxHeight` (default 128 for a row and 400 for a card). Images load lazily.
 * `badges` and `status` are each a [Badge](badge.md), `base-badge`, and the status also carries `base-media-card-status`. Their `color` is `green`, `red`, `orange`, `purple`, `blue`, `gray`, `yellow`, `pink`, `teal`, a hex code, or a `BADGE_STATES` state name such as `'Errored'`, and any other color draws gray.
 * `metaIsError: true` adds `error` to `base-media-card-meta`.
-* `href` or `onClick` adds `clickable`, makes the card focusable with the `link` or `button` role named by its title, and opens it on click, Enter, and Space. A click on an action button does not open the card.
+* `href` or `onClick` adds `clickable`, makes the card focusable with the `link` or `button` role named by its title, and opens it on click, Enter, and Space. A click on an action button does not open the card. An action with `disabled: true` is greyed out in its place, so cards in a list keep their actions and badges in line.
 * `setValue` merges the options it gets and draws the card again.
 * Inside a `rows` list a row drops its own border and corners, so the list draws the frame. Inside a `grid` list a tile is as tall as the tallest in its row.
 * A row holds its artwork in one slot, as wide as a wide thumbnail and as tall as a portrait one, centered on the row, so every title in a list starts at the same place and every thumbnail shares one center line. Portrait, square, and round share one width from the size scale, a portrait is that width at 2:3, and a wide one fills the slot at 16:9.
@@ -115,7 +115,7 @@ One media item with its artwork, as a list row with the artwork at the start or 
 | `detail` | <code>string &#124; null</code> | a line after the status, such as 'Pending, retry in 2m' [optional] |
 | `error` | <code>string &#124; null</code> | a line after the status in the error color, such as why it failed, with its full text as the tooltip [optional] |
 | `size` | <code>number &#124; string &#124; null</code> | a size beside the status, as bytes, such as 1288490188 for 1.2 GB, or as text [optional] |
-| `actions` | <code>MediaCardAction[]</code> | [{ label, icon, value }] drawn as icon buttons [optional] |
+| `actions` | <code>MediaCardAction[]</code> | [{ label, icon, value, disabled }] drawn as icon buttons, where disabled greys one out and keeps its place [optional] |
 | `href` | <code>string &#124; null</code> | address the whole card opens [optional] |
 | `onClick` | <code>(): void</code> | function() called when the whole card is clicked or activated with Enter or Space [optional] |
 | `onAction` | <code>(value: string): void</code> | function(value) called when an action button is clicked [optional] |
@@ -131,7 +131,7 @@ One media item with its artwork, as a list row with the artwork at the start or 
 | `MediaShape` | The shape of a media card's artwork. Posters are portrait, episodes are wide, albums are square, and people are round. |
 | `MediaCardBadge` | A badge on a media card, drawn as base-badge with its color modifier. |
 | `MediaCardStatus` | The status on a media card, drawn as a base-badge in a status color. |
-| `MediaCardAction` | An icon button on a media card. onAction receives its value. |
+| `MediaCardAction` | An icon button on a media card. onAction receives its value. disabled greys it out in its place, so cards in a list keep their actions in line. |
 | `MediaCardUser` | A user shown at the start of a media card's subtitle line, with a small avatar. |
 
 | Class | What it looks like |

@@ -46,6 +46,16 @@ B.createBreadcrumbs({});
 B.createSortableCardList<Row>(view, { render: function (row: Row) { return { title: row.name }; } });
 B.createCheckboxList({});
 B.createChipSelect({ options: ['a', { value: 'b', label: 'B' }] });
+var combo: B.ComboBoxFieldHandle = B.createComboBox({ suggestions: ['a', { value: 'b', label: 'B' }], onChange: function (value: string) { return value; } });
+combo.setSuggestions(null);
+var resizable = B.createDataTable<Row>({ columns: [{ key: 'name', label: 'Name', width: 'auto', maxWidth: '12rem' }], rows: [], widthKey: 'rows' });
+resizable.setColumnWidth('name', 'fit');
+B.createBanner({ actions: [{ text: 'Apply', primary: true, onClick: function (button: HTMLButtonElement) { button.disabled = true; } }] });
+B.createColorPicker({ opacityOnly: true }).setOpacityOnly(false);
+B.createImagePicker({ fallback: 'logo.png', removable: false }).setFallback(null);
+B.createRepeater({ fields: [{ key: 'Id', label: 'Id', hidden: true }, { key: 'token', label: 'Token', type: 'secret', clearable: true, transform: function (t: string) { return t.toUpperCase(); } }], newItem: function () { return { Id: '' }; } });
+// @ts-expect-error A column width is pixels, 'fit', or null.
+resizable.setColumnWidth('name', '20px');
 B.createChoiceGroup(view, {});
 B.createCopyField({});
 B.createDefinitionList({});

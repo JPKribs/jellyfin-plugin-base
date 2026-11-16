@@ -33,3 +33,7 @@
 /* A grid with a unit in its number boxes, whose columns keep room for the digits, the unit, and the arrows, and scroll sideways before they would hide digits */
 /* Example: <div class="base-filtered-list base-data-table base-matrix-grid has-units"></div> */
 .base-matrix-grid.has-units { --base-data-min: calc(var(--base-size-large) * 3); }
+
+/* A disabled cell, its control greyed out with its value still shown */
+/* Example: <span class="base-matrix-cell disabled"><div class="base-control base-control-toggle"><label class="base-check-row base-checkbox field"><input type="checkbox" disabled></label></div></span> */
+.base-matrix-cell.disabled { opacity: 0.45; cursor: not-allowed; }

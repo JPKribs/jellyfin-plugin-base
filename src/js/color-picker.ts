@@ -6,10 +6,11 @@ import { createFieldMessage } from './field-message.js';
 import { bindValidation } from './lib/validate.js';
 import type { ComponentHandle } from './types.js';
 
-/** What createColorPicker takes. alpha turns on the opacity box and an #rrggbbaa value, and format 'argb' reads and writes #aarrggbb. */
+/** What createColorPicker takes. alpha turns on the opacity box and an #rrggbbaa value, opacityOnly shows only the opacity box, and format 'argb' reads and writes #aarrggbb. */
 export interface ColorPickerOptions {
     value?: string;
     alpha?: boolean;
+    opacityOnly?: boolean;
     format?: 'hex' | 'argb';
     label?: string;
     pickLabel?: string;
@@ -28,6 +29,7 @@ export interface ColorPickerHandle extends ComponentHandle {
     getRgba(): Rgba;
     isValid(): boolean;
     setSize(size?: 'small' | 'medium' | 'large'): void;
+    setOpacityOnly(on: boolean): void;
     destroy(): void;
 }
 
@@ -39,7 +41,8 @@ export interface ColorPickerHandle extends ComponentHandle {
  *
  * @param options {
  *   value        : first color, as hex or rgb() text (default '#000000')
- *   alpha        : true adds the opacity box and gives #rrggbbaa values (default false, and true with format 'argb')
+ *   alpha        : true adds the opacity box and gives #rrggbbaa values (default false, and true with format 'argb' or opacityOnly)
+ *   opacityOnly  : true hides the color and shows only the opacity box, for a color that comes from elsewhere, such as an image (default false)
  *   format       : 'hex' for #rrggbb or #rrggbbaa, or 'argb' to read and write #aarrggbb, as .NET colors take it (default 'hex')
  *   label        : aria-label of the hex field (default 'Color')
  *   pickLabel    : title and aria-label of the swatch (default 'Pick a color')
@@ -49,17 +52,17 @@ export interface ColorPickerHandle extends ComponentHandle {
  *   validate     : function(value) returning an error sentence for a color, or an empty value when valid [optional]
  *   onChange     : function(value) called with the hex code after each change [optional]
  * }
- * @returns { element, input, getValue, setValue, getRgba, isValid, setSize, destroy }
+ * @returns { element, input, getValue, setValue, getRgba, isValid, setSize, setOpacityOnly, destroy }. setOpacityOnly(on) switches between the whole field and the opacity box alone, keeping the color.
  */
 export function createColorPicker(options?: ColorPickerOptions): ColorPickerHandle {
     options = options || {};
     var argb = options.format === 'argb';
-    var alpha = options.alpha === true || (argb && options.alpha !== false);
+    var alpha = options.alpha === true || options.opacityOnly === true || (argb && options.alpha !== false);
     var cleanups: Array<() => void> = [];
     var color: Rgba = readColor(options.value) || { r: 0, g: 0, b: 0, a: 1 };
     if (!alpha) color.a = 1;
 
-    var root = make('div', 'base-color-picker' + (alpha ? ' alpha' : ''));
+    var root = make('div', 'base-color-picker' + (alpha ? ' alpha' : '') + (alpha && options.opacityOnly ? ' opacity-only' : ''));
     applyFieldSize(root, options.size);
     var box = make('div', 'base-color-picker-box');
     var swatch = make('span', 'base-color-swatch');
@@ -192,7 +195,8 @@ export function createColorPicker(options?: ColorPickerOptions): ColorPickerHand
             draw();
         },
         getRgba: function () { return { r: color.r, g: color.g, b: color.b, a: color.a }; },
-        isValid: function () { return hexCheck.isValid() && (!opacity || opacityCheck.isValid()); },
+        isValid: function () { return (root.classList.contains('opacity-only') || hexCheck.isValid()) && (!opacity || opacityCheck.isValid()); },
+        setOpacityOnly: function (on: boolean) { root.classList.toggle('opacity-only', !!on && !!opacity); },
         setSize: function (size?: 'small' | 'medium' | 'large') { applyFieldSize(root, size); },
         destroy: function () {
             runAll(cleanups);

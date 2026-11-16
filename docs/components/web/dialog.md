@@ -61,6 +61,7 @@ Classes: `base-dialog`, `base-dialog-content`, with the size modifiers `small`, 
 * Tab and Shift+Tab cycle inside the panel. Only the top dialog answers Escape. A backdrop `mousedown` dismisses. The page behind does not scroll while a dialog is open.
 * On close, focus returns to the control that opened it, else `returnFocus`, else the first heading of the config page. A dialog still open underneath takes focus back.
 * A `large` panel is for an editor. Its button row is sticky at the bottom, with a destructive button apart on the left, and below 600px it fills the whole screen. Confirm and prompt dialogs are `small`.
+* `page` is the handle from `createConfigPage`. The dialog closes when the page hides, without asking `beforeClose`.
 * `setTitle(text)` changes the title and adds or removes the heading and `aria-labelledby` as needed.
 * The close button sits in the top right corner, inset by the panel's padding and level with the title, in every dialog. The padding is `--base-dialog-pad` on the panel, which the parts that reach its edges, such as a large dialog's button row, also read.
 * A footer button that is disabled, such as a typed confirm's button before the text matches, is dimmed.

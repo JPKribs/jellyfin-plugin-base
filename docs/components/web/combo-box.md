@@ -1,6 +1,6 @@
 # Combo Box
 
-A text input with a floating results dropdown, for a single searchable value. It is on the bag as `shared.createSearchableComboBox` and has no top level export.
+A text input with a floating results dropdown, for a single searchable value. It is on the bag as `shared.createSearchableComboBox` and has no top level export. `createComboBox` is a plain field with suggestions, for a value that may be any text, in place of a `<datalist>`.
 
 ## Decision
 
@@ -37,6 +37,7 @@ Classes: `base-combo`, `base-combo-dropdown`, `base-combo-option`. The handle is
 * A search that finds nothing shows "No matches." (`noResultsText`), and a `searchFn` that throws shows "Could not search." (`errorText`). The sentence sits under the input, in the `base-empty-inline` style.
 * `onInput()` runs on each keystroke, after the earlier choice is cleared.
 * `size` is `small`, `medium` (default), or `large`, and sizes its fields on the [size scale](design-tokens.md).
+* `createComboBox({ value, suggestions, searchFn, placeholder, maxResults, size, errorText, onChange })` is a text field whose value is whatever is typed. Focus or typing lists the `suggestions` that match by label or value, as strings or `{ value, label }`, and a pick puts the value in the field. It has no search icon and shows no sentence when nothing matches. `onChange(value)` runs after a pick or a keystroke, and the handle is `{ element, input, getValue, setValue, setSuggestions, destroy }`.
 
 ## Gotchas
 
@@ -49,6 +50,25 @@ Classes: `base-combo`, `base-combo-dropdown`, `base-combo-option`. The handle is
 Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this section.
 
 <!-- reference:start -->
+
+### `createComboBox`
+
+<code>function createComboBox(options?: ComboBoxFieldOptions): ComboBoxFieldHandle</code>
+
+A text field with suggestions, for one value that may be anything typed. Focus or typing lists the suggestions that match, and a pick puts its value in the field. It shows no search icon and no sentence when nothing matches, since any text is a value, in place of a plain datalist.
+
+| Option | Type | What it does |
+| :--- | :--- | :--- |
+| `value` | <code>string &#124; null</code> | the starting text [optional] |
+| `suggestions` | <code>ComboBoxItem[]</code> | the values offered, as strings or { value, label } pairs, where a pick puts the value in the field [optional] |
+
+| Handle member | Type |
+| :--- | :--- |
+| `input` | <code>HTMLInputElement</code> |
+| `getValue` | <code>(): string</code> |
+| `setValue` | <code>(value: string &#124; null &#124; undefined): void</code> |
+| `setSuggestions` | <code>(list: ComboBoxItem[] &#124; null &#124; undefined): void</code> |
+| `destroy` | <code>(): void</code> |
 
 | Type | What it is |
 | :--- | :--- |

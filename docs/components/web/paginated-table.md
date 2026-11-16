@@ -65,7 +65,7 @@ Classes: `base-table-wrapper`, `base-table-controls`, `base-table-search`, `base
 * A column with `image(item)` draws a thumbnail before the cell's content, in the shape `imageShape` names, `portrait` (default), `wide`, `square`, or `round`. The thumbnail shows the shape's placeholder icon until the image loads, and again when it fails. The cell takes `base-table-cell-with-thumb`.
 * `image(item)` returns an address, or a loader, a function that returns an address, a Blob, or a promise of one, as a [Media Card](media-card.md) image does. A loader is called only when its row nears the screen, so a long page fetches only what is seen, such as an image read through a plugin's own proxy endpoint. A Blob shows through an object URL, which is revoked when its row leaves the table and on `destroy()`.
 * `filters` takes `{ name, label, options, buildParams, onChange, initialValue, allValue, allLabel }`. The first choice is "All". The first load already carries `initialValue`.
-* `filters` may also be an array of those, for a select each. Each value goes on the request under the filter's `name`, `filter` for the first by default, then `filter2` and on, or through its own `buildParams`. `label` is the select's aria-label. `setFilter(value, name)` and `setFilterValue(value, name)` act on the named filter, or the first.
+* `filters` may also be an array of those, for a select each. Each value goes on the request under the filter's `name`, `filter` for the first by default, then `filter2` and on, or through its own `buildParams`. `label` is the select's aria-label. `setFilter(value, name)` and `setFilterValue(value, name)` act on the named filter, or the first. `setFilterOptions(options, name)` swaps a filter's choices in place, drawing its select when it had none, and a picked choice that is gone falls back to All and reloads.
 * `search` takes `{ enabled, placeholder, debounceMs }` with a default of 300 ms.
 * `selection` adds the checkbox column and the selection header with select all, the count, bulk actions, and a reload button. Select all checks or clears the loaded rows and shows an indeterminate state while only some of them are selected.
 * A selected row has `selected`, an accent wash. A re-render keeps it for every id still selected.
@@ -136,6 +136,7 @@ Builds a searchable, filterable, infinite scrolling table backed by an endpoint 
 | `refresh` | <code>(): Promise&lt;PagedResult&lt;T&gt; &#124; null&gt;</code> |
 | `destroy` | <code>(): void</code> |
 | `setFilterValue` | <code>(value: string, name?: string): void</code> |
+| `setFilterOptions` | <code>(options: TableFilterOption[] &#124; null &#124; undefined, name?: string): void</code> |
 | `setFilterOptionVisible` | <code>(optionId: string, visible: boolean): void</code> |
 
 | Type | What it is |

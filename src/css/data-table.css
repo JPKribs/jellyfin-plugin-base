@@ -3,6 +3,7 @@
 .base-data-table {
     --base-data-number: calc(var(--base-size-large) * 2.5);
     --base-data-min: calc(var(--base-size-large) * 2);
+    --base-data-auto-max: calc(var(--base-size-large) * 6);
     display: flex;
     flex-direction: column;
     gap: var(--base-gap-narrow);
@@ -30,6 +31,7 @@
     --base-data-gap: var(--base-gap-wide);
     flex: 0 0 auto;
     min-width: calc(var(--base-data-ends, 0) * var(--base-data-number) + var(--base-data-texts, 1) * var(--base-data-min) + var(--base-data-gaps, 0) * var(--base-data-gap) + 2 * var(--base-pad-medium) + 2px);
+    min-width: calc(var(--base-data-span, 0px) + var(--base-data-gaps, 0) * var(--base-data-gap) + 2 * var(--base-pad-medium) + 2px);
     box-sizing: border-box;
 }
 .base-data-table.compact .base-data-grid > .base-data-head,
@@ -97,6 +99,41 @@
 .base-data-table.compact .base-data-heading.has-icon .base-data-label { display: none; }
 .base-data-table.compact .base-data-head,
 .base-data-table.compact .base-data-row { column-gap: var(--base-gap-narrow); }
+/* A resizable heading, with a handle on its right edge that drags the column wider or narrower */
+/* Example: <div class="base-data-heading resizable" role="columnheader"><button class="base-data-sort">Device</button><span class="base-data-resize" role="separator" tabindex="0" aria-label="Resize Device"></span></div> */
+.base-data-heading.resizable { position: relative; min-width: 0; }
+.base-data-heading.resizable > .base-data-sort { max-width: 100%; min-width: 0; }
+.base-data-heading.resizable .base-data-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.base-data-resize {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: calc(var(--base-gap-wide) / -2 - var(--base-gap-narrow) / 2);
+    width: var(--base-gap-narrow);
+    cursor: col-resize;
+    touch-action: none;
+    z-index: 1;
+}
+.base-data-resize::after {
+    content: '';
+    position: absolute;
+    top: 25%;
+    bottom: 25%;
+    left: 50%;
+    width: 2px;
+    margin-left: -1px;
+    border-radius: var(--base-radius-small);
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.base-data-heading:last-child > .base-data-resize { right: calc(var(--base-gap-narrow) / -2); }
+.base-data-head:hover .base-data-resize::after { opacity: 0.3; }
+.base-data-resize:hover::after,
+.base-data-heading.resizing .base-data-resize::after,
+.base-data-resize:focus-visible::after { opacity: 1; }
+.base-data-resize:focus-visible { outline: none; }
+.base-data-table.compact .base-data-resize { right: calc(var(--base-gap-narrow) * -1); }
 .base-data-sort:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 2px; border-radius: var(--base-radius-small); }
 
 /* A body row at least a field tall, with a hover wash, and the accent wash with a leading bar while selected */

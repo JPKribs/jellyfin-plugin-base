@@ -35,7 +35,7 @@ view.querySelector('#tableHost').appendChild(table.element);
 
 For server data, pass `fetch(query)` instead of `rows`. It gets `{ search, filters, sort, page, pageSize }` and returns `{ Items, TotalCount }` or an array. An answer that is no longer the latest is dropped.
 
-The handle is `{ element, setRows, setSearch, setFilter, setFilterOptions, setSort, select, getSelected, getSelectedKeys, getSelectedRows, setSelectedKeys, clearSelection, onSelect, setHeight, getState, reload, edit, cancelEdit, getEditing, setColumnHidden, destroy }`. `onSelect(listener)` adds a listener beside the option and returns a function that removes it. Under `'multiple'`, `getSelectedKeys`, `getSelectedRows`, and `setSelectedKeys` read and set the checked rows.
+The handle is `{ element, setRows, setSearch, setFilter, setFilterOptions, setSort, select, getSelected, getSelectedKeys, getSelectedRows, setSelectedKeys, clearSelection, onSelect, setHeight, getState, reload, edit, cancelEdit, getEditing, setColumnHidden, setColumnWidth, getColumnWidths, destroy }`. `onSelect(listener)` adds a listener beside the option and returns a function that removes it. Under `'multiple'`, `getSelectedKeys`, `getSelectedRows`, and `setSelectedKeys` read and set the checked rows.
 
 Rows can open into fields:
 
@@ -54,6 +54,9 @@ var table = createDataTable({
 * A column is sortable unless `sortable: false`. A click on its heading sorts ascending, again descending, and a third time not at all. The heading carries `aria-sort` and an arrow that shows only while it is sorted.
 * `value(row)` gives the value the column sorts and shows. `render(row)` draws the cell instead, as text or a node. Numbers sort as numbers and text in the reader's language, with blanks last.
 * `align: 'end'` right-aligns a column with even-width digits in a fixed track that the heading shares, so headings and values line up. `width` sets a column's grid track instead, a share of the width by default.
+* `width: 'auto'` sizes a column to its widest value, up to `maxWidth` (default six large sizes), and the other columns share what is left. Every column counts toward the table's least width, so columns wider than the table scroll sideways inside its frame instead of spilling out.
+* Each heading has a handle on its right edge that drags the column wider or narrower. A double-click or Enter on the handle fits the column to its widest value, and Alt with the left or right arrow resizes it from the keyboard. `widthKey` remembers each reader's widths in `localStorage`, and `resizable: false` leaves the handles out. `setColumnWidth(key, width)` sets pixels, `'fit'`, or `null` for the column's own width.
+* A cell too narrow for its text shows the full text on hover.
 * `hidden: true` starts a column hidden, and `setColumnHidden(key, hidden)` hides or shows its heading and its cells, which carry `data-column` with the column's key. The other columns share its width, and the compact layout counts only the shown columns.
 * When the table is too narrow for its number columns, it turns `compact`: number columns narrow, and a column with `icon` shows that icon in its heading in place of the label, which stays its tooltip and accessible name.
 * Each filter is a select whose first choice is "All {label}". `setFilter(name, values)` sets it from code, such as from a map.
@@ -82,7 +85,7 @@ A sortable, filterable table: a Filtered List whose items are rows, framed by a 
 
 | Option | Type | What it does |
 | :--- | :--- | :--- |
-| `columns` (required) | <code>DataTableColumn&lt;T&gt;[]</code> | array of { key, label, icon (a Material icon the heading shows in place of the label when the table is narrow), sortable (default true), align ('start', 'end', or 'center' for a narrow column such as a checkbox), width (a grid track; default a share, or a fixed number column for end and center), hidden (true starts it hidden; default false), value(row), render(row) } [required] |
+| `columns` (required) | <code>DataTableColumn&lt;T&gt;[]</code> | array of { key, label, icon (a Material icon the heading shows in place of the label when the table is narrow), sortable (default true), align ('start', 'end', or 'center' for a narrow column such as a checkbox), width (a grid track, or 'auto' to size it to its widest value up to maxWidth while the other columns share what is left; default a share, or a fixed number column for end and center), maxWidth (the most an 'auto' column takes; default six large sizes), hidden (true starts it hidden; default false), value(row), render(row) } [required] |
 | `rows` | <code>T[] &#124; null</code> | local rows [optional] |
 | `fetch` | <code>(query: DataQuery): Promise&lt;PagedResult&lt;T&gt; &#124; T[]&gt; &#124; PagedResult&lt;T&gt; &#124; T[]</code> | function(query) returning a page { Items, TotalCount } or an array, for server data [optional] |
 | `rowKey` | <code>string &#124; ((row: T) =&gt; unknown); rowClass?(row: T, index: number): unknown; search?: { keys?: string[]</code> | the field or function that names a row (default 'id') |
@@ -105,9 +108,10 @@ A sortable, filterable table: a Filtered List whose items are rows, framed by a 
 
 | Type | What it is |
 | :--- | :--- |
-| `DataTableColumn` | One column. value gives the sort and display value, and render draws the cell, else the value is shown as text. hidden starts it hidden. |
+| `DataTableColumn` | One column. value gives the sort and display value, and render draws the cell, else the value is shown as text. hidden starts it hidden. width 'auto' sizes it to its widest value, up to maxWidth. |
 | `DataTableFilter` | A filter shown as a select above the table. field is the row field it matches, and options its choices. |
 | `DataTableEditing` | Inline row editing. fields are Repeater fields read from the row by key, and onSave gets the row and the edited values, and may return a promise. |
+| `DataTableWidth` | A column width set by a drag, the keyboard, or a double-click: pixels, or 'fit' for the column's widest value. |
 
 | Class | What it looks like |
 | :--- | :--- |
@@ -117,6 +121,7 @@ A sortable, filterable table: a Filtered List whose items are rows, framed by a 
 | `base-data-heading.center` | A narrow centered column, such as a checkbox, its heading centered over its cells |
 | `base-data-sort` | A sortable heading, a button whose arrow shows only while the column is sorted, and turns over when descending |
 | `base-data-glyph` | A narrow table: number columns shrink, and a heading with an icon shows the icon in place of its label |
+| `base-data-heading.resizable` | A resizable heading, with a handle on its right edge that drags the column wider or narrower |
 | `base-data-row` | A body row at least a field tall, with a hover wash, and the accent wash with a leading bar while selected |
 | `base-data-cell.base-data-edit-cell` | The edit button's column, one row button wide |
 | `base-data-row.editing` | An open row's editor under its cells, spanning every column: its fields in a grid, a message, and Save and Cancel |

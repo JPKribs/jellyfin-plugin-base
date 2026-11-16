@@ -42,7 +42,7 @@ Read and write them with the bag: `getValue(id, fallback)`, `setValue(id, value)
 * The rules apply only inside `.pluginConfigurationPage` and `.base-dialog`. A field outside both looks like stock Jellyfin.
 * The three containers and the kit blocks that sit in a form, such as a [Record Selector](record-selector.md), a callout, a [Panel](panel.md), a [Copy Field](copy-field.md), a [String List](string-list.md), or a [Stepper](stepper.md), take one wide gap below them. The last block in a record card or a panel body takes none.
 * Inside a field container the label, input, select, button, and any `base-` child lose their margins. A child with no kit class keeps its spacing.
-* Text, number, password, search, url, email, date, and time inputs, textareas, and selects share one surface, border, radius, and accent focus border. They are full width.
+* Text, number, password, search, url, email, date, and time inputs, textareas, and selects share one surface, border, radius, and accent focus border. They are full width. A checkbox or radio inside a field container keeps its own size.
 * Every select hides its native arrow and paints one chevron. The arrow container that emby injects is hidden, so a select never shows two.
 * `fieldDescription` sits on its own line under a checkbox.
 * A checkbox or radio that Jellyfin does not upgrade, and every `base-check-row-input`, takes one Base look, an accent fill with a drawn check while on, a bar while partly checked, and a dot for a radio. An upgraded `emby-checkbox` keeps Jellyfin's own box.

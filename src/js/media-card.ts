@@ -20,11 +20,12 @@ export interface MediaCardStatus {
     color?: string;
 }
 
-/** An icon button on a media card. onAction receives its value. */
+/** An icon button on a media card. onAction receives its value. disabled greys it out in its place, so cards in a list keep their actions in line. */
 export interface MediaCardAction {
     label: string;
     icon: string;
     value: string;
+    disabled?: boolean;
 }
 
 /** A user shown at the start of a media card's subtitle line, with a small avatar. */
@@ -116,7 +117,7 @@ function cardImageUrl(state: MediaCardOptions): string {
  *   detail         : a line after the status, such as 'Pending, retry in 2m' [optional]
  *   error          : a line after the status in the error color, such as why it failed, with its full text as the tooltip [optional]
  *   size           : a size beside the status, as bytes, such as 1288490188 for 1.2 GB, or as text [optional]
- *   actions        : [{ label, icon, value }] drawn as icon buttons [optional]
+ *   actions        : [{ label, icon, value, disabled }] drawn as icon buttons, where disabled greys one out and keeps its place [optional]
  *   href           : address the whole card opens [optional]
  *   onClick        : function() called when the whole card is clicked or activated with Enter or Space [optional]
  *   onAction       : function(value) called when an action button is clicked [optional]
@@ -220,6 +221,7 @@ export function createMediaCard(options?: MediaCardOptions): MediaCardHandle {
         actions.forEach(function (action) {
             var btn = iconButton('base-row-btn base-media-card-action', action.icon || null, action.label);
             btn.setAttribute('data-value', action.value);
+            if (action.disabled) btn.disabled = true;
             drawCleanups.push(listen(btn, 'click', function () {
                 if (typeof state.onAction === 'function') state.onAction(action.value);
             }));

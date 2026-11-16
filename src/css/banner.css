@@ -8,3 +8,8 @@
 .base-banner-close { position: absolute; top: var(--base-pad-small); right: var(--base-pad-medium); }
 .base-banner.dismissible .base-banner-body { padding-right: calc(var(--base-size-small) + var(--base-gap-narrow)); }
 .base-banner-close:focus-visible { outline: 2px solid var(--base-accent); outline-offset: 1px; }
+
+/* The buttons under a banner's text, such as Apply */
+/* Example: <div class="base-banner-body"><div class="base-banner-text">Settings changed.</div><div class="base-button-row base-banner-actions"><button class="raised base-button small primary">Apply</button></div></div> */
+.base-banner-actions { display: flex; flex-wrap: wrap; gap: var(--base-gap-narrow); margin-top: var(--base-gap-narrow); }
+.base-banner-actions[hidden] { display: none; }

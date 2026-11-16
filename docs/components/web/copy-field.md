@@ -23,6 +23,7 @@ Classes: `base-copy-field`, `base-copy-button`, `base-copy-reveal`. The handle i
 ## States and Modifiers
 
 * `secret: true` masks the value. `allowExpose: true` adds an eye inside the box, at its trailing end, that shows and hides it. It is off by default, so a secret stays masked unless the page opts in. `mono` (default true) shows the value in the mono font.
+* `inline: true` adds `inline`, for a field in a row or a table cell, with none of a form field's space below it.
 * The copy button is a `base-row-btn`. It takes `success` for the feedback, and shows a check and the feedback text. A hidden status region announces it.
 * The feedback is "Copied." or "Copy failed." for 1500 ms (`feedbackMs`). `copiedText` and `failedText` replace the text.
 * The labels default to "Value", "Copy", "Show", and "Hide". `label`, `copyLabel`, `revealLabel`, and `hideLabel` replace them.
@@ -45,6 +46,7 @@ A read-only value with a copy button beside it that shows its result. A secret v
 | Option | Type | What it does |
 | :--- | :--- | :--- |
 | `value` | <code>unknown</code> | the text to show and copy [optional] |
+| `inline` | <code>boolean</code> | true sits the field in a row or a table cell, with none of a form field's space below it (default false) |
 | `secret` | <code>boolean</code> | true masks the value (default false) |
 | `allowExpose` | <code>boolean</code> | true adds an eye inside a secret's box that shows and hides it (default false) |
 | `mono` | <code>boolean</code> | true shows the value in the mono font (default true) |
@@ -70,6 +72,7 @@ A read-only value with a copy button beside it that shows its result. A secret v
 | Class | What it looks like |
 | :--- | :--- |
 | `base-copy-field` | Read-only value with a copy button beside it, and an optional eye inside a secret's box |
+| `base-copy-field.inline` | An inline copy field, in a row or a table cell, with none of a form field's space below it |
 
 <!-- reference:end -->
 

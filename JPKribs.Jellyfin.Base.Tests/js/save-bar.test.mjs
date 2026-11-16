@@ -40,7 +40,7 @@ test('Save shows Saving, then Changes saved when onSave resolves', async functio
 });
 
 test('a failed save shows Could not save as an alert and stays until the next change', async function () {
-    var bar = createSaveBar({ onSave: function () { return Promise.reject(new Error('no')); } });
+    var bar = createSaveBar({ onSave: function () { return Promise.reject(); } });
     var ok = await bar.save();
     assert.equal(ok, false);
     assert.deepEqual(line(bar), { text: 'Could not save.', icon: 'error' });
@@ -55,4 +55,13 @@ test('every line can be replaced, and a state can be set directly', function () 
     assert.equal(line(bar).text, 'Changes waiting.');
     bar.setState('failed', 'The server said no.');
     assert.equal(line(bar).text, 'The server said no.');
+});
+
+test('a save that rejects with an Error or text shows that message as the failed line', async function () {
+    var bar = createSaveBar({ onSave: function () { return Promise.reject(new Error('The name is taken.')); } });
+    assert.equal(await bar.save(), false);
+    assert.equal(line(bar).text, 'The name is taken.');
+    var text = createSaveBar({ onSave: function () { throw 'Disk full.'; } });
+    await text.save();
+    assert.equal(line(text).text, 'Disk full.');
 });

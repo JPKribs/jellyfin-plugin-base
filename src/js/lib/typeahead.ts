@@ -29,6 +29,8 @@ export interface TypeaheadOptions<T> {
     openOnFocus?: boolean;
     noResultsText?: string;
     errorText?: string;
+    glyph?: boolean;
+    quiet?: boolean;
 }
 
 /** What bindTypeahead returns. status is the live region the member places, and search runs a query after the delay. */
@@ -108,11 +110,13 @@ export function debouncedSource<T>(source: TypeaheadSource<T>, delay?: number): 
  *   openOnFocus   : search when an empty input takes focus (default false)
  *   noResultsText : sentence shown when a search finds nothing (default 'No matches.')
  *   errorText     : sentence shown when a search fails (default 'Could not search.')
+ *   glyph         : false leaves out the search icon, for a field whose results are only suggestions (default true)
+ *   quiet         : true shows no sentence when a search finds nothing, for a field that takes any text (default false)
  * }
  */
 export function bindTypeahead<T>(input: HTMLInputElement, dropdown: HTMLElement, opts: TypeaheadOptions<T>): TypeaheadHandle<T> {
     var aria = bindComboAria(input, dropdown);
-    input.setAttribute('data-base-search', '');
+    if (opts.glyph !== false) input.setAttribute('data-base-search', '');
     var adorned = adornField(input);
     var anchor = (input.parentNode as Element | null) || input;
     var container = opts.container || dropdown.parentElement || input;
@@ -181,7 +185,7 @@ export function bindTypeahead<T>(input: HTMLInputElement, dropdown: HTMLElement,
         results = list.filter(function (item) { return item != null && (!opts.accept || opts.accept(item)); });
         if (opts.maxResults) results = results.slice(0, opts.maxResults);
         if (!results.length) {
-            say(query ? (opts.noResultsText || 'No matches.') : '');
+            say(query && !opts.quiet ? (opts.noResultsText || 'No matches.') : '');
             return;
         }
         say('');

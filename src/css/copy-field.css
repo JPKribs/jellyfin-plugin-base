@@ -12,3 +12,9 @@
     box-sizing: border-box;
 }
 .base-copy-field .base-row-btn { flex: 0 0 auto; }
+
+/* An inline copy field, in a row or a table cell, with none of a form field's space below it */
+/* Example: <div class="base-copy-field inline"><input type="text" readonly class="base-mono"><button type="button" class="base-row-btn base-copy-button"></button></div> */
+.base-copy-field.inline { min-width: 0; }
+.pluginConfigurationPage .base-copy-field.inline,
+.base-dialog .base-copy-field.inline { margin: 0 !important; }

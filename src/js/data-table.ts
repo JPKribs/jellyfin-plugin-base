@@ -10,7 +10,7 @@ import type { FilteredListBulkAction, FilteredListToolbarAction, FilteredListOpt
 import type { ListHeight } from './list.js';
 import type { ComponentHandle, PagedResult } from './types.js';
 
-/** One column. value gives the sort and display value, and render draws the cell, else the value is shown as text. hidden starts it hidden. */
+/** One column. value gives the sort and display value, and render draws the cell, else the value is shown as text. hidden starts it hidden. width 'auto' sizes it to its widest value, up to maxWidth. */
 export interface DataTableColumn<T = any> {
     key: string;
     label: string;
@@ -18,6 +18,7 @@ export interface DataTableColumn<T = any> {
     sortable?: boolean;
     align?: 'start' | 'end' | 'center';
     width?: string;
+    maxWidth?: string;
     hidden?: boolean;
     value?(row: T): unknown;
     render?(row: T): Node | string | null | undefined;
@@ -69,6 +70,9 @@ export interface DataTableOptions<T = any> {
     allText?: string;
     size?: 'small' | 'medium' | 'large';
     editable?: DataTableEditing<T> | null;
+    resizable?: boolean;
+    widthKey?: string;
+    resizeText?: string;
     onSelect?(row: T | null, key: string | null): void;
     onOpen?(row: T): void;
     onSelectionChange?(keys: string[], rows: T[]): void;
@@ -96,14 +100,55 @@ export interface DataTableHandle<T = any> extends ComponentHandle {
     cancelEdit(): void;
     getEditing(): string | null;
     setColumnHidden(key: string, hidden: boolean): void;
+    setColumnWidth(key: string, width: number | 'fit' | null): void;
+    getColumnWidths(): Record<string, number | 'fit'>;
     destroy(): void;
 }
+
+/** A column width set by a drag, the keyboard, or a double-click: pixels, or 'fit' for the column's widest value. */
+export type DataTableWidth = number | 'fit';
 
 // A number or checkbox column, which takes the narrow fixed track.
 function narrow(column: { align?: string }): boolean { return column.align === 'end' || column.align === 'center'; }
 
 // The class a heading and its cells take for the column's alignment.
 function alignClass(column: { align?: string }): string { return column.align === 'end' ? ' end' : column.align === 'center' ? ' center' : ''; }
+
+// A fixed width that is a plain length, so it can count toward the table's least width. A share or a range counts as the least text column.
+function isLength(width: string): boolean { return /^(-?[\d.]+(px|em|rem|ch)|calc\(.*\)|var\(.*\)|min\(.*\)|max\(.*\))$/.test(width.trim()); }
+
+// The step Alt with an arrow key resizes a column by, in pixels.
+var RESIZE_STEP = 16;
+
+// Reads the widths saved under a widthKey. Storage can be missing or refuse, so any fault reads as none saved.
+function loadWidths(storeKey: string | null): Record<string, DataTableWidth> {
+    if (!storeKey) return {};
+    try {
+        var raw = window.localStorage ? window.localStorage.getItem(storeKey) : null;
+        var parsed = raw ? JSON.parse(raw) : null;
+        var out: Record<string, DataTableWidth> = {};
+        if (parsed && typeof parsed === 'object') {
+            Object.keys(parsed).forEach(function (k) {
+                var v = parsed[k];
+                if (v === 'fit' || (typeof v === 'number' && isFinite(v) && v > 0)) out[k] = v;
+            });
+        }
+        return out;
+    } catch (e) {
+        return {};
+    }
+}
+
+function saveWidths(storeKey: string | null, widths: Record<string, DataTableWidth>): void {
+    if (!storeKey) return;
+    try {
+        if (!window.localStorage) return;
+        if (Object.keys(widths).length) window.localStorage.setItem(storeKey, JSON.stringify(widths));
+        else window.localStorage.removeItem(storeKey);
+    } catch (e) {
+        return;
+    }
+}
 
 /**
  * A sortable, filterable table: a Filtered List whose items are rows, framed by a header whose sortable columns sort
@@ -112,7 +157,7 @@ function alignClass(column: { align?: string }): string { return column.align ==
  * it, and onSelect reports it, so a map or a detail pane can follow. select(key) highlights a row picked elsewhere.
  *
  * @param options {
- *   columns      : array of { key, label, icon (a Material icon the heading shows in place of the label when the table is narrow), sortable (default true), align ('start', 'end', or 'center' for a narrow column such as a checkbox), width (a grid track; default a share, or a fixed number column for end and center), hidden (true starts it hidden; default false), value(row), render(row) } [required]
+ *   columns      : array of { key, label, icon (a Material icon the heading shows in place of the label when the table is narrow), sortable (default true), align ('start', 'end', or 'center' for a narrow column such as a checkbox), width (a grid track, or 'auto' to size it to its widest value up to maxWidth while the other columns share what is left; default a share, or a fixed number column for end and center), maxWidth (the most an 'auto' column takes; default six large sizes), hidden (true starts it hidden; default false), value(row), render(row) } [required]
  *   rows         : local rows [optional]
  *   fetch        : function(query) returning a page { Items, TotalCount } or an array, for server data [optional]
  *   rowKey       : the field or function that names a row (default 'id')
@@ -133,10 +178,14 @@ function alignClass(column: { align?: string }): string { return column.align ==
  *   allText      : the first choice of each filter select (default 'All {label}')
  *   size         : 'small', 'medium', or 'large' for its fields (default 'medium')
  *   editable     : { fields, saveText (default 'Save'), cancelText (default 'Cancel'), editLabel (default 'Edit {value}'), failedText (default 'Could not save.'), onSave(row, values) } adds an edit button to each row, which opens the row into Repeater fields with Save and Cancel. The open row stays open, with what was typed, while the rows refresh [optional]
+ *   resizable    : a handle on each heading's right edge that drags the column wider or narrower, where a double-click or Enter fits it to its widest value, and Alt with the arrow keys resizes it from the keyboard (default true)
+ *   widthKey     : a name to remember each reader's column widths under in localStorage [optional]
+ *   resizeText   : the handle's label (default 'Resize {value}')
  *   onSelect     : function(row, key) with the selected row, or (null, null) when the selection clears [optional]
  *   onChange     : function(state) after the rows shown change [optional]
  * }
- * @returns { element, setRows, setSearch, setFilter, setFilterOptions, setSort, select, getSelected, getSelectedKeys, getSelectedRows, setSelectedKeys, clearSelection, onSelect, setHeight, getState, reload, edit, cancelEdit, getEditing, setColumnHidden, destroy }. edit(key) opens a row's editor, and cancelEdit closes it. setColumnHidden(key, hidden) hides or shows a column's heading and cells, and the other columns share its width. onSelect(listener) adds a listener beside the option and returns a function that removes it.
+ * A cell too narrow for its text shows the full text on hover.
+ * @returns { element, setRows, setSearch, setFilter, setFilterOptions, setSort, select, getSelected, getSelectedKeys, getSelectedRows, setSelectedKeys, clearSelection, onSelect, setHeight, getState, reload, edit, cancelEdit, getEditing, setColumnHidden, setColumnWidth, getColumnWidths, destroy }. edit(key) opens a row's editor, and cancelEdit closes it. setColumnHidden(key, hidden) hides or shows a column's heading and cells, and the other columns share its width. setColumnWidth(key, width) sets a column to pixels, to 'fit', or with null back to its own width, and getColumnWidths returns what was set. onSelect(listener) adds a listener beside the option and returns a function that removes it.
  */
 export function createDataTable<T = any>(options: DataTableOptions<T>): DataTableHandle<T> {
     var opts = options || ({ columns: [] } as unknown as DataTableOptions<T>);
@@ -154,6 +203,11 @@ export function createDataTable<T = any>(options: DataTableOptions<T>): DataTabl
     var hiddenKeys: Record<string, boolean> = {};
     columns.forEach(function (c) { if (c.hidden) hiddenKeys[c.key] = true; });
     function shown(): DataTableColumn<T>[] { return columns.filter(function (c) { return !hiddenKeys[c.key]; }); }
+    var storeKey = opts.widthKey ? 'base-data-widths:' + opts.widthKey : null;
+    var widths = loadWidths(storeKey);
+    var resizable = opts.resizable !== false;
+    // The widest value of each column, in characters, measured from the cells drawn.
+    var widest: Record<string, number> = {};
 
     // The Filtered List marks the selected row, so a row draws only its cells, with the checkbox in a cell of its own under multiple selection.
     function renderRow(row: T, index: number, check?: HTMLInputElement | null): HTMLElement {
@@ -301,23 +355,75 @@ export function createDataTable<T = any>(options: DataTableOptions<T>): DataTabl
         size: opts.size,
         onChange: function (state) {
             drawSort(state.query.sort);
+            if (measure()) layout();
             if (opts.onChange) opts.onChange(state);
         }
     });
     var root = base.element;
     root.classList.add('base-data-table');
     if (opts.selectable) root.classList.add('selectable');
+    // A column sized to its widest value, in characters, kept between the least text width and its limit.
+    function fitTrack(column: DataTableColumn<T>): string {
+        var chars = Math.max(widest[column.key] || 0, column.label.length + 3) + 1;
+        return 'max(var(--base-data-min), min(' + chars + 'ch, ' + (column.maxWidth || 'var(--base-data-auto-max)') + '))';
+    }
+    function sized(column: DataTableColumn<T>): boolean {
+        return widths[column.key] === 'fit' || (widths[column.key] === undefined && column.width === 'auto');
+    }
+    // Each column's track, and the least width it holds, so the header and rows never squeeze a column below it.
+    function track(column: DataTableColumn<T>): { track: string; least: string } {
+        var set = widths[column.key];
+        if (typeof set === 'number') return { track: 'max(var(--base-size-medium), ' + Math.round(set) + 'px)', least: 'max(var(--base-size-medium), ' + Math.round(set) + 'px)' };
+        if (sized(column)) { var fit = fitTrack(column); return { track: fit, least: fit }; }
+        if (column.width) return { track: column.width, least: isLength(column.width) ? column.width : 'var(--base-data-min)' };
+        if (narrow(column)) return { track: 'var(--base-data-number)', least: 'var(--base-data-number)' };
+        return { track: 'minmax(var(--base-data-min), 1fr)', least: 'var(--base-data-min)' };
+    }
     // The table is a Filtered List whose items are rows, framed by a header of column headings, on tracks of its shown columns.
     function layout(): void {
         var visible = shown();
+        var tracks = visible.map(track);
+        var least = tracks.map(function (t) { return t.least; });
+        if (mode === 'multiple') least.unshift('var(--base-size-small)');
+        if (editing) least.push('var(--base-size-small)');
         root.style.setProperty('--base-data-ends', String(visible.filter(function (c) { return narrow(c) && !c.width; }).length));
         root.style.setProperty('--base-data-texts', String(visible.filter(function (c) { return !narrow(c) && !c.width; }).length));
         root.style.setProperty('--base-data-gaps', String(Math.max(0, visible.length - (mode === 'multiple' ? 0 : 1) + (editing ? 1 : 0))));
-        root.style.setProperty('--base-data-columns', (mode === 'multiple' ? 'var(--base-size-small) ' : '') + visible.map(function (c) { return c.width || (narrow(c) ? 'var(--base-data-number)' : 'minmax(var(--base-data-min), 1fr)'); }).join(' ') + (editing ? ' var(--base-size-small)' : ''));
+        root.style.setProperty('--base-data-span', 'calc(' + (least.length ? least.join(' + ') : '0px') + ')');
+        root.style.setProperty('--base-data-columns', (mode === 'multiple' ? 'var(--base-size-small) ' : '') + tracks.map(function (t) { return t.track; }).join(' ') + (editing ? ' var(--base-size-small)' : ''));
+        visible.forEach(function (c) {
+            var handle = handles[c.key];
+            var set = widths[c.key];
+            if (handle) handle.setAttribute('aria-valuenow', String(typeof set === 'number' ? Math.round(set) : Math.round(headingWidth(c.key))));
+        });
     }
-    layout();
+    // Reads the widest value of each sized column from the cells drawn, and reports whether any changed.
+    function measure(): boolean {
+        // The list draws once while it is built, before the table holds it.
+        if (!list) return false;
+        var changed = false;
+        columns.forEach(function (column) {
+            if (!sized(column)) return;
+            var most = 0;
+            list.element.querySelectorAll<HTMLElement>('.base-data-cell').forEach(function (cell) {
+                if (cell.getAttribute('data-column') !== column.key) return;
+                var text = (cell.textContent || '').trim();
+                if (text.length > most) most = text.length;
+            });
+            if (widest[column.key] !== most) { widest[column.key] = most; changed = true; }
+        });
+        return changed;
+    }
+    function headingWidth(key: string): number {
+        var cell = headings[key];
+        if (!cell || !cell.getBoundingClientRect) return 0;
+        return cell.getBoundingClientRect().width || 0;
+    }
+    var handles: Record<string, HTMLElement> = {};
     var list = base.list;
     list.element.classList.add('base-data-body');
+    measure();
+    layout();
 
     // The header of column headings sits with the rows in a grid that scrolls sideways as one when it must.
     var table = make('div', 'base-data-grid', { role: 'table', 'aria-label': opts.label || 'Table' });
@@ -343,12 +449,104 @@ export function createDataTable<T = any>(options: DataTableOptions<T>): DataTabl
         }
         if (hiddenKeys[column.key]) cell.hidden = true;
         headings[column.key] = cell;
+        if (resizable) addHandle(column, cell);
         head.appendChild(cell);
     });
     if (editing) head.appendChild(make('div', 'base-data-heading base-data-edit-cell', { role: 'columnheader' }));
     root.insertBefore(table, list.element);
     table.appendChild(head);
     table.appendChild(list.element);
+
+    function setWidth(key: string, width: DataTableWidth | null): void {
+        var column = columnOf(key);
+        if (!column) return;
+        if (width === null || width === undefined) delete widths[key];
+        else if (width === 'fit') widths[key] = 'fit';
+        else if (typeof width === 'number' && isFinite(width)) widths[key] = Math.max(1, Math.round(width));
+        else return;
+        if (sized(column)) measure();
+        saveWidths(storeKey, widths);
+        layout();
+        fit();
+    }
+    function currentWidth(key: string): number {
+        var set = widths[key];
+        return typeof set === 'number' ? set : headingWidth(key);
+    }
+
+    // The handle on a heading's right edge. A drag sets the width in pixels, and a double-click or Enter fits the column to its widest value.
+    function addHandle(column: DataTableColumn<T>, cell: HTMLElement): void {
+        cell.classList.add('resizable');
+        var handle = make('span', 'base-data-resize', {
+            role: 'separator', tabindex: '0', 'aria-orientation': 'vertical',
+            'aria-label': fill(opts.resizeText || 'Resize {value}', column.label)
+        });
+        handles[column.key] = handle;
+        cell.appendChild(handle);
+        var drag: { x: number; width: number; off: Array<() => void> } | null = null;
+        function stop(): void {
+            if (!drag) return;
+            runAll(drag.off);
+            drag = null;
+            cell.classList.remove('resizing');
+            saveWidths(storeKey, widths);
+        }
+        cleanups.push(stop);
+        cleanups.push(listen(handle, 'pointerdown', function (e: PointerEvent) {
+            if (e.button !== undefined && e.button !== 0) return;
+            e.preventDefault();
+            e.stopPropagation();
+            stop();
+            cell.classList.add('resizing');
+            drag = {
+                x: e.clientX || 0,
+                width: currentWidth(column.key),
+                off: [
+                    listen(document, 'pointermove', function (m: PointerEvent) {
+                        if (!drag) return;
+                        widths[column.key] = Math.max(1, Math.round(drag.width + (m.clientX || 0) - drag.x));
+                        layout();
+                    }),
+                    listen(document, 'pointerup', stop),
+                    listen(document, 'pointercancel', stop)
+                ]
+            };
+        }));
+        cleanups.push(listen(handle, 'click', function (e: Event) { e.stopPropagation(); }));
+        cleanups.push(listen(handle, 'dblclick', function (e: Event) {
+            e.preventDefault();
+            e.stopPropagation();
+            setWidth(column.key, 'fit');
+        }));
+        cleanups.push(listen(handle, 'keydown', function (e: KeyboardEvent) {
+            if (e.key !== 'Enter' || e.altKey) return;
+            e.preventDefault();
+            setWidth(column.key, 'fit');
+        }));
+        cleanups.push(listen(cell, 'keydown', function (e: KeyboardEvent) {
+            var plain = e.target === handle && !e.ctrlKey && !e.metaKey;
+            if (!e.altKey && !plain) return;
+            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+            e.preventDefault();
+            e.stopPropagation();
+            setWidth(column.key, currentWidth(column.key) + (e.key === 'ArrowRight' ? RESIZE_STEP : -RESIZE_STEP));
+        }));
+    }
+
+    // A cell too narrow for its text shows the full text on hover, and loses it again once it fits.
+    cleanups.push(listen(table, 'mouseover', function (e: MouseEvent) {
+        var target = e.target as HTMLElement | null;
+        var cell = target && target.closest ? target.closest<HTMLElement>('.base-data-cell') : null;
+        if (!cell || cell.classList.contains('base-data-editor')) return;
+        var ours = cell.hasAttribute('data-base-clipped');
+        if (ours) { cell.removeAttribute('title'); cell.removeAttribute('data-base-clipped'); }
+        if (cell.hasAttribute('title')) return;
+        var text = (cell.textContent || '').trim();
+        if (text && (cell.scrollWidth || 0) > (cell.clientWidth || 0) + 1) {
+            cell.title = text;
+            cell.setAttribute('data-base-clipped', '');
+        }
+    }));
 
     function drawSort(sort: DataSort | null): void {
         columns.forEach(function (column) {
@@ -414,6 +612,8 @@ export function createDataTable<T = any>(options: DataTableOptions<T>): DataTabl
         cancelEdit: closeEditor,
         getEditing: function () { return editor ? editor.key : null; },
         setColumnHidden: setColumnHidden,
+        setColumnWidth: setWidth,
+        getColumnWidths: function () { var out: Record<string, DataTableWidth> = {}; Object.keys(widths).forEach(function (k) { out[k] = widths[k]; }); return out; },
         destroy: function () {
             if (editor) { runAll(editor.off); editor.group.destroy(); editor.message.destroy(); editor = null; }
             runAll(cleanups);

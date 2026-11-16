@@ -87,3 +87,7 @@
     opacity: 0.7;
     pointer-events: none;
 }
+
+/* Only the opacity box, for a color that comes from elsewhere, such as an image */
+/* Example: <div class="base-color-picker alpha opacity-only"><div class="base-color-picker-row"><div class="base-color-picker-box"></div><div class="base-color-alpha"></div></div></div> */
+.base-color-picker.opacity-only .base-color-picker-box { display: none; }

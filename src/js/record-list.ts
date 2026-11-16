@@ -1,12 +1,14 @@
 import { make, icon, iconButton, listen, runAll, fill, toText } from './lib/dom.js';
 import { createList, fillRowParts } from './list.js';
 import type { ListHeight, ListItemHandle } from './list.js';
+import { applyColor } from './lib/color.js';
 import type { ComponentHandle } from './types.js';
 
-/** A tag on a record row. icon is a Material icon before its label, and off shows it faded and struck through, such as a destination that is turned off. */
+/** A tag on a record row. icon is a Material icon before its label, color tints it with a status color name or a hex code, and off shows it faded and struck through, such as a destination that is turned off. */
 export interface RecordListTag {
     label: string;
     icon?: string;
+    color?: string;
     off?: boolean;
 }
 
@@ -49,7 +51,7 @@ export interface RecordListHandle extends ComponentHandle {
  * the list, and a refresh keeps the rows whose title, secondary line, and tags did not change, with their aside.
  *
  * @param options {
- *   items     : array of { id, title, secondary, tags: [{ label, icon, off }], aside } [optional]
+ *   items     : array of { id, title, secondary, tags: [{ label, icon, color, off }], aside }, where color is a status color name or a hex code [optional]
  *   rowKey    : the field or function that names a row, so a refresh keeps it (default 'id')
  *   label     : aria-label of the list [optional]
  *   emptyText : shown while there is no row (default 'Nothing to show.')
@@ -77,6 +79,7 @@ export function createRecordList(options?: RecordListOptions): RecordListHandle 
             var tags = make('div', 'base-tags base-record-list-tags');
             item.tags.forEach(function (t) {
                 var tag = make('span', 'base-tag' + (t.off ? ' base-tag-off' : ''));
+                if (t.color) applyColor(tag, t.color);
                 if (t.icon) tag.appendChild(icon(t.icon));
                 tag.appendChild(make('span', '', null, t.label));
                 if (t.off) tag.appendChild(make('span', 'base-sr-only', null, ' ' + (opts.offText || 'off')));
