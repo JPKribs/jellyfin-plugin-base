@@ -169,7 +169,7 @@
     "confirm-dialog": 1886,
     "copy-field": 2761,
     "count-cards": 343,
-    "data-table": 14612,
+    "data-table": 14757,
     "date-range-picker": 3781,
     "definition-list": 2708,
     "detail-drawer": 2779,
@@ -271,5 +271,5 @@
     "user-selector": 1509,
     "world-map": 6166
   },
-  "bytes": 466898
+  "bytes": 467043
 }

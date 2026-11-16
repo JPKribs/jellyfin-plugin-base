@@ -425,7 +425,7 @@ export function createDataTable<T = any>(options: DataTableOptions<T>): DataTabl
     measure();
     layout();
 
-    // The header of column headings sits with the rows in a grid that scrolls sideways as one when it must.
+    // The header of column headings sits over the rows in a grid, and follows them when they scroll sideways.
     var table = make('div', 'base-data-grid', { role: 'table', 'aria-label': opts.label || 'Table' });
     var head = make('div', 'base-data-head', { role: 'row' });
     if (mode === 'multiple') head.appendChild(make('div', 'base-data-heading base-data-check', { role: 'columnheader' }));
@@ -456,6 +456,11 @@ export function createDataTable<T = any>(options: DataTableOptions<T>): DataTabl
     root.insertBefore(table, list.element);
     table.appendChild(head);
     table.appendChild(list.element);
+    // The rows scroll sideways inside their frame, and the header keeps level with them.
+    cleanups.push(listen(list.element, 'scroll', function () {
+        var left = list.element.scrollLeft;
+        head.style.transform = left ? 'translateX(' + -left + 'px)' : '';
+    }));
 
     function setWidth(key: string, width: DataTableWidth | null): void {
         var column = columnOf(key);

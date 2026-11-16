@@ -349,11 +349,40 @@ public class CssFallbackTests
         var rules = CssRules.Parse(Source("list.css"), "list.css");
 
         var hover = rules.FindIndex(r => r.Selectors.Contains(".base-table-row:hover"));
-        var selected = rules.FindIndex(r => r.Selectors.Contains(".base-table-row.selected") && r.Selectors.Contains(".base-list-item.selected"));
+        var selected = rules.FindIndex(r => r.Selectors.Contains(".base-table-row.selected") && r.Selectors.Contains(".base-list-item.selected:not(.base-card-item)"));
 
         Assert.True(hover >= 0, "list.css must have a row hover rule.");
         Assert.True(selected > hover, "The selected row rule must come after the hover rule.");
         Assert.Contains(rules[selected].Declarations, d => d.Property == "background" && d.Value.StartsWith("var(--base-accent-wash)", StringComparison.Ordinal));
+    }
+
+    /// <summary>
+    /// An open record card keeps the accent on its outline and head, and the list's selected wash and bar leave it out.
+    /// True: the open card's body reads on the plain surface, under a blue head inside a blue outline.
+    /// False: the whole card would sit in the accent wash with a bar on its left edge.
+    /// </summary>
+    [Fact]
+    public void OpenCard_KeepsThePlainSurface()
+    {
+        var rules = CssRules.Parse(Source("list.css"), "list.css");
+        Assert.DoesNotContain(rules, r => r.Selectors.Contains(".base-list-item.selected"));
+        Assert.Contains("border-color: var(--base-accent)", CssRules.BodyFor(Source("sortable-card-list.css"), ".base-card-item.selected") ?? string.Empty, StringComparison.Ordinal);
+        Assert.Contains("background: var(--base-accent-wash)", CssRules.BodyFor(Source("sortable-card-list.css"), ".base-card-item.selected > .base-card-item-head") ?? string.Empty, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// A data table too narrow for its columns scrolls its rows sideways inside the frame, and the grid only clips the header.
+    /// True: the frame keeps its right edge and the rows scroll under it.
+    /// False: the frame would scroll with the rows and its right edge would sit off screen.
+    /// </summary>
+    [Fact]
+    public void DataTable_ScrollsInsideItsFrame()
+    {
+        var rules = CssRules.Parse(Source("data-table.css"), "data-table.css");
+        bool Has(string selector, string declaration) => rules.Any(r => r.Selectors.Contains(selector) && r.Body.Contains(declaration, StringComparison.Ordinal));
+        Assert.True(Has(".base-data-grid", "overflow-x: hidden"), "The grid must clip the header, not scroll.");
+        Assert.True(Has(".base-data-grid > .base-data-body.base-list", "overflow-x: auto"), "The rows must scroll sideways inside their frame.");
+        Assert.True(Has(".base-data-grid > .base-data-body.base-list > .base-data-row", "min-width: var(--base-data-least)"), "Each row must hold its columns' least width.");
     }
 
     /// <summary>

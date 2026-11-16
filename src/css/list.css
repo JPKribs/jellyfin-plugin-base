@@ -69,9 +69,9 @@
 .base-list-item.openable:focus-visible,
 .base-list-item[aria-selected]:focus-visible { box-shadow: inset 0 0 0 2px var(--base-accent); }
 
-/* A selected item or row, in the accent wash with a leading accent bar, the one selection look every list shares */
+/* A selected item or row, in the accent wash with a leading accent bar, the one selection look every list shares. An open record card keeps the accent on its outline and head only, so its body stays on the plain surface */
 /* Example: <div class="base-list rows"><div class="base-list-item selected">Item</div></div> */
-.base-list-item.selected,
+.base-list-item.selected:not(.base-card-item),
 .base-table-row.selected,
 .base-data-row.selected {
     background: var(--base-accent-wash) !important;

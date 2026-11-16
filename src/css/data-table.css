@@ -21,19 +21,23 @@
     align-self: stretch;
     min-width: 0;
     max-width: 100%;
-    overflow-x: auto;
+    overflow-x: hidden;
 }
 
-/* The header and the rows never shrink below their columns, so a table too narrow for them scrolls sideways as one */
-/* Example: <div class="base-data-grid"><div class="base-data-head"></div><div class="base-data-body"></div></div> */
+/* The header and the rows never shrink below their columns. A table too narrow for them scrolls its rows sideways inside the frame, so the frame keeps both edges, and the header follows */
+/* Example: <div class="base-data-grid"><div class="base-data-head"></div><div class="base-data-body base-list rows"><div class="base-data-row base-list-item"></div></div></div> */
 .base-data-grid > .base-data-head,
 .base-data-grid > .base-data-body.base-list {
     --base-data-gap: var(--base-gap-wide);
+    --base-data-least: calc(var(--base-data-span, 0px) + var(--base-data-gaps, 0) * var(--base-data-gap) + 2 * var(--base-pad-medium));
+}
+.base-data-grid > .base-data-head {
     flex: 0 0 auto;
-    min-width: calc(var(--base-data-ends, 0) * var(--base-data-number) + var(--base-data-texts, 1) * var(--base-data-min) + var(--base-data-gaps, 0) * var(--base-data-gap) + 2 * var(--base-pad-medium) + 2px);
-    min-width: calc(var(--base-data-span, 0px) + var(--base-data-gaps, 0) * var(--base-data-gap) + 2 * var(--base-pad-medium) + 2px);
+    min-width: calc(var(--base-data-least) + 2px);
     box-sizing: border-box;
 }
+.base-data-grid > .base-data-body.base-list { overflow-x: auto; }
+.base-data-grid > .base-data-body.base-list > .base-data-row { min-width: var(--base-data-least); }
 .base-data-table.compact .base-data-grid > .base-data-head,
 .base-data-table.compact .base-data-grid > .base-data-body.base-list { --base-data-gap: var(--base-gap-narrow); }
 .base-data-head,

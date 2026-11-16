@@ -121,7 +121,7 @@ Builds a list. The list is the frame, its height, and its empty and loading stat
 | `base-list.scrolls` | A list that scrolls inside itself rather than growing the page |
 | `base-list.fill` | A list that reaches from its top to the bottom of the window, and flexes inside a bounded column |
 | `base-list-item.openable` | An item that opens or is picked by a click, with the shared row hover, and an accent ring for a keyboard user |
-| `base-list-item.selected` | A selected item or row, in the accent wash with a leading accent bar, the one selection look every list shares |
+| `base-list-item.selected` | A selected item or row, in the accent wash with a leading accent bar, the one selection look every list shares. An open record card keeps the accent on its outline and head only, so its body stays on the plain surface |
 | `base-list-item.text` | A text item, padded the way a component in a row pads itself |
 | `base-list-empty` | The sentence a list shows while it holds no items |
 | `base-list-empty.outside` | The empty sentence of a ul or ol list, which sits after the list rather than in it |

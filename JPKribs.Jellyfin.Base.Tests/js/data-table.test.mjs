@@ -169,6 +169,18 @@ test('the least width counts fixed widths, so columns wider than the table scrol
     assert.equal(table.element.style.getPropertyValue('--base-data-span'), 'calc(20rem + var(--base-data-number) + var(--base-data-min))');
 });
 
+test('the header follows the rows when they scroll sideways inside the frame', function () {
+    var table = createDataTable({ columns: COLUMNS, rows: ROWS });
+    var body = table.element.querySelector('.base-data-body');
+    var head = table.element.querySelector('.base-data-head');
+    body.scrollLeft = 40;
+    body.dispatchEvent(new Event('scroll'));
+    assert.equal(head.style.transform, 'translateX(-40px)');
+    body.scrollLeft = 0;
+    body.dispatchEvent(new Event('scroll'));
+    assert.equal(head.style.transform, '');
+});
+
 test('a resize handle on each heading resizes from the keyboard, fits on double-click, and remembers widths under widthKey', function () {
     var store = {};
     globalThis.localStorage = { getItem: function (k) { return store[k] === undefined ? null : store[k]; }, setItem: function (k, v) { store[k] = String(v); }, removeItem: function (k) { delete store[k]; } };
