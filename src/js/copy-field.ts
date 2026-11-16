@@ -3,10 +3,11 @@ import { make, iconButton, nextId, listen, runAll, applyFieldSize, toText } from
 import { copyToClipboard } from './browser-helpers.js';
 import type { ComponentHandle } from './types.js';
 
-/** What createCopyField takes. secret masks the value, allowExpose adds an eye inside the box that shows it, and inline sits it in a row with no space below. */
+/** What createCopyField takes. secret masks the value, allowExpose adds an eye inside the box that shows it, inline sits it in a row with no space below, and wrap shows the whole value over as many lines as it needs. */
 export interface CopyFieldOptions {
     value?: unknown;
     inline?: boolean;
+    wrap?: boolean;
     secret?: boolean;
     allowExpose?: boolean;
     mono?: boolean;
@@ -21,7 +22,7 @@ export interface CopyFieldOptions {
     onCopy?(value: string, ok: boolean): void;
 }
 
-/** What createCopyField returns. copy resolves to whether the copy worked. */
+/** What createCopyField returns. copy resolves to whether the copy worked. With wrap, input is hidden and holds the value the shown text mirrors. */
 export interface CopyFieldHandle extends ComponentHandle {
     input: HTMLInputElement;
     getValue(): string;
@@ -40,6 +41,7 @@ export interface CopyFieldHandle extends ComponentHandle {
  *   secret       : true masks the value (default false)
  *   allowExpose  : true adds an eye inside a secret's box that shows and hides it (default false)
  *   inline       : true sits the field in a row or a table cell, with none of a form field's space below it (default false)
+ *   wrap         : true shows the whole value, broken over as many lines as it needs, with the buttons level with its first line. Ignored for a secret (default false)
  *   mono         : true shows the value in the mono font (default true)
  *   label        : aria-label of the value (default 'Value')
  *   copyLabel    : title and aria-label of the copy button (default 'Copy')
@@ -59,15 +61,33 @@ export function createCopyField(options?: CopyFieldOptions): CopyFieldHandle {
     var timer: ReturnType<typeof setTimeout> | null = null;
     var copyLabel = options.copyLabel || 'Copy';
 
-    var root = make('div', 'base-copy-field' + (options.inline ? ' inline' : ''));
+    var wrap = !!options.wrap && !options.secret;
+    var root = make('div', 'base-copy-field' + (options.inline ? ' inline' : '') + (wrap ? ' wrap' : ''));
     applyFieldSize(root, options.size);
-    var input = make('input', options.mono === false ? '' : 'base-mono', { type: options.secret ? 'password' : 'text', 'aria-label': options.label || 'Value', autocomplete: 'off' });
+    var mono = options.mono === false ? '' : 'base-mono';
+    var input = make('input', mono, { type: options.secret ? 'password' : 'text', 'aria-label': options.label || 'Value', autocomplete: 'off' });
     input.setAttribute('readonly', '');
     input.value = toText(options.value);
     var button = iconButton('base-row-btn base-copy-button', 'content_copy', copyLabel);
     var status = make('span', 'base-sr-only', { role: 'status' });
     status.id = nextId('copy');
     root.appendChild(input);
+    // A single line input cuts a long value, so a wrapped field shows it as read-only text that breaks anywhere.
+    var text: HTMLElement | null = null;
+    if (wrap) {
+        input.hidden = true;
+        text = make('div', 'base-copy-field-text' + (mono ? ' ' + mono : ''), { role: 'textbox', 'aria-readonly': 'true', 'aria-multiline': 'true', 'aria-label': options.label || 'Value', tabindex: '0' }, input.value);
+        root.appendChild(text);
+        var shown = text;
+        cleanups.push(listen(shown, 'focus', function () { selectText(shown); }));
+        cleanups.push(listen(shown, 'keydown', function (e: Event) {
+            var key = e as KeyboardEvent;
+            if ((key.ctrlKey || key.metaKey) && (key.key === 'a' || key.key === 'A')) {
+                key.preventDefault();
+                selectText(shown);
+            }
+        }));
+    }
     if (options.secret && options.allowExpose) {
         input.setAttribute('data-base-reveal', '');
         input.setAttribute('data-base-reveal-label', options.revealLabel || 'Show');
@@ -106,9 +126,23 @@ export function createCopyField(options?: CopyFieldOptions): CopyFieldHandle {
         element: root,
         input: input,
         getValue: function () { return input.value; },
-        setValue: function (value: unknown) { input.value = toText(value); },
+        setValue: function (value: unknown) {
+            input.value = toText(value);
+            if (text) text.textContent = input.value;
+        },
         copy: copy,
         setSize: function (size?: 'small' | 'medium' | 'large') { applyFieldSize(root, size); },
         destroy: function () { clearTimeout(timer as ReturnType<typeof setTimeout>); runAll(cleanups); }
     };
+}
+
+// Selects all of a wrapped value's text, as focusing or Ctrl+A in a read-only input would.
+function selectText(el: HTMLElement): void {
+    if (typeof window.getSelection !== 'function' || typeof document.createRange !== 'function') return;
+    var selection = window.getSelection();
+    if (!selection) return;
+    var range = document.createRange();
+    range.selectNodeContents(el);
+    selection.removeAllRanges();
+    selection.addRange(range);
 }

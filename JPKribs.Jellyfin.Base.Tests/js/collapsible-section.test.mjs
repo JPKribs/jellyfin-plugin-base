@@ -2,6 +2,9 @@
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom } from './fake-dom.mjs';
+import { readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 var dom = installFakeDom();
 var { createCollapsibleSection, setCollapsibleBadge, initCollapsibles } = await import('../../src/js/collapsible-section.js');
@@ -189,4 +192,14 @@ test('initCollapsibles leaves a fixed header alone and binds a hand written bar'
     assert.ok(bar.classList.contains('collapsed'));
     aside.click();
     assert.ok(body.classList.contains('collapsed'));
+});
+
+test('a section title shows as written, with no case change from the CSS', function () {
+    var dir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'src', 'css');
+    ['collapsible-section.css', 'section.css'].forEach(function (file) {
+        var css = readFileSync(join(dir, file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+        var re = /([^{}]*base-(?:collapsible|section)-title[^{}]*)\{([^}]*)\}/g;
+        var m;
+        while ((m = re.exec(css))) assert.doesNotMatch(m[2], /text-transform/, file + ': ' + m[1].trim());
+    });
 });

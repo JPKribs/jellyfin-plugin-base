@@ -2,6 +2,9 @@
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom } from './fake-dom.mjs';
+import { readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 var dom = installFakeDom();
 var { createDefinitionList } = await import('../../src/js/index.js');
@@ -143,4 +146,18 @@ test('the columns layout turns compact by its own width, so the route arrow turn
     list.setItems(list.getValue());
     assert.equal(list.element.classList.contains('compact'), false);
     list.destroy();
+});
+
+test('a long unbroken label keeps to its own column and never runs over its value', function () {
+    var list = createDefinitionList({ items: [{ label: 'JF_COMMUNITY_RATING', value: '8.1' }, { label: 'JF_DAYS_SINCE_ADDED', value: '12' }] });
+    var labels = list.element.querySelectorAll('.base-defs-label');
+    assert.equal(labels[0].textContent, 'JF_COMMUNITY_RATING');
+    assert.equal(labels[1].textContent, 'JF_DAYS_SINCE_ADDED');
+    var css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'src', 'css', 'definition-list.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    var label = /\.base-defs-label \{([^}]*)\}/.exec(css)[1];
+    assert.match(label, /min-width: 0/);
+    assert.match(label, /overflow-wrap: anywhere/);
+    assert.match(css, /grid-template-columns: fit-content\(40%\) minmax\(0, 1fr\)/, 'the label column sizes to the longest label, up to a limit');
+    assert.match(css, /grid-template-columns: subgrid/, 'every row shares the one label column');
+    assert.match(css, /@media \(max-width: 600px\)[\s\S]*grid-template-columns: minmax\(0, 1fr\)/, 'a phone stacks each label over its value');
 });

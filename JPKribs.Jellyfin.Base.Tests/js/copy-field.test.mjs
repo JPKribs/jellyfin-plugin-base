@@ -131,3 +131,42 @@ test('inline marks the field for a row, with no space below it', function () {
     assert.equal(createCopyField({ value: 'a', inline: true }).element.className, 'base-copy-field inline');
     assert.equal(createCopyField({ value: 'a' }).element.className, 'base-copy-field');
 });
+
+test('wrap shows the whole value as read-only text that copies and follows setValue', async function () {
+    var url = 'https://jellyfin.example.com/invite/0123456789abcdef0123456789abcdef?code=ABCDEFGH';
+    var field = createCopyField({ value: url, wrap: true, label: 'Invite Link' });
+    assert.equal(field.element.className, 'base-copy-field wrap');
+    var text = field.element.querySelector('.base-copy-field-text');
+    assert.equal(text.textContent, url);
+    assert.equal(text.getAttribute('role'), 'textbox');
+    assert.equal(text.getAttribute('aria-readonly'), 'true');
+    assert.equal(text.getAttribute('aria-label'), 'Invite Link');
+    assert.equal(text.getAttribute('tabindex'), '0');
+    assert.equal(field.input.hidden, true);
+    await field.copy();
+    assert.deepEqual(copied, [url]);
+    field.setValue('https://example.test/b');
+    assert.equal(text.textContent, 'https://example.test/b');
+    assert.equal(field.getValue(), 'https://example.test/b');
+});
+
+test('wrap selects all of the value on focus and on Ctrl+A', function () {
+    var picked = [];
+    dom.document.createRange = function () { return { selectNodeContents: function (n) { picked.push(n); } }; };
+    globalThis.window.getSelection = function () { return { removeAllRanges: function () {}, addRange: function () {} }; };
+    var field = createCopyField({ value: 'abc', wrap: true });
+    dom.document.body.appendChild(field.element);
+    var text = field.element.querySelector('.base-copy-field-text');
+    text.dispatch('focus');
+    var key = text.dispatch('keydown', { key: 'a', ctrlKey: true });
+    assert.equal(key.defaultPrevented, true, 'Ctrl+A selects the value, not the page');
+    assert.equal(picked.length, 2);
+    assert.ok(picked.every(function (n) { return n === text; }));
+});
+
+test('wrap is ignored for a secret, which stays a masked input', function () {
+    var field = createCopyField({ value: 'abc', wrap: true, secret: true });
+    assert.equal(field.element.className, 'base-copy-field');
+    assert.equal(field.element.querySelector('.base-copy-field-text'), null);
+    assert.equal(field.input.hidden, false);
+});

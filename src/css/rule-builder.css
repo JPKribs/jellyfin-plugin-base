@@ -1,5 +1,5 @@
 /* Rules of field, operator, and value under a choice of matching all or any, a Repeater with a warning row under the rules */
-/* Example: <div class="base-rule-builder"><div class="base-pill-group base-rule-match"></div><div class="base-repeater inline base-rule-rows"></div></div> */
+/* Example: <div class="base-rule-builder"><div class="base-pill-group base-rule-match"></div><div class="base-repeater base-repeater-layout-inline base-rule-rows"></div></div> */
 .base-rule-builder {
     display: flex;
     flex-direction: column;

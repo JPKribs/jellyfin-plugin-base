@@ -23,7 +23,7 @@ if (!headers.isValid()) { return; }
 
 Classes: `base-kv-editor`, `base-kv-head`, `base-kv-row`. The handle is `{ element, getValue, setValue, setItems, isValid, addRow, setHeight, destroy }`.
 
-Parts: `base-kv-key`, `base-kv-value`, `base-kv-remove`, `base-kv-rows`. The editor also carries the Repeater's classes, `base-repeater inline`, and each field sits in a `base-field-cell`.
+Parts: `base-kv-key`, `base-kv-value`, `base-kv-remove`, `base-kv-rows`. The editor also carries the Repeater's classes, `base-repeater base-repeater-layout-inline`, and each field sits in a `base-field-cell`.
 
 ## States and Modifiers
 

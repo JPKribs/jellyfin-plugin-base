@@ -3,9 +3,10 @@ import type { ModalShell } from './lib/dialog.js';
 import { nextId } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
 
-/** One footer button. action gets close, dismiss, and the clicked button, and without it a click closes with value. */
+/** One footer button. icon is a Material icon name drawn before the text, action gets close, dismiss, and the clicked button, and without it a click closes with value. */
 export interface DialogButton {
     text?: string;
+    icon?: string;
     className?: string;
     value?: unknown;
     action?(close: (value?: unknown) => void, dismiss: () => void, button: HTMLButtonElement): void;
@@ -50,8 +51,8 @@ export interface DialogHandle extends ComponentHandle {
  *   closeButton : render the corner close button, which also needs dismissable (default true)
  *   beforeClose : function() returning false, or a promise of false, to keep the dialog open when it is
  *                 dismissed, such as to confirm discarding changes [optional]
- *   buttons     : [{ text, className, value, action(close, dismiss, button) }] rendered in the footer row, where dismiss closes
- *                 as Escape does, asking beforeClose first, and button is the clicked element [optional]
+ *   buttons     : [{ text, icon, className, value, action(close, dismiss, button) }] rendered in the footer row, where dismiss closes
+ *                 as Escape does, asking beforeClose first, icon is a Material icon name before the text, and button is the clicked element [optional]
  *   onClose     : function(value) called once when the dialog closes [optional]
  *   autofocus   : the element or a selector within the dialog to focus on open, or false to focus the panel itself (default the first visible field, else a non-destructive footer button) [optional]
  *   returnFocus : an element, a selector, or a function returning one, to focus on close when the control that opened the dialog is gone [optional]

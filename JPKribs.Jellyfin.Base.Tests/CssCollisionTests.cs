@@ -7,7 +7,7 @@ using Xunit;
 
 namespace JPKribs.Jellyfin.Base.Tests;
 
-/// <summary>Verifies that the self contained <c>status</c> card template shares no class with the kit CSS, since the kit rules would restyle the card.</summary>
+/// <summary>Verifies that the kit CSS shares no class with the status template, or with a bare class Jellyfin's dashboard styles on every page.</summary>
 public class CssCollisionTests
 {
     // The hidden class is shared on purpose and is the same rule in both, so it never conflicts.
@@ -29,6 +29,21 @@ public class CssCollisionTests
         Assert.True(
             collisions.Count == 0,
             "status.html shares CSS classes with the kit, so the kit would restyle the card: " + string.Join(", ", collisions));
+    }
+
+    /// <summary>
+    /// The kit CSS never selects a bare class that Jellyfin's dashboard CSS styles globally, such as <c>card</c>.
+    /// True: a kit element keeps its own look and containing block on a dashboard page.
+    /// False: Jellyfin's global rule applies too, and its <c>.card</c> paint containment traps a fixed dropdown inside a card Repeater.
+    /// </summary>
+    [Fact]
+    public void KitCss_AvoidsJellyfinGlobalClasses()
+    {
+        var jellyfinGlobal = new[] { "card", "cardBox", "cardScalable", "listItem", "hide", "itemsContainer" };
+
+        var collisions = jellyfinGlobal.Where(KitClasses().Contains).ToList();
+
+        Assert.True(collisions.Count == 0, "The kit CSS uses a class Jellyfin styles on every dashboard page: " + string.Join(", ", collisions));
     }
 
     private static string StatusStyleBlock()

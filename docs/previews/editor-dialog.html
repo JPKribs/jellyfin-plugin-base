@@ -17,6 +17,7 @@ shared.bindClick('btnEdit', () => {
         serialize: () => input.value,
         onDone: () => true,
         onRemove: (close) => close('removed'),
+        actions: [{ text: 'Duplicate', icon: 'content_copy', onClick: (editor) => editor.close('duplicated') }],
         onClose: (value) => shared.setStatus('editorStatus', 'Closed with ' + (value || 'a dismissal') + '.', false, { timeout: 0 })
     });
 });

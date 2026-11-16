@@ -1,5 +1,5 @@
 /* Editor of key and value rows, a Repeater of two text fields, with column labels and an add button */
-/* Example: <div class="base-repeater inline base-kv-editor"><div class="base-repeater-head base-kv-head"><span>Key</span><span>Value</span></div><div class="base-repeater-rows base-kv-rows"></div></div> */
+/* Example: <div class="base-repeater base-repeater-layout-inline base-kv-editor"><div class="base-repeater-head base-kv-head"><span>Key</span><span>Value</span></div><div class="base-repeater-rows base-kv-rows"></div></div> */
 .base-kv-editor { min-width: 0; }
 
 /* Column labels over the key and value columns, the repeater's head, hidden while the editor is narrow */

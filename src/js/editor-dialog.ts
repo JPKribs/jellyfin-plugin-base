@@ -3,7 +3,15 @@ import type { DialogButton, DialogOptions, DialogHandle } from './dialog.js';
 import { confirmDialog } from './confirm-dialog.js';
 import type { PageHandle } from './types.js';
 
-/** What openEditorDialog takes. onDone returns false, or a promise of false, to keep the editor open. */
+/** One extra footer button of an editor, such as Duplicate. icon is a Material icon name, and variant picks its look. */
+export interface EditorDialogAction {
+    text: string;
+    icon?: string;
+    variant?: 'secondary' | 'primary' | 'destructive';
+    onClick(handle: EditorDialogHandle, button: HTMLButtonElement): void;
+}
+
+/** What openEditorDialog takes. onDone returns false, or a promise of false, to keep the editor open, and actions adds buttons to the footer. */
 export interface EditorDialogOptions extends Pick<DialogOptions, 'title' | 'body' | 'className' | 'size' | 'autofocus' | 'returnFocus'> {
     page?: Pick<PageHandle, 'trackEditor' | 'untrackEditor'> | null;
     isNew?: boolean;
@@ -12,6 +20,7 @@ export interface EditorDialogOptions extends Pick<DialogOptions, 'title' | 'body
     doneText?: string;
     removeText?: string;
     cancelText?: string;
+    actions?: EditorDialogAction[];
     onDone?(close: (value?: unknown) => void): boolean | void | PromiseLike<boolean | void>;
     onRemove?(close: (value?: unknown) => void): void;
     onClose?(value: unknown): void;
@@ -33,6 +42,7 @@ export interface EditorDialogHandle extends DialogHandle {
  *   serialize  : function() returning a stable string of the editor's state, for its change tracking
  *   ready      : a promise to wait on before taking the clean snapshot, such as fields still loading [optional]
  *   doneText, removeText, cancelText : button labels (default Done, Remove, Cancel)
+ *   actions    : [{ text, icon, variant, onClick(handle, button) }] extra footer buttons, such as Duplicate, drawn after Remove and before Cancel. variant is 'secondary', 'primary', or 'destructive' (default 'secondary'), and a destructive one sits beside Remove [optional]
  *   onDone     : function(close) returning false (or a promise of false) to stay open, such as on invalid input
  *   onRemove   : function(close) for Remove, which closes the dialog itself when done [optional]
  *   onClose    : function(value) called once when the dialog closes [optional]
@@ -51,6 +61,13 @@ export function openEditorDialog(opts?: EditorDialogOptions): EditorDialogHandle
     if (!opts.isNew && opts.onRemove) {
         buttons.push({ text: opts.removeText || 'Remove', className: 'base-button destructive', action: function (close): void { opts.onRemove!(close); } });
     }
+    // The footer reads destructive first, then the extra actions, then Cancel, then the primary.
+    var extras = (opts.actions || []).filter(Boolean);
+    var ordered = extras.filter(function (a) { return a.variant === 'destructive'; }).concat(extras.filter(function (a) { return a.variant !== 'destructive'; }));
+    ordered.forEach(function (a) {
+        var variant = a.variant === 'primary' || a.variant === 'destructive' ? a.variant : 'secondary';
+        buttons.push({ text: a.text, icon: a.icon, className: 'base-button ' + variant, action: function (close, dismiss, btn): void { a.onClick(handle, btn); } });
+    });
     buttons.push({ text: opts.cancelText || 'Cancel', className: 'base-button secondary', action: function (close, dismiss): void { dismiss(); } });
     // Done stays disabled while onDone is pending, and a rejection re-enables it since onDone reports its own error.
     var busy: boolean = false;

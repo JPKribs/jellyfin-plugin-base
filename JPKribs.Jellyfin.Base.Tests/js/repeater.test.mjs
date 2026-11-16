@@ -120,10 +120,20 @@ test('reorder moves a row up and down, keeps focus on its arrow, and disables th
 
 test('card layout draws a titled card per item from the title template', function () {
     var ui = build({ layout: 'card', titleText: 'Server {index}: {name}' });
-    assert.ok(ui.r.element.classList.contains('card'));
+    assert.ok(ui.r.element.classList.contains('base-repeater-layout-card'));
     assert.equal(ui.r.element.querySelector('.base-repeater-head'), null);
     assert.equal(rows(ui)[0].querySelector('.base-repeater-card-title').textContent, 'Server 1: a');
     assert.equal(rows(ui)[0].querySelector('.base-repeater-remove').getAttribute('aria-label'), 'Remove Server 1: a');
+});
+
+test('the root carries only namespaced layout classes, never a bare class Jellyfin styles', function () {
+    // Jellyfin's global .card rule sets paint containment, which traps a fixed dropdown inside the repeater.
+    var card = build({ layout: 'card' });
+    assert.equal(card.r.element.classList.contains('card'), false);
+    assert.ok(card.r.element.classList.contains('base-repeater-layout-card'));
+    var inline = build();
+    assert.equal(inline.r.element.classList.contains('inline'), false);
+    assert.ok(inline.r.element.classList.contains('base-repeater-layout-inline'));
 });
 
 test('a secret field keeps a stored secret off the page and reads back the kept sentinel', function () {

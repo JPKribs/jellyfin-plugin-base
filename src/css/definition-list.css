@@ -8,19 +8,35 @@
 }
 .base-defs-row {
     display: grid;
-    grid-template-columns: minmax(120px, 30%) 1fr;
+    grid-template-columns: minmax(120px, 30%) minmax(0, 1fr);
     gap: var(--base-gap-wide);
     font-size: 0.95em;
+}
+/* The rows share one label column, as wide as the longest label up to 40% of the list, where a longer label wraps */
+/* Example: <dl class="base-defs base-list plain"><div class="base-defs-row"><dt class="base-defs-label">JF_COMMUNITY_RATING</dt><dd class="base-defs-value">8.1</dd></div></dl> */
+@supports (grid-template-columns: subgrid) {
+    .base-defs.base-list:not(.columns) {
+        display: grid;
+        grid-template-columns: fit-content(40%) minmax(0, 1fr);
+        column-gap: var(--base-gap-wide);
+        row-gap: var(--base-gap-narrow);
+    }
+    .base-defs.base-list:not(.columns) > * { grid-column: 1 / -1; }
+    .base-defs.base-list:not(.columns) > .base-defs-row { grid-template-columns: subgrid; }
 }
 /* The dimmed label every label and value list shares, a definition list's and a record card's */
 /* Example: <dt class="base-defs-label">Version</dt> */
 .base-defs-label,
 .base-record-label { opacity: 0.7; }
+.base-defs-label { min-width: 0; word-wrap: break-word; word-break: break-word; overflow-wrap: anywhere; }
 .base-defs-value { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 .base-defs-missing { opacity: 0.5; }
 
+/* On a phone each label sits over its value */
 @media (max-width: 600px) {
-    .base-defs-row { grid-template-columns: 1fr; gap: 0.1em; }
+    .base-defs.base-list:not(.columns) { display: flex; }
+    .base-defs.base-list:not(.columns) > .base-defs-row,
+    .base-defs-row { grid-template-columns: minmax(0, 1fr); gap: 0.1em; }
 }
 
 /* Dimmed lines under a value, a meta line such as a size and a note, in the value's column */

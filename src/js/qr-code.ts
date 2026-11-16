@@ -79,7 +79,7 @@ function qrPaths(grid: boolean[][]): { dots: string; eyes: string } {
 }
 
 /**
- * With layout 'inline' it draws only the text as a Copy Field, with a QR button beside Copy that opens the full code,
+ * With layout 'inline' it draws only the text as a wrapped Copy Field that shows all of it, with a QR button beside Copy that opens the full code,
  * with its Copy Image and Download, in a dialog. A text too long to encode disables that button and shows the message.
  *
  * A QR code of a short text, such as a URL, drawn as SVG in the text color on the surface in a rounded style: round dots, and rounded finder eyes in the accent color, with Copy Image and Download buttons for a PNG and the text under it as a Copy Field.
@@ -132,7 +132,7 @@ export function createQrCode(options?: QrCodeOptions): QrCodeHandle {
     var showBtn: HTMLButtonElement | null = null;
     if (inline) {
         // Inline, the text is the component, and its QR button opens the full code in a dialog.
-        field = createCopyField({ value: '', label: opts.label || 'Link' });
+        field = createCopyField({ value: '', label: opts.label || 'Link', wrap: true });
         var showLabel = opts.showText || 'Show QR Code';
         showBtn = iconButton('base-row-btn base-qr-code-open', 'qr_code_2', showLabel);
         field.element.appendChild(showBtn);

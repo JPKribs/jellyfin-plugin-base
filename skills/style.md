@@ -28,6 +28,7 @@ Every rule below is a rule, not a suggestion. Where a rule names a token, the va
 | C# type | PascalCase in `JPKribs.Jellyfin.Base` | `StatusPage` |
 
 * Name a component after what it is, never after where one plugin uses it.
+* A plain modifier never takes a class Jellyfin's dashboard CSS styles on its own, such as `card`, `listItem`, or `hide`. Jellyfin's `.card` sets paint containment, which traps a fixed popup. Prefix such a modifier with the component, as `base-repeater-layout-card` is. `CssCollisionTests` pins the list.
 * Every class and variable Base ships starts with `base-`, with no exceptions. A selector that styles Jellyfin's own markup keeps Jellyfin's name: `sectionTitle`, `sectionTitleContainer`, `hidden`, `fieldDescription`, `material-icons`, `inputContainer`, `checkboxContainer`, `selectContainer`, and `emby-*`. Add to this list before you add one.
 * One file per component, named after its docs page: `src/js/<name>.ts` and `src/css/<name>.css`. Shared cores go in `src/js/lib/` and have no CSS file of their own. Their shared CSS lives in the file of the component that owns the concept, or in `utility-classes.css` when no one component owns it, such as `base-float` and `base-icon-text`.
 * `index.ts` lists every public export by name. A template lives in `src/templates`, one HTML file per template. A C# helper lives in `src/`, one file per helper.

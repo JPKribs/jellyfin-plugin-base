@@ -55,7 +55,7 @@ Classes: `base-dialog`, `base-dialog-content`, with the size modifiers `small`, 
 * `size` sets the panel's width as a share of the window: `small` is 40% (at least 320px), `medium` is 60% (at least 420px, the default), and `large` is 80% (at least 560px). A panel never grows past the screen, and below 600px every size takes the screen's width.
 * `className` adds classes to the panel. `dismissable` (default true) allows the backdrop, Escape, and the close button. `closeButton` shows the corner button and is never shown when the dialog is not dismissable.
 * `beforeClose()` returns `false`, or a promise of `false`, to keep the dialog open when it is dismissed.
-* `buttons` is `[{ text, className, value, action(close, dismiss, button) }]`. Without `action` a button closes with its `value`. `dismiss` closes the way Escape does, asking `beforeClose`.
+* `buttons` is `[{ text, icon, className, value, action(close, dismiss, button) }]`. `icon` is a Material icon name drawn before the text. Without `action` a button closes with its `value`. `dismiss` closes the way Escape does, asking `beforeClose`.
 * `autofocus` is an element or selector to focus on open, or `false` to focus the panel. `returnFocus` is where focus goes on close when the opener is gone.
 * Focus on open goes to `autofocus`, else the first visible field in the body, else a non destructive footer button, else the close button, else the panel. A `base-button destructive` button is never focused automatically. On a touch screen a text field is not focused, so the keyboard does not cover the dialog.
 * Tab and Shift+Tab cycle inside the panel. Only the top dialog answers Escape. A backdrop `mousedown` dismisses. The page behind does not scroll while a dialog is open.
@@ -95,7 +95,7 @@ Opens a modal that closes on backdrop click, Escape, and the corner close button
 | `dismissable` | <code>boolean</code> | allow backdrop/Escape/close-button dismissal (default true) |
 | `closeButton` | <code>boolean</code> | render the corner close button, which also needs dismissable (default true) |
 | `beforeClose` | <code>(): boolean &#124; PromiseLike&lt;boolean &#124; void&gt;</code> | function() returning false, or a promise of false, to keep the dialog open when it is dismissed, such as to confirm discarding changes [optional] |
-| `buttons` | <code>DialogButton[]</code> | [{ text, className, value, action(close, dismiss, button) }] rendered in the footer row, where dismiss closes as Escape does, asking beforeClose first, and button is the clicked element [optional] |
+| `buttons` | <code>DialogButton[]</code> | [{ text, icon, className, value, action(close, dismiss, button) }] rendered in the footer row, where dismiss closes as Escape does, asking beforeClose first, icon is a Material icon name before the text, and button is the clicked element [optional] |
 | `onClose` | <code>(value: unknown): void</code> | function(value) called once when the dialog closes [optional] |
 | `autofocus` | <code>HTMLElement &#124; string &#124; false &#124; null</code> | the element or a selector within the dialog to focus on open, or false to focus the panel itself (default the first visible field, else a non-destructive footer button) [optional] |
 
@@ -109,7 +109,7 @@ Opens a modal that closes on backdrop click, Escape, and the corner close button
 
 | Type | What it is |
 | :--- | :--- |
-| `DialogButton` | One footer button. action gets close, dismiss, and the clicked button, and without it a click closes with value. |
+| `DialogButton` | One footer button. icon is a Material icon name drawn before the text, action gets close, dismiss, and the clicked button, and without it a click closes with value. |
 
 | Class | What it looks like |
 | :--- | :--- |

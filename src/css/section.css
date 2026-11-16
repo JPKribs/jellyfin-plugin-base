@@ -4,4 +4,4 @@
 
 /* Static header row styled like a collapsible header, with no button, pointer, or chevron */
 /* Example: <div class="base-section-title">Title</div> */
-.base-section-title { cursor: default; text-transform: capitalize; }
+.base-section-title { cursor: default; }

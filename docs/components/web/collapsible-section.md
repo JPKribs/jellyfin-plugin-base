@@ -125,7 +125,7 @@ Also on the bag as `shared.initCollapsibles()`. Classes: `base-collapsible-secti
 
 * Use `type="button"`, or the header submits a surrounding form.
 * The content is found inside the `view` you pass, so a section in a body level dialog is not found by a page level call.
-* The title is capitalized by CSS, so a sentence case title changes. A `numbered` title keeps its case.
+* The title shows exactly as written, so a name such as `yt-dlp` keeps its case. Write a title in Title Case.
 
 ## Reference
 
@@ -187,7 +187,7 @@ Builds a collapsible section, the same markup initCollapsibles binds, with an op
 | :--- | :--- |
 | `base-collapsible-section` | Flat collapsible section so its fields align with the rest of the form |
 | `base-collapsible-header` | Clickable header row that toggles the section, flush with the form left edge |
-| `base-collapsible-title` | Capitalized header title that takes the free width |
+| `base-collapsible-title` | Header title, shown as written, that takes the free width |
 | `base-collapsible-badge` | A badge or status dot in the header, between the title and the chevron, that keeps its own size |
 | `base-collapsible-icon` | The expand_more chevron, down while collapsed and turned up while open, as Jellyfin's expanders turn. Any control with aria-expanded that holds it turns it too, such as a card head |
 | `base-collapsible-content` | Section body, flush left, hidden when collapsed |

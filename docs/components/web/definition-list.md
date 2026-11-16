@@ -42,7 +42,8 @@ Parts: `base-defs-label`, `base-defs-value`, `base-defs-meta`, `base-defs-note`,
 * An item is `{ label, value, mono, meta, note, arrow }`. `mono` shows the value in the mono font. `meta`, such as a size, and `note` are dimmed small lines under the value, in either layout.
 * A value may be a node, which is placed as it is, or `{ text, badge, link, mono }`. `badge` is a label or `{ label, color }` drawn as a [Badge](badge.md), `link` is an address that opens in a new tab with `text` as its words, and `mono` shows the text in the mono font.
 * A missing value shows `emptyText`, "None" by default, dimmed with `base-defs-missing`.
-* The list is a `dl`. A row is one column at 600px and below.
+* The list is a `dl`. In the rows layout every row shares one label column, as wide as the longest label up to 40% of the list. A longer label wraps, and an unbroken one such as `JF_COMMUNITY_RATING` breaks anywhere, so a label never runs over its value. An engine without `subgrid` gives the labels a column of at least 120px and 30% of the row, and they wrap the same way.
+* A row is one column at 600px and below, with its label over its value.
 * `layout: 'columns'` sets each label small, uppercase, and dimmed over its value, with `columns`, in [balanced rows](balanced-rows.md) at least 200px wide on the wash. The List lays it out as a grid. `layout: 'rows'`, the default, keeps each label beside its value.
 * In the columns layout, `arrow: true` draws an `arrow_forward` after every item but the last, and `arrow: true` on an item draws one after that item, with `has-arrow` on its row. When two columns no longer fit the list's own width it takes `compact`, the columns stack, and each arrow turns down.
 * The rows are a [List](list.md), so `height`, `maxHeight`, `minHeight`, and `setHeight` work as they do there. `height` is `'auto'` by default, so the list grows with its rows.

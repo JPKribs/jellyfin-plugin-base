@@ -63,6 +63,12 @@ B.openDialog({ title: 'Title', size: 'large' });
 B.bindDialog('dialogId', {});
 B.confirmDialog('Remove it?').then(function (yes: boolean) { return yes; });
 B.openEditorDialog({});
+B.openEditorDialog({ actions: [{ text: 'Duplicate', icon: 'content_copy', onClick: function (handle, button) { handle.markClean(); button.disabled = true; } }, { text: 'Send', variant: 'primary', onClick: function () {} }] });
+// @ts-expect-error an action needs its onClick
+B.openEditorDialog({ actions: [{ text: 'Duplicate' }] });
+// @ts-expect-error an action's variant is one of the button variants
+B.openEditorDialog({ actions: [{ text: 'Duplicate', variant: 'loud', onClick: function () {} }] });
+B.createCopyField({ value: 'https://example.com', wrap: true });
 B.promptDialog([{ name: 'name', value: '' }]);
 B.createDivider({});
 B.createFieldMessage({});

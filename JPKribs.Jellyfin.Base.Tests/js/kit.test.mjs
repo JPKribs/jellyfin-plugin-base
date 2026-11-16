@@ -164,6 +164,42 @@ test('openEditorDialog disables Done while onDone is pending and re-enables it o
     handle.close();
 });
 
+test('openEditorDialog draws extra actions in the footer between Remove and Cancel, in button order', function () {
+    var seen = [];
+    var handle = openEditorDialog({
+        title: 'Edit Invite',
+        onRemove: function () {},
+        actions: [
+            { text: 'Duplicate', icon: 'content_copy', onClick: function (h, btn) { seen.push([h, btn]); } },
+            { text: 'Send', variant: 'primary', onClick: function () {} },
+            { text: 'Revoke', variant: 'destructive', onClick: function () {} }
+        ]
+    });
+    var row = handle.element.querySelector('.base-modal-button-row');
+    var buttons = all(row, '.base-modal-button');
+    assert.deepEqual(buttons.map(function (b) { return b.textContent; }), ['Remove', 'Revoke', 'content_copyDuplicate', 'Send', 'Cancel', 'Done']);
+    var duplicate = buttons[2];
+    assert.ok(duplicate.classList.contains('base-button'));
+    assert.ok(duplicate.classList.contains('secondary'), 'an action is secondary by default');
+    assert.ok(duplicate.classList.contains('raised'));
+    assert.equal(duplicate.querySelector('.material-icons').textContent, 'content_copy');
+    assert.equal(duplicate.querySelector('.material-icons').getAttribute('aria-hidden'), 'true');
+    assert.ok(buttons[1].classList.contains('destructive'));
+    assert.ok(buttons[3].classList.contains('primary'));
+    duplicate.click();
+    assert.equal(seen.length, 1);
+    assert.equal(seen[0][0], handle, 'onClick gets the editor handle');
+    assert.equal(seen[0][1], duplicate);
+    assert.equal(handle.element.classList.contains('hidden'), false, 'an action leaves the editor open');
+    handle.close();
+});
+
+test('openEditorDialog with no actions keeps Remove, Cancel, and Done', function () {
+    var handle = openEditorDialog({ title: 'Edit', onRemove: function () {} });
+    assert.deepEqual(all(handle.element, '.base-modal-button').map(function (b) { return b.textContent; }), ['Remove', 'Cancel', 'Done']);
+    handle.close();
+});
+
 test('bindDialog leaves semantics alone when the overlay already carries the role', function () {
     var content = dom.el('div', { class: 'base-dialog-content' });
     dom.document.body.appendChild(dom.el('div', { class: 'base-dialog hidden', id: 'm', role: 'dialog', 'aria-modal': 'true' }, [content]));

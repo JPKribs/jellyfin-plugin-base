@@ -1,6 +1,6 @@
 # Editor Dialog
 
-The record editor a config page builds. It has Remove (unless the record is new), Cancel, and Done, asks "Discard your changes?" when dismissed with edits, and tracks its own changes.
+The record editor a config page builds. It has Remove (unless the record is new), any extra actions, Cancel, and Done, asks "Discard your changes?" when dismissed with edits, and tracks its own changes.
 
 ## Decision
 
@@ -36,6 +36,7 @@ It returns the `openDialog` handle plus `isDirty()` and `markClean()`.
 * `serialize()` returns a stable string of the editor state. `ready` is a promise to wait on before taking the clean snapshot, for fields still loading.
 * `doneText`, `removeText`, and `cancelText` replace "Done", "Remove", and "Cancel".
 * `onDone(close)` returns `false`, or a promise of `false`, to stay open. Done is disabled while a returned promise is pending, and a rejection enables it again. A true or undefined result closes with `'done'`.
+* `actions` adds buttons to the pinned footer, such as Duplicate. Each is `{ text, icon, variant, onClick(handle, button) }`, where `icon` is a Material icon name before the text and `variant` is `'secondary'` (default), `'primary'`, or `'destructive'`. The footer reads Remove and any destructive action first, then the other actions, then Cancel, then Done, in the same button look and size, on one line that wraps on a phone. An action leaves the editor open, and `onClick` closes it through the handle when it should.
 * `onRemove(close)` closes the dialog itself. Remove shows only when this is set and `isNew` is false.
 * Dismissing with changes opens a destructive confirm titled "Unsaved Changes" that asks "Discard your changes?".
 
@@ -64,11 +65,16 @@ Opens an editor dialog for one record with Remove, Cancel, and Done buttons, and
 | `doneText` | <code>string</code> |  |
 | `removeText` | <code>string</code> |  |
 | `cancelText` | <code>string</code> |  |
+| `actions` | <code>EditorDialogAction[]</code> | [{ text, icon, variant, onClick(handle, button) }] extra footer buttons, such as Duplicate, drawn after Remove and before Cancel. variant is 'secondary', 'primary', or 'destructive' (default 'secondary'), and a destructive one sits beside Remove [optional] |
 
 | Handle member | Type |
 | :--- | :--- |
 | `isDirty` | <code>(): boolean</code> |
 | `markClean` | <code>(): void</code> |
+
+| Type | What it is |
+| :--- | :--- |
+| `EditorDialogAction` | One extra footer button of an editor, such as Duplicate. icon is a Material icon name, and variant picks its look. |
 
 <!-- reference:end -->
 

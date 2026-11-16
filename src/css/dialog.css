@@ -50,8 +50,9 @@
 }
 .base-dialog-content.large .base-modal-button,
 .base-drawer-content .base-drawer-footer .base-modal-button { flex: none; min-width: 7em; }
-.base-dialog-content.large .base-modal-button.base-button.destructive,
-.base-drawer-content .base-drawer-footer .base-modal-button.base-button.destructive { margin-right: auto; }
+/* The destructive buttons sit at the start and the rest at the end, however many of each */
+.base-dialog-content.large .base-modal-button.base-button.destructive + .base-modal-button:not(.destructive),
+.base-drawer-content .base-drawer-footer .base-modal-button.base-button.destructive + .base-modal-button:not(.destructive) { margin-left: auto; }
 @media (max-width: 600px) {
     /* On a phone every panel takes the width of the screen, and a large one or a drawer takes the whole screen. */
     .base-dialog-content { width: 100%; min-width: 0; }
@@ -85,7 +86,8 @@
     .base-modal-button-row { flex-wrap: wrap; row-gap: var(--base-gap-narrow); }
     .base-dialog-content.large .base-modal-button,
     .base-drawer-content .base-drawer-footer .base-modal-button { flex: 1 1 auto; }
-    .base-modal-button-row .base-modal-button.base-button.destructive { order: 1; margin-right: 0; }
+    .base-modal-button-row .base-modal-button.base-button.destructive { order: 1; }
+    .base-modal-button-row .base-modal-button.base-button.destructive + .base-modal-button:not(.destructive) { margin-left: 0; }
 }
 
 /* The corner close button, a row button pinned to the top right corner of the panel and inset by the panel's padding, level with the title */
@@ -129,6 +131,7 @@
     justify-content: center;
     text-align: center;
     border: 0;
+    gap: calc(var(--base-gap-narrow) / 2);
     border-radius: var(--base-radius-small);
     padding: var(--base-pad-medium) var(--base-pad-large);
     font: inherit;

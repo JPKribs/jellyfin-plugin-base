@@ -30,12 +30,9 @@
     color: var(--base-fg);
 }
 
-/* Capitalized header title that takes the free width */
+/* Header title, shown as written, that takes the free width */
 /* Example: <span class="base-collapsible-title">Title</span> */
-.base-collapsible-title {
-    flex: 1;
-    text-transform: capitalize;
-}
+.base-collapsible-title { flex: 1; }
 /* A badge or status dot in the header, between the title and the chevron, that keeps its own size */
 /* Example: <span class="base-badge green base-collapsible-badge">Done</span> */
 .base-collapsible-badge {
@@ -99,7 +96,6 @@
     display: flex;
     align-items: center;
     gap: var(--base-gap-narrow);
-    text-transform: none;
 }
 .base-collapsible-section.numbered > .base-collapsible-header .base-collapsible-title::before,
 .base-collapsible-section.numbered > .base-collapsible-bar > .base-collapsible-header .base-collapsible-title::before {

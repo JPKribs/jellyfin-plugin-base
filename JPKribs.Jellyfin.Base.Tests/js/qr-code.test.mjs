@@ -2,6 +2,9 @@
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom, all } from './fake-dom.mjs';
+import { readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 var dom = installFakeDom();
 var { encodeQr, utf8Bytes, QR_MAX_BYTES } = await import('../../src/js/lib/qr.js');
@@ -102,6 +105,23 @@ test('inline draws the text with a QR button beside Copy that opens the full cod
     assert.equal(dialog.content.querySelector('.base-copy-field'), null, 'the dialog leaves out the text it came from');
     dialog.close();
     qr.destroy();
+});
+
+test('inline shows the whole of an 84 character link, with nothing in its CSS that clips or ellipsizes it', function () {
+    var url = 'https://jellyfin.example.com/invite/0123456789abcdef0123456789abcdef?code=ABCDEFGHIJ';
+    assert.equal(url.length, 84);
+    var qr = createQrCode({ value: url, layout: 'inline' });
+    var field = qr.element.querySelector('.base-copy-field');
+    assert.ok(field.classList.contains('wrap'));
+    var text = field.querySelector('.base-copy-field-text');
+    assert.equal(text.textContent, url);
+    assert.ok(field.querySelector('.base-copy-button'), 'Copy stays beside the text');
+    assert.ok(field.querySelector('.base-qr-code-open'), 'the QR button stays beside the text');
+    var css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'src', 'css', 'copy-field.css'), 'utf8');
+    var rule = /\.base-copy-field-text \{([^}]*)\}/.exec(css)[1];
+    assert.match(rule, /overflow-wrap: anywhere/);
+    assert.match(rule, /white-space: pre-wrap/);
+    assert.doesNotMatch(rule, /text-overflow|overflow: hidden|nowrap|max-height|(?<![\w-])height:/);
 });
 
 test('inline with a text too long disables the QR button and shows the message', function () {

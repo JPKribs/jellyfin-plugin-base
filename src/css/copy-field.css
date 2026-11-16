@@ -13,6 +13,34 @@
 }
 .base-copy-field .base-row-btn { flex: 0 0 auto; }
 
+/* A wrapped copy field: the whole value as read-only text over as many lines as it needs, broken anywhere, with the buttons level with its first line */
+/* Example: <div class="base-copy-field wrap"><input type="text" readonly hidden><div class="base-copy-field-text base-mono" role="textbox" aria-readonly="true" tabindex="0">https://example.com/invite</div><button type="button" class="base-row-btn base-copy-button"></button></div> */
+.base-copy-field.wrap { align-items: flex-start; }
+.base-copy-field.wrap > .base-row-btn { margin-top: calc((var(--base-field-height) - var(--base-size-small)) / 2); }
+.base-copy-field-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: var(--base-field-height);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    padding: calc((var(--base-field-height) - var(--base-line-medium)) / 2 - 1px) var(--base-field-pad);
+    line-height: var(--base-line-medium);
+    font-size: var(--base-field-font);
+    background-color: var(--base-surface);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-small);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    -webkit-user-select: text;
+    user-select: text;
+    cursor: text;
+}
+.base-copy-field-text:focus { outline: none; border-color: var(--base-accent); }
+.base-copy-field > input[hidden] { display: none; }
+
 /* An inline copy field, in a row or a table cell, with none of a form field's space below it */
 /* Example: <div class="base-copy-field inline"><input type="text" readonly class="base-mono"><button type="button" class="base-row-btn base-copy-button"></button></div> */
 .base-copy-field.inline { min-width: 0; }

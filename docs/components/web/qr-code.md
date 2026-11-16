@@ -26,7 +26,7 @@ The handle is `{ element, getValue, setValue, toBlob, destroy }`. `toBlob()` res
 * A longer text shows "This text is too long for a QR code." under the frame, which `tooLongText` replaces, and hides the code.
 * Copy Image copies a PNG to the clipboard where the browser allows it, and its label shows "Copied." or "Copy failed." for `feedbackMs`, 1500 milliseconds by default. `copyImageText`, `downloadText`, `copiedText`, and `copyFailedText` replace the labels. Download saves `fileName` ("qr-code.png").
 * On a wide line the code sits on the left, with Copy Image and Download as two equal buttons over the Copy Field filling the space beside it, level with the code's bottom edge. When the component is narrower than 480px, it stacks: the code the full width, then the buttons and the text under it.
-* `layout: 'inline'` draws only the text as a Copy Field, with a QR button beside Copy. The button, named by `showText` ("Show QR Code"), opens the full code with Copy Image and Download in a small dialog titled `dialogTitle` ("QR Code"). `open()` does the same from code. A text too long to encode disables the button and shows the message under the field.
+* `layout: 'inline'` draws only the text as a Copy Field with `wrap`, so a long link shows whole over as many lines as it needs, with Copy and a QR button level with its first line. The button, named by `showText` ("Show QR Code"), opens the full code with Copy Image and Download in a small dialog titled `dialogTitle` ("QR Code"). `open()` does the same from code. A text too long to encode disables the button and shows the message under the field.
 * The PNG takes the shapes and colors the code shows on the page, drawn at 12 pixels per module so the dots stay smooth.
 * The eyes take `--base-accent`. A page can restyle them with `.base-qr-code-eyes { fill: ... }`, and the PNG follows.
 * `showValue: false` hides the Copy Field.
@@ -42,7 +42,7 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 
 <code>function createQrCode(options?: QrCodeOptions): QrCodeHandle</code>
 
-With layout 'inline' it draws only the text as a Copy Field, with a QR button beside Copy that opens the full code, with its Copy Image and Download, in a dialog. A text too long to encode disables that button and shows the message.
+With layout 'inline' it draws only the text as a wrapped Copy Field that shows all of it, with a QR button beside Copy that opens the full code, with its Copy Image and Download, in a dialog. A text too long to encode disables that button and shows the message.
 
 | Option | Type | What it does |
 | :--- | :--- | :--- |
@@ -72,7 +72,7 @@ With layout 'inline' it draws only the text as a Copy Field, with a QR button be
 | :--- | :--- |
 | `base-qr-code.compact` | A narrow QR code stacks: the code the full width, then the buttons and the text under it at the same width |
 | `base-qr-code.base-qr-code-dialog` | The code in its dialog: stacked, a code-sized column centered in the dialog |
-| `base-qr-code.inline` | An inline QR code: its text as a Copy Field with a QR button beside Copy that opens the code in a dialog |
+| `base-qr-code.inline` | An inline QR code: its whole text as a wrapped Copy Field with a QR button beside Copy that opens the code in a dialog |
 | `base-qr-code-actions` | The Copy Image and Download buttons, two equal halves of a button row the code's width, a field tall like the Copy Field under them |
 
 <!-- reference:end -->

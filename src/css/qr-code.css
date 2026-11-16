@@ -41,8 +41,8 @@
 /* Example: <div class="base-qr-code compact base-qr-code-dialog"></div> */
 .base-qr-code.base-qr-code-dialog { width: calc(var(--base-size-large) * 8); max-width: 100%; margin: 0 auto; }
 
-/* An inline QR code: its text as a Copy Field with a QR button beside Copy that opens the code in a dialog */
-/* Example: <div class="base-qr-code inline"><div class="base-copy-field"><input type="text" readonly class="base-mono"><button class="base-row-btn base-copy-button"></button><button class="base-row-btn base-qr-code-open" aria-label="Show QR Code"><span class="material-icons">qr_code_2</span></button></div></div> */
+/* An inline QR code: its whole text as a wrapped Copy Field with a QR button beside Copy that opens the code in a dialog */
+/* Example: <div class="base-qr-code inline"><div class="base-copy-field wrap"><input type="text" readonly hidden><div class="base-copy-field-text base-mono" role="textbox" aria-readonly="true" tabindex="0">https://example.com</div><button class="base-row-btn base-copy-button"></button><button class="base-row-btn base-qr-code-open" aria-label="Show QR Code"><span class="material-icons">qr_code_2</span></button></div></div> */
 .base-qr-code.inline { flex-direction: column; align-items: stretch; gap: var(--base-gap-narrow); }
 .pluginConfigurationPage .base-qr-code.inline > [class],
 .base-dialog .base-qr-code.inline > [class] { margin: 0 !important; }

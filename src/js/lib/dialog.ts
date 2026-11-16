@@ -2,7 +2,7 @@
 // The modal shell, focus, stacking, scroll lock, and button row helpers that every dialog shares. None of them is exported from the bundle.
 
 import type { DialogOptions, DialogButton } from '../dialog.js';
-import { listen, runAll, iconButton } from './dom.js';
+import { listen, runAll, iconButton, icon } from './dom.js';
 
 var FOCUSABLE: string = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -319,7 +319,12 @@ export function dialogButtonRow(buttons: DialogButton[] | null | undefined, clos
         var btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'raised base-modal-button ' + (spec.className || 'base-button secondary');
-        btn.textContent = spec.text || '';
+        if (spec.icon) {
+            btn.appendChild(icon(spec.icon));
+            btn.appendChild(document.createElement('span')).textContent = spec.text || '';
+        } else {
+            btn.textContent = spec.text || '';
+        }
         btn.addEventListener('click', function (): void {
             if (spec.action) spec.action(close, dismiss, btn);
             else close(spec.value);

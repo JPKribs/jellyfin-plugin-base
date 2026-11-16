@@ -18,11 +18,12 @@ var url = createCopyField({ value: config.WebhookUrl, secret: false });
 container.appendChild(url.element);
 ```
 
-Classes: `base-copy-field`, `base-copy-button`, `base-copy-reveal`. The handle is `{ element, input, getValue, setValue, copy, setSize, destroy }`.
+Classes: `base-copy-field`, `base-copy-field-text`, `base-copy-button`, `base-copy-reveal`. The handle is `{ element, input, getValue, setValue, copy, setSize, destroy }`.
 
 ## States and Modifiers
 
 * `secret: true` masks the value. `allowExpose: true` adds an eye inside the box, at its trailing end, that shows and hides it. It is off by default, so a secret stays masked unless the page opts in. `mono` (default true) shows the value in the mono font.
+* `wrap: true` adds `wrap` and shows the whole value as read-only text in `base-copy-field-text`, broken anywhere over as many lines as it needs, with the buttons level with its first line. Focus or Ctrl+A selects all of it, and `input` stays hidden, holding the value. A secret ignores it.
 * `inline: true` adds `inline`, for a field in a row or a table cell, with none of a form field's space below it.
 * The copy button is a `base-row-btn`. It takes `success` for the feedback, and shows a check and the feedback text. A hidden status region announces it.
 * The feedback is "Copied." or "Copy failed." for 1500 ms (`feedbackMs`). `copiedText` and `failedText` replace the text.
@@ -47,6 +48,7 @@ A read-only value with a copy button beside it that shows its result. A secret v
 | :--- | :--- | :--- |
 | `value` | <code>unknown</code> | the text to show and copy [optional] |
 | `inline` | <code>boolean</code> | true sits the field in a row or a table cell, with none of a form field's space below it (default false) |
+| `wrap` | <code>boolean</code> | true shows the whole value, broken over as many lines as it needs, with the buttons level with its first line. Ignored for a secret (default false) |
 | `secret` | <code>boolean</code> | true masks the value (default false) |
 | `allowExpose` | <code>boolean</code> | true adds an eye inside a secret's box that shows and hides it (default false) |
 | `mono` | <code>boolean</code> | true shows the value in the mono font (default true) |
@@ -72,6 +74,7 @@ A read-only value with a copy button beside it that shows its result. A secret v
 | Class | What it looks like |
 | :--- | :--- |
 | `base-copy-field` | Read-only value with a copy button beside it, and an optional eye inside a secret's box |
+| `base-copy-field.wrap` | A wrapped copy field: the whole value as read-only text over as many lines as it needs, broken anywhere, with the buttons level with its first line |
 | `base-copy-field.inline` | An inline copy field, in a row or a table cell, with none of a form field's space below it |
 
 <!-- reference:end -->

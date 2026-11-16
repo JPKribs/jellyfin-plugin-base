@@ -154,7 +154,7 @@ export function buildRepeater(options: RepeaterOptions, parts: RepeaterParts | n
     var card = opts.layout === 'card';
     var cleanups: Array<() => void> = [];
 
-    var root = make('div', 'base-repeater ' + (card ? 'card' : 'inline') + (p.rootClass ? ' ' + p.rootClass : ''));
+    var root = make('div', 'base-repeater ' + (card ? 'base-repeater-layout-card' : 'base-repeater-layout-inline') + (p.rootClass ? ' ' + p.rootClass : ''));
     applyFieldSize(root, opts.size);
     root.style.setProperty('--base-repeater-columns', fields.map(function (f) { return f.width || (f.type === 'toggle' ? 'max-content' : 'minmax(0, 1fr)'); }).join(' '));
     root.style.setProperty('--base-repeater-buttons', String(1 + (opts.reorder ? 2 : 0)));

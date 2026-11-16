@@ -26,7 +26,7 @@ Classes: `base-section`, `base-section-title`, `base-section-content`.
 
 * The title is optional. A section may hold only `base-section-content`, with no title element.
 * Inside a page or dialog the section takes the field gap as bottom margin.
-* The title is capitalized by CSS, so a sentence case title changes.
+* The title shows exactly as written, so a name such as `yt-dlp` keeps its case. Write a title in Title Case.
 
 ## Gotchas
 

@@ -46,8 +46,8 @@ The handle is `{ element, getValue, setValue, setItems, addRow, isValid, setHeig
 * `type` picks the control. `text` is a text box, `secret` a secret field with its three states and the eye with `allowExpose`, `select` the form select of `options`, `number` a number box with Base's arrows, `tags` the [Tag Input](tag-input.md), `time` a time box with its picker icon, `toggle` an on and off control a field tall, and `custom` the control `render(value, change)` returns as `{ element, input, getValue, setValue, destroy }`.
 * A secret's value is the kept sentinel, `SECRET_KEPT`, while a secret is stored but not on the page, and `getValue()` gives it back for a field left untouched.
 * `required`, `min`, `max`, and `validate(value, item, index)` check through the validation core, with the field's label as the noun, such as "Enter a name.". A message shows under its field once the reader leaves it, then follows each change. `isValid()` checks every field, shows every message, and moves focus to the first invalid one.
-* `layout: 'inline'` (default) draws a row per item on shared column tracks under the field labels. `width` sets a field's track, a share by default. `showLabels: false` hides the labels.
-* `layout: 'card'` draws each item as a card whose title is `titleText`, "Item {index}" by default, where `{index}` is its number and `{key}` any field's value. Its row buttons sit at the top right.
+* `layout: 'inline'` (default) draws a row per item on shared column tracks under the field labels, and marks the root `base-repeater-layout-inline`. `width` sets a field's track, a share by default. `showLabels: false` hides the labels.
+* `layout: 'card'` marks the root `base-repeater-layout-card` and draws each item as a card whose title is `titleText`, "Item {index}" by default, where `{index}` is its number and `{key}` any field's value. Its row buttons sit at the top right.
 * `reorder: true` adds up and down buttons to each row, and focus stays on the pressed one.
 * `height`, `maxHeight`, and `minHeight` size the rows as a [List](list.md) takes them, `'auto'` by default, and `setHeight` changes them. `size` is `'small'`, `'medium'` (default), or `'large'` for every field.
 * `minRows` disables Remove at that count and fills empty rows up to it. `maxRows` disables Add and shows `limitText`.
@@ -59,6 +59,7 @@ The handle is `{ element, getValue, setValue, setItems, addRow, isValid, setHeig
 
 * `getValue()` leaves out a row whose fields are all empty. A select with no `placeholder` always holds one of its choices, so its row is never empty.
 * `setValue` does not call `onChange`.
+* The layout classes carry the `base-repeater-layout-` prefix because Jellyfin styles a bare `card` class with paint containment, which would trap a dropdown inside the repeater. A page style that targets a layout uses `.base-repeater-layout-card` or `.base-repeater-layout-inline`.
 
 ## Reference
 
@@ -122,14 +123,14 @@ The base for any list of rows or cards of mixed fields, built on the row editor 
 | `base-repeater` | A list of rows or cards of mixed fields, with an Add button under them |
 | `base-repeater-head` | Column labels over inline rows, on the rows' own tracks with room for the row buttons |
 | `base-repeater-rows` | The rows, a gap apart |
-| `base-repeater.inline` | One inline row: a cell per field on the shared tracks, then the row buttons |
+| `base-repeater.base-repeater-layout-inline` | One inline row: a cell per field on the shared tracks, then the row buttons |
 | `base-field-cell` | A field's cell: its label, its control, and its message under it |
 | `base-control-toggle` | A toggle field: the shared Checkbox a field tall, its box centered on the line of the fields beside it |
 | `base-control-secret.clearable` | A secret with a Clear button after its box, shown while a secret is stored |
 | `base-repeater-actions` | The row buttons, the moves and the remove, at the row's end and centered on its first field |
-| `base-repeater.card` | One card: a head with the title and the row buttons at the top right, over its fields in a grid |
+| `base-repeater.base-repeater-layout-card` | One card: a head with the title and the row buttons at the top right, over its fields in a grid |
 | `base-field-group.grid` | Fields in as many columns as fit, each under its label |
-| `base-repeater.inline.compact` | A narrow inline repeater: each row stacks its fields full width under their labels, with the row buttons pinned top right, level with the first label |
+| `base-repeater.base-repeater-layout-inline.compact` | A narrow inline repeater: each row stacks its fields full width under their labels, with the row buttons pinned top right, level with the first label |
 
 <!-- reference:end -->
 

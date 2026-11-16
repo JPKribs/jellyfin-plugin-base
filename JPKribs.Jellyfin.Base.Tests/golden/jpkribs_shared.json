@@ -167,7 +167,7 @@
     "compare-table": 4026,
     "config-page": 1948,
     "confirm-dialog": 1886,
-    "copy-field": 1886,
+    "copy-field": 2761,
     "count-cards": 343,
     "data-table": 14612,
     "date-range-picker": 3781,
@@ -176,7 +176,7 @@
     "dialog": 1251,
     "divider": 443,
     "duration-field": 3417,
-    "editor-dialog": 1595,
+    "editor-dialog": 2023,
     "field-adornments": 3668,
     "field-message": 2270,
     "file-picker": 2595,
@@ -201,7 +201,7 @@
     "lib/color": 3824,
     "lib/combo-aria": 1019,
     "lib/data-view": 4755,
-    "lib/dialog": 6798,
+    "lib/dialog": 6917,
     "lib/dom": 3886,
     "lib/field-control": 9497,
     "lib/file-intake": 1835,
@@ -236,10 +236,10 @@
     "preview-frame": 3634,
     "progress-ring": 1473,
     "prompt-dialog": 2430,
-    "qr-code": 5853,
+    "qr-code": 5861,
     "record-list": 2724,
     "relative-time": 2968,
-    "repeater": 5723,
+    "repeater": 5765,
     "rule-builder": 5172,
     "save-bar": 1860,
     "schedule-picker": 2032,
@@ -271,5 +271,5 @@
     "user-selector": 1509,
     "world-map": 6166
   },
-  "bytes": 465426
+  "bytes": 466898
 }
