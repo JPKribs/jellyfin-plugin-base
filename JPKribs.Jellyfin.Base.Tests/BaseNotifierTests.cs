@@ -71,7 +71,7 @@ public class BaseNotifierTests
         Assert.Equal("https://jf.example.com/web/#/details?id=1", embed["url"]!.GetValue<string>());
         Assert.Equal("https://image.tmdb.org/t/p/w342/x.jpg", embed["thumbnail"]!["url"]!.GetValue<string>());
         Assert.Null(embed["image"]);
-        Assert.Equal("2026-11-20T12:00:00.0000000+00:00", embed["timestamp"]!.GetValue<string>());
+        Assert.Equal("2026-11-20T12:00:00.0000000Z", embed["timestamp"]!.GetValue<string>());
         Assert.Equal(new[] { "Seasons: Season 2: true", @"Notes: Season 2 \*please\*: false" }, embed["fields"]!.AsArray().Select(f => f!["name"] + ": " + f["value"] + ": " + f["inline"]));
         Assert.Empty(post["allowed_mentions"]!["parse"]!.AsArray());
     }
@@ -107,24 +107,91 @@ public class BaseNotifierTests
     }
 
     /// <summary>
-    /// A webhook's JSON carries the title, text, and link, then the images, color, time, language, and fields that are set, then the message's data.
-    /// True: a machine gets every part of the update under fixed keys.
-    /// False: a webhook could not match the update or would miss its fields.
+    /// A webhook's JSON starts with the message's data in its order, then carries the title, text, and link, and the images, color, time,
+    /// language, and fields that are set, each only where the data does not set the key.
+    /// True: a plugin's existing contract keeps its keys first and its own values, such as event.
+    /// False: a webhook that reads the keys in order, or the plugin's own title, would break.
     /// </summary>
     [Fact]
-    public void BuildWebhook_CarriesTheMessageThenItsData()
+    public void BuildWebhook_PutsTheDataFirstAndKeepsItsValues()
     {
         var message = Sample();
         message.Data["request"] = new JsonObject { ["Title"] = "Severance" };
+        message.Data["link"] = null;
 
         var post = BaseNotifier.BuildWebhook(message);
 
-        Assert.Equal(new[] { "title", "message", "link", "thumbnail", "language", "color", "time", "fields", "event", "request" }, post.Select(p => p.Key));
+        Assert.Equal(new[] { "event", "request", "link", "title", "message", "thumbnail", "language", "color", "time", "fields" }, post.Select(p => p.Key));
+        Assert.Equal("Declined", post["event"]!.GetValue<string>());
+        Assert.Null(post["link"]);
         Assert.Equal("Severance (2022), Season 2 was rejected. Not on this server", post["message"]!.GetValue<string>());
+        Assert.Equal("2026-11-20T12:00:00.0000000Z", post["time"]!.GetValue<string>());
         Assert.Equal(2, post["fields"]!.AsArray().Count);
         Assert.Equal("Severance", post["request"]!["Title"]!.GetValue<string>());
-        Assert.Null(BaseNotifier.BuildWebhook(new NotifyMessage { Title = "t" })["link"]);
-        Assert.True(BaseNotifier.BuildWebhook(new NotifyMessage { Title = "t" }).ContainsKey("link"));
+        var own = new NotifyMessage { Title = "generic" };
+        own.Data["title"] = "mine";
+        Assert.Equal("mine", BaseNotifier.BuildWebhook(own)["title"]!.GetValue<string>());
+        Assert.Equal(new[] { "title", "message", "link" }, BaseNotifier.BuildWebhook(new NotifyMessage { Title = "t" }).Select(p => p.Key));
+    }
+
+    /// <summary>
+    /// Every time is written in UTC with a trailing Z, whatever offset the message gives.
+    /// True: Discord and a webhook read the time Requests always sent.
+    /// False: an offset of the server's zone would reach a consumer that expects UTC.
+    /// </summary>
+    [Fact]
+    public void Times_AreUtcWithATrailingZ()
+    {
+        var message = new NotifyMessage { Title = "t", Text = "{time}", Timestamp = new DateTimeOffset(2026, 11, 20, 14, 30, 0, TimeSpan.FromHours(2)) };
+
+        Assert.Equal("2026-11-20T12:30:00.0000000Z", BaseNotifier.BuildDiscord(new NotifyDestination(), message)!["embeds"]![0]!["timestamp"]!.GetValue<string>());
+        Assert.Equal("2026-11-20T12:30:00.0000000Z", BaseNotifier.BuildWebhook(message)["time"]!.GetValue<string>());
+        Assert.Equal("2026-11-20T12:30:00.0000000Z", BaseNotifier.BuildWebhook(message)["message"]!.GetValue<string>());
+    }
+
+    /// <summary>
+    /// A web push keeps an http, https, or relative link, which the worker resolves against its scope, and leaves out any other scheme.
+    /// True: a plugin page's own path opens on a click, and a script address never does.
+    /// False: a relative link would be lost, or a javascript address would reach the worker.
+    /// </summary>
+    [Theory]
+    [InlineData("/web/#/details?id=1", "/web/#/details?id=1")]
+    [InlineData("details?id=1", "details?id=1")]
+    [InlineData("?tab=2", "?tab=2")]
+    [InlineData("https://jf.example.com/a:b", "https://jf.example.com/a:b")]
+    [InlineData("javascript:alert(1)", null)]
+    [InlineData("ftp://files.example.com/", null)]
+    [InlineData("data:text/html,x", null)]
+    [InlineData("  ", null)]
+    public void PushPayload_KeepsRelativeLinksAndDropsOtherSchemes(string link, string? expected)
+    {
+        using var json = JsonDocument.Parse(BaseNotifier.PushPayload(new NotifyMessage { Title = "t", LinkUrl = link }));
+
+        Assert.Equal(expected, json.RootElement.TryGetProperty("url", out var url) ? url.GetString() : null);
+    }
+
+    /// <summary>
+    /// The notifier AddBaseNotifier registers answers a redirect with the redirect, follows it nowhere, and does not try again.
+    /// True: a webhook's headers, such as a token, never reach the host a redirect points to.
+    /// False: a moved webhook could hand its token to another server.
+    /// </summary>
+    [Fact]
+    public async Task AddBaseNotifier_SendsThroughAClientThatFollowsNoRedirect()
+    {
+        using var elsewhere = new SsrfGuardTests.LoopbackServer(_ => (200, null, "ok"));
+        using var moved = new SsrfGuardTests.LoopbackServer(_ => (302, elsewhere.Url, string.Empty));
+        var services = new ServiceCollection();
+        services.AddSingleton(Substitute.For<ISessionManager>());
+        services.AddLogging();
+        services.AddBaseNotifier();
+        using var provider = services.BuildServiceProvider();
+        var notifier = provider.GetRequiredService<BaseNotifier>();
+
+        var result = await notifier.SendAsync(new NotifyDestination { Channel = NotifyChannel.Webhook, Url = moved.Url, Headers = "Authorization: Bearer secret" }, new NotifyMessage { Title = "t" }, CancellationToken.None);
+
+        Assert.Equal((false, 302, "The address answered 302."), (result.Ok, result.Status, result.Message));
+        Assert.Equal(1, moved.Requests);
+        Assert.Equal(0, elsewhere.Requests);
     }
 
     /// <summary>
@@ -604,7 +671,7 @@ public class BaseNotifierTests
     private static BaseNotifier Notifier(StubHandler handler, out SecretProtector secrets, int retries, out PushStore push)
     {
         var factory = Substitute.For<IHttpClientFactory>();
-        factory.CreateClient(NamedClient.Default).Returns(_ => new HttpClient(handler, false));
+        factory.CreateClient(Arg.Any<string>()).Returns(_ => new HttpClient(handler, false));
         secrets = new SecretProtector("test.purpose", NullLogger.Instance, new EphemeralDataProtectionProvider());
         push = new PushStore();
         return new BaseNotifier(factory, Substitute.For<ISessionManager>(), NullLogger<BaseNotifier>.Instance, secrets, null, push)

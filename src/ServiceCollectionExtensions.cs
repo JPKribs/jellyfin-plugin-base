@@ -1,4 +1,6 @@
 using System;
+using System.Net;
+using System.Net.Http;
 using MediaBrowser.Common.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -43,8 +45,8 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registers <see cref="BaseNotifier"/> as a singleton, and <see cref="NotifyHeldWatcher"/> as a hosted service that shows held
-    /// Jellyfin messages once a device comes online. Register the plugin's <see cref="INotifyHeldStore"/>, <see cref="IWebPushStore"/>,
+    /// Registers <see cref="BaseNotifier"/> as a singleton, its <see cref="BaseNotifier.HttpClientName"/> client, which follows no redirect,
+    /// and <see cref="NotifyHeldWatcher"/> as a hosted service that shows held Jellyfin messages once a device comes online. Register the plugin's <see cref="INotifyHeldStore"/>, <see cref="IWebPushStore"/>,
     /// and <see cref="SecretProtector"/> too, for the parts that use them.
     /// </summary>
     /// <param name="services">The service collection.</param>
@@ -52,6 +54,9 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddBaseNotifier(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
+        // Webhook headers can carry a token, so a redirect comes back as the answer instead of taking them to another host.
+        services.AddHttpClient(BaseNotifier.HttpClientName)
+            .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AllowAutoRedirect = false, AutomaticDecompression = DecompressionMethods.All });
         services.AddSingleton<BaseNotifier>();
         return services.AddHostedService<NotifyHeldWatcher>();
     }

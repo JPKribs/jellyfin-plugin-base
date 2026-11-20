@@ -22,13 +22,13 @@ public sealed class NotifyMessage
     /// <summary>Gets or sets an absolute http or https address of a small image, such as a poster as a Discord thumbnail or a web push icon.</summary>
     public string? ThumbnailUrl { get; set; }
 
-    /// <summary>Gets or sets the absolute http or https address the message opens, such as the item in the library.</summary>
+    /// <summary>Gets or sets the http or https address the message opens, such as the item in the library. A web push also takes a relative one.</summary>
     public string? LinkUrl { get; set; }
 
     /// <summary>Gets or sets the color, as 0xRRGGBB, such as the bar beside a Discord embed.</summary>
     public int? Color { get; set; }
 
-    /// <summary>Gets or sets when it happened, shown as a Discord embed's time.</summary>
+    /// <summary>Gets or sets when it happened, shown as a Discord embed's time and written in UTC with a trailing Z.</summary>
     public DateTimeOffset? Timestamp { get; set; }
 
     /// <summary>Gets or sets the language the title and text are written in, such as de. It is the web push notification's language.</summary>

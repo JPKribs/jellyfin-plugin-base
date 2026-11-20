@@ -15,6 +15,7 @@ How a plugin sends an update to Discord, a webhook, a Jellyfin user's devices, a
 | `WebPush` | An encrypted push that the plugin's service worker shows as a notification | The browsers the `Recipients` signed up |
 
 * Posts go through `BaseHttp`, so every address is checked by `SsrfGuard`. A failure that may pass, such as 503 or no answer, is tried again up to two times.
+* Discord and webhook posts follow no redirect, so a webhook's headers never reach another host. A redirect comes back as the answer, such as "The address answered 302.".
 * At most four destinations are sent to at once across the plugin, so a burst of updates never opens a connection for each.
 * A destination's address and headers are stored encrypted, and never reach a page.
 * Base's own words, such as "Sent." or "Discord needs a JSON body.", come from Base's own strings in the language of the call path. See [Server Messages in the Page's Language](Translations.md#server-messages-in-the-pages-language).
@@ -33,7 +34,7 @@ public void RegisterServices(IServiceCollection services, IServerApplicationHost
 }
 ```
 
-`AddBaseNotifier` registers `BaseNotifier` and `NotifyHeldWatcher`, which shows a held Jellyfin message as soon as one of its recipient's devices comes online.
+`AddBaseNotifier` registers `BaseNotifier`, the `BaseNotifier.HttpClientName` HTTP client it posts through, which follows no redirect, and `NotifyHeldWatcher`, which shows a held Jellyfin message as soon as one of its recipient's devices comes online.
 
 Keep the destinations in the plugin's configuration. `NotifyDestination` serializes with it, and a plugin may derive from it to add its own settings, such as which updates go there.
 
@@ -88,6 +89,8 @@ IReadOnlyList<NotifyResult> results = await _notifier.SendAsync(destinations, me
 * `Send` and `SendAsync` with a list pass over a destination that is off. `SendAsync` with one destination sends to it whether it is on or not, for a test.
 * Pass a function in place of the message to build each destination's own, or to skip one with `null`, such as a channel that does not name the requester.
 * The Jellyfin and web push channels send to the message's `Recipients`, the Jellyfin user ids.
+* A webhook's JSON starts with the message's `Data`, in its order, so a plugin's existing keys stay first. The title, message, and link follow, with the images, color, time, language, and fields that are set, each only where `Data` does not set the key.
+* Every time is written in UTC with a trailing Z, such as `2026-11-20T12:00:00.0000000Z`.
 
 ## Placeholders and Escaping
 
@@ -196,7 +199,7 @@ public ActionResult Unsubscribe([FromBody] PushBody body)
     => _notifier.Unsubscribe(User.GetUserId(), body.Endpoint) ? NoContent() : NotFound();
 ```
 
-A subscription needs an https endpoint with no user info, a P-256 key, and a 16 octet secret. A push goes only to a public address, through `SsrfGuard.PublicOnly`.
+A subscription needs an https endpoint with no user info, a P-256 key, and a 16 octet secret. A push goes only to a public address, through `SsrfGuard.PublicOnly`. A plugin's test sets `PushGuard` to `SsrfGuard.Disabled` to reach a stand in push service.
 
 ### The Service Worker
 
@@ -216,7 +219,7 @@ On `push` the script shows the notification the payload describes, its title, te
 
 ### The Page
 
-The page asks for permission and subscribes with [Web Push](components/web/web-push.md).
+The page asks for permission and subscribes with [Web Push](components/web/web-push.md). A page that loads neither the bundle nor its CSS uses the [standalone page script](components/csharp/pages-and-templates.md#basepagescript), whose `BasePage.subscribeWebPush` resolves to the state alone, so the page shows its own words.
 
 ```js
 subscribeWebPush({
@@ -231,6 +234,7 @@ subscribeWebPush({
 * A Discord post keeps to Discord's limits: a title of 256 characters, a text of 4000, 25 fields of a 256 character name and a 1024 character value, and a name of 80. Longer text ends in an ellipsis.
 * Only absolute http and https images, links, and avatars are sent. Any other address, such as one relative to the page, is left out, since Discord refuses the whole post for one.
 * A webhook's headers are one `Name: value` a line. A line that is not a header fails the send, so a post never goes without the token it needs.
+* A web push opens its `LinkUrl` on a click. An http, https, or relative address is kept, and the worker resolves a relative one against its scope. Any other scheme is left out.
 * A web push payload fits one record of 4096 octets. The image, then the icon give way, then the text is cut.
 * `Send` copies nothing. Do not change a message after passing it.
 * A result's sentence is in the language of the call path, so a test endpoint wraps its call in `BaseTranslations.UseLanguage`.

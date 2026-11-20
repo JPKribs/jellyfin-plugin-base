@@ -6,7 +6,8 @@ import vm from 'node:vm';
 import { installFakeDom } from './fake-dom.mjs';
 
 installFakeDom();
-var { webPushState, subscribeWebPush, unsubscribeWebPush, webPushText, webPushLabel, urlBase64Bytes } = await import('../../src/js/web-push.js');
+var { webPushState, subscribeWebPush, unsubscribeWebPush, webPushText, webPushLabel } = await import('../../src/js/web-push.js');
+var { urlBase64Bytes } = await import('../../src/js/lib/push.js');
 var { setCurrentTranslations } = await import('../../src/js/lib/base-text.js');
 
 var KEY = 'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvTBHm4bjyPjs7Vd8pZGH6SRpkNtoIAiw4';

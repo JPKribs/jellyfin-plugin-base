@@ -19,7 +19,9 @@ var preview = BaseNotifier.Preview(destination, message);
 * A list skips a destination that is off. One destination is sent to whether it is on or not, for a test.
 * At most `MaxConcurrentSends`, which is 4, destinations are sent to at once across the plugin.
 * A failure that may pass, such as no answer, 429, or 503, is tried again up to two times, with a wait that grows. A refused address is never tried again.
-* Posts use `BaseHttp`'s own check by default, which reaches the local network through Jellyfin's proxy. Set `WebhookGuard` for a strict guard, such as `SsrfGuard.PublicOnly`. A web push always goes through `SsrfGuard.PublicOnly`.
+* Posts go through the factory's `HttpClientName` client, which `AddBaseNotifier` registers to follow no redirect, so a redirect comes back as the answer and a webhook's headers never reach another host.
+* Posts use `BaseHttp`'s own check by default, which reaches the local network. Set `WebhookGuard` for a strict guard, such as `SsrfGuard.PublicOnly`.
+* A web push goes through `PushGuard`, `SsrfGuard.PublicOnly` by default. A test may set `SsrfGuard.Disabled` to reach a stand in push service.
 * A Jellyfin message shows for `MessageTimeoutMs`, 15 seconds.
 
 ## NotifyMessage
@@ -39,7 +41,9 @@ var message = new NotifyMessage
 **Gotchas**
 
 * `ImageUrl`, `ThumbnailUrl`, `LinkUrl`, and a destination's `AvatarUrl` must be absolute http or https addresses. Any other is left out.
-* `Data` adds keys to a webhook's JSON, and fills a custom body's placeholders as JSON.
+* `Data` comes first in a webhook's JSON, in its order, and a key it sets is not set again from the message. It also fills a custom body's placeholders as JSON.
+* `Timestamp` is written in UTC with a trailing Z.
+* A web push keeps a relative `LinkUrl`, which the worker resolves against its scope.
 * `PlainKeys` names the values a Discord custom body sends as given. The title and text escape every value for Discord.
 * `Recipients` is who the Jellyfin and web push channels reach. `OneDevice`, `Hold`, and `Subject` shape a Jellyfin message, and `Tag` and `TimeToLive` a web push.
 

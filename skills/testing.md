@@ -155,6 +155,7 @@ test('generateGuid gives 32 hex digits when compact', function () {
 | Dialog core | `kit.test.mjs` for focus and the Tab trap, `dialog-escape.test.mjs` for names and Escape, and `dialog-size.test.mjs` for the sizes |
 | Popover placement | `popup.test.mjs`, beside `popover.test.mjs` |
 | Combo ARIA | `missing.test.mjs` |
+| Push core | `web-push.test.mjs`, and `page-script.test.mjs`, which also checks `BasePageScript.cs` is the current build |
 
 A core with no tests of its own yet, such as the field control, file, or users core, is covered through the components built on it. A new test for one goes in a file named after the core.
 

@@ -35,6 +35,12 @@ public sealed class BaseNotifier
     /// <summary>The name a Discord post comes from when its destination sets none.</summary>
     public const string DefaultUsername = "Jellyfin";
 
+    /// <summary>
+    /// The name of the HTTP client posts go through, which <see cref="ServiceCollectionExtensions.AddBaseNotifier"/> registers to follow no
+    /// redirect, so a webhook's headers never reach another host.
+    /// </summary>
+    public const string HttpClientName = "JPKribs.Jellyfin.Base.Notifier";
+
     // Discord's limits for a webhook post.
     private const int DiscordTitleLength = 256;
     private const int DiscordDescriptionLength = 4000;
@@ -56,7 +62,7 @@ public sealed class BaseNotifier
     /// <summary>
     /// Initializes a new instance of the <see cref="BaseNotifier"/> class.
     /// </summary>
-    /// <param name="httpClientFactory">The HTTP client factory posts go through.</param>
+    /// <param name="httpClientFactory">The HTTP client factory, whose <see cref="HttpClientName"/> client posts go through.</param>
     /// <param name="sessionManager">The session manager, for Jellyfin messages.</param>
     /// <param name="logger">The logger.</param>
     /// <param name="secrets">The plugin's protector, which reads each destination's encrypted address and headers.</param>
@@ -73,7 +79,7 @@ public sealed class BaseNotifier
         ArgumentNullException.ThrowIfNull(httpClientFactory);
         ArgumentNullException.ThrowIfNull(sessionManager);
         ArgumentNullException.ThrowIfNull(logger);
-        _httpClientFactory = httpClientFactory;
+        _httpClientFactory = new NamedClientFactory(httpClientFactory);
         _sessionManager = sessionManager;
         _logger = logger;
         _secrets = secrets;
@@ -87,8 +93,11 @@ public sealed class BaseNotifier
     /// </summary>
     public SsrfGuard? WebhookGuard { get; set; }
 
-    // The guard a web push goes through. A browser chose the address, so only public addresses are reached.
-    internal SsrfGuard PushGuard { get; set; } = SsrfGuard.PublicOnly;
+    /// <summary>
+    /// Gets or sets the <see cref="SsrfGuard"/> a web push goes through. A browser chose the address, so it is
+    /// <see cref="SsrfGuard.PublicOnly"/> by default. A test may set <see cref="SsrfGuard.Disabled"/> to reach a stand in push service.
+    /// </summary>
+    public SsrfGuard PushGuard { get; set; } = SsrfGuard.PublicOnly;
 
     // How many times a failure that may pass is tried again.
     internal int Retries { get; set; } = 2;
@@ -361,7 +370,7 @@ public sealed class BaseNotifier
             ["image"] = Absolute(message.ImageUrl) ?? string.Empty,
             ["thumbnail"] = Absolute(message.ThumbnailUrl) ?? string.Empty,
             ["color"] = message.Color?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
-            ["time"] = message.Timestamp?.ToString("o", CultureInfo.InvariantCulture) ?? string.Empty,
+            ["time"] = message.Timestamp is { } time ? UtcText(time) : string.Empty,
             ["language"] = message.Language ?? string.Empty
         };
         foreach (var (key, value) in message.Values)
@@ -424,7 +433,7 @@ public sealed class BaseNotifier
 
         if (message.Timestamp is { } time)
         {
-            embed["timestamp"] = time.ToString("o", CultureInfo.InvariantCulture);
+            embed["timestamp"] = UtcText(time);
         }
 
         // Mentions are off, so nothing people wrote can ping anyone.
@@ -442,52 +451,45 @@ public sealed class BaseNotifier
         return post;
     }
 
-    // A webhook's JSON: the title, text, and link, the images, color, time, language, and fields when set, then the message's data.
+    // A webhook's JSON: the message's data first, in its order, then the title, text, and link, and the images, color, time,
+    // language, and fields that are set, each only where the data does not set the key itself.
     internal static JsonObject BuildWebhook(NotifyMessage message)
     {
         var values = Values(message);
-        var post = new JsonObject
+        var post = new JsonObject();
+        foreach (var (key, value) in message.Data)
         {
-            ["title"] = NotifyTemplate.Fill(message.Title, values),
-            ["message"] = NotifyTemplate.Fill(message.Text, values),
-            ["link"] = Absolute(message.LinkUrl)
-        };
-        foreach (var (key, value) in new[] { ("image", Absolute(message.ImageUrl)), ("thumbnail", Absolute(message.ThumbnailUrl)), ("language", message.Language) })
+            post[key] = value?.DeepClone();
+        }
+
+        void Add(string key, JsonNode? value, bool always = false)
         {
-            if (!string.IsNullOrEmpty(value))
+            if (!post.ContainsKey(key) && (always || value is not null))
             {
                 post[key] = value;
             }
         }
 
-        if (message.Color is { } color)
-        {
-            post["color"] = color;
-        }
-
-        if (message.Timestamp is { } time)
-        {
-            post["time"] = time.ToString("o", CultureInfo.InvariantCulture);
-        }
-
+        Add("title", NotifyTemplate.Fill(message.Title, values), true);
+        Add("message", NotifyTemplate.Fill(message.Text, values), true);
+        Add("link", Absolute(message.LinkUrl), true);
+        Add("image", Absolute(message.ImageUrl));
+        Add("thumbnail", Absolute(message.ThumbnailUrl));
+        Add("language", string.IsNullOrEmpty(message.Language) ? null : message.Language);
+        Add("color", message.Color);
+        Add("time", message.Timestamp is { } time ? UtcText(time) : null);
         var fields = new JsonArray();
         foreach (var field in message.Fields.Where(f => !string.IsNullOrWhiteSpace(f.Value)))
         {
             fields.Add(new JsonObject { ["name"] = field.Name, ["value"] = field.Value.Trim() });
         }
 
-        if (fields.Count > 0)
-        {
-            post["fields"] = fields;
-        }
-
-        foreach (var (key, value) in message.Data)
-        {
-            post[key] = value?.DeepClone();
-        }
-
+        Add("fields", fields.Count > 0 ? fields : null);
         return post;
     }
+
+    // A time as UTC in ISO 8601 with a trailing Z, as Discord and webhooks read it.
+    internal static string UtcText(DateTimeOffset time) => time.UtcDateTime.ToString("o", CultureInfo.InvariantCulture);
 
     // A Discord or webhook post: its custom body filled in, or the JSON built from the message, or why there is none.
     internal static PostBuild BuildPost(NotifyDestination destination, NotifyMessage message)
@@ -551,7 +553,7 @@ public sealed class BaseNotifier
             NotifyTemplate.Fill(message.Text, values),
             Absolute(message.ThumbnailUrl),
             Absolute(message.ImageUrl),
-            Absolute(message.LinkUrl),
+            PushLink(message.LinkUrl),
             string.IsNullOrWhiteSpace(message.Tag) ? null : NotifyTemplate.Clip(message.Tag.Trim(), 64),
             string.IsNullOrWhiteSpace(message.Language) ? null : message.Language.Trim(),
             message.Timestamp?.ToUnixTimeMilliseconds());
@@ -573,6 +575,24 @@ public sealed class BaseNotifier
     }
 
     private static readonly JsonSerializerOptions PushJsonOptions = new() { DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull };
+
+    // A web push link: an http or https address, or a relative one, which the worker resolves against its scope. Any other
+    // scheme is left out.
+    internal static string? PushLink(string? url)
+    {
+        var text = (url ?? string.Empty).Trim();
+        if (text.Length == 0 || text.Any(char.IsControl))
+        {
+            return null;
+        }
+
+        // A colon before any slash, question mark, or hash starts a scheme, so the address is absolute.
+        var colon = text.IndexOf(':', StringComparison.Ordinal);
+        var path = text.IndexOfAny(PathMarks);
+        return colon >= 0 && (path < 0 || colon < path) ? Absolute(text) : text;
+    }
+
+    private static readonly char[] PathMarks = { '/', '?', '#' };
 
     private static string? Absolute(string? url)
         => UrlUtilities.TryGetHttpUri(url, out var uri) ? uri.AbsoluteUri : null;
@@ -826,6 +846,16 @@ public sealed class BaseNotifier
         [property: System.Text.Json.Serialization.JsonPropertyName("tag")] string? Tag,
         [property: System.Text.Json.Serialization.JsonPropertyName("lang")] string? Lang,
         [property: System.Text.Json.Serialization.JsonPropertyName("timestamp")] long? Timestamp);
+
+    // Hands BaseHttp the notifier's own client, whatever name it asks for.
+    private sealed class NamedClientFactory : IHttpClientFactory
+    {
+        private readonly IHttpClientFactory _inner;
+
+        public NamedClientFactory(IHttpClientFactory inner) => _inner = inner;
+
+        public HttpClient CreateClient(string name) => _inner.CreateClient(HttpClientName);
+    }
 
     private sealed class SendException : HttpRequestException
     {

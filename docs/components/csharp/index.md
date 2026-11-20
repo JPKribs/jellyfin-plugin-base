@@ -44,6 +44,7 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 | `BackoffState` | The failure count and pause deadline a caller stores per record. | [HTTP and Resilience](http-and-resilience.md#backoffstate) |
 | `BaseHttp` | Outbound HTTP that returns a status and body and does not throw. | [HTTP and Resilience](http-and-resilience.md#basehttp) |
 | `BaseNotifier` | Sends one message to Discord, a webhook, Jellyfin, and web push, and previews each. | [Notifications](notifications.md#basenotifier) |
+| `BasePageScript` | The web push and casing helpers for a page that loads no bundle. | [Pages and Templates](pages-and-templates.md#basepagescript) |
 | `BaseRetryHandler` | A handler that retries a read for a gateway error or a slow answer. | [HTTP and Resilience](http-and-resilience.md#baseretryhandler) |
 | `BaseRetryOptions` | The attempts, waits, and timeout of a retry handler. | [HTTP and Resilience](http-and-resilience.md#baseretryoptions) |
 | `BaseTranslations` | The plugin's strings in a language, with fallback, formatting, the endpoint answer, and the language of a request. | [Translations](translations.md#basetranslations) |
@@ -116,7 +117,7 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 | [Streams and Throttling](streams-and-throttling.md) | Speed limits, shared rates, and size caps. |
 | [Text and Formatting](text-and-formatting.md) | Log and JavaScript escaping, titles, string lists, and hashes. |
 | [Data and Storage](data-and-storage.md) | SQLite versioning, JSON state files, and paged results. |
-| [Pages and Templates](pages-and-templates.md) | Standalone status pages, templates, and favicons. |
+| [Pages and Templates](pages-and-templates.md) | Standalone status pages, templates, favicons, and the standalone page script. |
 | [Activity Log](activity-log.md) | Single and summed entries in Jellyfin's activity log. |
 | [Translations](translations.md) | The plugin's strings in each language, for C# text and for its pages. |
 | [Notifications](notifications.md) | Discord, webhooks, Jellyfin messages, and web push from one message. |

@@ -224,6 +224,7 @@
     "lib/message": 198,
     "lib/popover": 2124,
     "lib/pressed-group": 1272,
+    "lib/push": 3578,
     "lib/qr": 5555,
     "lib/row-editor": 3274,
     "lib/selection": 1929,
@@ -287,8 +288,8 @@
     "usage-meter": 3017,
     "user-multi-selector": 1186,
     "user-selector": 1519,
-    "web-push": 4082,
+    "web-push": 707,
     "world-map": 6198
   },
-  "bytes": 504612
+  "bytes": 504815
 }

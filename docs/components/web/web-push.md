@@ -12,6 +12,7 @@ The page half of web push. It checks whether a page can get notifications, asks 
 | A page offers notifications on this device | `subscribeWebPush` from a button's click |
 | A page shows whether this device gets them | `webPushState` and its `message` |
 | A message in the dashboard while a device is online | The Jellyfin channel of `BaseNotifier`, with no page code |
+| A page that loads neither the bundle nor its CSS | The [standalone page script](../csharp/pages-and-templates.md#basepagescript), whose helpers resolve to the state alone |
 
 ## Usage
 

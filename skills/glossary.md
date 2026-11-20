@@ -301,6 +301,7 @@ The agreed name for every concept in Base. Components, default labels, docs, and
 | VAPID keys | The server's key pair that signs every web push | `WebPushKeys` | Push keys, server keys |
 | Subscription | One browser signed up for a user's web push | `WebPushSubscription`, `IWebPushStore` | Registration, device token |
 | Worker script | The service worker script that shows a web push | `WebPushWorker` | Push handler |
+| Standalone page script | The script a page that loads no bundle takes its web push and casing helpers from, as the global `BasePage` | `BasePageScript`, `lib/page-script.ts` | Mini bundle, lite script |
 
 ## Delivery
 

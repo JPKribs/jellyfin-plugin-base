@@ -70,6 +70,40 @@ public IActionResult Favicon() => PublicPage.Favicon(_paths, Response);
 * Do not call it on the favicon response, since its `no-store` would replace the one day cache that `Favicon` sets.
 * `Favicon` returns a not found result when no icon exists.
 
+## BasePageScript
+
+A small script for a standalone page that loads neither the bundle nor its CSS, such as one that mirrors the web client under its own content security policy. It sets the global `BasePage` with the bundle's web push and casing helpers, built from the same sources, so they behave the same. It holds no text of its own, so the page supplies every word.
+
+```csharp
+[HttpGet("base-page.js")]
+[AllowAnonymous]
+public ContentResult PageScript() => BasePageScript.Serve(Response);
+```
+
+```html
+<script src="base-page.js"></script>
+<script>
+BasePage.webPushState(registration).then(function (state) {
+    status.textContent = strings['Push.' + state];
+});
+heading.textContent = BasePage.titleCase(strings.MyRequests, translations.casing, translations.language);
+</script>
+```
+
+| Member | What it does |
+| :--- | :--- |
+| `webPushState(registration)` | Resolves to a state code, `unsupported`, `insecure`, `install`, `denied`, `off`, or `on` |
+| `subscribeWebPush({ registration, publicKey, save })` | Asks, subscribes, calls `save`, and resolves to a state code |
+| `unsubscribeWebPush({ registration, remove })` | Calls `remove`, unsubscribes, and resolves to a state code |
+| `webPushLabel(userAgent)` | A short name for the device, such as "Safari · iPhone" |
+| `titleCase(text, casing, language)`, `sentenceCase(text, casing, language)` | Base's casing rules with the plugin's casing list added to Base's |
+
+**Gotchas**
+
+* The casing list is the `casing` of the plugin's `BaseTranslations.Serve` answer. See [Casing on a Standalone Page](../../Translations.md#casing-on-a-standalone-page).
+* Serve it from the plugin's own origin, so a policy of `script-src 'self'` allows it.
+* `scripts/build-page-script.mjs` writes the script into `BasePageScript.cs`, and a test fails when the two differ.
+
 ## FaviconResolver
 
 Finds the web client's favicon on disk. The file name is content hashed and changes per build, so it is found by reading the web client's `index.html`. Use `PublicPage.Favicon` unless you need the bytes yourself.

@@ -55,6 +55,7 @@ These commands matter to a contributor. The CI column says which workflow runs e
 | `node --import ./JPKribs.Jellyfin.Base.Tests/js/register.mjs --test JPKribs.Jellyfin.Base.Tests/js/*.test.mjs` | build | Runs the JS tests. `npm test` runs the same. |
 | `dotnet test JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Release` | build | Runs the C# tests, including the CSS tests. |
 | `dotnet pack JPKribs.Jellyfin.Base.csproj -c Release -o nupkg` | build | Packs the package. |
+| `node scripts/build-page-script.mjs` | Local only | Writes the standalone page script from `src/js/lib/page-script.ts` into `src/BasePageScript.cs`. `--check` fails when the C# is out of date, and the JS tests check the same. |
 | `bash scripts/check-package.sh nupkg/<package>.nupkg` | build, release | Checks the package holds every file the targets load, at its path, and every Jellyfin language file. |
 | `node scripts/build-previews.mjs` | docs | Builds the live preview pages from `docs/previews/`, for the docs site and the gallery. Run it after the bundle. |
 | `mkdocs build --strict` | docs | Builds the docs site and fails on any warning, such as a broken link. Run it after the previews. |

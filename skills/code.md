@@ -53,7 +53,8 @@ Base is a set of base components and cores, with thin variations on top. A varia
 | Class names core, `lib/class-names.ts` | `classNames`, used by the shared bag, Paginated Table, and the badge core |
 | World shapes, `lib/world-shapes.ts` | World Map |
 | Base text core, `lib/base-text.ts` | Every component's default text, read from the page's current translations when it is built. See [style.md](style.md#default-labels) |
-| Casing core, `lib/text-case.ts` | `titleCase`, `sentenceCase`, and the translations handle's `title` and `sentence`, by the rules of `TextCase` in C# |
+| Casing core, `lib/text-case.ts` | `titleCase`, `sentenceCase`, and the translations handle's `title` and `sentence`, by the rules of `TextCase` in C#, and the standalone page script's casing |
+| Push core, `lib/push.ts` | Web Push, which adds the sentences, and the standalone page script, which `lib/page-script.ts` builds into `BasePageScript` with the state codes alone |
 | DOM helpers, `lib/dom.ts` | Nearly every component and core. See [Shared Helpers](#shared-helpers) |
 
 Three cores are public API. `src/js/index.ts` exports the color core, the validation core, and the world shapes, so a rename in them is a [stop and ask](../starthere.md#stop-and-ask) item like any other export.

@@ -161,6 +161,16 @@ Mark static markup with its key, and `apply` translates it. Markup whose key has
 
 See [Translations](components/web/translations.md) in the web components for every helper.
 
+## Casing on a Standalone Page
+
+A page that loads neither the bundle nor `loadTranslations`, such as one that mirrors the web client, reads the same answer from the endpoint that returns `BaseTranslations.Serve`. Its `casing` is the casing list, Base's defaults and the plugin's together, and its `language` is the language the strings are in. Pass both to the standalone page script's `titleCase` and `sentenceCase`. See [BasePageScript](components/csharp/pages-and-templates.md#basepagescript).
+
+```js
+fetch('Translations?language=' + encodeURIComponent(navigator.language)).then(function (r) { return r.json(); }).then(function (t) {
+    heading.textContent = BasePage.sentenceCase(t.strings.MyRequests, t.casing, t.language);
+});
+```
+
 ## Use the Strings in C#
 
 ```csharp

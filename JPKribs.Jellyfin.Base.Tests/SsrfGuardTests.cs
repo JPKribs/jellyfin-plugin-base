@@ -936,10 +936,10 @@ public class SsrfGuardTests
             => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("unguarded") });
     }
 
-    private sealed record Seen(string Method, string Path, string Body);
+    internal sealed record Seen(string Method, string Path, string Body);
 
     /// <summary>A one purpose HTTP server on the loopback address that answers each request from a function.</summary>
-    private sealed class LoopbackServer : IDisposable
+    internal sealed class LoopbackServer : IDisposable
     {
         private readonly TcpListener _listener = new(IPAddress.Loopback, 0);
         private readonly Func<Seen, (int Status, string? Location, string Body)> _answer;
