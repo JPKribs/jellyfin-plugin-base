@@ -1,7 +1,7 @@
 // field-control.ts
 // One form control built from a field spec, and a group of them with labels and messages. The repeater, the rule builder, the matrix grid, the mapping table, and the data table's row editor share it. None of it is exported from the bundle.
 
-import { make, listen, runAll, nextId, toText, has, clear, iconButton, fill } from './dom.js';
+import { make, listen, runAll, nextId, toText, has, clear, iconButton } from './dom.js';
 import { adornField } from '../field-adornments.js';
 import { createFieldMessage } from '../field-message.js';
 import type { FieldMessageHandle } from '../field-message.js';
@@ -10,7 +10,7 @@ import { createCheckbox } from '../checkbox.js';
 import { bindSecretField, readSecretField, SECRET_KEPT } from '../secret-field.js';
 import { bindValidation, validateValue } from './validate.js';
 import type { ValidationHandle, ValidationOptions } from './validate.js';
-import { baseText } from './base-text.js';
+import { baseText, fillLabel, labelText } from './base-text.js';
 
 /** The kinds of control a field can be. */
 export type FieldType = 'text' | 'secret' | 'select' | 'number' | 'tags' | 'time' | 'toggle' | 'custom';
@@ -171,7 +171,7 @@ export function buildControl(field: FieldSpec, value: unknown, change: () => voi
     if (type === 'number' || type === 'time') adorned = adornField(input);
     var clearButton: HTMLButtonElement | null = null;
     if (type === 'secret' && field.clearable) {
-        clearButton = iconButton('base-row-btn base-control-clear', 'backspace', fill(field.clearText || baseText('Base.ClearValue'), label));
+        clearButton = iconButton('base-row-btn base-control-clear', 'backspace', fillLabel(field.clearText || baseText('Base.ClearValue'), 'value', label));
         holder.classList.add('clearable');
         holder.appendChild(clearButton);
     }
@@ -220,11 +220,11 @@ export function isEmptyValue(value: unknown): boolean {
 }
 
 /**
- * The noun a field's label gives a validation message, such as 'port' from Port, keeping an acronym as written.
- * Internal to the web components.
+ * The noun a field's label gives a validation message, such as 'port' from Port, in sentence case with the page's
+ * casing list. Internal to the web components.
  */
 export function nounOf(label: string): string {
-    return String(label || '').split(/\s+/).map(function (w) { return w.length > 1 && w === w.toUpperCase() ? w : w.toLowerCase(); }).join(' ');
+    return labelText(label, true);
 }
 
 /** A value as the text the validation core checks: a list joins its entries, and nothing is empty text. */

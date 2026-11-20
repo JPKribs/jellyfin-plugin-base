@@ -59,7 +59,7 @@ var table = createDataTable({
 * A cell too narrow for its text shows the full text on hover.
 * `hidden: true` starts a column hidden, and `setColumnHidden(key, hidden)` hides or shows its heading and its cells, which carry `data-column` with the column's key. The other columns share its width, and the compact layout counts only the shown columns.
 * When the table is too narrow for its number columns, it turns `compact`: number columns narrow, and a column with `icon` shows that icon in its heading in place of the label, which stays its tooltip and accessible name.
-* Each filter is a select whose first choice is "All {label}". `setFilter(name, values)` sets it from code, such as from a map.
+* Each filter is a select whose first choice is "All {label}", with the label in sentence case, such as "All runs" for Runs. `setFilter(name, values)` sets it from code, such as from a map.
 * With `selectable`, a click, Enter, or Space on a row selects it, and again clears it. The row takes the accent wash with a leading bar. `select(key)` highlights a row picked elsewhere without reporting it.
 * `pageSize` shows that many rows and loads more as the list scrolls to its end. `height` and `maxHeight` work as a List's do.
 * With nothing matching it shows `emptyText`, "Nothing matches." by default.

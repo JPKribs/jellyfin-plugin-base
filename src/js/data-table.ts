@@ -9,7 +9,7 @@ import { createFilteredList } from './filtered-list.js';
 import type { FilteredListBulkAction, FilteredListToolbarAction, FilteredListOption } from './filtered-list.js';
 import type { ListHeight } from './list.js';
 import type { ComponentHandle, PagedResult } from './types.js';
-import { baseText } from './lib/base-text.js';
+import { baseText, fillLabel } from './lib/base-text.js';
 
 /** One column. value gives the sort and display value, and render draws the cell, else the value is shown as text. hidden starts it hidden. width 'auto' sizes it to its widest value, up to maxWidth. */
 export interface DataTableColumn<T = any> {
@@ -485,7 +485,7 @@ export function createDataTable<T = any>(options: DataTableOptions<T>): DataTabl
         cell.classList.add('resizable');
         var handle = make('span', 'base-data-resize', {
             role: 'separator', tabindex: '0', 'aria-orientation': 'vertical',
-            'aria-label': fill(opts.resizeText || baseText('Base.ResizeValue'), column.label)
+            'aria-label': fillLabel(opts.resizeText || baseText('Base.ResizeValue'), 'value', column.label)
         });
         handles[column.key] = handle;
         cell.appendChild(handle);

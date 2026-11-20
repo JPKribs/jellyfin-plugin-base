@@ -359,6 +359,7 @@ Every string Base ships is in sentence case, as Jellyfin's are. A button, a dial
 * A default label is an option the caller can replace. A new default needs an option.
 * A default label is one of Base's own strings, read with `baseText(key)` when the component is built, never a literal. Use a Jellyfin string where Jellyfin has the words, and add its key to `BASE_TEXT` in `src/js/lib/base-text.ts` and to `strings/jellyfin.json`. Otherwise add a `Base.` key to `BASE_TEXT` and `strings/en-us.json`. The tests check the two agree.
 * Text Base's C# writes for a person, such as a refusal, is written with `BaseTranslations.Text(key, english)`, with the same key in `strings/en-us.json`.
+* A label filled into Base's text, such as a column's, a filter's, or a field's, goes through `fillLabel` or `labelText` in `src/js/lib/base-text.ts`, so it reads in sentence case for its place, such as "All runs". A row's own value, such as a file or library name, is data and stays as written.
 * A placeholder shows a valid example, never an instruction.
 * A confirm names its action. Its title is the action, and its button repeats the verb, never "OK" or "Yes".
 * Use the ellipsis character, never three dots, and only for work in progress.

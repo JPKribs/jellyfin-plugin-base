@@ -67,9 +67,10 @@ function before(chars: string[], start: number, needSpace: boolean): string {
 
 /**
  * Converts English text to title case or sentence case, keeping placeholders and the exceptions as written.
- * Any other language returns the text as it is. Internal to the web components.
+ * Any other language returns the text as it is. opening false writes sentence case for text that sits inside a
+ * sentence, so its first word is lowered too. Internal to the web components.
  */
-export function convertCase(text: string, exceptions: string[], language: string | null | undefined, title: boolean): string {
+export function convertCase(text: string, exceptions: string[], language: string | null | undefined, title: boolean, opening?: boolean): string {
     var source = String(text === undefined || text === null ? '' : text);
     if (!source || !isEnglish(language)) return source;
     var chars = source.split('');
@@ -129,7 +130,7 @@ export function convertCase(text: string, exceptions: string[], language: string
             written = !free && MINOR[lower] ? lower : upper(word);
         } else {
             var mark = before(chars, start, true);
-            written = k === 0 || mark === '.' || mark === '!' || mark === '?' ? upper(lower) : lower;
+            written = (k === 0 && opening !== false) || mark === '.' || mark === '!' || mark === '?' ? upper(lower) : lower;
         }
         for (var c = 0; c < written.length && c < end - start; c++) chars[start + c] = written.charAt(c);
     });

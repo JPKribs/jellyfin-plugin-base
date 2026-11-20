@@ -218,7 +218,7 @@ test('visible hides a field for the rows it returns false for, labelFor follows 
 test('a clearable secret shows Clear while one is stored, and Clear posts an empty secret', function () {
     var ui = build({ fields: [{ key: 'name', label: 'Name' }, { key: 'token', label: 'Token', type: 'secret', clearable: true }], value: [{ name: 'a', token: SECRET_KEPT }] });
     var clear = rows(ui)[0].querySelector('.base-control-clear');
-    assert.equal(clear.getAttribute('aria-label'), 'Clear Token');
+    assert.equal(clear.getAttribute('aria-label'), 'Clear token');
     assert.equal(clear.classList.contains('hidden'), false);
     assert.deepEqual(ui.r.getValue(), [{ name: 'a', token: SECRET_KEPT }]);
     clear.click();

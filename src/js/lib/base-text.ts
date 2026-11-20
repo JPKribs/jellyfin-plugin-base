@@ -2,6 +2,7 @@
 // The base text core: every default word a component shows, read from the page's current translations at render
 // time, with US English when none are loaded.
 import type { TranslationsHandle } from '../translations.js';
+import { convertCase, DEFAULT_CASING } from './text-case.js';
 
 /**
  * Base's own text in US English, by key. A key that starts with Base. is Base's own string, and any other is a
@@ -334,4 +335,39 @@ export function pageLanguage(): string {
  */
 export function baseText(key: keyof typeof BASE_TEXT): string {
     return current && current.has(key) ? current.tr(key) : BASE_TEXT[key];
+}
+
+/**
+ * A label, such as a column's or a field's, in sentence case in the page's language with the page's casing list, as
+ * sentenceCase writes it. inside true lowers its first word too, for a label inside a sentence. Internal to the web components.
+ *
+ * @param label the label
+ * @param inside true when the label sits inside a sentence [optional]
+ */
+export function labelText(label: unknown, inside?: boolean): string {
+    var text = label === undefined || label === null ? '' : String(label);
+    return convertCase(text, current ? current.casing : DEFAULT_CASING, pageLanguage(), false, !inside);
+}
+
+/**
+ * Fills a label into a template at {key}, in sentence case for its place, so "All {value}" with Runs reads "All runs".
+ * Other placeholders stay for data. Internal to the web components.
+ *
+ * @param template the template, such as All {value}
+ * @param key the placeholder's name, such as value
+ * @param label the label
+ */
+export function fillLabel(template: unknown, key: string, label: unknown): string {
+    var text = String(template);
+    var token = '{' + key + '}';
+    var out = '';
+    var from = 0;
+    var at = text.indexOf(token);
+    while (at >= 0) {
+        var head = text.slice(0, at).replace(/\s+$/, '');
+        out += text.slice(from, at) + labelText(label, !(head === '' || /[.!?]$/.test(head)));
+        from = at + token.length;
+        at = text.indexOf(token, from);
+    }
+    return out + text.slice(from);
 }

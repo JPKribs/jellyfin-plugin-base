@@ -32,7 +32,7 @@ Classes: `base-chart` and `base-line-chart`, with the parts `base-chart-line`, `
 * `area: true` shades the area under each line. `dots: false` adds `quiet`, which shows a point only on hover and focus.
 * A `null` value leaves a gap in its line.
 * The first and last labels align to the plot's edges, so they never spill out of it.
-* Labels along the x axis thin out to every second or later one when they would overlap.
+* Labels along the x axis thin out to every second or later one, so no two overlap at any width, such as 30 days on a phone. The first and last labels stay whenever they fit side by side.
 
 ## Gotchas
 

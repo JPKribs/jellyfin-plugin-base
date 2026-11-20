@@ -143,6 +143,59 @@ export function seriesColor(series: ChartSeries, index: number): string {
     return colorClass(series.color) ? series.color! : SERIES_COLORS[index % SERIES_COLORS.length];
 }
 
+/**
+ * Picks the point labels an axis shows so that no two overlap: every nth label, with the smallest n that leaves at
+ * least gap between neighbors. The first label starts at its point, the last ends at its point, and each other label is
+ * centered on its point. The last label is kept in place of any before it that would crowd it, and is left out only when
+ * it does not fit beside the first. Internal to the charts.
+ *
+ * @param x the x of each point, from left to right
+ * @param widths the width of each label
+ * @param gap the least space between two shown labels
+ * @returns the indexes of the labels to show, in order
+ */
+export function spacedLabels(x: number[], widths: number[], gap: number): number[] {
+    var count = x.length;
+    if (count < 2) return count ? [0] : [];
+    var last = count - 1;
+    function from(i: number): number { return i === 0 ? x[0] : (i === last ? x[i] - widths[i] : x[i] - widths[i] / 2); }
+    function to(i: number): number { return i === 0 ? x[0] + widths[0] : (i === last ? x[i] : x[i] + widths[i] / 2); }
+    function apart(a: number, b: number): boolean { return from(b) - to(a) >= gap; }
+    for (var every = 1; every < count; every++) {
+        var shown: number[] = [];
+        var fits = true;
+        for (var i = 0; i < last && fits; i += every) {
+            if (shown.length && !apart(shown[shown.length - 1], i)) fits = false;
+            else shown.push(i);
+        }
+        if (!fits) continue;
+        while (shown.length > 1 && !apart(shown[shown.length - 1], last)) shown.pop();
+        if (apart(shown[shown.length - 1], last)) shown.push(last);
+        return shown;
+    }
+    return [0];
+}
+
+// The width of each label in the small font where the chart sits, measured on a canvas, or estimated per character
+// where there is none.
+var measure: CanvasRenderingContext2D | null | undefined;
+function labelWidths(el: Element, font: number, texts: string[]): number[] {
+    if (measure === undefined) {
+        try {
+            var canvas = document.createElement('canvas') as HTMLCanvasElement;
+            measure = typeof canvas.getContext === 'function' ? canvas.getContext('2d') : null;
+        } catch (e) {
+            measure = null;
+        }
+    }
+    var context = measure;
+    if (!context) return texts.map(function (t) { return t.length * font * 0.58; });
+    var family = '';
+    try { family = window.getComputedStyle(el).fontFamily; } catch (e) { family = ''; }
+    context.font = font + 'px ' + (family || 'sans-serif');
+    return texts.map(function (t) { return context!.measureText(t).width; });
+}
+
 // Reads a token as pixels where the element sits, with a fallback.
 function tokenPx(el: Element, name: string, fallback: number): number {
     var raw = '';
@@ -349,15 +402,18 @@ export function buildChart(options: ChartOptions, core: ChartCore): ChartHandle 
             grid.appendChild(text(left - gap / 2, yy + font * 0.35, format(t), 'end', 'base-chart-tick'));
         });
 
-        // Points along a line, such as hours, thin out to every second or later label so none overlaps the next. Bars are
+        // Points along a line, such as days, thin out to every second or later label, so none overlaps the next. Bars are
         // categories, so every bar keeps its label, shortened with an ellipsis when it does not fit its band.
         var charWidth = font * 0.58;
-        var longest = Math.max.apply(null, labels.map(function (l) { return toText(l).length; }).concat([1])) * charWidth + gap;
         var room = count > 1 ? (core.points ? (right - left) / (count - 1) : (right - left) / count) : right - left;
-        var every = core.points ? Math.max(1, Math.ceil(longest / Math.max(room, 1))) : 1;
         var fits = Math.max(3, Math.floor((room - gap / 2) / charWidth));
+        var shownAt: Record<number, true> = {};
+        if (core.points && !core.radial) {
+            var texts = labels.map(function (l) { return toText(l); });
+            spacedLabels(texts.map(function (t, i) { return band(i).middle; }), labelWidths(root, font, texts), gap).forEach(function (i) { shownAt[i] = true; });
+        }
         labels.forEach(function (l, i) {
-            if (core.radial || i % every !== 0) return;
+            if (core.radial || (core.points && !shownAt[i])) return;
             var b = band(i);
             var anchor = 'middle';
             if (core.points && i === 0) anchor = 'start';

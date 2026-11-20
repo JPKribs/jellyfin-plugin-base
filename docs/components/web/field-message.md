@@ -43,7 +43,7 @@ if (!validateAll(view.querySelector('form'))) return;
 * Validation applies by itself on a page built with `createConfigPage`. On every `viewshow` it binds every field on the page that carries a rule in its attributes, and each one added later, so the field shows its message when it is left. `bindFieldAdornments(root)` does the same for a page or dialog built another way.
 * Binding never blocks a save. The [Save Bar](save-bar.md) with `form` runs `validateAll` on Save and refuses to save while a field is invalid. A page that saves another way calls `validateAll` itself.
 * The messages are plain sentences, such as "Fill this in.", "Enter a number from {min} to {max}.", "Enter {min} or more.", "Enter a whole number.", "Enter a web address.", and "Enter an email address.". `messages` replaces any of them by key.
-* `noun`, or a `data-base-label` on the field, names the value, so a port reads "Enter a port from 1 to 65535.". `noun: true` reads the field's label.
+* `noun`, or a `data-base-label` on the field, names the value, so a port reads "Enter a port from 1 to 65535.". `noun: true` reads the field's label, in sentence case, so Server URL reads "Enter a server URL.".
 * `inputs` lists more fields that share one message, such as the boxes of a [Duration Field](duration-field.md), and `value` reads the text to check from them.
 * A secret that is stored counts as filled for `required`.
 * `validateValue(value, rules, options)` checks text without a field and returns the message or `''`.

@@ -41,7 +41,7 @@ test('a filter select and setFilter narrow the rows, and the search field matche
     var table = createDataTable({ columns: COLUMNS, rows: ROWS, search: { placeholder: 'Search' },
         filters: [{ name: 'type', label: 'Types', options: [{ value: 'people', label: 'People' }, { value: 'failed', label: 'Failed' }] }] });
     var select = table.element.querySelector('.base-filtered-select');
-    assert.equal(select.options[0].textContent, 'All Types');
+    assert.equal(select.options[0].textContent, 'All types');
     select.value = 'failed';
     select.dispatchEvent(new Event('change'));
     assert.deepEqual(names(table), ['Bob']);
@@ -188,7 +188,7 @@ test('a resize handle on each heading resizes from the keyboard, fits on double-
         var table = createDataTable({ columns: COLUMNS, rows: ROWS, widthKey: 'activity' });
         var handle = table.element.querySelector('.base-data-resize');
         assert.equal(handle.getAttribute('role'), 'separator');
-        assert.equal(handle.getAttribute('aria-label'), 'Resize Name');
+        assert.equal(handle.getAttribute('aria-label'), 'Resize name');
         handle.dispatch('keydown', { key: 'ArrowRight', altKey: true });
         assert.equal(table.getColumnWidths().name, 76);
         assert.match(columnsTrack(table), /^max\(var\(--base-size-medium\), 76px\)/);

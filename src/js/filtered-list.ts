@@ -15,7 +15,7 @@ import { createSearchField } from './search-field.js';
 import { createDateRangePicker, dateKey } from './date-range-picker.js';
 import type { DateRangePickerHandle, DateRangePreset } from './date-range-picker.js';
 import type { ComponentHandle, PagedResult } from './types.js';
-import { baseText } from './lib/base-text.js';
+import { baseText, fillLabel, labelText } from './lib/base-text.js';
 
 /** One choice of a filter. color tints its card or pill, as a status color name or a hex code. */
 export interface FilteredListOption {
@@ -306,7 +306,7 @@ export function createFilteredList<T = any>(options: FilteredListOptions<T>): Fi
         var entry = selects[filter.name];
         clear(entry.el);
         entry.texts = {};
-        entry.el.appendChild(make('option', '', { value: '' }, opts.allText ? opts.allText + ' ' + filter.label : fillAll(baseText('Base.AllOf'), { value: filter.label })));
+        entry.el.appendChild(make('option', '', { value: '' }, opts.allText ? opts.allText + ' ' + labelText(filter.label, true) : fillLabel(baseText('Base.AllOf'), 'value', filter.label)));
         filter.options.forEach(function (o) {
             var option = make('option', '', { value: o.value }, o.label);
             entry.texts[o.value] = option;

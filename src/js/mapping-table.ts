@@ -2,7 +2,7 @@ import { make, listen, runAll, clear, fill, fillAll, has, applyFieldSize, iconBu
 import { buildControl, createFieldGroup } from './lib/field-control.js';
 import type { FieldSpec, FieldGroupHandle, FieldControl } from './lib/field-control.js';
 import type { ComponentHandle } from './types.js';
-import { baseText } from './lib/base-text.js';
+import { baseText, fillLabel } from './lib/base-text.js';
 
 /** A source row of the table, such as a remote library or a remote user. */
 export interface MappingTableRow {
@@ -240,7 +240,7 @@ export function createMappingTable(options?: MappingTableOptions): MappingTableH
             var group: FieldGroupHandle | null = null;
             if (extraFields.length) {
                 group = createFieldGroup(extraFields, has(details, r.value) ? details[r.value] as Record<string, unknown> : null, {
-                    name: function (f) { return fillAll(baseText('Base.ColumnForRow'), { column: f.label, row: r.label }); },
+                    name: function (f) { return fillAll(fillLabel(baseText('Base.ColumnForRow'), 'column', f.label), { row: r.label }); },
                     onChange: function (key) {
                         detailOf(r.value)[key] = group!.cell(key)!.control.getValue();
                         changed();

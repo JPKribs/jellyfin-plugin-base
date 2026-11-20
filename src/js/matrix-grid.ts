@@ -9,7 +9,7 @@ import type { FieldMessageHandle } from './field-message.js';
 import { createDataTable } from './data-table.js';
 import type { DataTableColumn } from './data-table.js';
 import type { ComponentHandle } from './types.js';
-import { baseText } from './lib/base-text.js';
+import { baseText, fillLabel } from './lib/base-text.js';
 
 /**
  * One row of the grid: its key, its label, and a dimmed hint under the label. cells changes a cell of this row by column
@@ -162,7 +162,7 @@ export function createMatrixGrid(options: MatrixGridOptions): MatrixGridHandle {
         var column: MatrixGridColumn = own;
         var type = column.type || 'toggle';
         if (type === 'badge' || type === 'static') return readOnlyCell(type, read(row.key, column.key));
-        var name = (opts.cellLabel || baseText('Base.ColumnForRow')).replace(/\{column\}/g, column.label).replace(/\{row\}/g, row.label);
+        var name = fillLabel(opts.cellLabel || baseText('Base.ColumnForRow'), 'column', column.label).replace(/\{row\}/g, row.label);
         var start = read(row.key, column.key);
         var cell = {} as MatrixCell;
         var control = buildControl({ key: column.key, label: column.label, type: type, options: column.options, min: column.min, max: column.max, step: column.step, placeholder: column.placeholder, unit: column.unit }, start, function () {

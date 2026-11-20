@@ -127,6 +127,8 @@ t.title('GuideHeading');
 sentenceCase('Open The EPG Guide');
 ```
 
+A component that puts a label into its own text writes the label in sentence case for its place, in English only, with the same casing list. A filter of Runs offers "All runs", a column of DNS Name has a handle named "Resize DNS name", and a field labeled Server URL reads "Enter a server URL.".
+
 ## Show the Strings on a Page
 
 Add an endpoint that answers with `BaseTranslations.Serve`. The strings are not secret, and a standalone page has no signed in user yet, so it allows anonymous requests.

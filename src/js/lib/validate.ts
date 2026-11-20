@@ -5,7 +5,7 @@
 import { listen, runAll, fillAll, toText } from './dom.js';
 import { setFieldState, fieldMessageOf, placeMessage } from '../field-message.js';
 import type { FieldMessageHandle } from '../field-message.js';
-import { baseText } from './base-text.js';
+import { baseText, labelText } from './base-text.js';
 import type { BASE_TEXT } from './base-text.js';
 
 /** A field the core checks: an input, a select, or a text area. */
@@ -198,8 +198,7 @@ function nounOf(input: Element | null, noun: string | boolean | undefined): stri
     var label: Element | null = id && typeof document !== 'undefined' ? document.querySelector('label[for="' + id + '"]') : null;
     if (!label && input.closest) label = input.closest('label');
     var text = label ? toText(label.textContent).trim() : (input.getAttribute('aria-label') || '');
-    // A label is Title Case, so each word that is not an acronym is lowered to sit inside a sentence.
-    return text.split(/\s+/).map(function (w) { return w.length > 1 && w === w.toUpperCase() ? w : w.toLowerCase(); }).join(' ');
+    return labelText(text, true);
 }
 
 /**
