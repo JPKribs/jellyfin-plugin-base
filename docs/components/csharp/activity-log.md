@@ -2,7 +2,7 @@
 
 Entries in Jellyfin's activity log, where administrators already look.
 
-`ActivityLogger` writes one entry. `ActivitySummary` sums many events into one entry per outcome, so a busy run leaves `12 Items Synced` and not twelve lines. `ActivityText` keeps the wording the same across plugins, a short title-case name such as `12 Items Synced` over one sentence such as `12 items were synced from source-a (9), source-b (3)`, with no closing full stop. Use the summary for per-item events.
+`ActivityLogger` writes one entry. `ActivitySummary` sums many events into one entry per outcome, so a busy run leaves `12 items synced` and not twelve lines, in the server's display language. `ActivityText` keeps the wording the same across plugins, a short name such as `12 items synced` over one sentence such as `12 from source-a (9), source-b (3)`, with no closing full stop. Use the summary for per-item events.
 
 ## ActivityLogger
 
@@ -31,7 +31,27 @@ if (_services.GetService<ActivityLogger>() is { } activity)
 
 ## ActivityOutcome
 
-One kind of summary entry, with a type, an outcome word, an overview builder, a severity, and a noun. Define one per result, such as synced, skipped, and retrying, and keep each in a `static readonly` field.
+One kind of summary entry, with a type, how its name reads from the count, an overview builder, and a severity. Define one per result, such as synced, skipped, and retrying, and keep each in a `static readonly` field.
+
+Build it with keys, so the entry is written in the server's display language. The name has one key for a count of 1 and one for any other count, each with `{0}` for the count. The overview builder takes the counts and the language.
+
+```json
+{
+  "ItemsSyncedOne": "{0} item synced",
+  "ItemsSyncedMany": "{0} items synced",
+  "ItemsSyncedFrom": "{0} from {1}"
+}
+```
+
+```csharp
+private static readonly ActivityOutcome Synced = new(
+    "MyPlugin.ItemsSynced",
+    TranslationKeys.ItemsSyncedOne,
+    TranslationKeys.ItemsSyncedMany,
+    (t, language) => BaseTranslations.Format(TranslationKeys.ItemsSyncedFrom, language, t.Total, ActivityText.CountedList(t.Sources)));
+```
+
+An outcome built with an English outcome word, an English overview, and a noun is written in English only.
 
 ```csharp
 private static readonly ActivityOutcome Synced = new(
@@ -49,7 +69,8 @@ private static readonly ActivityOutcome Retrying = new(
 **Gotchas**
 
 * Record equality compares the overview delegate by reference, and `ActivitySummary` uses the outcome as a dictionary key. Creating a new outcome for each event splits the counts, so create each once.
-* The outcome is the end of the entry name, so `Synced` gives `12 Items Synced`. The noun defaults to `Item`.
+* A name that is not a key is used as the text itself, so a plugin may pass text it translated.
+* For an English only outcome, the outcome is the end of the entry name, so `Synced` gives `12 Items Synced`. The noun defaults to `Item`.
 
 ## ActivityTally
 
@@ -68,14 +89,15 @@ t => $"{ActivityText.Count(t.Total, "item")} skipped, mostly {ActivityText.Count
 
 Sums events into one entry per outcome. Entries are written once no event has arrived for a quiet spell, and at least once per longest spell while events keep coming. Whatever is waiting is written on dispose.
 
-Keep one per plugin as a singleton, and dispose it with its owner. It writes through an `ActivityLogger`.
+Keep one per plugin as a singleton, and dispose it with its owner. It writes through an `ActivityLogger`. Give it the server's display language, which an outcome built with keys is written in.
 
 ```csharp
 public sealed class HintActivityLog : IDisposable
 {
     private readonly ActivitySummary _summary;
 
-    public HintActivityLog(ActivityLogger activity) => _summary = new ActivitySummary(activity);
+    public HintActivityLog(ActivityLogger activity, IServerConfigurationManager config)
+        => _summary = new ActivitySummary(activity, language: () => BaseTranslations.ServerLanguage(config));
 
     public void Applied(string originName) => _summary.Add(Synced, originName);
 
@@ -90,6 +112,7 @@ public sealed class HintActivityLog : IDisposable
 **Gotchas**
 
 * The quiet spell defaults to 30 seconds and the longest spell to 5 minutes. A clock can be passed for tests.
+* The language is read each time a summary is written, so a change to the server's display language reaches the next entry. With no language, an outcome built with keys is written in US English.
 * The timer calls `Flush` on a thread-pool thread. An overview delegate that throws there is not caught, so keep the delegate free of exceptions.
 * `Flush` takes the waiting counts before it writes them. When an overview delegate throws, the summaries not yet written are lost.
 * `Add` does nothing after dispose, and `Flush` is safe at any time. A second `Dispose` does nothing.
@@ -97,7 +120,7 @@ public sealed class HintActivityLog : IDisposable
 
 ## ActivityText
 
-Shared wording for activity entries.
+Shared wording for activity entries. `CountedList` and `Sentence` suit any language. `SummaryName`, `Count`, and `WasOrWere` write English only, for an English only outcome.
 
 ```csharp
 ActivityText.SummaryName(12, "Not Synced");               // "12 Items Not Synced"

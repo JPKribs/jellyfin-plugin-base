@@ -49,8 +49,8 @@ test('the first up and the last down buttons are disabled', function () {
 
 test('the buttons have Title Case titles and Move X up and Move X down labels', function () {
     var ui = build();
-    assert.equal(up(ui.list, 1).title, 'Move Up');
-    assert.equal(down(ui.list, 1).title, 'Move Down');
+    assert.equal(up(ui.list, 1).title, 'Move up');
+    assert.equal(down(ui.list, 1).title, 'Move down');
     assert.equal(up(ui.list, 1).getAttribute('aria-label'), 'Move Verse up');
     assert.equal(down(ui.list, 1).getAttribute('aria-label'), 'Move Verse down');
     assert.equal(up(ui.list, 1).type, 'button');

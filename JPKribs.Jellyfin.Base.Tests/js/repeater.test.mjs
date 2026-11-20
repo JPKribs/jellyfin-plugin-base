@@ -126,6 +126,15 @@ test('card layout draws a titled card per item from the title template', functio
     assert.equal(rows(ui)[0].querySelector('.base-repeater-remove').getAttribute('aria-label'), 'Remove Server 1: a');
 });
 
+test('a card title fills a field with options with the label of its chosen option, else the stored value', function () {
+    var ui = build({ layout: 'card', titleText: '{kind}: {name}', value: [{ name: 'a', kind: 'show' }, { name: 'b', kind: 'movie' }] });
+    var titles = rows(ui).map(function (r) { return r.querySelector('.base-repeater-card-title').textContent; });
+    assert.deepEqual(titles, ['Show: a', 'movie: b']);
+    rows(ui)[1].querySelector('select').value = 'show';
+    rows(ui)[1].querySelector('select').dispatch('change');
+    assert.equal(rows(ui)[1].querySelector('.base-repeater-card-title').textContent, 'Show: b');
+});
+
 test('the root carries only namespaced layout classes, never a bare class Jellyfin styles', function () {
     // Jellyfin's global .card rule sets paint containment, which traps a fixed dropdown inside the repeater.
     var card = build({ layout: 'card' });

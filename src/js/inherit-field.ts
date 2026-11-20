@@ -2,6 +2,7 @@ import { make, listen, runAll, fill, toText, nextId } from './lib/dom.js';
 import { makeCheck, makeCheckRow } from './lib/check.js';
 import { bindPressedGroup } from './lib/pressed-group.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What an inherit field reports: whether it inherits, and its own value, kept while it inherits. */
 export interface InheritValue<V = unknown> {
@@ -96,7 +97,7 @@ export function createInheritField<V = unknown>(options: InheritFieldOptions<V>)
     // How the inherited value reads: a select's option text, On or Off for a checkbox, else the value.
     function shownText(): string {
         if (inheritedText !== undefined) return inheritedText;
-        if (checkbox) return inherited ? opts.onText || 'On' : opts.offText || 'Off';
+        if (checkbox) return inherited ? opts.onText || baseText('Base.On') : opts.offText || baseText('Off');
         if (control && control.tagName === 'SELECT') {
             var match = Array.prototype.filter.call((control as HTMLSelectElement).options, function (o: HTMLOptionElement) { return o.value === toText(inherited); })[0] as HTMLOptionElement | undefined;
             if (match) return toText(match.textContent);
@@ -115,14 +116,14 @@ export function createInheritField<V = unknown>(options: InheritFieldOptions<V>)
     var group: ReturnType<typeof bindPressedGroup> | null = null;
     if (opts.toggle === 'checkbox') {
         overrideBox = makeCheck(null, { id: nextId('inherit') });
-        root.appendChild(makeCheckRow(overrideBox, opts.overrideText || 'Override', 'base-inherit-toggle', 'base-check-text'));
+        root.appendChild(makeCheckRow(overrideBox, opts.overrideText || baseText('Base.Override'), 'base-inherit-toggle', 'base-check-text'));
         cleanups.push(listen(overrideBox, 'change', function () { apply(!overrideBox!.checked); changed(); }));
     } else {
         var pills = make('div', 'base-pill-group base-inherit-toggle', { role: 'group' });
         if (opts.label) pills.setAttribute('aria-label', opts.label);
         inheritPill = make('button', 'base-pill', { type: 'button', 'data-value': 'inherit', 'aria-pressed': 'false' });
         pills.appendChild(inheritPill);
-        pills.appendChild(make('button', 'base-pill', { type: 'button', 'data-value': 'override', 'aria-pressed': 'false' }, opts.overrideText || 'Override'));
+        pills.appendChild(make('button', 'base-pill', { type: 'button', 'data-value': 'override', 'aria-pressed': 'false' }, opts.overrideText || baseText('Base.Override')));
         root.appendChild(pills);
         group = bindPressedGroup(pills, { selector: '.base-pill', onChange: function (values) { apply(values[0] === 'inherit'); changed(); } });
         cleanups.push(group.destroy);
@@ -147,7 +148,7 @@ export function createInheritField<V = unknown>(options: InheritFieldOptions<V>)
             parts = [];
             write(own);
         }
-        if (inheritPill) inheritPill.textContent = fill(opts.inheritText || 'Inherit ({value})', shownText());
+        if (inheritPill) inheritPill.textContent = fill(opts.inheritText || baseText('Base.InheritValue'), shownText());
         if (group) group.setValues([inherit ? 'inherit' : 'override']);
         if (overrideBox) overrideBox.checked = !inherit;
     }
@@ -180,7 +181,7 @@ export function createInheritField<V = unknown>(options: InheritFieldOptions<V>)
             inherited = v;
             inheritedText = text;
             if (inherit) apply(true);
-            else if (inheritPill) inheritPill.textContent = fill(opts.inheritText || 'Inherit ({value})', shownText());
+            else if (inheritPill) inheritPill.textContent = fill(opts.inheritText || baseText('Base.InheritValue'), shownText());
         },
         destroy: function () {
             runAll(cleanups);

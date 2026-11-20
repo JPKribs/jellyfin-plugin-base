@@ -194,6 +194,17 @@ pie.setSlices([{ label: 'Shows', value: 1 }]);
 pie.select(null);
 // @ts-expect-error The size is small, medium, or large.
 B.createPieChart({ size: 'huge' });
+// Casing and the page's current translations.
+var english: B.TranslationsHandle = B.createTranslations({ Guide: 'open the epg' }, 'en-us', ['EPG']);
+english.title('Guide');
+english.sentence('Guide');
+var casing: string[] = english.casing;
+B.titleCase('allow media playback', { exceptions: ['TV'], language: 'en-gb' });
+B.sentenceCase('Allow Media Playback');
+var pageStrings: B.TranslationsHandle | null = B.currentTranslations();
+// @ts-expect-error The exceptions are a list of words.
+B.titleCase('allow', { exceptions: 'TV' });
+
 var thumbColumn: B.TableColumn<Row> = { key: 'name', label: 'Name', image: function () { return function () { return Promise.resolve(new Blob()); }; } };
 
-export { page, table, result, secret, label, kept, states, safe };
+export { page, table, result, secret, label, kept, states, safe, casing, pageStrings };

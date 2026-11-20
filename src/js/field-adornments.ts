@@ -1,6 +1,7 @@
 import { make, icon, iconButton, listen, runAll } from './lib/dom.js';
 import { bindRuledFields } from './lib/validate.js';
 import type { ValidationHandle } from './lib/validate.js';
+import { baseText } from './lib/base-text.js';
 
 /** What adornField and bindFieldAdornments return. destroy unwraps every field it adorned. */
 export interface FieldAdornmentHandle {
@@ -56,8 +57,8 @@ export function adornField(input: HTMLInputElement): FieldAdornmentHandle {
     box.appendChild(input);
 
     if (isReveal) {
-        var showLabel = input.getAttribute('data-base-reveal-label') || 'Show';
-        var hideLabel = input.getAttribute('data-base-hide-label') || 'Hide';
+        var showLabel = input.getAttribute('data-base-reveal-label') || baseText('Base.Show');
+        var hideLabel = input.getAttribute('data-base-hide-label') || baseText('Hide');
         var eye = iconButton('base-adorned-eye', 'visibility', showLabel);
         eye.setAttribute('aria-pressed', 'false');
         box.appendChild(eye);
@@ -74,8 +75,8 @@ export function adornField(input: HTMLInputElement): FieldAdornmentHandle {
         cleanups.push(function () { input.type = 'password'; });
     } else if (isNumber) {
         var steps = make('span', 'base-adorned-steps');
-        var up = iconButton('base-adorned-step', 'keyboard_arrow_up', 'Increase');
-        var down = iconButton('base-adorned-step', 'keyboard_arrow_down', 'Decrease');
+        var up = iconButton('base-adorned-step', 'keyboard_arrow_up', baseText('Base.Increase'));
+        var down = iconButton('base-adorned-step', 'keyboard_arrow_down', baseText('Base.Decrease'));
         up.tabIndex = -1;
         down.tabIndex = -1;
         steps.appendChild(up);

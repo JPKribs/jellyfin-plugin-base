@@ -19,6 +19,27 @@ import type {
     SecretFieldOptions, Poller, PollerOptions, ChangeTracker, ChangeTrackerOptions, CardData, SaveMessages, CopyFeedbackOptions,
     ComboBoxOptions, ComboBoxHandle, TaskProgressHandle
 } from './types.js';
+import { baseText, pageLanguage, getCurrentTranslations } from './lib/base-text.js';
+import { currentLanguage } from './translations.js';
+
+// The header that tells the plugin's API the page's language, read by BaseTranslations.RequestLanguage.
+var LANGUAGE_HEADER = 'X-Jellyfin-Plugin-Language';
+
+// The page's language: its current translations', else the viewer's.
+function requestHeaders(): Record<string, string> {
+    var page = getCurrentTranslations();
+    var headers: Record<string, string> = {};
+    headers[LANGUAGE_HEADER] = page ? page.language : currentLanguage();
+    return headers;
+}
+
+// A time ago in the page's language, such as 3 days ago.
+function agoText(count: number, unit: 'day' | 'hour' | 'minute'): string {
+    if (typeof Intl !== 'undefined' && typeof Intl.RelativeTimeFormat === 'function') {
+        try { return new Intl.RelativeTimeFormat(pageLanguage(), { numeric: 'always' }).format(-count, unit); } catch (e) { /* an unknown language falls back to English */ }
+    }
+    return plural(count, unit) + ' ago';
+}
 
 /**
  * Builds the per view helper bag that a config page uses. Create it once on viewshow and reuse it.
@@ -145,10 +166,10 @@ export function createShared(view: HTMLElement, pluginId: string, apiPrefix?: st
             var minutes = Math.floor(diff / 60000);
             var hours = Math.floor(minutes / 60);
             var days = Math.floor(hours / 24);
-            if (days > 0) return days + ' day' + (days > 1 ? 's' : '') + ' ago';
-            if (hours > 0) return hours + ' hour' + (hours > 1 ? 's' : '') + ' ago';
-            if (minutes > 0) return minutes + ' minute' + (minutes > 1 ? 's' : '') + ' ago';
-            return 'Just now';
+            if (days > 0) return agoText(days, 'day');
+            if (hours > 0) return agoText(hours, 'hour');
+            if (minutes > 0) return agoText(minutes, 'minute');
+            return baseText('Base.JustNow');
         },
 
         formatDate: function (value: string | number | Date, opts?: { seconds?: boolean }): string {
@@ -189,10 +210,10 @@ export function createShared(view: HTMLElement, pluginId: string, apiPrefix?: st
                 var replacement = mutator(config);
                 return self.saveConfig(replacement && typeof replacement === 'object' ? replacement : config);
             }).then(function (result) {
-                if (statusId) self.setStatus(statusId, messages.success || 'Saved.', false);
+                if (statusId) self.setStatus(statusId, messages.success || baseText('Base.Saved'), false);
                 return result;
             }).catch(function (err) {
-                if (statusId) self.setStatus(statusId, messages.error || 'Save failed.', true);
+                if (statusId) self.setStatus(statusId, messages.error || baseText('Base.SaveFailed'), true);
                 throw err;
             });
         },
@@ -212,7 +233,7 @@ export function createShared(view: HTMLElement, pluginId: string, apiPrefix?: st
                 if (label) {
                     var original = label.dataset.baseCopyLabel || label.textContent;
                     label.dataset.baseCopyLabel = original;
-                    label.textContent = ok ? (opts.copiedText || 'Copied.') : (opts.failedText || 'Copy failed.');
+                    label.textContent = ok ? (opts.copiedText || baseText('Copied')) : (opts.failedText || baseText('Base.CopyFailed'));
                     setTimeout(function () {
                         label!.textContent = original;
                         delete label!.dataset.baseCopyLabel;
@@ -224,8 +245,8 @@ export function createShared(view: HTMLElement, pluginId: string, apiPrefix?: st
 
         fetchObjectUrl: function (endpoint: string, params?: Record<string, unknown>): Promise<string> {
             var url = this.apiPrefix ? this.apiPrefix + '/' + endpoint : endpoint;
-            return ApiClient!.fetch({ url: ApiClient!.getUrl(url, params), type: 'GET' }).then(function (response) {
-                if (!response || !response.ok) throw new Error('Request failed' + (response ? ' (' + response.status + ')' : ''));
+            return ApiClient!.fetch({ url: ApiClient!.getUrl(url, params), type: 'GET', headers: requestHeaders() }).then(function (response) {
+                if (!response || !response.ok) throw new Error(baseText('Base.RequestFailed') + (response ? ' (' + response.status + ')' : ''));
                 return response.blob();
             }).then(function (blob) {
                 return URL.createObjectURL(blob);
@@ -242,7 +263,7 @@ export function createShared(view: HTMLElement, pluginId: string, apiPrefix?: st
 
         apiRequest: function (endpoint: string, method?: string, data?: unknown): Promise<any> {
             var url = this.apiPrefix ? this.apiPrefix + '/' + endpoint : endpoint;
-            var options: JellyfinFetchOptions = { url: ApiClient!.getUrl(url), type: method || 'GET', dataType: 'json' };
+            var options: JellyfinFetchOptions = { url: ApiClient!.getUrl(url), type: method || 'GET', dataType: 'json', headers: requestHeaders() };
             if (data !== undefined && data !== null) {
                 options.contentType = 'application/json';
                 options.data = JSON.stringify(data);

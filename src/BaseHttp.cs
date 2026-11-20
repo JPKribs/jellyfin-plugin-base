@@ -117,12 +117,12 @@ public static class BaseHttp
                     var target = location.IsAbsoluteUri ? location : new Uri(from, location);
                     if (!guard!.IsRedirectAllowed(from, target))
                     {
-                        return new HttpResult(0, SsrfGuard.RefusalPrefix + "a redirect to " + target.GetLeftPart(UriPartial.Path) + " was refused");
+                        return new HttpResult(0, SsrfGuard.RefusalPrefix + BaseTranslations.Text("Base.HttpRedirectRefused", "a redirect to {0} was refused", target.GetLeftPart(UriPartial.Path)));
                     }
 
                     if (hop >= MaxGuardedRedirects)
                     {
-                        return new HttpResult(0, SsrfGuard.RefusalPrefix + "too many redirects");
+                        return new HttpResult(0, SsrfGuard.RefusalPrefix + BaseTranslations.Text("Base.HttpTooManyRedirects", "too many redirects"));
                     }
 
                     if (response.StatusCode != HttpStatusCode.TemporaryRedirect && response.StatusCode != HttpStatusCode.PermanentRedirect
@@ -156,7 +156,7 @@ public static class BaseHttp
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            return new HttpResult(0, "request timed out");
+            return new HttpResult(0, BaseTranslations.Text("Base.HttpTimedOut", "request timed out"));
         }
     }
 

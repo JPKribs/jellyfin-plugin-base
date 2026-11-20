@@ -4,6 +4,7 @@ import { buildCard } from './lib/card.js';
 import { createSparkline } from './sparkline.js';
 import type { SparklineHandle } from './sparkline.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What createStatCard takes, and what its getValue returns as drawn. */
 export interface StatCardOptions {
@@ -108,7 +109,7 @@ export function createStatCard(options?: StatCardOptions): StatCardHandle {
         var good = direction === 'flat' ? null : ((direction === 'up') === (next.positiveIsGood !== false));
         trendEl.className = 'base-stat-trend base-icon-text small ' + (good === null ? 'flat' : (good ? 'good' : 'bad'));
         trendEl.appendChild(icon(direction === 'up' ? 'arrow_upward' : (direction === 'down' ? 'arrow_downward' : 'remove')));
-        var word = direction === 'up' ? (options!.trendUpText || 'Up') : (direction === 'down' ? (options!.trendDownText || 'Down') : (options!.trendFlatText || 'No change'));
+        var word = direction === 'up' ? (options!.trendUpText || baseText('Up')) : (direction === 'down' ? (options!.trendDownText || baseText('Down')) : (options!.trendFlatText || baseText('Base.NoChange')));
         trendEl.appendChild(make('span', 'base-sr-only', null, word));
         trendEl.appendChild(make('span', '', null, Math.abs(next.trend!) + (next.trendSuffix || '') + (next.trendLabel ? ' ' + next.trendLabel : '')));
     }

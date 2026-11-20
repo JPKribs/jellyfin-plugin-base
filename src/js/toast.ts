@@ -1,6 +1,7 @@
 import { make, icon, listen, runAll, has } from './lib/dom.js';
 import { MESSAGE_ICONS, dismissButton } from './lib/message.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** The tone of a toast. An error toast joins the assertive live region, and the rest the polite one. */
 export type ToastKind = 'info' | 'success' | 'warn' | 'error';
@@ -63,7 +64,7 @@ export function createToaster(options?: ToasterOptions): ToasterHandle {
     var live: Toast[] = [];
     var max: number = options.max || 5;
 
-    var root = make('div', 'base-toaster base-toaster-' + (options.position || 'bottom-end'), { role: 'region', 'aria-label': options.label || 'Notifications' });
+    var root = make('div', 'base-toaster base-toaster-' + (options.position || 'bottom-end'), { role: 'region', 'aria-label': options.label || baseText('Base.Notifications') });
     // The two live regions are made once and stay, because a region that arrives together with its message is often not announced.
     var alerts = make('div', 'base-toaster-live', { role: 'alert', 'aria-live': 'assertive', 'aria-atomic': 'false' });
     var statuses = make('div', 'base-toaster-live', { role: 'status', 'aria-live': 'polite', 'aria-atomic': 'false' });
@@ -91,7 +92,7 @@ export function createToaster(options?: ToasterOptions): ToasterHandle {
         if (spec.title) body.appendChild(make('div', 'base-toast-title', null, spec.title));
         body.appendChild(make('div', 'base-toast-message', null, spec.message || ''));
         el.appendChild(body);
-        var close = dismissButton('base-toast-close', options!.dismissLabel || 'Dismiss');
+        var close = dismissButton('base-toast-close', options!.dismissLabel || baseText('Base.Dismiss'));
         el.appendChild(close);
         var timer: ReturnType<typeof setTimeout> | null = null;
         var off: Array<() => void> = [];

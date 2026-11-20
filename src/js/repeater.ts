@@ -1,10 +1,11 @@
 import { make, listen, runAll, fillAll, toText, applyFieldSize } from './lib/dom.js';
 import { createRowSet, rowLabel, moveButtons, refocusAfterMove } from './lib/row-editor.js';
 import type { RowSetRow } from './lib/row-editor.js';
-import { createFieldGroup, isEmptyValue } from './lib/field-control.js';
+import { createFieldGroup, isEmptyValue, toChoice } from './lib/field-control.js';
 import type { FieldSpec, FieldGroupHandle, FieldChoice, FieldType, FieldControlParts } from './lib/field-control.js';
 import type { ListHeight } from './list.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /**
  * One field of a repeater row. type picks the control: a text box, a secret with its three states and allowExpose,
@@ -110,7 +111,7 @@ export interface RepeaterBuild extends RepeaterHandle {
  *   removeText : aria-label of a remove button, where {value} is the row's name (default 'Remove {value}')
  *   upText, downText : aria-labels of the move buttons, where {value} is the row's name (default 'Move {value} up' and 'Move {value} down')
  *   rowName    : prefix of the name of an inline row whose first text field is empty (default 'Row')
- *   titleText  : a card's title, where {index} is its number and {key} any field's value (default 'Item {index}')
+ *   titleText  : a card's title, where {index} is its number and {key} any field's value, or the label of its chosen option for a field with options (default 'Item {index}')
  *   showLabels : false hides the column labels over inline rows (default true)
  *   maxRows    : most rows allowed, after which Add is disabled and limitText shows [optional]
  *   minRows    : fewest rows, below which Remove is disabled, and up to which empty rows are added [optional]
@@ -166,7 +167,7 @@ export function buildRepeater(options: RepeaterOptions, parts: RepeaterParts | n
         root.appendChild(head);
     }
     var body = make('div', 'base-repeater-rows' + (p.rowsClass ? ' ' + p.rowsClass : ''));
-    var addButton = make('button', 'raised base-button small base-repeater-add' + (p.addClass ? ' ' + p.addClass : ''), { type: 'button' }, opts.addText || 'Add');
+    var addButton = make('button', 'raised base-button small base-repeater-add' + (p.addClass ? ' ' + p.addClass : ''), { type: 'button' }, opts.addText || baseText('Add'));
     var set = createRowSet<RepeaterItem, RepeaterRow>({
         body: body,
         build: buildRow,
@@ -186,12 +187,23 @@ export function buildRepeater(options: RepeaterOptions, parts: RepeaterParts | n
     root.appendChild(addButton);
     root.appendChild(set.limit);
 
+    // A field with options fills a title with the label of its chosen option, else its stored value.
+    function shownValues(values: RepeaterItem): RepeaterItem {
+        var shown: RepeaterItem = {};
+        allFields.forEach(function (f) {
+            if (!f.options || !f.options.length) return;
+            var picked = f.options.map(toChoice).filter(function (c) { return c.value === toText(values[f.key]); })[0];
+            if (picked) shown[f.key] = picked.label;
+        });
+        return shown;
+    }
+
     function nameOf(row: RepeaterRow, index: number): string {
         var values = row.group.getValue();
-        if (card) return fillAll(opts.titleText || 'Item {index}', Object.assign({}, values, { index: index + 1 }));
+        if (card) return fillAll(opts.titleText || baseText('Base.ItemNumber'), Object.assign({}, values, shownValues(values), { index: index + 1 }));
         var first = fields.filter(function (f) { return !f.type || f.type === 'text'; })[0];
         var text = first ? toText(values[first.key]).trim() : '';
-        return text || ((opts.rowName || 'Row') + ' ' + (index + 1));
+        return text || ((opts.rowName || baseText('Base.Row')) + ' ' + (index + 1));
     }
 
     function buildRow(data: RepeaterItem | null | undefined): RepeaterRow {
@@ -253,13 +265,13 @@ export function buildRepeater(options: RepeaterOptions, parts: RepeaterParts | n
             var index = all.indexOf(row);
             if (index === -1) index = all.length;
             var name = nameOf(row, index);
-            var text = rowLabel(opts.removeText, 'Remove {value}', name);
+            var text = rowLabel(opts.removeText, baseText('Base.RemoveValue'), name);
             remove.title = text;
             remove.setAttribute('aria-label', text);
             if (title) title.textContent = name;
             arrows.forEach(function (btn) {
                 var up = btn.getAttribute('data-move') === '-1';
-                var label = rowLabel(up ? opts.upText : opts.downText, up ? 'Move {value} up' : 'Move {value} down', name);
+                var label = rowLabel(up ? opts.upText : opts.downText, baseText(up ? 'Base.MoveUpValue' : 'Base.MoveDownValue'), name);
                 btn.setAttribute('aria-label', label);
                 btn.disabled = up ? index <= 0 : index >= all.length - 1;
             });

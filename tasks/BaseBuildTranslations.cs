@@ -34,6 +34,15 @@ public sealed class BaseBuildTranslations : Task
     [SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = "MSBuild passes items to a task as an array property.")]
     public ITaskItem[] TextMatches { get; set; } = Array.Empty<ITaskItem>();
 
+    /// <summary>Gets or sets the folder of Base's own strings, built into every plugin, or empty for none.</summary>
+    public string BaseStringsDirectory { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the plugin's casing list, such as Localization/casing.json, or empty for none.</summary>
+    public string CasingFile { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the file the merged casing list is written to, or empty to write none.</summary>
+    public string CasingOutput { get; set; } = string.Empty;
+
     /// <summary>Gets or sets the folder that holds Jellyfin's strings and their source.json.</summary>
     [Required]
     public string SnapshotDirectory { get; set; } = string.Empty;
@@ -69,6 +78,12 @@ public sealed class BaseBuildTranslations : Task
         foreach (var item in LocalFiles)
         {
             var path = item.GetMetadata("FullPath");
+            // The casing list sits beside the language files, and is read on its own.
+            if (string.Equals(Path.GetFileName(path), Tasks.CasingFile.FileName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
             if (!TranslationBuilder.TryLanguageCode(Path.GetFileNameWithoutExtension(path), out var language))
             {
                 diagnostics.Add(new TranslationDiagnostic("JPKT009", true, $"{Path.GetFileName(path)} is not named for a language. Name it by its language code, such as en-us.json or pt-br.json.", path));
@@ -85,9 +100,11 @@ public sealed class BaseBuildTranslations : Task
             }
         }
 
-        var declared = JellyfinStrings.Select(i => new DeclaredString(i.ItemSpec, NullIfEmpty(i.GetMetadata("Source")))).ToList();
+        var casing = ReadCasing(diagnostics);
+        var shared = ReadShared(diagnostics);
+        var declared = JellyfinStrings.Select(i => new DeclaredString(i.ItemSpec, NullIfEmpty(i.GetMetadata("Source")), NullIfEmpty(i.GetMetadata("Case")))).ToList();
         var allowed = TextMatches.Select(i => i.ItemSpec).ToList();
-        var result = TranslationBuilder.Build(files, declared, allowed, snapshot);
+        var result = TranslationBuilder.Build(files, declared, allowed, snapshot, shared, casing);
         diagnostics.AddRange(result.Diagnostics);
 
         string? keys = null;
@@ -112,7 +129,54 @@ public sealed class BaseBuildTranslations : Task
             WriteIfChanged(KeysFile, keys);
         }
 
+        if (!string.IsNullOrEmpty(CasingOutput))
+        {
+            WriteIfChanged(CasingOutput, JsonSerializer.Serialize(casing, _json));
+        }
+
         return !Log.HasLoggedErrors;
+    }
+
+    // Base's defaults, then the plugin's own words.
+    private List<string> ReadCasing(List<TranslationDiagnostic> diagnostics)
+    {
+        var words = new List<string>(TextCase.DefaultExceptions);
+        if (string.IsNullOrEmpty(CasingFile) || !File.Exists(CasingFile))
+        {
+            return words;
+        }
+
+        try
+        {
+            var own = Tasks.CasingFile.Parse(CasingFile, File.ReadAllBytes(CasingFile), diagnostics);
+            words.AddRange(own.Where(w => !words.Contains(w, StringComparer.OrdinalIgnoreCase)));
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            diagnostics.Add(new TranslationDiagnostic("JPKT017", true, "The casing list could not be read. " + e.Message, CasingFile));
+        }
+
+        return words;
+    }
+
+    // Base's own strings: one file per language, and jellyfin.json naming the Jellyfin strings its components use.
+    private SharedStrings? ReadShared(List<TranslationDiagnostic> diagnostics)
+    {
+        if (string.IsNullOrEmpty(BaseStringsDirectory) || !Directory.Exists(BaseStringsDirectory))
+        {
+            return null;
+        }
+
+        var files = new List<LocalStringFile>();
+        foreach (var path in Directory.EnumerateFiles(BaseStringsDirectory, "*.json").OrderBy(p => p, StringComparer.Ordinal))
+        {
+            if (TranslationBuilder.TryLanguageCode(Path.GetFileNameWithoutExtension(path), out var language))
+            {
+                files.Add(LocalStringFile.Parse(path, language, File.ReadAllBytes(path), diagnostics));
+            }
+        }
+
+        return new SharedStrings(files, SharedDeclarations.Read(Path.Combine(BaseStringsDirectory, SharedDeclarations.FileName)).Strings);
     }
 
     private void WriteLanguages(SortedDictionary<string, SortedDictionary<string, string>> languages)

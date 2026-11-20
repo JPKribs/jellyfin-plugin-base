@@ -27,6 +27,8 @@ public sealed class SsrfGuard
 
     private static readonly Lazy<HttpClient> PublicOnlyClient = new(() => BuildClient(false));
 
+    private static string PlainHttpText() => BaseTranslations.Text("Base.SsrfPlainHttp", PlainHttpRefusal);
+
     private static readonly Lazy<HttpClient> PrivateAllowedClient = new(() => BuildClient(true));
 
     private readonly Func<string, CancellationToken, Task<IPAddress[]>> _resolver;
@@ -90,27 +92,27 @@ public sealed class SsrfGuard
 
         if (bytes[0] == 0)
         {
-            return "the unspecified address range 0.0.0.0/8 is not allowed";
+            return BaseTranslations.Text("Base.SsrfUnspecified4", "the unspecified address range 0.0.0.0/8 is not allowed");
         }
 
         if (bytes[0] == 169 && bytes[1] == 254)
         {
-            return "link local addresses (169.254.0.0/16, which includes the cloud metadata address) are not allowed";
+            return BaseTranslations.Text("Base.SsrfLinkLocal4", "link local addresses (169.254.0.0/16, which includes the cloud metadata address) are not allowed");
         }
 
         if ((bytes[0] & 0xF0) == 0xE0)
         {
-            return "multicast addresses are not allowed";
+            return BaseTranslations.Text("Base.SsrfMulticast", "multicast addresses are not allowed");
         }
 
         if (bytes[0] == 255 && bytes[1] == 255 && bytes[2] == 255 && bytes[3] == 255)
         {
-            return "the broadcast address is not allowed";
+            return BaseTranslations.Text("Base.SsrfBroadcast", "the broadcast address is not allowed");
         }
 
         if ((bytes[0] & 0xF0) == 0xF0)
         {
-            return "reserved addresses (240.0.0.0/4) are not allowed";
+            return BaseTranslations.Text("Base.SsrfReserved", "reserved addresses (240.0.0.0/4) are not allowed");
         }
 
         if (allowPrivateNetwork)
@@ -120,7 +122,7 @@ public sealed class SsrfGuard
 
         if (bytes[0] == 127)
         {
-            return "loopback addresses are not allowed";
+            return BaseTranslations.Text("Base.SsrfLoopback", "loopback addresses are not allowed");
         }
 
         if (bytes[0] == 10
@@ -128,7 +130,7 @@ public sealed class SsrfGuard
             || (bytes[0] == 192 && bytes[1] == 168)
             || (bytes[0] == 100 && (bytes[1] & 0xC0) == 64))
         {
-            return "private network addresses are not allowed";
+            return BaseTranslations.Text("Base.SsrfPrivate", "private network addresses are not allowed");
         }
 
         return null;
@@ -162,12 +164,12 @@ public sealed class SsrfGuard
     {
         if (string.IsNullOrWhiteSpace(url))
         {
-            return "the URL is empty";
+            return BaseTranslations.Text("Base.SsrfEmpty", "the URL is empty");
         }
 
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
         {
-            return "the URL is not a valid absolute URL";
+            return BaseTranslations.Text("Base.SsrfNotAbsolute", "the URL is not a valid absolute URL");
         }
 
         return ValidateUri(uri);
@@ -206,13 +208,13 @@ public sealed class SsrfGuard
         }
         catch (SocketException)
         {
-            return allowUnresolved ? null : "the name '" + uri.Host + "' does not resolve";
+            return allowUnresolved ? null : BaseTranslations.Text("Base.SsrfNoResolve", "the name '{0}' does not resolve", uri.Host);
         }
 #pragma warning disable CA1031 // Any resolver failure other than a cancellation must refuse the name, never throw out of the check.
         catch (Exception ex) when (ex is not OperationCanceledException)
 #pragma warning restore CA1031
         {
-            return "the name '" + uri.Host + "' could not be resolved (" + ex.GetType().Name + ")";
+            return BaseTranslations.Text("Base.SsrfResolveFailed", "the name '{0}' could not be resolved ({1})", uri.Host, ex.GetType().Name);
         }
 
         if (addresses.Length == 0 && allowUnresolved)
@@ -325,28 +327,28 @@ public sealed class SsrfGuard
     {
         if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
         {
-            return "only http and https URLs are allowed";
+            return BaseTranslations.Text("Base.SsrfScheme", "only http and https URLs are allowed");
         }
 
         if (!string.IsNullOrEmpty(uri.UserInfo))
         {
-            return "a URL with a user name or password is not allowed";
+            return BaseTranslations.Text("Base.SsrfUserInfo", "a URL with a user name or password is not allowed");
         }
 
         if (string.IsNullOrEmpty(uri.Host))
         {
-            return "the URL has no host";
+            return BaseTranslations.Text("Base.SsrfNoHost", "the URL has no host");
         }
 
         if (uri.IdnHost.Contains('%', StringComparison.Ordinal))
         {
-            return "a scoped IPv6 address is not allowed";
+            return BaseTranslations.Text("Base.SsrfScoped", "a scoped IPv6 address is not allowed");
         }
 
         var plainHttp = uri.Scheme == Uri.UriSchemeHttp;
         if (plainHttp && RequireHttpsForPublic && !AllowPrivateNetwork)
         {
-            return PlainHttpRefusal;
+            return PlainHttpText();
         }
 
         if (IPAddress.TryParse(uri.Host.Trim('[', ']'), out var address))
@@ -354,12 +356,12 @@ public sealed class SsrfGuard
             var rejection = ClassifyAddress(address);
             if (rejection is not null)
             {
-                return uri.Host + " is refused, " + rejection;
+                return BaseTranslations.Text("Base.SsrfHostRefused", "{0} is refused, {1}", uri.Host, rejection);
             }
 
             if (plainHttp && RequireHttpsForPublic && !IsPrivateOrLoopback(address))
             {
-                return uri.Host + " is a public address, and " + PlainHttpRefusal;
+                return BaseTranslations.Text("Base.SsrfHostPublic", "{0} is a public address, and {1}", uri.Host, PlainHttpText());
             }
         }
 
@@ -370,7 +372,7 @@ public sealed class SsrfGuard
     {
         if (addresses.Length == 0)
         {
-            return "the name '" + host + "' does not resolve";
+            return BaseTranslations.Text("Base.SsrfNoResolve", "the name '{0}' does not resolve", host);
         }
 
         foreach (var address in addresses)
@@ -378,12 +380,12 @@ public sealed class SsrfGuard
             var rejection = ClassifyAddress(address);
             if (rejection is not null)
             {
-                return "the name '" + host + "' resolves to " + address + ", " + rejection;
+                return BaseTranslations.Text("Base.SsrfResolvesRefused", "the name '{0}' resolves to {1}, {2}", host, address, rejection);
             }
 
             if (plainHttp && RequireHttpsForPublic && !IsPrivateOrLoopback(address))
             {
-                return "the name '" + host + "' resolves to " + address + ", a public address, and " + PlainHttpRefusal;
+                return BaseTranslations.Text("Base.SsrfResolvesPublic", "the name '{0}' resolves to {1}, a public address, and {2}", host, address, PlainHttpText());
             }
         }
 
@@ -394,33 +396,33 @@ public sealed class SsrfGuard
     {
         if (address.Equals(IPAddress.IPv6Any))
         {
-            return "the unspecified address (::) is not allowed";
+            return BaseTranslations.Text("Base.SsrfUnspecified6", "the unspecified address (::) is not allowed");
         }
 
         if (address.IsIPv6Multicast)
         {
-            return "multicast addresses are not allowed";
+            return BaseTranslations.Text("Base.SsrfMulticast", "multicast addresses are not allowed");
         }
 
         if (address.IsIPv6LinkLocal)
         {
-            return "link local addresses (fe80::/10) are not allowed";
+            return BaseTranslations.Text("Base.SsrfLinkLocal6", "link local addresses (fe80::/10) are not allowed");
         }
 
         if (address.IsIPv6SiteLocal)
         {
-            return "site local addresses (fec0::/10) are not allowed";
+            return BaseTranslations.Text("Base.SsrfSiteLocal", "site local addresses (fec0::/10) are not allowed");
         }
 
         var bytes = address.GetAddressBytes();
         if (bytes[0] == 0x20 && bytes[1] == 0x01 && bytes[2] == 0 && bytes[3] == 0)
         {
-            return "Teredo addresses (2001::/32) are not allowed";
+            return BaseTranslations.Text("Base.SsrfTeredo", "Teredo addresses (2001::/32) are not allowed");
         }
 
         if (bytes[0] == 0x00 && bytes[1] == 0x64 && bytes[2] == 0xFF && bytes[3] == 0x9B && bytes[4] == 0 && bytes[5] == 0x01)
         {
-            return "local use NAT64 addresses (64:ff9b:1::/48) are not allowed";
+            return BaseTranslations.Text("Base.SsrfNat64", "local use NAT64 addresses (64:ff9b:1::/48) are not allowed");
         }
 
         if (IsIsatap(bytes))
@@ -428,7 +430,7 @@ public sealed class SsrfGuard
             var embedded = Classify(new IPAddress(new[] { bytes[12], bytes[13], bytes[14], bytes[15] }), allowPrivateNetwork);
             if (embedded is not null)
             {
-                return "an ISATAP address that carries a refused IPv4 address, " + embedded;
+                return BaseTranslations.Text("Base.SsrfIsatap", "an ISATAP address that carries a refused IPv4 address, {0}", embedded);
             }
         }
 
@@ -439,12 +441,12 @@ public sealed class SsrfGuard
 
         if (IPAddress.IsLoopback(address))
         {
-            return "loopback addresses are not allowed";
+            return BaseTranslations.Text("Base.SsrfLoopback", "loopback addresses are not allowed");
         }
 
         if ((bytes[0] & 0xFE) == 0xFC)
         {
-            return "unique local addresses (fc00::/7) are not allowed";
+            return BaseTranslations.Text("Base.SsrfUniqueLocal", "unique local addresses (fc00::/7) are not allowed");
         }
 
         return null;

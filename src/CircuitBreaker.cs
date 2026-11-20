@@ -177,9 +177,12 @@ public class CircuitBreaker
             }
 
             var remaining = _cooldownPeriod - (_timeProvider.GetUtcNow() - _circuitOpenedAt.Value);
-            reason = $"Circuit breaker open for {_serviceName}: " +
-                     $"{_consecutiveFailures} consecutive failures. " +
-                     $"Retry in {remaining.TotalSeconds.ToString("F0", CultureInfo.InvariantCulture)} seconds.";
+            reason = BaseTranslations.Text(
+                "Base.CircuitOpen",
+                "Circuit breaker open for {0}: {1} consecutive failures. Retry in {2} seconds.",
+                _serviceName,
+                _consecutiveFailures.ToString(CultureInfo.InvariantCulture),
+                remaining.TotalSeconds.ToString("F0", CultureInfo.InvariantCulture));
             return false;
         }
     }

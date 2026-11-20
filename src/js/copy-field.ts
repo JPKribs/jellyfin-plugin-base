@@ -2,6 +2,7 @@ import { adornField } from './field-adornments.js';
 import { make, iconButton, nextId, listen, runAll, applyFieldSize, toText } from './lib/dom.js';
 import { copyToClipboard } from './browser-helpers.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What createCopyField takes. secret masks the value, allowExpose adds an eye inside the box that shows it, inline sits it in a row with no space below, and wrap shows the whole value over as many lines as it needs. */
 export interface CopyFieldOptions {
@@ -45,7 +46,7 @@ export interface CopyFieldHandle extends ComponentHandle {
  *   mono         : true shows the value in the mono font (default true)
  *   label        : aria-label of the value (default 'Value')
  *   copyLabel    : title and aria-label of the copy button (default 'Copy')
- *   copiedText   : feedback after a copy (default 'Copied.')
+ *   copiedText   : feedback after a copy (default 'Copied')
  *   failedText   : feedback when the copy failed (default 'Copy failed.')
  *   revealLabel  : title of the eye while masked (default 'Show')
  *   hideLabel    : title of the eye while shown (default 'Hide')
@@ -59,13 +60,13 @@ export function createCopyField(options?: CopyFieldOptions): CopyFieldHandle {
     options = options || {};
     var cleanups: Array<() => void> = [];
     var timer: ReturnType<typeof setTimeout> | null = null;
-    var copyLabel = options.copyLabel || 'Copy';
+    var copyLabel = options.copyLabel || baseText('Copy');
 
     var wrap = !!options.wrap && !options.secret;
     var root = make('div', 'base-copy-field' + (options.inline ? ' inline' : '') + (wrap ? ' wrap' : ''));
     applyFieldSize(root, options.size);
     var mono = options.mono === false ? '' : 'base-mono';
-    var input = make('input', mono, { type: options.secret ? 'password' : 'text', 'aria-label': options.label || 'Value', autocomplete: 'off' });
+    var input = make('input', mono, { type: options.secret ? 'password' : 'text', 'aria-label': options.label || baseText('LabelValue'), autocomplete: 'off' });
     input.setAttribute('readonly', '');
     input.value = toText(options.value);
     var button = iconButton('base-row-btn base-copy-button', 'content_copy', copyLabel);
@@ -90,8 +91,8 @@ export function createCopyField(options?: CopyFieldOptions): CopyFieldHandle {
     }
     if (options.secret && options.allowExpose) {
         input.setAttribute('data-base-reveal', '');
-        input.setAttribute('data-base-reveal-label', options.revealLabel || 'Show');
-        input.setAttribute('data-base-hide-label', options.hideLabel || 'Hide');
+        input.setAttribute('data-base-reveal-label', options.revealLabel || baseText('Base.Show'));
+        input.setAttribute('data-base-hide-label', options.hideLabel || baseText('Hide'));
         var adorned = adornField(input);
         var eye = root.querySelector('.base-adorned-eye');
         if (eye) eye.classList.add('base-copy-reveal');
@@ -103,7 +104,7 @@ export function createCopyField(options?: CopyFieldOptions): CopyFieldHandle {
     function copy(): Promise<boolean> {
         var value = input.value;
         return copyToClipboard(value).then(function (ok) {
-            var text = ok ? (options!.copiedText || 'Copied.') : (options!.failedText || 'Copy failed.');
+            var text = ok ? (options!.copiedText || baseText('Copied')) : (options!.failedText || baseText('Base.CopyFailed'));
             status.textContent = text;
             button.classList.toggle('success', ok);
             button.title = text;

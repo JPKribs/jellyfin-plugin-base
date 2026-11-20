@@ -3,6 +3,7 @@ import { renderChips, bindBackspaceRemove } from './lib/chips.js';
 import { createFieldMessage } from './field-message.js';
 import { bindValidation } from './lib/validate.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What createTagInput takes. validate returns an error sentence for a bad tag, and onChange hears the tags after each change. */
 export interface TagInputOptions {
@@ -37,7 +38,7 @@ export interface TagInputHandle extends ComponentHandle {
  * @param options {
  *   values        : array of strings [optional]
  *   placeholder   : a valid example tag [optional]
- *   inputLabel    : aria-label of the input (default 'New Tag')
+ *   inputLabel    : aria-label of the input (default 'New tag')
  *   removeLabel   : title and aria-label of a remove button, where {value} is the tag (default 'Remove {value}')
  *   duplicateText : message for a repeated tag (default 'Already added.')
  *   limitText     : message when maxTags is reached (default 'No more tags can be added.')
@@ -65,7 +66,7 @@ export function createTagInput(options?: TagInputOptions): TagInputHandle {
     applyFieldSize(root, options.size);
     var box = make('div', 'base-tag-input-box');
     var tags = make('div', 'base-tags');
-    var input = make('input', 'base-tag-input-field', { type: 'text', 'aria-label': options.inputLabel || 'New Tag', autocomplete: 'off' });
+    var input = make('input', 'base-tag-input-field', { type: 'text', 'aria-label': options.inputLabel || baseText('Base.NewTag'), autocomplete: 'off' });
     if (options.placeholder) input.setAttribute('placeholder', options.placeholder);
     var message = createFieldMessage({ input: input });
     var searchIcon = icon('search');
@@ -77,7 +78,7 @@ export function createTagInput(options?: TagInputOptions): TagInputHandle {
     root.appendChild(message.element);
 
     function render(): void {
-        renderChips(tags, { labels: values, removeText: options!.removeLabel || 'Remove {value}', pill: true, input: input, onRemove: removeAt });
+        renderChips(tags, { labels: values, removeText: options!.removeLabel || baseText('Base.RemoveValue'), pill: true, input: input, onRemove: removeAt });
     }
 
     function changed(): void {
@@ -94,8 +95,8 @@ export function createTagInput(options?: TagInputOptions): TagInputHandle {
     // Why a tag cannot be added, or '' when it can.
     function problemOf(tag: string): string {
         if (!tag) return '';
-        if (options!.maxTags && values.length >= options!.maxTags) return options!.limitText || 'No more tags can be added.';
-        if (!options!.duplicates && values.indexOf(tag) !== -1) return options!.duplicateText || 'Already added.';
+        if (options!.maxTags && values.length >= options!.maxTags) return options!.limitText || baseText('Base.TagsFull');
+        if (!options!.duplicates && values.indexOf(tag) !== -1) return options!.duplicateText || baseText('Base.AlreadyAdded');
         return options!.validate ? options!.validate(tag) || '' : '';
     }
 

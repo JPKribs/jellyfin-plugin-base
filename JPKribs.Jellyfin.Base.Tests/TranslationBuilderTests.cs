@@ -254,6 +254,170 @@ public class TranslationBuilderTests
         Assert.Equal(code, read);
     }
 
+    /// <summary>
+    /// Case converts a declared string's text in every English language and in TranslationKeys, with the casing list, and leaves other languages.
+    /// True: a plugin ships Jellyfin's words in its own casing.
+    /// False: a translation would be recased, or the editor would show text the plugin does not ship.
+    /// </summary>
+    [Fact]
+    public void Build_CaseConvertsEnglishOnly()
+    {
+        var snapshot = Snapshot(
+            web: new()
+            {
+                ["en-us"] = new() { ["Guide"] = "Open The Epg Guide" },
+                ["en-gb"] = new() { ["Guide"] = "Open The Epg Guide" },
+                ["de"] = new() { ["Guide"] = "Den EPG Führer Öffnen" }
+            },
+            server: new());
+        var result = TranslationBuilder.Build(Array.Empty<LocalStringFile>(), new[] { new DeclaredString("Guide", null, "Sentence") }, Array.Empty<string>(), snapshot, null, new[] { "EPG" });
+
+        Assert.Empty(result.Diagnostics);
+        Assert.Equal("Open the EPG guide", result.Languages["en-us"]["Guide"]);
+        Assert.Equal("Open the EPG guide", result.Languages["en-gb"]["Guide"]);
+        Assert.Equal("Den EPG Führer Öffnen", result.Languages["de"]["Guide"]);
+        Assert.Equal("Open the EPG guide", result.Keys["Guide"]);
+    }
+
+    /// <summary>
+    /// A Case other than title or sentence fails.
+    /// True: a typo in Case is caught.
+    /// False: the string would ship unconverted unseen.
+    /// </summary>
+    [Fact]
+    public void Build_UnknownCase_IsJPKT020()
+    {
+        var d = Assert.Single(Build(Array.Empty<LocalStringFile>(), new[] { new DeclaredString("Favorites", null, "upper") }).Diagnostics);
+        Assert.Equal(("JPKT020", true), (d.Code, d.IsError));
+    }
+
+    /// <summary>
+    /// A plugin key that starts with Base. fails, so it can never meet one of Base's own keys.
+    /// True: Base's text can never be replaced by accident.
+    /// False: a plugin key could silently shadow a Base string.
+    /// </summary>
+    [Fact]
+    public void Build_BaseKey_IsJPKT021()
+    {
+        var d = Assert.Single(Build(new[] { File("en-us", "{\n  \"Base.LoadMore\": \"More\"\n}") }).Diagnostics);
+        Assert.Equal(("JPKT021", true, 2, 3), (d.Code, d.IsError, d.Line, d.Column));
+    }
+
+    /// <summary>
+    /// Base's own strings join every plugin's, its declarations merge with the plugin's without a repeat error, the
+    /// plugin's own declaration wins, taking Base's case when it names none, and only the plugin's keys reach TranslationKeys.
+    /// True: every plugin gets Base's text, and a key both declare is built in once as the plugin asked.
+    /// False: a plugin that declares a key Base uses would fail, or TranslationKeys would fill with Base's keys.
+    /// </summary>
+    [Fact]
+    public void Build_MergesBaseStrings()
+    {
+        var shared = new SharedStrings(
+            new[] { File("en-us", "{\"Base.LoadMore\": \"Load more\"}") },
+            new[] { new DeclaredString("Favorites", null, "title"), new DeclaredString("Movies", "server"), new DeclaredString("LabelTitle", null, "sentence") });
+        var result = TranslationBuilder.Build(
+            new[] { File("en-us", "{\"MyTitle\": \"My Title\"}") },
+            new[] { new DeclaredString("Movies"), new DeclaredString("LabelTitle") },
+            Array.Empty<string>(),
+            _snapshot,
+            shared,
+            null);
+
+        Assert.Empty(result.Diagnostics);
+        Assert.Equal("Load more", result.Languages["en-us"]["Base.LoadMore"]);
+        Assert.Equal("Filme", result.Languages["de"]["Movies"]);
+        Assert.Equal("Favoriten", result.Languages["de"]["Favorites"]);
+        Assert.Equal(new[] { "LabelTitle", "Movies", "MyTitle" }, result.Keys.Keys);
+
+        var snapshot = Snapshot(web: new() { ["en-us"] = new() { ["SelectAll"] = "Select All" } }, server: new());
+        var baseCase = new SharedStrings(Array.Empty<LocalStringFile>(), new[] { new DeclaredString("SelectAll", null, "sentence") });
+        var taken = TranslationBuilder.Build(Array.Empty<LocalStringFile>(), new[] { new DeclaredString("SelectAll") }, Array.Empty<string>(), snapshot, baseCase, null);
+        Assert.Equal("Select all", taken.Languages["en-us"]["SelectAll"]);
+        Assert.Equal("Select all", taken.Keys["SelectAll"]);
+        var kept = TranslationBuilder.Build(Array.Empty<LocalStringFile>(), new[] { new DeclaredString("SelectAll", null, "title") }, Array.Empty<string>(), snapshot, baseCase, null);
+        Assert.Equal("Select All", kept.Languages["en-us"]["SelectAll"]);
+    }
+
+    /// <summary>
+    /// A local string whose English matches a string only Base declares warns, as an undeclared Jellyfin string does, and does not fail.
+    /// True: a plugin that says "Favorites" itself keeps building when Base starts using Favorites.
+    /// False: a Base release would break plugins with JPKT005.
+    /// </summary>
+    [Fact]
+    public void Build_BaseDeclarationNeverFailsAPluginString()
+    {
+        var shared = new SharedStrings(Array.Empty<LocalStringFile>(), new[] { new DeclaredString("Favorites") });
+        var result = TranslationBuilder.Build(new[] { File("en-us", "{\"MyFavorites\": \"Favorites\"}") }, Array.Empty<DeclaredString>(), Array.Empty<string>(), _snapshot, shared, null);
+        var d = Assert.Single(result.Diagnostics);
+        Assert.Equal(("JPKT006", false), (d.Code, d.IsError));
+    }
+
+    /// <summary>
+    /// A casing list that is not an array of strings, has an empty entry, or repeats a word ignoring case fails at its line.
+    /// True: the author sees each problem where it is.
+    /// False: a bad list would ship or be silently cut.
+    /// </summary>
+    [Fact]
+    public void CasingFile_ReportsEachProblemAtItsLine()
+    {
+        var diagnostics = new List<TranslationDiagnostic>();
+        var words = CasingFile.Parse("casing.json", Encoding.UTF8.GetBytes("[\n  \"EPG\",\n  \" \",\n  \"epg\",\n  \"Apple Music\"\n]"), diagnostics);
+        Assert.Equal(new[] { "EPG", "Apple Music" }, words);
+        Assert.Equal(new[] { ("JPKT018", 3), ("JPKT019", 4) }, diagnostics.Select(d => (d.Code, d.Line)));
+
+        diagnostics.Clear();
+        Assert.Empty(CasingFile.Parse("casing.json", Encoding.UTF8.GetBytes("{\"EPG\": true}"), diagnostics));
+        Assert.Equal("JPKT017", Assert.Single(diagnostics).Code);
+
+        diagnostics.Clear();
+        Assert.Empty(CasingFile.Parse("casing.json", Encoding.UTF8.GetBytes("[\"EPG\", 4]"), diagnostics));
+        Assert.Equal("JPKT017", Assert.Single(diagnostics).Code);
+
+        diagnostics.Clear();
+        Assert.Empty(CasingFile.Parse("casing.json", Encoding.UTF8.GetBytes("[\"EPG\""), diagnostics));
+        Assert.Equal("JPKT017", Assert.Single(diagnostics).Code);
+    }
+
+    /// <summary>
+    /// Base's own strings follow every rule a plugin's do against the Jellyfin strings the package carries: keys start
+    /// with Base., no text is said twice, and none says what a Jellyfin string says unless listed as a text match.
+    /// True: Base uses Jellyfin's words wherever Jellyfin has them, so they arrive translated.
+    /// False: Base would ship English for words Jellyfin already translates.
+    /// </summary>
+    [Fact]
+    public void BaseStrings_FollowThePluginRules()
+    {
+        var root = Root();
+        var snapshot = JellyfinSnapshot.Load(System.IO.Path.Combine(root, "dist", "jellyfin"));
+        Assert.NotNull(snapshot);
+        var folder = System.IO.Path.Combine(root, "strings");
+        var diagnostics = new List<TranslationDiagnostic>();
+        var files = System.IO.Directory.EnumerateFiles(folder, "*.json")
+            .Where(f => TranslationBuilder.TryLanguageCode(System.IO.Path.GetFileNameWithoutExtension(f), out _))
+            .Select(f =>
+            {
+                TranslationBuilder.TryLanguageCode(System.IO.Path.GetFileNameWithoutExtension(f), out var language);
+                return LocalStringFile.Parse(f, language, System.IO.File.ReadAllBytes(f), diagnostics);
+            })
+            .ToList();
+        var declarations = SharedDeclarations.Read(System.IO.Path.Combine(folder, SharedDeclarations.FileName));
+
+        Assert.NotEmpty(declarations.Strings);
+        diagnostics.AddRange(TranslationBuilder.CheckShared(new SharedStrings(files, declarations.Strings), declarations.TextMatches, snapshot!));
+        Assert.True(diagnostics.Count == 0, string.Join(Environment.NewLine, diagnostics.Select(d => d.Code + " " + d.Message)));
+    }
+
+    private static string Root()
+    {
+        var dir = new System.IO.DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null && !System.IO.File.Exists(System.IO.Path.Combine(dir.FullName, "jellyfin.json")))
+        {
+            dir = dir.Parent;
+        }
+
+        return dir?.FullName ?? throw new InvalidOperationException("The repository root, with jellyfin.json, was not found.");
+    }
+
     private static TranslationResult Build(IReadOnlyList<LocalStringFile> files, IReadOnlyList<DeclaredString>? declared = null, IReadOnlyCollection<string>? allowed = null)
         => TranslationBuilder.Build(files, declared ?? Array.Empty<DeclaredString>(), allowed ?? Array.Empty<string>(), _snapshot);
 

@@ -34,7 +34,7 @@ test('dateKey reads a day in local time, and shiftDays moves it across months', 
 
 test('it draws the default presets over two date boxes with the calendar icon', function () {
     var ui = build();
-    assert.deepEqual(pills(ui).map(function (p) { return p.textContent; }), ['Today', 'Last 7 Days', 'Last 30 Days', 'Custom']);
+    assert.deepEqual(pills(ui).map(function (p) { return p.textContent; }), ['Today', 'Last 7 days', 'Last 30 days', 'Custom']);
     var boxes = all(ui.picker.element, '.base-adorned-picker');
     assert.equal(boxes.length, 2);
     assert.equal(boxes[0].querySelector('.base-adorned-icon').textContent, 'calendar_today');
@@ -58,7 +58,7 @@ test('typing dates presses the matching preset, or Custom', function () {
     var ui = build();
     setDate(ui.picker.from, '2026-02-09');
     setDate(ui.picker.to, '2026-03-10');
-    assert.deepEqual(pressed(ui), ['Last 30 Days']);
+    assert.deepEqual(pressed(ui), ['Last 30 days']);
     setDate(ui.picker.from, '2026-01-01');
     assert.deepEqual(pressed(ui), ['Custom']);
     ui.picker.setValue({ from: '2026-03-10', to: '2026-03-10' });

@@ -3,6 +3,7 @@ import { bindPressedGroup } from './lib/pressed-group.js';
 import { bindValidation } from './lib/validate.js';
 import { createFieldMessage } from './field-message.js';
 import type { ComponentHandle } from './types.js';
+import { baseText, pageLanguage } from './lib/base-text.js';
 
 /** A time as "HH:mm", or '' while empty, and days as numbers from 0 for Sunday to 6 for Saturday. */
 export interface SchedulePickerValue {
@@ -34,7 +35,19 @@ export interface SchedulePickerHandle extends ComponentHandle {
     destroy(): void;
 }
 
-var DEFAULT_DAYS: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+// The short day names in the page's language, from Sunday, such as Sun to Sat in English.
+function shortDays(): string[] {
+    var days: string[] = [];
+    for (var d = 0; d < 7; d++) {
+        var date = new Date(2023, 0, 1 + d);
+        try {
+            days.push(date.toLocaleDateString(pageLanguage(), { weekday: 'short' }));
+        } catch (e) {
+            days.push(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d]);
+        }
+    }
+    return days;
+}
 
 /**
  * A time of day and, optionally, days of the week as a group of toggle buttons. The value is plain data, a time as "HH:mm" and days as numbers from 0 for Sunday to 6 for Saturday.
@@ -56,14 +69,14 @@ var DEFAULT_DAYS: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
  */
 export function createSchedulePicker(options?: SchedulePickerOptions): SchedulePickerHandle {
     options = options || {};
-    var labels: string[] = Array.isArray(options.dayLabels) && options.dayLabels.length >= 7 ? options.dayLabels : DEFAULT_DAYS;
+    var labels: string[] = Array.isArray(options.dayLabels) && options.dayLabels.length >= 7 ? options.dayLabels : shortDays();
     var cleanups: Array<() => void> = [];
 
     var root = make('div', 'base-schedule');
     applyFieldSize(root, options.size);
-    var time = make('input', 'base-schedule-time', { type: 'time', 'aria-label': options.timeLabel || 'Time' });
+    var time = make('input', 'base-schedule-time', { type: 'time', 'aria-label': options.timeLabel || baseText('LabelTime') });
     time.hidden = options.showTime === false;
-    var group = make('div', 'base-toggle-group base-schedule-days', { role: 'group', 'aria-label': options.daysLabel || 'Days' });
+    var group = make('div', 'base-toggle-group base-schedule-days', { role: 'group', 'aria-label': options.daysLabel || baseText('Base.Days') });
     group.hidden = options.showDays === false;
     root.appendChild(time);
     root.appendChild(group);

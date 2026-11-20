@@ -1,6 +1,7 @@
 import { make, icon, listen, runAll, has, clear } from './lib/dom.js';
 import { MESSAGE_ICONS, dismissButton } from './lib/message.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** The tone of a banner, which picks its tint and glyph. */
 export type BannerKind = 'info' | 'success' | 'warn' | 'error' | 'neutral';
@@ -89,7 +90,7 @@ export function createBanner(options?: BannerOptions): BannerHandle {
     body.appendChild(actionRow);
     root.appendChild(glyph);
     root.appendChild(body);
-    var close = dismissButton('base-banner-close', options.dismissLabel || 'Dismiss');
+    var close = dismissButton('base-banner-close', options.dismissLabel || baseText('Base.Dismiss'));
     close.hidden = options.dismissible === false;
     root.appendChild(close);
 

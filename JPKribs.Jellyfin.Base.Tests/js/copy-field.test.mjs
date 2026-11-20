@@ -46,9 +46,9 @@ test('a copy sends the value to the clipboard, shows Copied. and calls onCopy', 
     assert.deepEqual(copied, ['abc']);
     assert.deepEqual(seen, [['abc', true]]);
     var button = field.element.querySelector('.base-copy-button');
-    assert.equal(button.title, 'Copied.');
+    assert.equal(button.title, 'Copied');
     assert.ok(button.classList.contains('success'));
-    assert.equal(field.element.querySelector('[role="status"]').textContent, 'Copied.');
+    assert.equal(field.element.querySelector('[role="status"]').textContent, 'Copied');
 });
 
 test('the feedback returns to the copy label after the delay', async function () {

@@ -7,7 +7,7 @@ A footer for a list that is read a page at a time. It has a page size select, Pr
 | When | Use |
 | :--- | :--- |
 | A plain list that loads one page per request | Pagination, under the list. |
-| A [Paginated Table](paginated-table.md), a [Filtered List](filtered-list.md), or a [Data Table](data-table.md) | Not the Pagination. They load more as the list scrolls, or from Load More. |
+| A [Paginated Table](paginated-table.md), a [Filtered List](filtered-list.md), or a [Data Table](data-table.md) | Not the Pagination. They load more as the list scrolls, or from Load more. |
 
 ## Usage
 
@@ -29,7 +29,7 @@ Parts: `base-pager-number`, `base-pager-pages`, `base-pager-size`, `base-pager-t
 * `getValue()` returns `{ page, pageSize, skip, take, total, pageCount }`. `setResult(result)` reads `TotalCount` (or `totalCount`) from a `PagedResult`.
 * The page size is 25 by default, and the select offers 10, 25, 50, and 100 by `pageSizes`. A page size change returns to page 1, and a page past the last moves to the last.
 * `windowSize` is the most page numbers shown around the current page, 5 by default. The first and last pages always show.
-* The total reads "{from} to {to} of {total}" by `totalText`, and "No items." by `emptyText` when the total is 0. `previousText`, `nextText`, `pageSizeLabel`, `navLabel`, and `pageLabel` replace "Previous", "Next", "Page Size", "Pagination", and "Page {value}".
+* The total reads "{from} to {to} of {total}" by `totalText`, and "No items." by `emptyText` when the total is 0. `previousText`, `nextText`, `pageSizeLabel`, `navLabel`, and `pageLabel` replace "Previous", "Next", "Page size", "Pagination", and "Page {value}".
 * `base-pager-button` is a page button, and `active` marks the current page. `base-pager-gap` draws dots between numbers.
 * The buttons are a field tall and the text is the field text size, so they follow `size`.
 * At 600px and below only the current number shows.
@@ -56,7 +56,7 @@ A footer for a list that is read a page at a time. It has a page size select, Pr
 | `windowSize` | <code>number</code> | most page numbers shown around the current page (default 5) |
 | `previousText` | <code>string</code> | text of the previous button (default 'Previous') |
 | `nextText` | <code>string</code> | text of the next button (default 'Next') |
-| `pageSizeLabel` | <code>string</code> | label of the page size select (default 'Page Size') |
+| `pageSizeLabel` | <code>string</code> | label of the page size select (default 'Page size') |
 | `navLabel` | <code>string</code> | aria-label of the footer (default 'Pagination') |
 | `pageLabel` | <code>string</code> | aria-label of a page number button, where {value} is the number (default 'Page {value}') |
 | `totalText` | <code>string</code> | summary where {from}, {to}, and {total} are filled in (default '{from} to {to} of {total}') |

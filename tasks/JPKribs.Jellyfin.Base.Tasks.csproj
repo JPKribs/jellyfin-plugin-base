@@ -19,4 +19,9 @@
     <InternalsVisibleTo Include="JPKribs.Jellyfin.Base.Tests" />
   </ItemGroup>
 
+  <!-- A Case conversion at build time uses the same TextCase a plugin compiles in, so the two can never differ. -->
+  <ItemGroup>
+    <Compile Include="../src/TextCase.cs" Link="TextCase.cs" />
+  </ItemGroup>
+
 </Project>

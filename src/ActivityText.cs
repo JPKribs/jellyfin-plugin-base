@@ -7,7 +7,8 @@ namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
 /// Wording shared by every activity entry, so entries from every plugin read the same way.
-/// An entry has a short title case name such as "12 Items Synced" over one sentence such as "12 items were synced from source-a (9), source-b (3)".
+/// <see cref="SummaryName"/>, <see cref="Count"/>, and <see cref="WasOrWere"/> write English only. An entry in the
+/// server's language is built from keys through <see cref="ActivityOutcome"/> and <see cref="BaseTranslations"/>.
 /// </summary>
 /// <remarks>
 /// Entries carry no closing full stop, following Jellyfin's own. Counts are formatted with the invariant culture.
@@ -16,7 +17,7 @@ namespace JPKribs.Jellyfin.Base;
 /// </remarks>
 public static class ActivityText
 {
-    /// <summary>Builds the name of a summary entry, such as "1 Item Synced" or "12 Items Synced".</summary>
+    /// <summary>Builds the English name of a summary entry, such as "1 Item Synced" or "12 Items Synced".</summary>
     /// <param name="count">How many.</param>
     /// <param name="outcome">What happened, in title case, such as "Synced" or "Not Synced".</param>
     /// <param name="noun">The singular noun, in title case. "Item" by default.</param>
@@ -28,7 +29,7 @@ public static class ActivityText
         return string.Create(CultureInfo.InvariantCulture, $"{count} {Plural(count, noun)} {outcome}");
     }
 
-    /// <summary>Builds a count with its noun, such as "1 item" or "3 items".</summary>
+    /// <summary>Builds a count with its English noun, such as "1 item" or "3 items".</summary>
     /// <remarks>Despite the name it returns text, not a number.</remarks>
     /// <param name="count">How many.</param>
     /// <param name="noun">The singular noun.</param>
@@ -39,7 +40,7 @@ public static class ActivityText
         return string.Create(CultureInfo.InvariantCulture, $"{count} {Plural(count, noun)}");
     }
 
-    /// <summary>Gives "was" for one and "were" for any other count.</summary>
+    /// <summary>Gives the English "was" for one and "were" for any other count.</summary>
     /// <param name="count">How many.</param>
     /// <returns>The verb.</returns>
     public static string WasOrWere(int count) => count == 1 ? "was" : "were";

@@ -6,6 +6,7 @@ import { createSpinner } from './spinner.js';
 import { createFieldMessage } from './field-message.js';
 import { openDialog } from './dialog.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** The background a preview frame shows its image on. */
 export type PreviewBackground = 'dark' | 'light' | 'checker';
@@ -69,24 +70,24 @@ export function createPreviewFrame(options?: PreviewFrameOptions): PreviewFrameH
     var url = '';
     var objectUrl = '';
     var asked = 0;
-    var label = opts.label || 'Preview';
+    var label = opts.label || baseText('Preview');
 
     var root = make('div', 'base-preview-frame');
-    var choices = make('div', 'base-pill-group base-preview-frame-backgrounds', { role: 'group', 'aria-label': 'Background' });
-    var names: Record<PreviewBackground, string> = { dark: opts.darkText || 'Dark', light: opts.lightText || 'Light', checker: opts.checkerText || 'Checkered' };
+    var choices = make('div', 'base-pill-group base-preview-frame-backgrounds', { role: 'group', 'aria-label': baseText('Base.Background') });
+    var names: Record<PreviewBackground, string> = { dark: opts.darkText || baseText('Base.Dark'), light: opts.lightText || baseText('Base.Light'), checker: opts.checkerText || baseText('Base.Checkered') };
     BACKGROUNDS.forEach(function (b) {
         choices.appendChild(make('button', 'base-pill', { type: 'button', 'data-value': b, 'aria-pressed': b === background ? 'true' : 'false' }, names[b]));
     });
     choices.hidden = opts.backgrounds === false;
     var zoomable = opts.zoom !== false;
     var stage: HTMLElement = zoomable
-        ? make('button', 'base-preview-frame-stage ' + background, { type: 'button', title: opts.zoomText || 'Zoom', 'aria-label': (opts.zoomText || 'Zoom') + ' ' + label })
+        ? make('button', 'base-preview-frame-stage ' + background, { type: 'button', title: opts.zoomText || baseText('Base.Zoom'), 'aria-label': (opts.zoomText || baseText('Base.Zoom')) + ' ' + label })
         : make('div', 'base-preview-frame-stage ' + background);
     var thumb = buildThumb({ icon: 'image', className: 'base-preview-frame-thumb', imageClass: 'base-preview-frame-image', alt: label });
     stage.appendChild(thumb.element);
     var statusId = nextId('preview');
     var status = make('div', 'base-preview-frame-status base-icon-text small', { id: statusId, role: 'status' });
-    var spinner = createSpinner({ size: 'small', label: opts.renderingText || 'Rendering…' });
+    var spinner = createSpinner({ size: 'small', label: opts.renderingText || baseText('Base.Rendering') });
     spinner.element.removeAttribute('role');
     var statusText = make('span', 'base-preview-frame-status-text');
     status.appendChild(spinner.element);
@@ -135,19 +136,19 @@ export function createPreviewFrame(options?: PreviewFrameOptions): PreviewFrameH
     function refresh(): Promise<void> {
         update.cancel();
         var mine = ++asked;
-        if (typeof opts.render !== 'function') { show(null); setBusy(false, opts.emptyText || 'No preview.'); return Promise.resolve(); }
-        setBusy(true, opts.renderingText || 'Rendering…');
+        if (typeof opts.render !== 'function') { show(null); setBusy(false, opts.emptyText || baseText('Base.NoPreview')); return Promise.resolve(); }
+        setBusy(true, opts.renderingText || baseText('Base.Rendering'));
         message.clear();
         var result: PreviewResult | PromiseLike<PreviewResult>;
         try { result = opts.render(); } catch (e) { result = Promise.reject(e); }
         return Promise.resolve(result).then(function (value) {
             if (mine !== asked) return;
             show(value);
-            setBusy(false, value ? '' : (opts.emptyText || 'No preview.'));
+            setBusy(false, value ? '' : (opts.emptyText || baseText('Base.NoPreview')));
         }, function () {
             if (mine !== asked) return;
             setBusy(false, '');
-            message.set('error', opts.errorText || 'Could not render the preview.');
+            message.set('error', opts.errorText || baseText('Base.CouldNotRender'));
         });
     }
 

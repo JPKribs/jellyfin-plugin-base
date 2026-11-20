@@ -33,7 +33,7 @@ shared.saveConfig(config).catch(function (err) {
 * `generateGuid({ compact })` gives a random version 4 GUID, without dashes when `compact` is true.
 * `errorText(err, fallback)` always returns a promise of the reason a failed request gave, read from the `Error`, `error`, `detail`, `title`, or `message` of a JSON body, else `fallback` (default "Could not save.").
 * `shared.copyToClipboard(text)` copies with `navigator.clipboard` and falls back to a hidden textarea on HTTP dashboards. It resolves to whether it worked.
-* `shared.copyWithFeedback(btn, text, opts)` copies and briefly swaps the button label to "Copied." or "Copy failed.". `opts` takes `copiedText`, `failedText`, and `duration` (default 1500 ms).
+* `shared.copyWithFeedback(btn, text, opts)` copies and briefly swaps the button label to "Copied" or "Copy failed.". `opts` takes `copiedText`, `failedText`, and `duration` (default 1500 ms).
 * `shared.fetchObjectUrl(endpoint, params)` fetches an authenticated endpoint under `apiPrefix` as a blob and returns an object URL. Revoke the URL when done.
 
 ## Gotchas

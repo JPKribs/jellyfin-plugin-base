@@ -3,6 +3,7 @@ import { createDataTable } from './data-table.js';
 import type { DataTableColumn } from './data-table.js';
 import type { ListHeight } from './list.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One compared property: its key, its label, and its value in each column by column key. */
 export interface CompareTableRow {
@@ -64,21 +65,20 @@ interface Line extends CompareTableRow {
     kind: 'row' | 'section' | 'note';
 }
 
-var DEFAULT_COLUMNS: CompareTableColumn[] = [{ key: 'source', label: 'Source' }, { key: 'local', label: 'Local' }, { key: 'after', label: 'After Sync' }];
 
 /**
  * A table of properties by columns of values, such as source, local, and after sync. A row whose values differ is
- * changed: it wears the accent wash, and each value that differs from the first column is marked. A Show Only Changes
+ * changed: it wears the accent wash, and each value that differs from the first column is marked. A Show only changes
  * toggle hides the rows that match. It is a Data Table with no sort, search, or selection. A section row heads the
  * rows after it and a note row adds a line of detail, each across every column. With only changes shown, a section
  * hides while no row under it shows, and a note shows only while the row before it shows.
  *
  * @param options {
  *   rows           : array of { key, label, values: { columnKey: value } }, { section } for a heading over the rows after it, or { note } for a dimmed line across every column [optional]
- *   columns        : array of { key, label, icon } (default Source, Local, and After Sync, keyed source, local, and after)
+ *   columns        : array of { key, label, icon } (default Source, Local, and After sync, keyed source, local, and after)
  *   propertyHeader : header of the property column (default 'Property')
  *   onlyChanges    : true starts with only the changed rows shown (default false)
- *   changesText    : label of the toggle (default 'Show Only Changes')
+ *   changesText    : label of the toggle (default 'Show only changes')
  *   emptyText      : shown while there is no row (default 'Nothing to compare.')
  *   noChangesText  : shown while only changes are shown and none changed (default 'No changes.')
  *   missingText    : shown for a missing value (default 'None')
@@ -91,7 +91,7 @@ var DEFAULT_COLUMNS: CompareTableColumn[] = [{ key: 'source', label: 'Source' },
  */
 export function createCompareTable(options?: CompareTableOptions): CompareTableHandle {
     var opts = options || {};
-    var columns = opts.columns && opts.columns.length ? opts.columns : DEFAULT_COLUMNS;
+    var columns = opts.columns && opts.columns.length ? opts.columns : [{ key: 'source', label: baseText('LabelSource') }, { key: 'local', label: baseText('Base.Local') }, { key: 'after', label: baseText('Base.AfterSync') }];
     var all: Line[] = [];
     var only = opts.onlyChanges === true;
     var cleanups: Array<() => void> = [];
@@ -112,7 +112,7 @@ export function createCompareTable(options?: CompareTableOptions): CompareTableH
         var value = text(row.values ? row.values[column.key] : undefined);
         var differs = index > 0 && value !== text(row.values[columns[0].key]);
         var cell = make('span', 'base-compare-value' + (differs ? ' differs' : '') + (value === '' ? ' missing' : ''), { title: value });
-        cell.textContent = value === '' ? (opts.missingText || 'None') : value;
+        cell.textContent = value === '' ? (opts.missingText || baseText('None')) : value;
         return cell;
     }
 
@@ -122,7 +122,7 @@ export function createCompareTable(options?: CompareTableOptions): CompareTableH
         return make('span', row.kind === 'section' ? 'base-compare-section-text' : 'base-compare-note-text', { title: row.label }, row.label);
     }
 
-    var tableColumns: DataTableColumn<Line>[] = [{ key: 'label', label: opts.propertyHeader || 'Property', sortable: false, render: labelCell }];
+    var tableColumns: DataTableColumn<Line>[] = [{ key: 'label', label: opts.propertyHeader || baseText('Base.Property'), sortable: false, render: labelCell }];
     columns.forEach(function (column, i) {
         tableColumns.push({ key: column.key, label: column.label, icon: column.icon, sortable: false, render: function (row) { return valueCell(row, column, i); } });
     });
@@ -131,8 +131,8 @@ export function createCompareTable(options?: CompareTableOptions): CompareTableH
         columns: tableColumns,
         rows: [],
         rowKey: 'key',
-        label: opts.label || 'Comparison',
-        emptyText: opts.emptyText || 'Nothing to compare.',
+        label: opts.label || baseText('Base.Comparison'),
+        emptyText: opts.emptyText || baseText('Base.NothingToCompare'),
         height: opts.height,
         maxHeight: opts.maxHeight,
         size: opts.size,
@@ -146,7 +146,7 @@ export function createCompareTable(options?: CompareTableOptions): CompareTableH
     var toggle = make('button', 'base-toggle base-compare-toggle', { type: 'button', 'aria-pressed': only ? 'true' : 'false' });
     var mark0 = icon('check');
     toggle.appendChild(mark0);
-    toggle.appendChild(make('span', '', null, opts.changesText || 'Show Only Changes'));
+    toggle.appendChild(make('span', '', null, opts.changesText || baseText('Base.ShowOnlyChanges')));
     if (toolbar) toolbar.appendChild(toggle);
     else root.insertBefore(toggle, root.firstChild);
     cleanups.push(listen(toggle, 'click', function () {
@@ -185,7 +185,7 @@ export function createCompareTable(options?: CompareTableOptions): CompareTableH
     function draw(): void {
         var shown = visible();
         var empty = root.querySelector<HTMLElement>('.base-list-empty');
-        if (empty) empty.textContent = only && all.length ? (opts.noChangesText || 'No changes.') : (opts.emptyText || 'Nothing to compare.');
+        if (empty) empty.textContent = only && all.length ? (opts.noChangesText || baseText('Base.NoChanges')) : (opts.emptyText || baseText('Base.NothingToCompare'));
         table.setRows(shown);
         mark();
     }

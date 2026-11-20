@@ -53,7 +53,7 @@ Classes: `base-card-list`, `base-card-item`, `base-card-item-head`, `base-card-i
 * `reorder` (default true) turns on the arrows and drag. `collapsible` (default true) lets a click on the open head fold it. False keeps the open card open.
 * A click, Enter, or Space on a head opens the card. The keys are handled only when the head itself has focus.
 * A card can be `selected`, `collapsed`, `disabled`, or `dragging`. `drop-before` and `drop-after` draw a 3px accent line above or below the drop target.
-* The head is `role="button"` with `aria-expanded`. The arrow buttons are titled "Move Up" and "Move Down" and labelled "Move {value} up" and "Move {value} down", where `{value}` is the card's title or "Item 2". `moveUpTitle`, `moveDownTitle`, `moveUpLabel`, and `moveDownLabel` replace them, and after a move focus stays on the pressed arrow, or the other one when it is now disabled.
+* The head is `role="button"` with `aria-expanded`. The arrow buttons are titled "Move up" and "Move down" and labelled "Move {value} up" and "Move {value} down", where `{value}` is the card's title or "Item 2". `moveUpTitle`, `moveDownTitle`, `moveUpLabel`, and `moveDownLabel` replace them, and after a move focus stays on the pressed arrow, or the other one when it is now disabled.
 * At 768px and below the mono subtitle line is hidden. `base-card-item-sub-text` stays, for words rather than an address.
 * The same card classes make a plain record list without the helper. A head with `base-card-item-head-static` only holds a control at its end.
 
@@ -87,8 +87,8 @@ Renders records as numbered cards with a status dot, badges, arrow and drag reor
 | `reorder` | <code>boolean</code> | allow arrows and drag (default true) |
 | `collapsible` | <code>boolean</code> | clicking the open head folds it and a chevron shows the state, where false keeps the open card open (default true) |
 | `escapeHtml` | <code>(str: unknown): string</code> | function(str) returning a safe string (default the built in escaper) |
-| `moveUpTitle` | <code>string</code> | tooltip of an up arrow (default 'Move Up') |
-| `moveDownTitle` | <code>string</code> | tooltip of a down arrow (default 'Move Down') |
+| `moveUpTitle` | <code>string</code> | tooltip of an up arrow (default 'Move up') |
+| `moveDownTitle` | <code>string</code> | tooltip of a down arrow (default 'Move down') |
 | `moveUpLabel` | <code>RowLabel</code> | aria-label of an up arrow, where {value} is the card's title or "Item 2", or a function(name) returning it (default 'Move {value} up') |
 | `moveDownLabel` | <code>RowLabel</code> | aria-label of a down arrow, where {value} is the card's title or "Item 2", or a function(name) returning it (default 'Move {value} down') |
 | `height` | <code>ListHeight</code> | height of the list, as createList takes it (default 'auto') |

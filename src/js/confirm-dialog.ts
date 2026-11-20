@@ -3,6 +3,7 @@ import { openDialog } from './dialog.js';
 import type { DialogHandle } from './dialog.js';
 import { setFieldState } from './field-message.js';
 import { make, nextId, fill } from './lib/dom.js';
+import { baseText } from './lib/base-text.js';
 
 /** What confirmDialog takes. html treats the message as HTML instead of text, and typeToConfirm asks for that exact text before the confirm button turns on. */
 export interface ConfirmDialogOptions {
@@ -59,7 +60,7 @@ export function confirmDialog(message: string, opts?: ConfirmDialogOptions): Pro
             var field = make('div', 'base-modal-field');
             input = make('input', 'base-edit-input', { type: 'text', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false' });
             input.id = nextId('typed-confirm');
-            field.appendChild(make('label', 'base-modal-field-label', { for: input.id }, fill(opts!.typeLabel || 'Type {value} to confirm.', wanted)));
+            field.appendChild(make('label', 'base-modal-field-label', { for: input.id }, fill(opts!.typeLabel || baseText('Base.TypeToConfirm'), wanted)));
             field.appendChild(input);
             body.appendChild(field);
         }
@@ -70,9 +71,9 @@ export function confirmDialog(message: string, opts?: ConfirmDialogOptions): Pro
             size: 'small',
             body: body,
             buttons: [
-                { text: opts!.cancelText || 'Cancel', className: 'base-button secondary', action: function (close): void { close(false); } },
+                { text: opts!.cancelText || baseText('ButtonCancel'), className: 'base-button secondary', action: function (close): void { close(false); } },
                 {
-                    text: opts!.confirmText || 'Confirm',
+                    text: opts!.confirmText || baseText('Base.Confirm'),
                     className: opts!.destructive ? 'base-button destructive' : 'base-button primary',
                     action: function (close): void { if (!input || typedMatches(input.value, wanted)) close(true); }
                 }
@@ -95,7 +96,7 @@ export function confirmDialog(message: string, opts?: ConfirmDialogOptions): Pro
             if (e.key !== 'Enter') return;
             e.preventDefault();
             if (typedMatches(typed.value, wanted)) handle.close(true);
-            else setFieldState(typed, 'error', opts!.mismatchText || 'The text does not match.');
+            else setFieldState(typed, 'error', opts!.mismatchText || baseText('Base.TextMismatch'));
         });
         reflect();
     });

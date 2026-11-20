@@ -337,12 +337,9 @@ These rules apply to every string Base ships, including default labels, template
 
 ### Casing
 
-| Text | Case | Example |
-| :--- | :--- | :--- |
-| Button, dialog title, badge, column header, activity name | Title Case | Last Sync |
-| Message, description, placeholder sentence | Sentence case | Saved. |
+Every string Base ships is in sentence case, as Jellyfin's are. A button, a dialog title, a badge, a column header, and an activity name read "Last sync", and a message reads "Saved.". Keep acronyms and names as written, such as "URL" and "Jellyfin". A Jellyfin string Base uses keeps Jellyfin's words, written in sentence case in English with `"case": "sentence"` in `strings/jellyfin.json` where Jellyfin's are in title case.
 
-Title Case capitalizes every word except short articles, conjunctions, and prepositions in the middle. Keep acronyms as written, such as "URL".
+`TextCase` and `titleCase` and `sentenceCase` hold the rules. Headings in the docs and the guides stay in Title Case, per [documentation.md](documentation.md#headings).
 
 ### Words to Use
 
@@ -360,6 +357,8 @@ Title Case capitalizes every word except short articles, conjunctions, and prepo
 ### Default Labels
 
 * A default label is an option the caller can replace. A new default needs an option.
+* A default label is one of Base's own strings, read with `baseText(key)` when the component is built, never a literal. Use a Jellyfin string where Jellyfin has the words, and add its key to `BASE_TEXT` in `src/js/lib/base-text.ts` and to `strings/jellyfin.json`. Otherwise add a `Base.` key to `BASE_TEXT` and `strings/en-us.json`. The tests check the two agree.
+* Text Base's C# writes for a person, such as a refusal, is written with `BaseTranslations.Text(key, english)`, with the same key in `strings/en-us.json`.
 * A placeholder shows a valid example, never an instruction.
 * A confirm names its action. Its title is the action, and its button repeats the verb, never "OK" or "Yes".
 * Use the ellipsis character, never three dots, and only for work in progress.

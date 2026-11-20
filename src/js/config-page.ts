@@ -3,6 +3,7 @@ import { bindFieldAdornments } from './field-adornments.js';
 import { createShared } from './shared-bag.js';
 import { setTabs } from './tabs.js';
 import type { PageHandle, ConfigPageOptions, UnsavedEditor } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /**
  * Wires the config page lifecycle by building the shared bag, setting the tabs, running bind once, and running load on every viewshow. On viewhide it runs the registered cleanups and onHide.
@@ -31,7 +32,7 @@ export function createConfigPage(view: HTMLElement, opts: ConfigPageOptions): Pa
     var isDirty: (() => boolean) | null = opts.isDirty || null;
     // Editor dialogs from openEditorDialog, whose unsaved edits count as the page.
     var editors: UnsavedEditor[] = [];
-    var leaveMessage = opts.leaveMessage || 'You have unsaved changes. Leave without saving?';
+    var leaveMessage = opts.leaveMessage || '';
 
     function hasUnsaved() {
         if (editors.some(function (d) { return d.isDirty(); })) return true;
@@ -90,7 +91,7 @@ export function createConfigPage(view: HTMLElement, opts: ConfigPageOptions): Pa
     });
 
     view.addEventListener('viewbeforehide', function (e) {
-        if (hasUnsaved() && !window.confirm(leaveMessage)) {
+        if (hasUnsaved() && !window.confirm(leaveMessage || baseText('Base.LeaveUnsaved'))) {
             e.preventDefault();
             // The dashboard has already moved the tab highlight, so put it back on this page.
             applyTabs();

@@ -3,6 +3,7 @@ import { makeBadge } from './lib/badge.js';
 import { createList } from './list.js';
 import type { ListHeight } from './list.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** A value drawn as more than text: a badge with a status color name or hex code, a link, or text in the mono font. text is the shown text, which a badge or link may also give. */
 export interface DefinitionValue {
@@ -91,7 +92,7 @@ export function createDefinitionList(options?: DefinitionListOptions): Definitio
         var spec = !node && value && typeof value === 'object' ? value as DefinitionValue : null;
         var missing = value === undefined || value === null || value === '' || (!!spec && !spec.badge && !spec.link && toText(spec.text) === '');
         var dd = make('dd', 'base-defs-value' + (item.mono && !missing && !node && !spec ? ' base-mono' : '') + (missing ? ' base-defs-missing' : ''));
-        if (missing) dd.textContent = options!.emptyText || 'None';
+        if (missing) dd.textContent = options!.emptyText || baseText('None');
         else if (node) dd.appendChild(node);
         else if (spec) rich(dd, spec);
         else dd.textContent = String(value);

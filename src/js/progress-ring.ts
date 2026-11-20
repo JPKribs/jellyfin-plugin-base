@@ -1,6 +1,7 @@
 import { make } from './lib/dom.js';
 import { applyColor } from './lib/color.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What createProgressRing takes. value is a percent from 0 to 100. */
 export interface ProgressRingOptions {
@@ -41,7 +42,7 @@ export function createProgressRing(options?: ProgressRingOptions): ProgressRingH
     var value: number = 0;
 
     var root = make('span', 'base-ring base-ring-' + size + (pie ? ' base-ring-pie' : ''), {
-        role: 'progressbar', 'aria-label': options.label || 'Progress', 'aria-valuemin': '0', 'aria-valuemax': '100'
+        role: 'progressbar', 'aria-label': options.label || baseText('Base.Progress'), 'aria-valuemin': '0', 'aria-valuemax': '100'
     });
     applyColor(root, options.color);
     var svg = document.createElementNS(SVG_NS, 'svg');

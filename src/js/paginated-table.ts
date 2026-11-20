@@ -1,12 +1,13 @@
 import { classNames } from './lib/class-names.js';
 import { make, iconButton, listen, runAll, toText, idOf, clear } from './lib/dom.js';
-import { plural } from './browser-helpers.js';
+import { formatText } from './translations.js';
 import { createFilteredList } from './filtered-list.js';
 import { buildThumb, SHAPE_ICONS } from './lib/thumb.js';
 import type { DataQuery, DataResult, DataState } from './lib/data-view.js';
 import type { ListItemHandle } from './list.js';
 import type { ThumbShape, ThumbSource } from './lib/thumb.js';
 import type { Shared, PagedResult } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One column of a paginated table. label is written on each cell as data-label, and image puts a thumbnail of imageShape before the cell's content, from an address or a function that returns an address, a Blob, or a promise of one. */
 export interface TableColumn<T = any> {
@@ -47,7 +48,7 @@ export interface TableSelection<T = any> {
     onSelectionChange?(ids: string[]): void;
 }
 
-/** The page size, and loadMore to swap infinite scroll for Load More and Load All buttons. */
+/** The page size, and loadMore to swap infinite scroll for Load more and Load all buttons. */
 export interface TablePagination {
     pageSize?: number;
     loadMore?: boolean;
@@ -127,7 +128,7 @@ type TableConfig<T> = Omit<TableOptions<T>, 'pagination' | 'search' | 'emptyStat
  *   getDisplayStatus : function(item, value) returning the text of a status column [optional]
  *   getStatusClass   : function(item, value) returning the state class of a status column [optional]
  *   selection     : { enabled, idKey, onSelectionChange(ids) }, where idKey is a property name or a function (default 'id')
- *   pagination    : { pageSize (default 50), loadMore }, where loadMore swaps infinite scroll for Load More and Load All buttons
+ *   pagination    : { pageSize (default 50), loadMore }, where loadMore swaps infinite scroll for Load more and Load all buttons
  *   filters       : { name, label, options: [{ value, label, id, hidden }], buildParams(value), onChange(value), initialValue, allValue, allLabel }, an array of them for several selects, or null for none. name is the query parameter (default 'filter' for the first, then 'filter2' and on), and label the select's aria-label
  *   search        : { enabled, placeholder, debounceMs } (defaults true, 'Search items', 300)
  *   actions       : { onRowClick(item), onReload() }
@@ -147,9 +148,9 @@ export function createPaginatedTable<T = any>(view: ParentNode, shared: Shared, 
         selection: { enabled: false, idKey: 'id' },
         pagination: { pageSize: 50 },
         filters: { options: [] },
-        search: { enabled: true, placeholder: 'Search items', debounceMs: 300 },
+        search: { enabled: true, placeholder: '', debounceMs: 300 },
         actions: {},
-        emptyState: { message: 'No items found.' }
+        emptyState: { message: '' }
     } as unknown as TableConfig<T>;
 
     (Object.keys(options) as Array<keyof TableOptions<T>>).forEach(function (key) {
@@ -184,8 +185,8 @@ export function createPaginatedTable<T = any>(view: ParentNode, shared: Shared, 
     if (loadMoreMode) {
         footerActions = make('span', 'base-table-footer-actions');
         footerActions.hidden = true;
-        loadMoreBtn = make('button', 'raised base-button secondary small base-table-load-more', { type: 'button' }, 'Load More');
-        loadAllBtn = make('button', 'raised base-button secondary small base-table-load-all', { type: 'button' }, 'Load All');
+        loadMoreBtn = make('button', 'raised base-button secondary small base-table-load-more', { type: 'button' }, baseText('Base.LoadMore'));
+        loadAllBtn = make('button', 'raised base-button secondary small base-table-load-all', { type: 'button' }, baseText('Base.LoadAll'));
         footerActions.appendChild(loadMoreBtn);
         footerActions.appendChild(loadAllBtn);
         footer.appendChild(footerActions);
@@ -260,12 +261,17 @@ export function createPaginatedTable<T = any>(view: ParentNode, shared: Shared, 
         return shared.apiRequest(opts.endpoint + '?' + params.join('&'), 'GET');
     }
 
+    // A count of items, such as 12 items.
+    function itemsText(count: number): string {
+        return formatText(baseText(count === 1 ? 'Base.ItemsOne' : 'ItemCount'), count);
+    }
+
     // Writes the item count and shows the footer buttons while more rows remain.
     function paintFooter(state: DataState<T>): void {
         var loaded = state.items.length, total = state.total;
         if (total === 0) itemCount.textContent = '';
-        else if (loaded >= total) itemCount.textContent = plural(total, 'item');
-        else itemCount.textContent = loadMoreMode ? loaded + '/' + plural(total, 'item') : 'Showing ' + loaded + ' of ' + plural(total, 'item');
+        else if (loaded >= total) itemCount.textContent = itemsText(total);
+        else itemCount.textContent = formatText(baseText(loadMoreMode ? 'Base.LoadedCount' : 'Base.ShowingCount'), loaded, itemsText(total));
         if (footerActions) footerActions.hidden = !(total > 0 && loaded < total);
         if (loadMoreBtn) loadMoreBtn.disabled = state.loading || loadingAll;
         if (loadAllBtn) loadAllBtn.disabled = state.loading || loadingAll;
@@ -279,14 +285,14 @@ export function createPaginatedTable<T = any>(view: ParentNode, shared: Shared, 
         immediate: false,
         pageSize: opts.pagination.pageSize,
         loadOnScroll: !loadMoreMode,
-        search: opts.search && opts.search.enabled !== false ? { placeholder: opts.search.placeholder || 'Search items', delay: opts.search.debounceMs || 300 } : false,
+        search: opts.search && opts.search.enabled !== false ? { placeholder: opts.search.placeholder || baseText('Base.SearchItems'), delay: opts.search.debounceMs || 300 } : false,
         selectable: selecting ? 'multiple' : null,
-        selectAllText: 'Select All',
-        selectedText: selecting ? '{count} selected' : undefined,
-        selectText: 'Select row',
+        selectAllText: baseText('SelectAll'),
+        selectedText: selecting ? baseText('Base.CountSelected') : undefined,
+        selectText: baseText('Base.SelectRow'),
         containChecks: true,
         wrap: false,
-        emptyText: opts.emptyState.message,
+        emptyText: opts.emptyState.message || baseText('Base.NoItemsFound'),
         summary: false,
         size: opts.size,
         onOpen: actions.onRowClick ? function (item) { actions.onRowClick!(item); } : undefined,
@@ -318,7 +324,7 @@ export function createPaginatedTable<T = any>(view: ParentNode, shared: Shared, 
     // Fills a filter's select with All and its choices, keeping the select's place.
     function fillFilter(select: HTMLSelectElement, filter: TableFilters): void {
         clear(select);
-        select.appendChild(make('option', '', { value: filter.allValue || '' }, filter.allLabel || 'All'));
+        select.appendChild(make('option', '', { value: filter.allValue || '' }, filter.allLabel || baseText('All')));
         (filter.options || []).forEach(function (opt) {
             var option = make('option', '', { value: opt.value }, opt.label);
             if (opt.id) option.id = opt.id;
@@ -363,7 +369,7 @@ export function createPaginatedTable<T = any>(view: ParentNode, shared: Shared, 
         mark('.base-filtered-selected', 'base-table-selected-count');
         mark('.base-filtered-bulk', 'base-table-bulk-actions');
         bar.appendChild(make('span', 'base-table-header-spacer'));
-        reloadBtn = iconButton('base-row-btn base-table-reload-btn', 'refresh', 'Reload');
+        reloadBtn = iconButton('base-row-btn base-table-reload-btn', 'refresh', baseText('Base.Reload'));
         bar.appendChild(reloadBtn);
         listen(reloadBtn, 'click', handleReload);
     }

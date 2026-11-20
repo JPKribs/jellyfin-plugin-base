@@ -45,7 +45,7 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 | `BaseHttp` | Outbound HTTP that returns a status and body and does not throw. | [HTTP and Resilience](http-and-resilience.md#basehttp) |
 | `BaseRetryHandler` | A handler that retries a read for a gateway error or a slow answer. | [HTTP and Resilience](http-and-resilience.md#baseretryhandler) |
 | `BaseRetryOptions` | The attempts, waits, and timeout of a retry handler. | [HTTP and Resilience](http-and-resilience.md#baseretryoptions) |
-| `BaseTranslations` | The plugin's strings in a language, with fallback, formatting, and the endpoint answer. | [Translations](translations.md#basetranslations) |
+| `BaseTranslations` | The plugin's strings in a language, with fallback, formatting, the endpoint answer, and the language of a request. | [Translations](translations.md#basetranslations) |
 | `ByteSize` | Binary byte counts as `long` constants. | [Streams and Throttling](streams-and-throttling.md#bytesize) |
 | `CappedReadStream` | A read through stream that throws past a limit. | [Streams and Throttling](streams-and-throttling.md#cappedreadstream) |
 | `CircuitBreaker` | Stops calls to a named service after repeated failures, for a cooldown. | [HTTP and Resilience](http-and-resilience.md#circuitbreaker) |
@@ -84,6 +84,7 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 | `StringUtilities` | Escapes text for a JavaScript string literal. | [Text and Formatting](text-and-formatting.md#stringutilities) |
 | `TaskTriggers` | Builds default trigger entries for a scheduled task. | [Plugin and Tasks](plugin-and-tasks.md#tasktriggers) |
 | `TemplateLoader` | Loads and fills embedded HTML templates. | [Pages and Templates](pages-and-templates.md#templateloader) |
+| `TextCase` | Title case and sentence case for English text, keeping the casing list's words. | [Translations](translations.md#textcase) |
 | `ThrottledReadStream` | A read through stream held to the rate of a `SpeedBucket`. | [Streams and Throttling](streams-and-throttling.md#throttledreadstream) |
 | `UrlUtilities` | Reads text as an absolute http or https URL. | [Security and Secrets](security-and-secrets.md#urlutilities) |
 | `UtcTime` | Formats and parses stored times as UTC. | [Text and Formatting](text-and-formatting.md#utctime) |

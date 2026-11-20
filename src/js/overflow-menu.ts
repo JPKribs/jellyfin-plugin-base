@@ -1,6 +1,7 @@
 import { make, icon, iconButton, nextId, listen, runAll, clear } from './lib/dom.js';
 import { anchorPopover } from './lib/popover.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One action in an overflow menu. An item with no value reports its label. */
 export interface OverflowMenuItem {
@@ -35,7 +36,7 @@ export interface OverflowMenuHandle extends ComponentHandle {
  *
  * @param options {
  *   items    : array of { label, value, disabled, destructive, icon } [optional]
- *   label    : title and aria-label of the button and the menu (default 'More Actions')
+ *   label    : title and aria-label of the button and the menu (default 'More actions')
  *   icon     : Material icon name on the button (default 'more_vert')
  *   align    : 'end' opens toward the left from the button's right edge, 'start' toward the right (default 'end')
  *   onSelect : function(value, item) called when an item is chosen [optional]
@@ -47,7 +48,7 @@ export function createOverflowMenu(options?: OverflowMenuOptions): OverflowMenuH
     options = options || {};
     var items: OverflowMenuItem[] = (options.items || []).slice();
     var cleanups: Array<() => void> = [];
-    var label: string = options.label || 'More Actions';
+    var label: string = options.label || baseText('Base.MoreActions');
 
     var root = make('div', 'base-menu' + (options.align === 'start' ? ' base-menu-start' : ''));
     var button = iconButton('base-row-btn base-menu-button', options.icon || 'more_vert', label);

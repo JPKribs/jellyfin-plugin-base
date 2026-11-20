@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using MediaBrowser.Controller.Configuration;
@@ -121,9 +122,12 @@ public class BaseTranslationsTests
     {
         var context = new DefaultHttpContext();
         var file = Assert.IsType<FileContentResult>(BaseTranslations.Serve("de", context.Request, context.Response));
-        var strings = JsonSerializer.Deserialize<System.Collections.Generic.Dictionary<string, string>>(file.FileContents)!;
-        Assert.Equal("Meine Anfragen", strings["MyRequests"]);
-        Assert.Equal("Only English", strings["OnlyEnglish"]);
+        using var json = JsonDocument.Parse(file.FileContents);
+        var strings = json.RootElement.GetProperty("strings");
+        Assert.Equal("de", json.RootElement.GetProperty("language").GetString());
+        Assert.Equal("Meine Anfragen", strings.GetProperty("MyRequests").GetString());
+        Assert.Equal("Only English", strings.GetProperty("OnlyEnglish").GetString());
+        Assert.Contains("TV", json.RootElement.GetProperty("casing").EnumerateArray().Select(w => w.GetString()));
         Assert.Equal("no-cache", context.Response.Headers.CacheControl.ToString());
         var etag = context.Response.Headers.ETag.ToString();
         Assert.StartsWith("\"", etag, StringComparison.Ordinal);
@@ -136,5 +140,119 @@ public class BaseTranslationsTests
         var other = new DefaultHttpContext();
         BaseTranslations.Serve("pt-br", other.Request, other.Response);
         Assert.NotEqual(etag, other.Response.Headers.ETag.ToString());
+    }
+
+    /// <summary>
+    /// Serve names the most specific language it has strings for, and US English for one it has none of.
+    /// True: a page knows which language its strings are in.
+    /// False: a page would label Portuguese strings as pt-pt.
+    /// </summary>
+    [Theory]
+    [InlineData("pt-PT", "pt")]
+    [InlineData("pt_BR", "pt-br")]
+    [InlineData("xx", "en-us")]
+    [InlineData(null, "en-us")]
+    public void Serve_NamesTheLanguageItHas(string? asked, string language)
+    {
+        var context = new DefaultHttpContext();
+        var file = Assert.IsType<FileContentResult>(BaseTranslations.Serve(asked, context.Request, context.Response));
+        using var json = JsonDocument.Parse(file.FileContents);
+        Assert.Equal(language, json.RootElement.GetProperty("language").GetString());
+    }
+
+    /// <summary>
+    /// RequestLanguage reads the query, then the page's header, then Accept-Language by weight, then US English.
+    /// True: server messages follow the page's language.
+    /// False: a message would follow the browser over the page, or fail on a malformed header.
+    /// </summary>
+    [Theory]
+    [InlineData("?language=pt_BR", "de", "fr", "pt-br")]
+    [InlineData("", "de", "fr", "de")]
+    [InlineData("?language=../x", "de", "fr", "de")]
+    [InlineData("", "", "fr-CA,fr;q=0.9,en;q=0.8", "fr-ca")]
+    [InlineData("", "", "en;q=0.2, de;q=0.9", "de")]
+    [InlineData("", "", "*, bad value;q=x", "en-us")]
+    [InlineData("", "", "", "en-us")]
+    public void RequestLanguage_ReadsQueryThenHeaderThenAcceptLanguage(string query, string header, string accept, string language)
+    {
+        var context = new DefaultHttpContext();
+        context.Request.QueryString = new QueryString(query);
+        if (header.Length > 0)
+        {
+            context.Request.Headers[BaseTranslations.LanguageHeader] = header;
+        }
+
+        if (accept.Length > 0)
+        {
+            context.Request.Headers.AcceptLanguage = accept;
+        }
+
+        Assert.Equal(language, BaseTranslations.RequestLanguage(context.Request));
+    }
+
+    /// <summary>
+    /// UseLanguage sets the language of Base's own text on the call path, and its scope puts the earlier one back.
+    /// True: a refusal from the guard reads in the page's language for one request only.
+    /// False: one request's language would leak into the next.
+    /// </summary>
+    [Fact]
+    public void UseLanguage_TranslatesBaseTextForTheScope()
+    {
+        var guard = new SsrfGuard(allowPrivateNetwork: false);
+        Assert.Null(BaseTranslations.CurrentLanguage);
+        Assert.Equal("loopback addresses are not allowed", SsrfGuard.Classify(System.Net.IPAddress.Loopback, false));
+
+        using (BaseTranslations.UseLanguage("de"))
+        {
+            Assert.Equal("de", BaseTranslations.CurrentLanguage);
+            Assert.Equal("Loopback-Adressen sind nicht erlaubt", SsrfGuard.Classify(System.Net.IPAddress.Loopback, false));
+            Assert.Equal("127.0.0.1 is refused, Loopback-Adressen sind nicht erlaubt", guard.ValidateUrl("http://127.0.0.1/"));
+            Assert.Contains(System.Net.WebUtility.HtmlEncode("Zurück zu Jellyfin"), StatusPage.Render("Heading", "Message"), StringComparison.Ordinal);
+        }
+
+        Assert.Null(BaseTranslations.CurrentLanguage);
+        Assert.Contains("Back to Jellyfin", StatusPage.Render("Heading", "Message"), StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Base's C# writes its text with the English that strings/en-us.json ships, so every plugin gets the same words.
+    /// True: a translation of Base's strings reaches the C# text.
+    /// False: a key would be missing from the strings, or its English would drift from the code's.
+    /// </summary>
+    [Fact]
+    public void BaseText_InTheCodeMatchesTheShippedStrings()
+    {
+        var root = Root();
+        var shipped = JsonSerializer.Deserialize<System.Collections.Generic.Dictionary<string, string>>(File.ReadAllBytes(Path.Combine(root, "strings", "en-us.json")))!;
+        var used = new System.Collections.Generic.HashSet<string>(StringComparer.Ordinal);
+        foreach (var file in Directory.EnumerateFiles(Path.Combine(root, "src"), "*.cs"))
+        {
+            foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(File.ReadAllText(file), "Text\\(\\s*\"(Base\\.[A-Za-z0-9]+)\",\\s*(\"(?:[^\"\\\\]|\\\\.)*\"|[A-Za-z]+)"))
+            {
+                var key = m.Groups[1].Value;
+                used.Add(key);
+                Assert.True(shipped.ContainsKey(key), key + " is not in strings/en-us.json");
+                var english = m.Groups[2].Value.StartsWith('"') ? System.Text.RegularExpressions.Regex.Unescape(m.Groups[2].Value[1..^1]) : null;
+                if (english is not null)
+                {
+                    Assert.Equal(english, shipped[key]);
+                }
+            }
+        }
+
+        Assert.Equal(SsrfGuard.PlainHttpRefusal, shipped["Base.SsrfPlainHttp"]);
+        Assert.Equal(RedirectRefusingHandler.DefaultAdvice, shipped["Base.RedirectAdvice"]);
+        Assert.Contains("Base.SsrfLoopback", used);
+    }
+
+    private static string Root()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "jellyfin.json")))
+        {
+            dir = dir.Parent;
+        }
+
+        return dir?.FullName ?? throw new InvalidOperationException("The repository root, with jellyfin.json, was not found.");
     }
 }

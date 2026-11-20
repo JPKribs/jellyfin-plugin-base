@@ -10,6 +10,7 @@ import { createCheckbox } from '../checkbox.js';
 import { bindSecretField, readSecretField, SECRET_KEPT } from '../secret-field.js';
 import { bindValidation, validateValue } from './validate.js';
 import type { ValidationHandle, ValidationOptions } from './validate.js';
+import { baseText } from './base-text.js';
 
 /** The kinds of control a field can be. */
 export type FieldType = 'text' | 'secret' | 'select' | 'number' | 'tags' | 'time' | 'toggle' | 'custom';
@@ -170,7 +171,7 @@ export function buildControl(field: FieldSpec, value: unknown, change: () => voi
     if (type === 'number' || type === 'time') adorned = adornField(input);
     var clearButton: HTMLButtonElement | null = null;
     if (type === 'secret' && field.clearable) {
-        clearButton = iconButton('base-row-btn base-control-clear', 'backspace', fill(field.clearText || 'Clear {value}', label));
+        clearButton = iconButton('base-row-btn base-control-clear', 'backspace', fill(field.clearText || baseText('Base.ClearValue'), label));
         holder.classList.add('clearable');
         holder.appendChild(clearButton);
     }

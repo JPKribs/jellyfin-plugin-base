@@ -3,6 +3,7 @@ import { createCheckboxList } from './checkbox-list.js';
 import type { SelectorUser, UserSource } from './user-selector.js';
 import type { ListHeight } from './list.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What createUserMultiSelector takes. noteFor gives a row its pill, and onChange hears the selected ids. */
 export interface UserMultiSelectorOptions extends UserSource {
@@ -77,7 +78,7 @@ export function createUserMultiSelector(options?: UserMultiSelectorOptions): Use
         searchKeys: ['name'],
         showSelectAll: opts.showSelectAll,
         selectAllText: opts.selectAllText,
-        emptyMessage: opts.emptyMessage || 'No users available.',
+        emptyMessage: opts.emptyMessage || baseText('Base.NoUsers'),
         height: opts.height,
         maxHeight: opts.maxHeight === undefined ? null : opts.maxHeight,
         minHeight: opts.minHeight,
@@ -86,7 +87,7 @@ export function createUserMultiSelector(options?: UserMultiSelectorOptions): Use
             return {
                 label: user.name,
                 avatar: showAvatars ? { src: avatarUrl(user), name: user.name } : null,
-                badge: showAdminBadge && user.isAdmin ? { label: opts.adminText || 'Admin', color: 'blue' } : null,
+                badge: showAdminBadge && user.isAdmin ? { label: opts.adminText || baseText('Base.Admin'), color: 'blue' } : null,
                 note: opts.noteFor ? opts.noteFor(user) : null
             };
         },

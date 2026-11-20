@@ -45,6 +45,11 @@ The agreed name for every concept in Base. Components, default labels, docs, and
 | Fallback language | US English, which holds every key and fills any string a language lacks | `en-us`, `FallbackLanguage` | Default language, base language |
 | Snapshot | The copy of Jellyfin's strings the package carries, fetched at the tags in `jellyfin.json` | `dist/jellyfin/`, `jellyfin/` in the package | Cache, mirror |
 | Text match | A local string whose US English is the same as a Jellyfin string's | `JPKT005`, `JPKT006`, `JellyfinTextMatch` | Duplicate, collision |
+| Base's own strings | The words Base's components and helpers show, built into every plugin: Jellyfin strings Base declares and local strings whose keys start with `Base.` | `strings/`, `BASE_TEXT`, `baseText` | Built in labels, core strings |
+| Current translations | The handle `loadTranslations` gave last, which components read their default text from | `currentTranslations` | Global strings, active locale |
+| Title case, sentence case | English text with every main word capitalized, or only the first of each sentence | `TextCase`, `titleCase`, `sentenceCase` | Capitalization, proper case |
+| Casing list | The words and phrases title case and sentence case keep as written, Base's defaults and the plugin's | `Localization/casing.json`, `TextCase.Exceptions` | Exceptions file, acronyms |
+| Request language | The language a page asks the plugin's API to answer in | `X-Jellyfin-Plugin-Language`, `RequestLanguage` | Locale header |
 
 ## Naming
 

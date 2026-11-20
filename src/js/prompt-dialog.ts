@@ -2,6 +2,7 @@ import { openDialog } from './dialog.js';
 import type { DialogHandle } from './dialog.js';
 import { bindValidation, validateAll } from './lib/validate.js';
 import type { ValidationHandle } from './lib/validate.js';
+import { baseText } from './lib/base-text.js';
 
 /** One field in a prompt dialog. A select reads options as value and label pairs, and required and validate check it through the validation core. */
 export interface PromptDialogField {
@@ -101,8 +102,8 @@ export function promptDialog(fields: PromptDialogField[], opts?: PromptDialogOpt
             size: 'small',
             body: form,
             buttons: [
-                { text: opts.cancelText || 'Cancel', className: 'base-button secondary', action: function (close): void { close(null); } },
-                { text: opts.submitText || 'Done', className: 'base-button primary', action: function (close): void { submit(close); } }
+                { text: opts.cancelText || baseText('ButtonCancel'), className: 'base-button secondary', action: function (close): void { close(null); } },
+                { text: opts.submitText || baseText('Base.Done'), className: 'base-button primary', action: function (close): void { submit(close); } }
             ],
             onClose: function (value: Record<string, string> | null): void {
                 checks.forEach(function (c) { c.destroy(); });

@@ -1,6 +1,7 @@
 import { escapeHtml, copyToClipboard } from './browser-helpers.js';
 import { nextId, fill } from './lib/dom.js';
 import { setCollapsed } from './collapsible-section.js';
+import { baseText } from './lib/base-text.js';
 
 /** One placeholder as [name, description], where name is used as {name}. */
 export type Placeholder = string[];
@@ -63,9 +64,9 @@ export function placeholderHint(placeholders?: Placeholder[] | null, options?: P
     options = options || {};
     var id = nextId('placeholders');
     var copy = options.mode === 'copy';
-    return '<div class="base-placeholder-hint' + (copy ? ' copy' : '') + '"' + (copy ? ' data-base-copied="' + escapeHtml(options.copiedText || 'Copied {value}.') + '"' : '') + '>'
+    return '<div class="base-placeholder-hint' + (copy ? ' copy' : '') + '"' + (copy ? ' data-base-copied="' + escapeHtml(options.copiedText || baseText('Base.CopiedValue')) + '"' : '') + '>'
         + '<button type="button" class="base-hint-button base-icon-text small collapsed" data-base-hint aria-expanded="false" aria-controls="' + id + '">'
-        + '<span class="material-icons" aria-hidden="true">help_outline</span><span>' + escapeHtml(options.label || 'Placeholders') + '</span>'
+        + '<span class="material-icons" aria-hidden="true">help_outline</span><span>' + escapeHtml(options.label || baseText('Base.Placeholders')) + '</span>'
         + '</button>'
         + '<div class="base-placeholders" id="' + id + '" hidden><span class="base-tags">' + (placeholders || []).map(function (p) {
             var token = placeholderToken(p[0], options);
@@ -121,7 +122,7 @@ function copyPlaceholder(chip: HTMLElement, hintRoot: Element, token: string): P
         if (!ok) return false;
         var status = hintRoot.querySelector<HTMLElement>('[role="status"]');
         chip.classList.add('copied');
-        if (status) status.textContent = fill(hintRoot.getAttribute('data-base-copied') || 'Copied {value}.', token);
+        if (status) status.textContent = fill(hintRoot.getAttribute('data-base-copied') || baseText('Base.CopiedValue'), token);
         setTimeout(function () {
             chip.classList.remove('copied');
             if (status) status.textContent = '';

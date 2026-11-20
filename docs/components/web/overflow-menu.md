@@ -26,7 +26,7 @@ Classes: `base-menu`, `base-menu-start`, `base-menu-list`, `base-menu-item`. The
 ## States and Modifiers
 
 * An item is `{ label, value, disabled, destructive, icon }`. `destructive` shows it red. `onSelect(value, item)` gets the item's label as the value when it has no `value`.
-* `label` ("More Actions") is the title and `aria-label` of the button and the menu. `icon` defaults to `more_vert`.
+* `label` ("More actions") is the title and `aria-label` of the button and the menu. `icon` defaults to `more_vert`.
 * `align: 'end'` (default) opens toward the left from the button's right edge, and `'start'` opens toward the right.
 * The button has `aria-haspopup` and `aria-expanded`. Arrow Down and Up open it and move between items, skipping a disabled one. Home and End jump. Enter and Space choose. Escape closes and returns focus. Tab or an outside click closes.
 * The list is a `role="menu"` of `role="menuitem"` buttons.
@@ -51,7 +51,7 @@ A button, by default with the three dot icon, that opens a small menu of actions
 | Option | Type | What it does |
 | :--- | :--- | :--- |
 | `items` | <code>OverflowMenuItem[]</code> | array of { label, value, disabled, destructive, icon } [optional] |
-| `label` | <code>string</code> | title and aria-label of the button and the menu (default 'More Actions') |
+| `label` | <code>string</code> | title and aria-label of the button and the menu (default 'More actions') |
 | `icon` | <code>string</code> | Material icon name on the button (default 'more_vert') |
 | `align` | <code>'start' &#124; 'end'</code> | 'end' opens toward the left from the button's right edge, 'start' toward the right (default 'end') |
 | `onSelect` | <code>(value: unknown, item: OverflowMenuItem): void</code> | function(value, item) called when an item is chosen [optional] |

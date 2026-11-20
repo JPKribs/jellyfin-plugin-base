@@ -1,7 +1,8 @@
-import { make, listen, runAll, clear, fill, has, applyFieldSize, iconButton, focusAfterRemove } from './lib/dom.js';
+import { make, listen, runAll, clear, fill, fillAll, has, applyFieldSize, iconButton, focusAfterRemove } from './lib/dom.js';
 import { buildControl, createFieldGroup } from './lib/field-control.js';
 import type { FieldSpec, FieldGroupHandle, FieldControl } from './lib/field-control.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** A source row of the table, such as a remote library or a remote user. */
 export interface MappingTableRow {
@@ -123,9 +124,9 @@ export function createMappingTable(options?: MappingTableOptions): MappingTableH
     var table = make('table', 'base-static-table base-mapping-table-grid');
     var thead = make('thead');
     var headRow = make('tr');
-    if (options.toggle) headRow.appendChild(make('th', 'base-mapping-table-toggle', { scope: 'col' }, options.enabledHeader || 'Enabled'));
-    headRow.appendChild(make('th', '', { scope: 'col' }, options.sourceHeader || 'Source'));
-    headRow.appendChild(make('th', '', { scope: 'col' }, options.targetHeader || 'Target'));
+    if (options.toggle) headRow.appendChild(make('th', 'base-mapping-table-toggle', { scope: 'col' }, options.enabledHeader || baseText('Base.Enabled')));
+    headRow.appendChild(make('th', '', { scope: 'col' }, options.sourceHeader || baseText('LabelSource')));
+    headRow.appendChild(make('th', '', { scope: 'col' }, options.targetHeader || baseText('Base.Target')));
     extraFields.forEach(function (f) { headRow.appendChild(make('th', 'base-mapping-table-extra', { scope: 'col' }, f.label)); });
     if (options.removable) headRow.appendChild(make('td', 'base-mapping-table-remove'));
     if (options.toggle || extraFields.length || options.removable) table.classList.add('extended');
@@ -134,7 +135,7 @@ export function createMappingTable(options?: MappingTableOptions): MappingTableH
     table.appendChild(thead);
     table.appendChild(tbody);
     scroll.appendChild(table);
-    var empty = make('div', 'base-list-empty outside base-mapping-table-empty', null, options.emptyText || 'Nothing to map.');
+    var empty = make('div', 'base-list-empty outside base-mapping-table-empty', null, options.emptyText || baseText('Base.NothingToMap'));
     root.appendChild(scroll);
     root.appendChild(empty);
 
@@ -221,7 +222,7 @@ export function createMappingTable(options?: MappingTableOptions): MappingTableH
                     tr.classList.toggle('off', !isOn(r.value));
                     reflect();
                     changed();
-                }, fill(options!.enabledLabel || 'Enable {value}', r.label));
+                }, fill(options!.enabledLabel || baseText('Base.EnableValue'), r.label));
                 var toggleCell = make('td', 'base-mapping-table-toggle');
                 toggleCell.appendChild(toggle.element);
                 tr.appendChild(toggleCell);
@@ -230,8 +231,8 @@ export function createMappingTable(options?: MappingTableOptions): MappingTableH
             th.appendChild(make('span', 'base-mapping-table-name', null, r.label));
             if (r.description) th.appendChild(make('span', 'base-mapping-table-description', null, r.description));
             var td = make('td', 'base-mapping-table-target');
-            var select = make('select', '', { 'aria-label': fill(options!.targetLabel || 'Target for {value}', r.label) });
-            select.appendChild(make('option', '', { value: '' }, options!.noneLabel || 'None'));
+            var select = make('select', '', { 'aria-label': fill(options!.targetLabel || baseText('Base.TargetFor'), r.label) });
+            select.appendChild(make('option', '', { value: '' }, options!.noneLabel || baseText('None')));
             targets.forEach(function (t) { select.appendChild(make('option', '', { value: t.value }, t.label)); });
             td.appendChild(select);
             tr.appendChild(th);
@@ -239,7 +240,7 @@ export function createMappingTable(options?: MappingTableOptions): MappingTableH
             var group: FieldGroupHandle | null = null;
             if (extraFields.length) {
                 group = createFieldGroup(extraFields, has(details, r.value) ? details[r.value] as Record<string, unknown> : null, {
-                    name: function (f) { return f.label + ' for ' + r.label; },
+                    name: function (f) { return fillAll(baseText('Base.ColumnForRow'), { column: f.label, row: r.label }); },
                     onChange: function (key) {
                         detailOf(r.value)[key] = group!.cell(key)!.control.getValue();
                         changed();
@@ -253,7 +254,7 @@ export function createMappingTable(options?: MappingTableOptions): MappingTableH
             }
             var remove: HTMLButtonElement | null = null;
             if (options!.removable) {
-                remove = iconButton('base-row-btn base-mapping-table-remove-btn', 'close', fill(options!.removeLabel || 'Remove {value}', r.label));
+                remove = iconButton('base-row-btn base-mapping-table-remove-btn', 'close', fill(options!.removeLabel || baseText('Base.RemoveValue'), r.label));
                 var removeCell = make('td', 'base-mapping-table-remove');
                 removeCell.appendChild(remove);
                 tr.appendChild(removeCell);

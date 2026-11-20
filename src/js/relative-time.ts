@@ -4,6 +4,7 @@ import type { ClockHandle } from './lib/clock.js';
 import { createProgressRing } from './progress-ring.js';
 import type { ProgressRingHandle } from './progress-ring.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** A moment a relative time shows: a Date, milliseconds since 1970, or a date string such as an ISO date. */
 export type RelativeTimeValue = Date | number | string | null | undefined;
@@ -127,7 +128,7 @@ export function createRelativeTime(options?: RelativeTimeOptions): RelativeTimeH
     var timeEl = make('time', 'base-relative-time-text');
     var ring: ProgressRingHandle | null = null;
     if (opts.countdown && opts.ring) {
-        ring = createProgressRing({ size: 'small', pie: true, label: opts.ringLabel || 'Time elapsed' });
+        ring = createProgressRing({ size: 'small', pie: true, label: opts.ringLabel || baseText('Base.TimeElapsed') });
         root.appendChild(ring.element);
     }
     root.appendChild(timeEl);
@@ -148,7 +149,7 @@ export function createRelativeTime(options?: RelativeTimeOptions): RelativeTimeH
             ring.setValue(whole > 0 ? (now - begin.getTime()) / whole * 100 : 100);
         }
         if (diff <= 0) {
-            timeEl.textContent = opts.doneText || 'Now';
+            timeEl.textContent = opts.doneText || baseText('Base.Now');
             root.classList.add('done');
             if (!done) {
                 done = true;

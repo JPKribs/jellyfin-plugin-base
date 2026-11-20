@@ -4,6 +4,8 @@ import { moveButtons, refocusAfterMove } from './lib/row-editor.js';
 import type { RowLabel } from './lib/row-editor.js';
 import type { ListHeight } from './list.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
+import { fillAll } from './lib/dom.js';
 
 /** What createOrderedList takes. render draws each row, and onMove runs after a move so the caller can save. */
 export interface OrderedListOptions<T = any> {
@@ -37,8 +39,8 @@ export interface OrderedListHandle<T = any> extends ComponentHandle {
  *   render        : function(item, index) returning a node or an HTML string for the row, where a string must already be escaped [required]
  *   label         : function(item, index) returning the row's name for the button labels (default "Item 1", "Item 2")
  *   onMove        : function(fromIndex, toIndex, items) called after a move, so the caller can save [optional]
- *   moveUpTitle   : tooltip of the up button (default 'Move Up')
- *   moveDownTitle : tooltip of the down button (default 'Move Down')
+ *   moveUpTitle   : tooltip of the up button (default 'Move up')
+ *   moveDownTitle : tooltip of the down button (default 'Move down')
  *   moveUpLabel   : the up button's aria-label, where {value} is the row's name, or a function(name) returning it (default 'Move {value} up')
  *   moveDownLabel : the down button's aria-label, where {value} is the row's name, or a function(name) returning it (default 'Move {value} down')
  *   height        : height of the list, as createList takes it (default 'auto')
@@ -59,7 +61,7 @@ export function createOrderedList<T = any>(options: OrderedListOptions<T>): Orde
     list.className = 'base-ordered-list';
 
     function nameOf(item: T, index: number): string {
-        return options.label ? options.label(item, index) : 'Item ' + (index + 1);
+        return options.label ? options.label(item, index) : fillAll(baseText('Base.ItemNumber'), { index: index + 1 });
     }
 
     // Draws one row from an item.

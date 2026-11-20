@@ -15,6 +15,7 @@ import { createSearchField } from './search-field.js';
 import { createDateRangePicker, dateKey } from './date-range-picker.js';
 import type { DateRangePickerHandle, DateRangePreset } from './date-range-picker.js';
 import type { ComponentHandle, PagedResult } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One choice of a filter. color tints its card or pill, as a status color name or a hex code. */
 export interface FilteredListOption {
@@ -305,7 +306,7 @@ export function createFilteredList<T = any>(options: FilteredListOptions<T>): Fi
         var entry = selects[filter.name];
         clear(entry.el);
         entry.texts = {};
-        entry.el.appendChild(make('option', '', { value: '' }, (opts.allText || 'All') + ' ' + filter.label));
+        entry.el.appendChild(make('option', '', { value: '' }, opts.allText ? opts.allText + ' ' + filter.label : fillAll(baseText('Base.AllOf'), { value: filter.label })));
         filter.options.forEach(function (o) {
             var option = make('option', '', { value: o.value }, o.label);
             entry.texts[o.value] = option;
@@ -317,7 +318,7 @@ export function createFilteredList<T = any>(options: FilteredListOptions<T>): Fi
     var sortSelect: HTMLSelectElement | null = null;
     var sorts = opts.sorts || [];
     if (sorts.length) {
-        sortSelect = make('select', 'base-filtered-sort', { 'aria-label': 'Sort' });
+        sortSelect = make('select', 'base-filtered-sort', { 'aria-label': baseText('Sort') });
         sorts.forEach(function (s, i) { sortSelect!.appendChild(make('option', '', { value: String(i) }, s.label)); });
         cleanups.push(listen(sortSelect, 'change', function () {
             var s = sorts[Number(sortSelect!.value)];
@@ -378,7 +379,7 @@ export function createFilteredList<T = any>(options: FilteredListOptions<T>): Fi
         var row = pillRows[filter.name];
         clear(row.el);
         row.counts = {};
-        row.el.appendChild(make('button', 'base-pill small', { type: 'button', 'data-value': '', 'aria-pressed': 'false' }, opts.allText || 'All'));
+        row.el.appendChild(make('button', 'base-pill small', { type: 'button', 'data-value': '', 'aria-pressed': 'false' }, opts.allText || baseText('All')));
         filter.options.forEach(function (o) {
             var pill = make('button', 'base-pill small', { type: 'button', 'data-value': o.value, 'aria-pressed': 'false' });
             pill.appendChild(make('span', '', null, o.label));
@@ -405,7 +406,7 @@ export function createFilteredList<T = any>(options: FilteredListOptions<T>): Fi
         selectBar = make('div', 'base-filtered-selectbar' + (counting ? ' actions' : ''));
         if (opts.selectAll !== false) {
             selectAllBox = makeCheck('base-filtered-selectall-box');
-            selectAllRow = makeCheckRow(selectAllBox, opts.selectAllText || 'Select all', 'base-filtered-selectall');
+            selectAllRow = makeCheckRow(selectAllBox, opts.selectAllText || baseText('SelectAll'), 'base-filtered-selectall');
             selectBar.appendChild(selectAllRow);
         }
         if (counting) {
@@ -441,7 +442,7 @@ export function createFilteredList<T = any>(options: FilteredListOptions<T>): Fi
         check.checked = selection.has(key);
         var content = opts.render(item, index, check);
         if (!check.parentNode) content = placeCheck(check, content);
-        if (!check.closest('label')) check.setAttribute('aria-label', opts.selectText || 'Select');
+        if (!check.closest('label')) check.setAttribute('aria-label', opts.selectText || baseText('Select'));
         return content;
     }
 
@@ -471,7 +472,7 @@ export function createFilteredList<T = any>(options: FilteredListOptions<T>): Fi
         role: opts.listRole,
         wrap: opts.wrap,
         key: rowKey,
-        emptyText: opts.emptyText || 'Nothing matches.',
+        emptyText: opts.emptyText || baseText('Base.NothingMatches'),
         render: renderItem,
         onEndReached: opts.pageSize && opts.loadOnScroll !== false ? function () {
             if (scrollMore && !(limit && list.getItems().length >= limit)) view.more();
@@ -539,7 +540,7 @@ export function createFilteredList<T = any>(options: FilteredListOptions<T>): Fi
         var count = selection.size();
         if (selectBar) selectBar.classList.toggle('active', count > 0);
         if (selectAllRow) selectAllRow.classList.toggle('hidden', !list.getItems().length);
-        if (countEl) countEl.textContent = fillAll(opts.selectedText || '{count} selected', { count: String(count) });
+        if (countEl) countEl.textContent = fillAll(opts.selectedText || baseText('Base.CountSelected'), { count: String(count) });
         bulkButtons.forEach(function (btn) { btn.disabled = count === 0; });
     }
 
@@ -638,8 +639,8 @@ export function createFilteredList<T = any>(options: FilteredListOptions<T>): Fi
         var capped = limit > 0 && state.total > limit;
         var whole = remote ? state.total : all.length;
         summary.textContent = capped
-            ? fillAll(opts.limitText || 'Showing the first {shown} of {total}.', { shown: String(Math.min(limit, state.items.length)), total: String(state.total) })
-            : fillAll(opts.summaryText || 'Showing {shown} of {total}.', { shown: String(state.total), total: String(whole) });
+            ? fillAll(opts.limitText || baseText('Base.ShowingFirst'), { shown: String(Math.min(limit, state.items.length)), total: String(state.total) })
+            : fillAll(opts.summaryText || baseText('Base.Showing'), { shown: String(state.total), total: String(whole) });
         summary.hidden = !capped && (opts.summary === false || (!state.items.length && !state.total));
     }
 

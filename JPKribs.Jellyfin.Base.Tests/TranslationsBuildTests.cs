@@ -70,26 +70,102 @@ public sealed class TranslationsBuildTests : IDisposable
     }
 
     /// <summary>
-    /// A plugin with no Localization files and no JellyfinString items builds as before.
-    /// True: a plugin that does not translate sees no change.
-    /// False: every plugin would need translations to build.
+    /// A plugin with no Localization files and no JellyfinString items gets Base's own strings and casing list, and no TranslationKeys.
+    /// True: every component's text is translated in every plugin.
+    /// False: a plugin would need strings of its own for Base's text to translate.
     /// </summary>
     [Fact]
-    public void NoTranslations_DoesNothing()
+    public void NoStrings_EmbedsBaseStringsOnly()
     {
         Project(string.Empty);
+        var (code, output) = Build();
+        Assert.True(code == 0, output);
+
+        var resources = Resources();
+        var english = Strings(resources["JPKribs.Translations.en-us.json"]);
+        Assert.Equal("Load more", english["Base.LoadMore"]);
+        Assert.Equal("Select all", english["SelectAll"]);
+        Assert.Equal("Abbrechen", Strings(resources["JPKribs.Translations.de.json"])["ButtonCancel"]);
+        Assert.Contains("TV", JsonSerializer.Deserialize<string[]>(resources["JPKribs.Casing.json"])!);
+        Assert.False(File.Exists(Path.Combine(_project, "obj", "Debug", "net10.0", "base-translations", "TranslationKeys.g.cs")));
+    }
+
+    /// <summary>
+    /// BaseTranslations=false builds nothing in.
+    /// True: a plugin can turn the build off.
+    /// False: the setting would be ignored.
+    /// </summary>
+    [Fact]
+    public void TurnedOff_DoesNothing()
+    {
+        Project(string.Empty, "<BaseTranslations>false</BaseTranslations>");
         var (code, output) = Build();
         Assert.True(code == 0, output);
         Assert.Empty(Resources());
         Assert.False(Directory.Exists(Path.Combine(_project, "obj", "Debug", "net10.0", "base-translations")));
     }
 
-    private void Project(string items)
+    /// <summary>
+    /// Case converts a declared string's English in every English file with the casing list, and keeps other languages.
+    /// casing.json is the casing list, never a language, and a change to Case rebuilds the strings.
+    /// True: a plugin shows Jellyfin's words in its own casing, and the editor shows the text it ships.
+    /// False: German would be recased, casing.json would fail as a language, or a changed Case would keep the old text.
+    /// </summary>
+    [Fact]
+    public void Case_ConvertsEnglishWithTheCasingList()
+    {
+        Write("Localization/casing.json", "[\"Skip\"]");
+        Write("Localization/en-us.json", "{\"MyPluginTitle\": \"My Plugin Title\"}");
+        Project("<JellyfinString Include=\"HeaderContinueWatching;MediaSegmentAction.AskToSkip\" Case=\"sentence\" />");
+
+        var (code, output) = Build();
+        Assert.True(code == 0, output);
+        var resources = Resources();
+        Assert.Equal("Continue watching", Strings(resources["JPKribs.Translations.en-us.json"])["HeaderContinueWatching"]);
+        Assert.Equal("Ask to Skip", Strings(resources["JPKribs.Translations.en-us.json"])["MediaSegmentAction.AskToSkip"]);
+        Assert.Equal("Continue watching", Strings(resources["JPKribs.Translations.en-gb.json"])["HeaderContinueWatching"]);
+        Assert.Equal("Weiterschauen", Strings(resources["JPKribs.Translations.de.json"])["HeaderContinueWatching"]);
+        Assert.Contains("Skip", JsonSerializer.Deserialize<string[]>(resources["JPKribs.Casing.json"])!);
+        Assert.Contains("/// <summary>Continue watching</summary>", File.ReadAllText(Path.Combine(_project, "obj", "Debug", "net10.0", "base-translations", "TranslationKeys.g.cs")), StringComparison.Ordinal);
+
+        Project("<JellyfinString Include=\"HeaderContinueWatching;MediaSegmentAction.AskToSkip\" Case=\"title\" />");
+        (code, output) = Build();
+        Assert.True(code == 0, output);
+        Assert.Equal("Continue Watching", Strings(Resources()["JPKribs.Translations.en-us.json"])["HeaderContinueWatching"]);
+
+        Project("<JellyfinString Include=\"Favorites\" Case=\"upper\" />");
+        (code, output) = Build();
+        Assert.NotEqual(0, code);
+        Assert.Contains("error JPKT020", output, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// A casing list that is not an array of distinct, non-empty strings fails at its line.
+    /// True: the author sees the problem where it is.
+    /// False: a bad list would ship, or fail with no place.
+    /// </summary>
+    [Fact]
+    public void Casing_ProblemsAreReportedAtTheirLine()
+    {
+        Write("Localization/casing.json", "[\n  \"EPG\",\n  \"epg\",\n  \"\"\n]");
+        Project(string.Empty);
+
+        var (code, output) = Build();
+        Assert.NotEqual(0, code);
+        Assert.Contains("casing.json(3,3): Translations error JPKT019", output, StringComparison.Ordinal);
+        Assert.Contains("casing.json(4,3): Translations error JPKT018", output, StringComparison.Ordinal);
+    }
+
+    private static System.Collections.Generic.Dictionary<string, string> Strings(byte[] json)
+        => JsonSerializer.Deserialize<System.Collections.Generic.Dictionary<string, string>>(json)!;
+
+    private void Project(string items, string properties = "")
     {
         var root = Root();
         Write("Fixture.csproj", $"""
             <Project Sdk="Microsoft.NET.Sdk">
               <PropertyGroup>
+                {properties}
                 <TargetFramework>net10.0</TargetFramework>
                 <Nullable>enable</Nullable>
                 <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

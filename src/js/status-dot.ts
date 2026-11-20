@@ -2,6 +2,8 @@ import { make, has } from './lib/dom.js';
 import { applyColor, isHexColor, colorClass, colorStyle } from './lib/color.js';
 import { escapeHtml } from './browser-helpers.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
+import type { BASE_TEXT } from './lib/base-text.js';
 
 /** What createStatusDot takes. The label defaults to the color's meaning. */
 export interface StatusDotOptions {
@@ -16,12 +18,12 @@ export interface StatusDotHandle extends ComponentHandle {
     destroy(): void;
 }
 
-var LABELS: Record<string, string> = { green: 'Active', red: 'Error', orange: 'Waiting', purple: 'Working', blue: 'Info', gray: 'Off', yellow: 'Note', pink: 'Note', teal: 'Note' };
+var LABELS: Record<string, keyof typeof BASE_TEXT> = { green: 'Base.Active', red: 'HeaderError', orange: 'Base.Waiting', purple: 'Base.Working', blue: 'ButtonInfo', gray: 'Off', yellow: 'Base.Note', pink: 'Base.Note', teal: 'Base.Note' };
 
 // Keeps a known color or hex code, else gray, and names it by the label or the color's meaning.
 function dotState(color: unknown, label: unknown): { color: string; label: string } {
     var c = has(LABELS, color as string) || isHexColor(color) ? color as string : 'gray';
-    return { color: c, label: label ? String(label) : LABELS[c] || 'Note' };
+    return { color: c, label: label ? String(label) : baseText(LABELS[c] || 'Base.Note') };
 }
 
 /**

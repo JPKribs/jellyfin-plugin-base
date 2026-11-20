@@ -1,9 +1,10 @@
 // chart.ts
 // The core every chart shares: the frame, the scale, the axes, the legend, the tooltip, the empty state, and the hidden table of numbers. The bar chart, the line chart, the pie chart, and the sparkline each draw only their marks on it. None of it is exported from the bundle.
 
-import { make, clear, listen, runAll, toText, nextId } from './dom.js';
+import { make, clear, listen, runAll, toText, nextId, fill } from './dom.js';
 import { applyColor, colorClass } from './color.js';
 import { anchorPopover } from './popover.js';
+import { baseText } from './base-text.js';
 
 /** One series of a chart: a name for the legend and the table, a status color name or a hex code, and one value per label. */
 export interface ChartSeries {
@@ -231,7 +232,7 @@ export function buildChart(options: ChartOptions, core: ChartCore): ChartHandle 
         if (options.label) table.appendChild(make('caption', null, null, options.label));
         var head = make('tr');
         head.appendChild(make('th', null, { scope: 'col' }, ''));
-        series.forEach(function (s, i) { head.appendChild(make('th', null, { scope: 'col' }, s.name || ('Series ' + (i + 1)))); });
+        series.forEach(function (s, i) { head.appendChild(make('th', null, { scope: 'col' }, s.name || fill(baseText('Base.SeriesNumber'), i + 1))); });
         var thead = make('thead');
         thead.appendChild(head);
         table.appendChild(thead);

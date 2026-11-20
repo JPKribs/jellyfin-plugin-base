@@ -1,6 +1,7 @@
 import { buildRepeater } from './repeater.js';
 import type { ListHeight } from './list.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One row of the editor, as getValue and onChange give it. */
 export interface KeyValuePair {
@@ -78,8 +79,8 @@ export interface KeyValueEditorHandle extends ComponentHandle {
  */
 export function createKeyValueEditor(options?: KeyValueEditorOptions): KeyValueEditorHandle {
     var opts = options || {};
-    var keyLabel = opts.keyLabel || 'Key';
-    var valueLabel = opts.valueLabel || 'Value';
+    var keyLabel = opts.keyLabel || baseText('Base.Key');
+    var valueLabel = opts.valueLabel || baseText('LabelValue');
 
     function toRows(source: KeyValueSource | null | undefined): KeyValuePair[] {
         if (!source) return [];
@@ -91,9 +92,9 @@ export function createKeyValueEditor(options?: KeyValueEditorOptions): KeyValueE
     function rowProblem(key: string, item: Record<string, any>, index: number): string {
         var trimmed = key.trim();
         var value = String(item.value == null ? '' : item.value);
-        if (value !== '' && trimmed === '') return opts.requiredText || 'Enter a key.';
+        if (value !== '' && trimmed === '') return opts.requiredText || baseText('Base.EnterKey');
         var others = editor.rows().map(function (r) { return String(r.group.getValue().key).trim(); });
-        if (trimmed !== '' && !opts.duplicateKeys && others.some(function (k, i) { return i !== index && k === trimmed; })) return opts.duplicateText || 'Key is already used.';
+        if (trimmed !== '' && !opts.duplicateKeys && others.some(function (k, i) { return i !== index && k === trimmed; })) return opts.duplicateText || baseText('Base.KeyUsed');
         if (opts.validate && (trimmed !== '' || value !== '')) return opts.validate(trimmed, value, index) || '';
         return '';
     }

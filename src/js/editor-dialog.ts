@@ -2,6 +2,7 @@ import { openDialog } from './dialog.js';
 import type { DialogButton, DialogOptions, DialogHandle } from './dialog.js';
 import { confirmDialog } from './confirm-dialog.js';
 import type { PageHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One extra footer button of an editor, such as Duplicate. icon is a Material icon name, and variant picks its look. */
 export interface EditorDialogAction {
@@ -59,7 +60,7 @@ export function openEditorDialog(opts?: EditorDialogOptions): EditorDialogHandle
     }
     var buttons: DialogButton[] = [];
     if (!opts.isNew && opts.onRemove) {
-        buttons.push({ text: opts.removeText || 'Remove', className: 'base-button destructive', action: function (close): void { opts.onRemove!(close); } });
+        buttons.push({ text: opts.removeText || baseText('ButtonRemove'), className: 'base-button destructive', action: function (close): void { opts.onRemove!(close); } });
     }
     // The footer reads destructive first, then the extra actions, then Cancel, then the primary.
     var extras = (opts.actions || []).filter(Boolean);
@@ -68,11 +69,11 @@ export function openEditorDialog(opts?: EditorDialogOptions): EditorDialogHandle
         var variant = a.variant === 'primary' || a.variant === 'destructive' ? a.variant : 'secondary';
         buttons.push({ text: a.text, icon: a.icon, className: 'base-button ' + variant, action: function (close, dismiss, btn): void { a.onClick(handle, btn); } });
     });
-    buttons.push({ text: opts.cancelText || 'Cancel', className: 'base-button secondary', action: function (close, dismiss): void { dismiss(); } });
+    buttons.push({ text: opts.cancelText || baseText('ButtonCancel'), className: 'base-button secondary', action: function (close, dismiss): void { dismiss(); } });
     // Done stays disabled while onDone is pending, and a rejection re-enables it since onDone reports its own error.
     var busy: boolean = false;
     buttons.push({
-        text: opts.doneText || 'Done',
+        text: opts.doneText || baseText('Base.Done'),
         className: 'base-button primary',
         action: function (close, dismiss, btn): void {
             if (busy) return;
@@ -102,7 +103,7 @@ export function openEditorDialog(opts?: EditorDialogOptions): EditorDialogHandle
         autofocus: opts.autofocus,
         returnFocus: opts.returnFocus,
         beforeClose: function (): boolean | Promise<boolean> {
-            return !isDirty() || confirmDialog('Discard your changes?', { title: 'Unsaved Changes', confirmText: 'Discard', destructive: true });
+            return !isDirty() || confirmDialog(baseText('Base.DiscardChanges'), { title: baseText('Base.UnsavedChanges'), confirmText: baseText('Base.Discard'), destructive: true });
         },
         onClose: function (value: unknown): void {
             if (opts.page && opts.page.untrackEditor) opts.page.untrackEditor(handle);

@@ -3,17 +3,21 @@
   <!--
     Builds a plugin's translations in. Imported by JPKribs.Jellyfin.Base.targets.
       * Localization/*.json are the plugin's own strings, one file per language, with en-us.json holding every key.
+      * Localization/casing.json is the plugin's casing list, the words title case and sentence case keep as written.
       * <JellyfinString Include="Key" /> declares a Jellyfin string the plugin uses. Source="web" or "server" picks
-        one source when both have the key. The web client's is used otherwise.
+        one source when both have the key. The web client's is used otherwise. Case="title" or "sentence" converts
+        its English text.
       * <JellyfinTextMatch Include="Key" /> lets the plugin's own key keep English that Jellyfin also says, when the
         meaning differs.
     The BaseBuildTranslations task checks both against Jellyfin's strings, then embeds one JSON file per language as
-    JPKribs.Translations.<language>.json, read by BaseTranslations, and compiles the TranslationKeys class.
-    Nothing happens in a plugin with no Localization files and no JellyfinString items.
+    JPKribs.Translations.<language>.json, with Base's own strings from strings/ in every plugin, read by
+    BaseTranslations. It embeds the casing list as JPKribs.Casing.json, read by TextCase, and compiles the
+    TranslationKeys class when the plugin has strings of its own.
   -->
   <PropertyGroup>
     <BaseLocalizationDirectory Condition="'$(BaseLocalizationDirectory)' == ''">Localization\</BaseLocalizationDirectory>
     <BaseJellyfinStringsDirectory Condition="'$(BaseJellyfinStringsDirectory)' == ''">$(MSBuildThisFileDirectory)..\jellyfin\</BaseJellyfinStringsDirectory>
+    <BaseStringsDirectory Condition="'$(BaseStringsDirectory)' == ''">$(MSBuildThisFileDirectory)..\strings\</BaseStringsDirectory>
     <BaseTasksAssembly Condition="'$(BaseTasksAssembly)' == ''">$(MSBuildThisFileDirectory)..\tasks\net10.0\JPKribs.Jellyfin.Base.Tasks.dll</BaseTasksAssembly>
     <BaseGenerateTranslationKeys Condition="'$(BaseGenerateTranslationKeys)' == ''">true</BaseGenerateTranslationKeys>
     <BaseTranslationKeysNamespace Condition="'$(BaseTranslationKeysNamespace)' == ''">JPKribs.Jellyfin.Base</BaseTranslationKeysNamespace>
@@ -28,20 +32,29 @@
   <Target Name="BaseTranslations" BeforeTargets="PrepareResources;CoreCompile" DependsOnTargets="_BasePrepareTranslations;_BaseRunTranslations;_BaseIncludeTranslations" />
 
   <Target Name="_BasePrepareTranslations">
+    <PropertyGroup>
+      <BaseCasingFile Condition="'$(BaseCasingFile)' == '' And Exists('$(BaseLocalizationDirectory)casing.json')">$(BaseLocalizationDirectory)casing.json</BaseCasingFile>
+    </PropertyGroup>
+
     <ItemGroup>
-      <BaseLocalString Include="$(BaseLocalizationDirectory)*.json" Condition="'@(BaseLocalString)' == ''" />
+      <BaseLocalString Include="$(BaseLocalizationDirectory)*.json" Exclude="$(BaseLocalizationDirectory)casing.json" Condition="'@(BaseLocalString)' == ''" />
+      <_BaseStringFile Include="$(BaseStringsDirectory)*.json" />
       <!-- The plugin's own files are built in merged with Jellyfin's, so a copy embedded as is would only add size. -->
-      <EmbeddedResource Remove="@(BaseLocalString)" />
+      <EmbeddedResource Remove="@(BaseLocalString);$(BaseCasingFile)" />
     </ItemGroup>
 
     <!-- Set here rather than at the top, since IntermediateOutputPath is only known once the SDK targets load. -->
     <PropertyGroup>
       <BaseTranslationsOutput Condition="'$(BaseTranslationsOutput)' == ''">$(IntermediateOutputPath)base-translations\</BaseTranslationsOutput>
-      <_BaseTranslationsActive Condition="'$(BaseTranslations)' != 'false' And ('@(BaseLocalString)' != '' Or '@(JellyfinString)' != '')">true</_BaseTranslationsActive>
+      <_BaseTranslationsOwn Condition="'@(BaseLocalString)' != '' Or '@(JellyfinString)' != '' Or '$(BaseCasingFile)' != ''">true</_BaseTranslationsOwn>
+      <!-- Base's own strings are built into every plugin. Where MSBuild cannot run the task, a plugin with no strings of
+           its own builds without them, and Base's text stays US English. -->
+      <_BaseTranslationsActive Condition="'$(BaseTranslations)' != 'false' And ('$(_BaseTaskHostable)' == 'true' Or '$(_BaseTranslationsOwn)' == 'true')">true</_BaseTranslationsActive>
       <_BaseTranslationsSettings>$(BaseTranslationsOutput)settings.txt</_BaseTranslationsSettings>
       <_BaseTranslationsStamp>$(BaseTranslationsOutput)built.stamp</_BaseTranslationsStamp>
       <_BaseTranslationsLanguages>$(BaseTranslationsOutput)languages\</_BaseTranslationsLanguages>
-      <_BaseTranslationKeysFile Condition="'$(BaseGenerateTranslationKeys)' == 'true'">$(BaseTranslationsOutput)$(BaseTranslationKeysClass).g.cs</_BaseTranslationKeysFile>
+      <_BaseTranslationsCasing>$(BaseTranslationsOutput)casing.json</_BaseTranslationsCasing>
+      <_BaseTranslationKeysFile Condition="'$(BaseGenerateTranslationKeys)' == 'true' And ('@(BaseLocalString)' != '' Or '@(JellyfinString)' != '')">$(BaseTranslationsOutput)$(BaseTranslationKeysClass).g.cs</_BaseTranslationKeysFile>
     </PropertyGroup>
 
     <Error Condition="'$(_BaseTranslationsActive)' == 'true' And '$(_BaseTaskHostable)' != 'true'" Code="JPKT016" Text="Translations build with the .NET SDK. Run dotnet build, or use Visual Studio 2026 or later." />
@@ -49,19 +62,22 @@
     <!-- Every setting the output depends on, written only when it changes, so a changed item rebuilds the strings. -->
     <WriteLinesToFile Condition="'$(_BaseTranslationsActive)' == 'true'"
                       File="$(_BaseTranslationsSettings)"
-                      Lines="@(JellyfinString->'string:%(Identity)|%(Source)');@(JellyfinTextMatch->'match:%(Identity)');@(BaseLocalString->'file:%(FullPath)');keys:$(BaseGenerateTranslationKeys)|$(BaseTranslationKeysNamespace)|$(BaseTranslationKeysClass)"
+                      Lines="@(JellyfinString->'string:%(Identity)|%(Source)|%(Case)');@(JellyfinTextMatch->'match:%(Identity)');@(BaseLocalString->'file:%(FullPath)');casing:$(BaseCasingFile);keys:$(BaseGenerateTranslationKeys)|$(BaseTranslationKeysNamespace)|$(BaseTranslationKeysClass)|$(_BaseTranslationKeysFile)"
                       Overwrite="true"
                       WriteOnlyWhenDifferent="true" />
   </Target>
 
   <Target Name="_BaseRunTranslations"
           Condition="'$(_BaseTranslationsActive)' == 'true'"
-          Inputs="@(BaseLocalString);$(_BaseTranslationsSettings);$(BaseJellyfinStringsDirectory)source.json;$(BaseTasksAssembly)"
-          Outputs="$(_BaseTranslationsStamp);$(_BaseTranslationKeysFile)">
+          Inputs="@(BaseLocalString);$(BaseCasingFile);@(_BaseStringFile);$(_BaseTranslationsSettings);$(BaseJellyfinStringsDirectory)source.json;$(BaseTasksAssembly)"
+          Outputs="$(_BaseTranslationsStamp);$(_BaseTranslationsCasing);$(_BaseTranslationKeysFile)">
     <BaseBuildTranslations LocalFiles="@(BaseLocalString)"
                           JellyfinStrings="@(JellyfinString)"
                           TextMatches="@(JellyfinTextMatch)"
                           SnapshotDirectory="$(BaseJellyfinStringsDirectory)"
+                          BaseStringsDirectory="$(BaseStringsDirectory)"
+                          CasingFile="$(BaseCasingFile)"
+                          CasingOutput="$(_BaseTranslationsCasing)"
                           OutputDirectory="$(_BaseTranslationsLanguages)"
                           KeysFile="$(_BaseTranslationKeysFile)"
                           KeysNamespace="$(BaseTranslationKeysNamespace)"
@@ -74,8 +90,9 @@
     <ItemGroup>
       <_BaseTranslationFile Include="$(_BaseTranslationsLanguages)*.json" />
       <EmbeddedResource Include="@(_BaseTranslationFile)" LogicalName="JPKribs.Translations.%(Filename).json" WithCulture="false" Type="Non-Resx" />
+      <EmbeddedResource Include="$(_BaseTranslationsCasing)" LogicalName="JPKribs.Casing.json" WithCulture="false" Type="Non-Resx" />
       <Compile Include="$(_BaseTranslationKeysFile)" Condition="'$(_BaseTranslationKeysFile)' != ''" />
-      <FileWrites Include="@(_BaseTranslationFile);$(_BaseTranslationKeysFile);$(_BaseTranslationsStamp);$(_BaseTranslationsSettings)" />
+      <FileWrites Include="@(_BaseTranslationFile);$(_BaseTranslationKeysFile);$(_BaseTranslationsCasing);$(_BaseTranslationsStamp);$(_BaseTranslationsSettings)" />
     </ItemGroup>
   </Target>
 

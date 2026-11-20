@@ -125,7 +125,7 @@ test('every default label can be replaced', function () {
     assert.equal(row.querySelector('.base-string-down').getAttribute('aria-label'), 'Lower alpha');
     var defaults = build();
     assert.equal(rows(defaults)[0].querySelector('.base-string-remove').getAttribute('aria-label'), 'Remove alpha');
-    assert.equal(defaults.list.input.getAttribute('aria-label'), 'New Item');
+    assert.equal(defaults.list.input.getAttribute('aria-label'), 'New item');
     assert.equal(addButton(defaults).textContent, 'Add');
 });
 

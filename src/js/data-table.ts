@@ -9,6 +9,7 @@ import { createFilteredList } from './filtered-list.js';
 import type { FilteredListBulkAction, FilteredListToolbarAction, FilteredListOption } from './filtered-list.js';
 import type { ListHeight } from './list.js';
 import type { ComponentHandle, PagedResult } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One column. value gives the sort and display value, and render draws the cell, else the value is shown as text. hidden starts it hidden. width 'auto' sizes it to its widest value, up to maxWidth. */
 export interface DataTableColumn<T = any> {
@@ -235,7 +236,7 @@ export function createDataTable<T = any>(options: DataTableOptions<T>): DataTabl
         if (editing) {
             var name = columns.length ? toText(valueOf(row, columns[0])) : key;
             var editCell = make('div', 'base-data-cell base-data-edit-cell', { role: 'cell' });
-            var button = iconButton('base-row-btn base-data-edit-btn', 'edit', fill(editing.editLabel || 'Edit {value}', name));
+            var button = iconButton('base-row-btn base-data-edit-btn', 'edit', fill(editing.editLabel || baseText('Base.EditValue'), name));
             button.addEventListener('click', function () { edit(key); });
             editCell.appendChild(button);
             el.appendChild(editCell);
@@ -277,8 +278,8 @@ export function createDataTable<T = any>(options: DataTableOptions<T>): DataTabl
         var group = createFieldGroup(spec.fields, values, { element: make('div', 'base-field-group grid') });
         var message = createFieldMessage();
         var buttons = make('div', 'base-button-row base-data-editor-actions');
-        var save = make('button', 'raised base-button primary small', { type: 'button' }, spec.saveText || 'Save');
-        var cancel = make('button', 'raised base-button secondary small', { type: 'button' }, spec.cancelText || 'Cancel');
+        var save = make('button', 'raised base-button primary small', { type: 'button' }, spec.saveText || baseText('Save'));
+        var cancel = make('button', 'raised base-button secondary small', { type: 'button' }, spec.cancelText || baseText('ButtonCancel'));
         buttons.appendChild(save);
         buttons.appendChild(cancel);
         element.appendChild(group.element);
@@ -304,7 +305,7 @@ export function createDataTable<T = any>(options: DataTableOptions<T>): DataTabl
                     if (editor && editor.element === element) closeEditor();
                 }, function () {
                     save.disabled = false;
-                    message.set('error', spec.failedText || 'Could not save.');
+                    message.set('error', spec.failedText || baseText('Base.CouldNotSave'));
                 });
             })
         ];
@@ -426,7 +427,7 @@ export function createDataTable<T = any>(options: DataTableOptions<T>): DataTabl
     layout();
 
     // The header of column headings sits over the rows in a grid, and follows them when they scroll sideways.
-    var table = make('div', 'base-data-grid', { role: 'table', 'aria-label': opts.label || 'Table' });
+    var table = make('div', 'base-data-grid', { role: 'table', 'aria-label': opts.label || baseText('Base.Table') });
     var head = make('div', 'base-data-head', { role: 'row' });
     if (mode === 'multiple') head.appendChild(make('div', 'base-data-heading base-data-check', { role: 'columnheader' }));
     columns.forEach(function (column) {
@@ -484,7 +485,7 @@ export function createDataTable<T = any>(options: DataTableOptions<T>): DataTabl
         cell.classList.add('resizable');
         var handle = make('span', 'base-data-resize', {
             role: 'separator', tabindex: '0', 'aria-orientation': 'vertical',
-            'aria-label': fill(opts.resizeText || 'Resize {value}', column.label)
+            'aria-label': fill(opts.resizeText || baseText('Base.ResizeValue'), column.label)
         });
         handles[column.key] = handle;
         cell.appendChild(handle);

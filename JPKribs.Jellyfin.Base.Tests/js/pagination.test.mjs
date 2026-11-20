@@ -107,7 +107,7 @@ test('every default label can be replaced', function () {
     var defaults = build();
     assert.equal(defaults.pager.element.querySelector('.base-pager-prev').textContent, 'Previous');
     assert.equal(defaults.pager.element.querySelector('.base-pager-next').textContent, 'Next');
-    assert.equal(defaults.pager.element.querySelector('.base-pager-size span').textContent, 'Page Size');
+    assert.equal(defaults.pager.element.querySelector('.base-pager-size span').textContent, 'Page size');
 });
 
 test('destroy removes the select listener', function () {

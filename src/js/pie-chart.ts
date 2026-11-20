@@ -3,6 +3,7 @@ import { applyColor } from './lib/color.js';
 import { buildChart, svgEl, seriesColor, formatValue } from './lib/chart.js';
 import type { ChartFrame, ChartHandle } from './lib/chart.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One slice of a pie: its name, its amount, and an optional status color name or hex code. */
 export interface PieSlice {
@@ -258,14 +259,14 @@ export function createPieChart(options?: PieChartOptions): PieChartHandle {
     function data(): { labels: string[]; series: Array<{ name: string; values: number[] }> } {
         shares = pieShares(slices.map(function (s) { return s.value; }));
         if (selected >= slices.length || (selected >= 0 && !(shares[selected] > 0))) selected = -1;
-        return { labels: slices.map(function (s) { return s.label; }), series: [{ name: opts.valueName || 'Value', values: slices.map(function (s, i) { return valueOf(i); }) }] };
+        return { labels: slices.map(function (s) { return s.label; }), series: [{ name: opts.valueName || baseText('LabelValue'), values: slices.map(function (s, i) { return valueOf(i); }) }] };
     }
 
     var first = data();
     chart = buildChart({ label: opts.label, labels: first.labels, series: first.series, unit: opts.unit, format: opts.format, emptyText: opts.emptyText }, {
         className: 'base-pie-chart' + (opts.donut ? ' donut' : '') + (opts.size === 'small' || opts.size === 'large' ? ' ' + opts.size : ''),
         radial: true,
-        emptyText: 'Nothing to show.',
+        emptyText: baseText('Base.NothingToShow'),
         draw: draw,
         detail: function (seriesIndex: number, labelIndex: number): string { return percentText(shares[labelIndex]); },
         select: function (seriesIndex: number, labelIndex: number): void { choose(labelIndex); },

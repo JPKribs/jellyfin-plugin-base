@@ -4,6 +4,8 @@ import type { TimeRangeFieldHandle } from './time-range-field.js';
 import { createRowSet, rowLabel } from './lib/row-editor.js';
 import type { ListHeight } from './list.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
+import type { BASE_TEXT } from './lib/base-text.js';
 
 /** A day choice of a window, as Jellyfin's DynamicDayOfWeek names it. */
 export type AccessScheduleDay = 'Sunday' | 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Everyday' | 'Weekday' | 'Weekend';
@@ -70,9 +72,9 @@ interface AccessScheduleRow {
 }
 
 var DAYS: AccessScheduleDay[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Everyday', 'Weekday', 'Weekend'];
-var DAY_NAMES: Record<AccessScheduleDay, string> = {
+var DAY_NAMES: Record<AccessScheduleDay, keyof typeof BASE_TEXT> = {
     Sunday: 'Sunday', Monday: 'Monday', Tuesday: 'Tuesday', Wednesday: 'Wednesday', Thursday: 'Thursday', Friday: 'Friday', Saturday: 'Saturday',
-    Everyday: 'Every Day', Weekday: 'Weekdays', Weekend: 'Weekends'
+    Everyday: 'OptionEveryday', Weekday: 'OptionWeekdays', Weekend: 'OptionWeekends'
 };
 
 // formatScheduleHour
@@ -101,7 +103,7 @@ function formatScheduleHour(hour: number): string {
  *   dayLabel           : column label and aria-label of the day selects (default 'Day')
  *   startLabel         : column label and aria-label of the start boxes (default 'Start')
  *   endLabel           : column label and aria-label of the end boxes (default 'End')
- *   addText            : text of the add button (default 'Add Window')
+ *   addText            : text of the add button (default 'Add window')
  *   removeText         : aria-label of a remove button, where {value} is the window from windowText (default 'Remove {value}')
  *   windowText         : name of a window, with {day}, {start}, and {end} (default '{day} {start} to {end}')
  *   emptyText          : sentence shown while there is no window (default 'No windows. Access is allowed at any time.')
@@ -122,9 +124,9 @@ function formatScheduleHour(hour: number): string {
 export function createAccessSchedule(options?: AccessScheduleOptions): AccessScheduleHandle {
     options = options || {};
     var step = typeof options.step === 'number' && options.step > 0 && options.step <= 12 && isFinite(options.step) ? options.step : 0.5;
-    var dayLabel = options.dayLabel || 'Day';
-    var startLabel = options.startLabel || 'Start';
-    var endLabel = options.endLabel || 'End';
+    var dayLabel = options.dayLabel || baseText('Base.Day');
+    var startLabel = options.startLabel || baseText('Base.Start');
+    var endLabel = options.endLabel || baseText('Base.End');
 
     var root = make('div', 'base-access-schedule', { role: 'group' });
     applyFieldSize(root, options.size);
@@ -139,14 +141,14 @@ export function createAccessSchedule(options?: AccessScheduleOptions): AccessSch
     head.appendChild(make('span', '', null, startLabel));
     head.appendChild(make('span', '', null, endLabel));
     var body = make('div', 'base-access-schedule-rows');
-    var addButton = make('button', 'raised base-button small base-access-schedule-add', { type: 'button' }, options.addText || 'Add Window');
+    var addButton = make('button', 'raised base-button small base-access-schedule-add', { type: 'button' }, options.addText || baseText('Base.AddWindow'));
     var set = createRowSet<AccessScheduleSource, AccessScheduleRow>({
         body: body,
         build: buildRow,
         addButton: addButton,
         maxRows: options.maxRows,
         limitText: options.limitText,
-        emptyText: options.emptyText || 'No windows. Access is allowed at any time.',
+        emptyText: options.emptyText || baseText('Base.NoWindows'),
         emptyClass: 'base-access-schedule-empty',
         height: options.height,
         maxHeight: options.maxHeight,
@@ -164,7 +166,7 @@ export function createAccessSchedule(options?: AccessScheduleOptions): AccessSch
 
     function dayName(day: AccessScheduleDay): string {
         var custom = options!.dayLabels;
-        return custom && has(custom, day) && custom[day] ? String(custom[day]) : DAY_NAMES[day];
+        return custom && has(custom, day) && custom[day] ? String(custom[day]) : baseText(DAY_NAMES[day]);
     }
 
     function toDay(raw: unknown): AccessScheduleDay {
@@ -199,11 +201,11 @@ export function createAccessSchedule(options?: AccessScheduleOptions): AccessSch
 
     function label(row: AccessScheduleRow): void {
         var w = read(row);
-        var name = (options!.windowText || '{day} {start} to {end}')
+        var name = (options!.windowText || baseText('Base.WindowName'))
             .replace(/\{day\}/g, function () { return dayName(w.DayOfWeek); })
             .replace(/\{start\}/g, function () { return formatScheduleHour(w.StartHour); })
             .replace(/\{end\}/g, function () { return formatScheduleHour(w.EndHour); });
-        var text = rowLabel(options!.removeText, 'Remove {value}', name);
+        var text = rowLabel(options!.removeText, baseText('Base.RemoveValue'), name);
         row.remove.title = text;
         row.remove.setAttribute('aria-label', text);
     }
@@ -229,7 +231,7 @@ export function createAccessSchedule(options?: AccessScheduleOptions): AccessSch
             required: true,
             startLabel: startLabel,
             endLabel: endLabel,
-            endBeforeStartText: options!.endBeforeStartText || 'The end must be after the start.'
+            endBeforeStartText: options!.endBeforeStartText || baseText('Base.EndAfterStart')
         });
         range.element.classList.add('base-access-schedule-range');
         range.start.classList.add('base-access-schedule-start');

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading;
 using MediaBrowser.Controller.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,12 @@ public static partial class BaseTranslations
     /// <summary>The language every other one falls back to.</summary>
     public const string FallbackLanguage = "en-us";
 
+    /// <summary>The header a page's shared <c>apiRequest</c> sends with the page's language, read by <see cref="RequestLanguage"/>.</summary>
+    public const string LanguageHeader = "X-Jellyfin-Plugin-Language";
+
     private const string ResourcePrefix = "JPKribs.Translations.";
+
+    private static readonly AsyncLocal<string?> _ambient = new();
 
     private static readonly Lazy<Dictionary<string, string>> _resources = new(FindResources);
     private static readonly ConcurrentDictionary<string, IReadOnlyDictionary<string, string>> _files = new(StringComparer.Ordinal);
@@ -32,6 +38,71 @@ public static partial class BaseTranslations
     /// Gets the languages the plugin has strings for, as lower case codes with a hyphen, such as pt-br.
     /// </summary>
     public static IReadOnlyCollection<string> Languages => _resources.Value.Keys;
+
+    /// <summary>
+    /// Gets the language Base's own text takes on this call path, such as a refusal from <see cref="SsrfGuard"/>, set by
+    /// <see cref="UseLanguage"/>. <c>null</c> means US English.
+    /// </summary>
+    public static string? CurrentLanguage => _ambient.Value;
+
+    /// <summary>
+    /// Sets the language Base's own text takes on this call path until the scope is disposed, such as for one request.
+    /// </summary>
+    /// <param name="language">The language, such as the one <see cref="RequestLanguage"/> reads.</param>
+    /// <returns>A scope that puts the earlier language back when disposed.</returns>
+    public static IDisposable UseLanguage(string? language)
+    {
+        var earlier = _ambient.Value;
+        _ambient.Value = language;
+        return new LanguageScope(earlier);
+    }
+
+    /// <summary>
+    /// Reads the language a request asks for: its <c>language</c> query value, then the <see cref="LanguageHeader"/>
+    /// header, then <c>Accept-Language</c>, then US English.
+    /// </summary>
+    /// <param name="request">The request.</param>
+    /// <returns>The language, lower case with a hyphen, such as pt-br.</returns>
+    public static string RequestLanguage(HttpRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var asked = NormalizeLanguage(request.Query["language"].ToString());
+        if (asked.Length > 0)
+        {
+            return asked;
+        }
+
+        asked = NormalizeLanguage(request.Headers[LanguageHeader].ToString());
+        if (asked.Length > 0)
+        {
+            return asked;
+        }
+
+        // Accept-Language lists languages with an optional weight, such as "de-DE,de;q=0.9,en;q=0.8".
+        var accepted = request.Headers.AcceptLanguage.ToString()
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select((part, index) =>
+            {
+                var pieces = part.Split(';', StringSplitOptions.TrimEntries);
+                var weight = 1.0;
+                foreach (var piece in pieces.Skip(1))
+                {
+                    if (piece.StartsWith("q=", StringComparison.OrdinalIgnoreCase)
+                        && double.TryParse(piece.AsSpan(2), NumberStyles.Float, CultureInfo.InvariantCulture, out var q))
+                    {
+                        weight = q;
+                    }
+                }
+
+                return (Code: NormalizeLanguage(pieces[0]), Weight: weight, Index: index);
+            })
+            .Where(l => l.Code.Length > 0 && l.Weight > 0)
+            .OrderByDescending(l => l.Weight)
+            .ThenBy(l => l.Index)
+            .Select(l => l.Code)
+            .FirstOrDefault();
+        return accepted ?? FallbackLanguage;
+    }
 
     /// <summary>
     /// Writes a language code the way the web client compares them, lower case with a hyphen.
@@ -109,8 +180,9 @@ public static partial class BaseTranslations
     }
 
     /// <summary>
-    /// Answers a request for the strings in a language as JSON, for the shared <c>loadTranslations</c> on a page. The
-    /// answer carries an ETag and is revalidated on every load, so a plugin update reaches the page at once.
+    /// Answers a request for the strings in a language as JSON, for the shared <c>loadTranslations</c> on a page, as
+    /// <c>{ "language", "strings", "casing" }</c> with the plugin's casing list. The answer carries an ETag and is
+    /// revalidated on every load, so a plugin update reaches the page at once.
     /// </summary>
     /// <param name="language">The language from the request, such as de.</param>
     /// <param name="request">The request, read for If-None-Match.</param>
@@ -150,6 +222,7 @@ public static partial class BaseTranslations
 
         // Only codes the plugin has are kept, so the cache cannot grow from the codes a request makes up.
         var kept = chain.Distinct(StringComparer.Ordinal).Where(_resources.Value.ContainsKey).ToList();
+        code = kept.Count > 0 ? kept[^1] : string.Empty;
         return _merged.GetOrAdd(string.Join('|', kept), _ =>
         {
             var merged = new SortedDictionary<string, string>(StringComparer.Ordinal);
@@ -161,7 +234,8 @@ public static partial class BaseTranslations
                 }
             }
 
-            var json = JsonSerializer.SerializeToUtf8Bytes(merged);
+            var language = code.Length > 0 ? code : FallbackLanguage;
+            var json = JsonSerializer.SerializeToUtf8Bytes(new ServedJson(language, merged, TextCase.Exceptions));
             return new Served(merged, json, "\"" + Convert.ToHexString(SHA256.HashData(json))[..16].ToLowerInvariant() + "\"");
         });
     }
@@ -209,5 +283,42 @@ public static partial class BaseTranslations
     [GeneratedRegex(@"\{(\d{1,9})\}")]
     private static partial Regex Placeholder();
 
+    /// <summary>
+    /// One of Base's own strings in the language of this call path, filled with its values. Base's C# helpers write
+    /// their text with it, and the English is used when the plugin has no string for the key.
+    /// </summary>
+    /// <param name="key">The key, which starts with Base.</param>
+    /// <param name="english">The US English text, used when no string is built in.</param>
+    /// <param name="args">The values for the placeholders, in order.</param>
+    /// <returns>The text.</returns>
+    internal static string Text(string key, string english, params object?[] args)
+    {
+        var language = CurrentLanguage;
+        var text = For(language).TryGetValue(key, out var found) ? found : english;
+        return FormatText(text, Culture(language), args);
+    }
+
     private sealed record Served(IReadOnlyDictionary<string, string> Strings, byte[] Json, string ETag);
+
+    private sealed record ServedJson(
+        [property: System.Text.Json.Serialization.JsonPropertyName("language")] string Language,
+        [property: System.Text.Json.Serialization.JsonPropertyName("strings")] IReadOnlyDictionary<string, string> Strings,
+        [property: System.Text.Json.Serialization.JsonPropertyName("casing")] IReadOnlyList<string> Casing);
+
+    private sealed class LanguageScope : IDisposable
+    {
+        private readonly string? _earlier;
+        private bool _disposed;
+
+        public LanguageScope(string? earlier) => _earlier = earlier;
+
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                _ambient.Value = _earlier;
+            }
+        }
+    }
 }

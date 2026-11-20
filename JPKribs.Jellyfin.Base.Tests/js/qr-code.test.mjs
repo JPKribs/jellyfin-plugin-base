@@ -97,7 +97,7 @@ test('inline draws the text with a QR button beside Copy that opens the full cod
     assert.equal(qr.element.querySelector('.base-qr-code-frame'), null, 'no code on the page');
     assert.equal(qr.element.querySelector('.base-copy-field input').value, 'https://example.com');
     var btn = qr.element.querySelector('.base-copy-field .base-qr-code-open');
-    assert.equal(btn.getAttribute('aria-label'), 'Show QR Code');
+    assert.equal(btn.getAttribute('aria-label'), 'Show QR code');
     assert.equal(btn.disabled, false);
     var dialog = qr.open();
     assert.ok(dialog, 'open returns the dialog');

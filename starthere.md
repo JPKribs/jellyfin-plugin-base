@@ -42,7 +42,7 @@ A plugin references the `JPKribs.Jellyfin.Base` package at one version. Nothing 
 | CSS and JS | The bundles are embedded as `<RootNamespace>.Configuration.jpkribs_shared.css` and `.js`, and `GetSharedPages("myplugin")` in `src/PluginBase.cs` serves them as `myplugin_jpkribs_shared.css` and `myplugin_jpkribs_shared.js` | `build/JPKribs.Jellyfin.Base.targets` |
 | Templates | `src/templates/*.html` is embedded for `TemplateLoader` and `StatusPage` | `build/JPKribs.Jellyfin.Base.targets` |
 | Typings | `jpkribs_shared.d.ts` is copied to the plugin's `obj/` for its editor, and never reaches the assembly | `build/JPKribs.Jellyfin.Base.targets` |
-| Translations | The `BaseBuildTranslations` task checks `Localization/*.json` and the `JellyfinString` items against the Jellyfin strings in `jellyfin/`, then embeds one `JPKribs.Translations.<language>.json` per language and compiles `TranslationKeys` | `build/JPKribs.Jellyfin.Base.Translations.targets`, `tasks/` |
+| Translations | The `BaseBuildTranslations` task checks `Localization/*.json` and the `JellyfinString` items against the Jellyfin strings in `jellyfin/`, then embeds one `JPKribs.Translations.<language>.json` per language with Base's own strings from `strings/`, the casing list as `JPKribs.Casing.json`, and compiles `TranslationKeys` | `build/JPKribs.Jellyfin.Base.Translations.targets`, `tasks/` |
 
 These commands matter to a contributor. The CI column says which workflow runs each one. `build.yaml` runs its rows in the order shown, and `release.yaml` runs the same checks and tests in the same order before it packs. `docs.yaml` runs the bundle, the docs check, the previews, and the strict site build, in that order. Run the same commands locally before a push.
 
@@ -101,6 +101,7 @@ Explain what you would change, why, and what it risks. Wait for an answer before
 | `build/` | The targets that wire the package into a plugin. `JPKribs.Jellyfin.Base.targets` imports `JPKribs.Jellyfin.Base.Translations.targets`. |
 | `tasks/` | The MSBuild task that checks a plugin's translations and builds them in. Packed under `tasks/net10.0/`, and never compiled into a plugin. |
 | `jellyfin.json` | The Jellyfin version every package version starts with, and the jellyfin-web and jellyfin tags the strings come from. |
+| `strings/` | Base's own strings, built into every plugin: `en-us.json` with the `Base.` keys, and `jellyfin.json` with the Jellyfin strings Base's components use. Packed under `strings/`. |
 | `scripts/` | Bundle, pack, gallery, preview, docs, check, Jellyfin strings fetch, and Jellyfin bump scripts. |
 | `.github/workflows/` | `build.yaml`, which bundles, checks, tests, and packs every push and pull request to `main` that changes more than Markdown, `release.yaml`, which runs the same checks and tests before it packs and publishes, and `docs.yaml`, which bundles, checks the docs, builds the previews, and publishes the site. |
 | `JPKribs.Jellyfin.Base.Tests/` | The xUnit tests, the JS tests in `js/`, the gallery in `gallery/`, the golden bundle in `golden/`, the typings test in `types/`, and `Fixtures/`. |

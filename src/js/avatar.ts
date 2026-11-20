@@ -3,6 +3,8 @@ import { applyColor } from './lib/color.js';
 import { onImageError, resolveThumbSource } from './lib/thumb.js';
 import type { ThumbSource } from './lib/thumb.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
+import type { BASE_TEXT } from './lib/base-text.js';
 
 /** What createAvatar takes, and what its getValue returns as drawn. */
 export interface AvatarOptions {
@@ -43,7 +45,7 @@ interface BuiltAvatar {
     release(): void;
 }
 
-var STATUS_LABELS: Record<string, string> = { green: 'Active', red: 'Error', orange: 'Waiting', purple: 'Working', blue: 'Info', gray: 'Off' };
+var STATUS_LABELS: Record<string, keyof typeof BASE_TEXT> = { green: 'Base.Active', red: 'HeaderError', orange: 'Base.Waiting', purple: 'Base.Working', blue: 'ButtonInfo', gray: 'Off' };
 
 // Builds the avatar element and the function that redraws it, for createAvatar and createUserChip.
 function buildAvatar(spec: AvatarOptions, quiet?: boolean): BuiltAvatar {
@@ -83,7 +85,7 @@ function buildAvatar(spec: AvatarOptions, quiet?: boolean): BuiltAvatar {
         }
         function addDot(): void {
             if (!state.status) return;
-            var label = state.statusLabel || STATUS_LABELS[state.status];
+            var label = state.statusLabel || baseText(STATUS_LABELS[state.status]);
             root.appendChild(make('span', 'base-avatar-status ' + state.status, { role: 'img', title: label, 'aria-label': label }));
         }
         function showImage(url: string): void {

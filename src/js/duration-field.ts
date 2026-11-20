@@ -3,6 +3,8 @@ import { adornField } from './field-adornments.js';
 import { createFieldMessage } from './field-message.js';
 import { bindValidation, validateValue, readRules } from './lib/validate.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
+import type { BASE_TEXT } from './lib/base-text.js';
 
 /** One unit of a duration: hours, minutes, or seconds. */
 export type DurationUnit = 'h' | 'm' | 's';
@@ -37,7 +39,7 @@ export interface DurationFieldHandle extends ComponentHandle {
 var ORDER: DurationUnit[] = ['h', 'm', 's'];
 var SECONDS: Record<DurationUnit, number> = { h: 3600, m: 60, s: 1 };
 var TEXT: Record<DurationUnit, string> = { h: 'h', m: 'm', s: 's' };
-var LABELS: Record<DurationUnit, string> = { h: 'Hours', m: 'Minutes', s: 'Seconds' };
+var LABELS: Record<DurationUnit, keyof typeof BASE_TEXT> = { h: 'Base.Hours', m: 'Base.Minutes', s: 'Base.Seconds' };
 
 /**
  * Writes seconds as a short duration in the given units, such as 5400 as '1h 30m'. The smallest unit takes what is left, rounded.
@@ -89,7 +91,7 @@ export function createDurationField(options?: DurationFieldOptions): DurationFie
     var units = ORDER.filter(function (u) { return !opts.units || opts.units.indexOf(u) !== -1; });
     if (!units.length) units = ORDER.slice();
     var marks: Record<DurationUnit, string> = Object.assign({}, TEXT, opts.unitText || {});
-    var labels: Record<DurationUnit, string> = Object.assign({}, LABELS, opts.unitLabels || {});
+    var labels: Record<DurationUnit, string> = Object.assign({ h: baseText(LABELS.h), m: baseText(LABELS.m), s: baseText(LABELS.s) }, opts.unitLabels || {});
     var cleanups: Array<() => void> = [];
 
     var root = make('div', 'base-duration');
@@ -129,9 +131,9 @@ export function createDurationField(options?: DurationFieldOptions): DurationFie
         var total = value();
         var min = typeof opts.min === 'number' && isFinite(opts.min) ? opts.min : undefined;
         var max = typeof opts.max === 'number' && isFinite(opts.max) ? opts.max : undefined;
-        if (total === null) return opts.required ? 'Fill this in.' : (opts.validate ? toText(opts.validate(null)) : '');
+        if (total === null) return opts.required ? baseText('Base.ValidateRequired') : (opts.validate ? toText(opts.validate(null)) : '');
         if ((min !== undefined && total < min) || (max !== undefined && total > max)) {
-            var text = min !== undefined && max !== undefined ? opts.rangeText || 'Enter a duration from {min} to {max}.' : min !== undefined ? opts.minText || 'Enter {min} or more.' : opts.maxText || 'Enter {max} or less.';
+            var text = min !== undefined && max !== undefined ? opts.rangeText || baseText('Base.EnterDuration') : min !== undefined ? opts.minText || baseText('Base.ValidateMin') : opts.maxText || baseText('Base.ValidateMax');
             return fillAll(text, { min: format(min), max: format(max) });
         }
         return opts.validate ? toText(opts.validate(total)) : '';

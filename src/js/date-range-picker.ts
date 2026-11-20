@@ -4,6 +4,8 @@ import { adornField } from './field-adornments.js';
 import { createFieldMessage } from './field-message.js';
 import { bindValidation, validateValue } from './lib/validate.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
+import type { BASE_TEXT } from './lib/base-text.js';
 
 /** A range of days, each as 'YYYY-MM-DD', or '' while open on that side. */
 export interface DateRangeValue {
@@ -50,10 +52,12 @@ export interface DateRangePickerHandle extends ComponentHandle {
 /** The presets a date range picker shows by default. */
 export var DATE_RANGE_PRESETS: DateRangePreset[] = [
     { value: 'today', label: 'Today', days: 1 },
-    { value: '7d', label: 'Last 7 Days', days: 7 },
-    { value: '30d', label: 'Last 30 Days', days: 30 },
+    { value: '7d', label: 'Last 7 days', days: 7 },
+    { value: '30d', label: 'Last 30 days', days: 30 },
     { value: 'custom', label: 'Custom' }
 ];
+
+var PRESET_TEXT: Record<string, keyof typeof BASE_TEXT> = { today: 'Base.Today', '7d': 'Base.Last7Days', '30d': 'Base.Last30Days', custom: 'Custom' };
 
 function pad(n: number): string { return (n < 10 ? '0' : '') + n; }
 
@@ -87,12 +91,12 @@ export function shiftDays(day: string, days: number): string {
 
 /**
  * Two date boxes, from and to, each with the date field's calendar icon inside, under a row of preset pills on the pressed
- * group: Today, Last 7 Days, Last 30 Days, and Custom by default. A preset fills both dates, a second click on it clears
+ * group: Today, Last 7 days, Last 30 days, and Custom by default. A preset fills both dates, a second click on it clears
  * them, and typing dates presses the matching preset, or Custom. An end before the start is an error through the validation core.
  *
  * @param options {
  *   value              : { from, to } as 'YYYY-MM-DD' [optional]
- *   presets            : array of { value, label, days }, where days counts back from today and no days is Custom, or [] for none (default Today, Last 7 Days, Last 30 Days, and Custom)
+ *   presets            : array of { value, label, days }, where days counts back from today and no days is Custom, or [] for none (default Today, Last 7 days, Last 30 days, and Custom)
  *   today              : the day presets count back from, as 'YYYY-MM-DD' (default the local date)
  *   min                : the earliest day allowed [optional]
  *   max                : the latest day allowed [optional]
@@ -110,20 +114,22 @@ export function shiftDays(day: string, days: number): string {
 export function createDateRangePicker(options?: DateRangePickerOptions): DateRangePickerHandle {
     options = options || {};
     var opts = options;
-    var presets: DateRangePreset[] = Array.isArray(opts.presets) ? opts.presets : DATE_RANGE_PRESETS;
+    var presets: DateRangePreset[] = Array.isArray(opts.presets) ? opts.presets : DATE_RANGE_PRESETS.map(function (p) {
+        return { value: p.value, label: Object.prototype.hasOwnProperty.call(PRESET_TEXT, p.value) ? baseText(PRESET_TEXT[p.value]) : p.label, days: p.days };
+    });
     var custom = presets.filter(function (p) { return !p.days; })[0] || null;
     var cleanups: Array<() => void> = [];
 
     var root = make('div', 'base-date-range');
     applyFieldSize(root, opts.size);
-    var pills = make('div', 'base-pill-group base-date-range-presets', { role: 'group', 'aria-label': opts.presetsLabel || 'Range' });
+    var pills = make('div', 'base-pill-group base-date-range-presets', { role: 'group', 'aria-label': opts.presetsLabel || baseText('Base.Range') });
     pills.hidden = !presets.length;
     presets.forEach(function (p) {
         pills.appendChild(make('button', 'base-pill', { type: 'button', 'data-value': p.value, 'aria-pressed': 'false' }, p.label));
     });
     var row = make('div', 'base-date-range-row');
-    var from = make('input', 'base-date-range-from', { type: 'date', 'aria-label': opts.fromLabel || 'From' });
-    var to = make('input', 'base-date-range-to', { type: 'date', 'aria-label': opts.toLabel || 'To' });
+    var from = make('input', 'base-date-range-from', { type: 'date', 'aria-label': opts.fromLabel || baseText('Base.From') });
+    var to = make('input', 'base-date-range-to', { type: 'date', 'aria-label': opts.toLabel || baseText('Base.To') });
     [from, to].forEach(function (input) {
         if (opts.min) input.setAttribute('min', opts.min);
         if (opts.max) input.setAttribute('max', opts.max);
@@ -190,7 +196,7 @@ export function createDateRangePicker(options?: DateRangePickerOptions): DateRan
         var rules = { type: 'date', required: !!opts.required, min: opts.min || null, max: opts.max || null };
         var bad = validateValue(v.from, rules) || validateValue(v.to, rules);
         if (bad) return bad;
-        if (v.from && v.to && v.to < v.from) return opts.endBeforeStartText || 'End must be on or after the start.';
+        if (v.from && v.to && v.to < v.from) return opts.endBeforeStartText || baseText('Base.EndOnOrAfterStart');
         return opts.validate ? toText(opts.validate(v)) : '';
     }
 

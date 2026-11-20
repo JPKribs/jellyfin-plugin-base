@@ -83,7 +83,7 @@ The base for any list of rows or cards of mixed fields, built on the row editor 
 | `upText` | <code>string</code> |  |
 | `downText` | <code>string</code> |  |
 | `rowName` | <code>string</code> | prefix of the name of an inline row whose first text field is empty (default 'Row') |
-| `titleText` | <code>string</code> | a card's title, where {index} is its number and {key} any field's value (default 'Item {index}') |
+| `titleText` | <code>string</code> | a card's title, where {index} is its number and {key} any field's value, or the label of its chosen option for a field with options (default 'Item {index}') |
 | `showLabels` | <code>boolean</code> | false hides the column labels over inline rows (default true) |
 | `maxRows` | <code>number</code> | most rows allowed, after which Add is disabled and limitText shows [optional] |
 | `minRows` | <code>number</code> | fewest rows, below which Remove is disabled, and up to which empty rows are added [optional] |

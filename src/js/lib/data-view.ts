@@ -1,5 +1,6 @@
 import { matchesText } from './dom.js';
 import type { PagedResult } from '../types.js';
+import { baseText } from './base-text.js';
 
 /** A sort on one key, ascending or descending. */
 export interface DataSort {
@@ -200,7 +201,7 @@ export function createDataView<T = any>(options: DataViewOptions<T>): DataViewHa
         }, function (err) {
             if (mine !== request || destroyed) return settled(null, null, true);
             state.loading = false;
-            state.error = err || new Error('Could not load.');
+            state.error = err || new Error(baseText('Base.CouldNotLoad'));
             emit();
             return settled(null, state.error, false);
         });

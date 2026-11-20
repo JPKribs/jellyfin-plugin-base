@@ -4,6 +4,7 @@ import { make, nextId, clear } from './lib/dom.js';
 import { makeBadge, badgeColor } from './lib/badge.js';
 import type { DialogButton, DialogOptions } from './dialog.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What a detail drawer shows: a title, an optional subtitle and badge, the body, and the footer buttons. */
 export interface DetailDrawerContent {
@@ -82,7 +83,7 @@ export function openDetailDrawer(opts?: DetailDrawerOptions): DetailDrawerHandle
             panel.removeAttribute('aria-label');
         } else {
             panel.removeAttribute('aria-labelledby');
-            panel.setAttribute('aria-label', (opts!.ariaLabel || 'Details').slice(0, 80));
+            panel.setAttribute('aria-label', (opts!.ariaLabel || baseText('Base.Details')).slice(0, 80));
         }
     }
 

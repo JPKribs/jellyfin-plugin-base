@@ -21,7 +21,7 @@ function keys(t) { return all(t.element, '.base-data-row').map(function (r) { re
 test('it is a Data Table of a property column and the source, local, and after sync columns', function () {
     var t = createCompareTable({ rows: ROWS });
     assert.ok(t.element.classList.contains('base-data-table'));
-    assert.deepEqual(all(t.element, '.base-data-heading .base-data-label').map(function (h) { return h.textContent; }), ['Property', 'Source', 'Local', 'After Sync']);
+    assert.deepEqual(all(t.element, '.base-data-heading .base-data-label').map(function (h) { return h.textContent; }), ['Property', 'Source', 'Local', 'After sync']);
     assert.deepEqual(keys(t), ['title', 'year', 'rating']);
 });
 

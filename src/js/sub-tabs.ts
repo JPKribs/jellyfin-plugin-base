@@ -1,5 +1,6 @@
 import { make, nextId, listen, runAll, clear } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One tab of a sub tab list. text is plain text for its panel. */
 export interface SubTab {
@@ -48,7 +49,7 @@ export function createSubTabs(options?: SubTabsOptions): SubTabsHandle {
     var cleanups: Array<() => void> = [];
 
     var root = make('div', 'base-subtabs');
-    var list = make('div', 'base-subtab-list', { role: 'tablist', 'aria-label': options.label || 'Sections' });
+    var list = make('div', 'base-subtab-list', { role: 'tablist', 'aria-label': options.label || baseText('Base.Sections') });
     var panels = make('div', 'base-subtab-panels');
     root.appendChild(list);
     root.appendChild(panels);

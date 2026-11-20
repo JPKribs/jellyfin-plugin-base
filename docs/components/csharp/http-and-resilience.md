@@ -101,6 +101,7 @@ using var client = new HttpClient(SsrfGuard.PublicOnly.CreateHandler());
 * `new SsrfGuard(allowPrivateNetwork, requireHttpsForPublic: true)` holds plain http to loopback and private addresses, for a client that sends a key or password. A plain http URL to a public address, or a name that resolves to one, is refused with `PlainHttpRefusal`, at validation, at connect time, and on a redirect. With private networks refused as well, every plain http URL is refused. The rule is off by default, and `IsPrivateOrLoopback` says which addresses it allows.
 * `SsrfGuard.Disabled` is compared by reference. A copy made with `new SsrfGuard(true)` is not the opt out.
 * The guard checks addresses only. It does not limit ports or paths.
+* A reason is one of Base's own strings, in the language of `BaseTranslations.UseLanguage`, else US English. `RefusalPrefix` stays the same in every language, so `HttpResult.IsRefused` works in any.
 
 ## RetryPolicy
 

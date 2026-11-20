@@ -2,6 +2,7 @@ import { make, listen, runAll } from './lib/dom.js';
 import { setStatus } from './status-text.js';
 import { validateAll } from './lib/validate.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** The states a save bar shows above its button. '' shows nothing. */
 export type SaveBarState = '' | 'pending' | 'saving' | 'saved' | 'failed';
@@ -70,15 +71,15 @@ export function createSaveBar(options?: SaveBarOptions): SaveBarHandle {
 
     var root = make('div', 'base-save-bar');
     var status = make('div', 'base-status-text base-save-status');
-    var button = make('button', 'raised base-button primary base-save-button' + (opts.fill ? ' fill' : ''), { type: 'button' }, opts.saveText || 'Save');
+    var button = make('button', 'raised base-button primary base-save-button' + (opts.fill ? ' fill' : ''), { type: 'button' }, opts.saveText || baseText('Save'));
     root.appendChild(status);
     root.appendChild(button);
 
     var TEXT: Record<string, string> = {
-        pending: opts.pendingText || 'Unsaved changes.',
-        saving: opts.savingText || 'Saving…',
-        saved: opts.savedText || 'Changes saved.',
-        failed: opts.failedText || 'Could not save.'
+        pending: opts.pendingText || baseText('Base.UnsavedChangesMessage'),
+        saving: opts.savingText || baseText('Base.Saving'),
+        saved: opts.savedText || baseText('Base.ChangesSaved'),
+        failed: opts.failedText || baseText('Base.CouldNotSave')
     };
     var LOOK: Record<string, 'warn' | 'info' | 'success' | 'error'> = { pending: 'warn', saving: 'info', saved: 'success', failed: 'error' };
 
@@ -97,7 +98,7 @@ export function createSaveBar(options?: SaveBarOptions): SaveBarHandle {
 
     function save(): Promise<boolean> {
         if (opts.form && !validateAll(opts.form)) {
-            setState('failed', opts.invalidText || 'Fix the fields marked in red.');
+            setState('failed', opts.invalidText || baseText('Base.FixFields'));
             return Promise.resolve(false);
         }
         setState('saving');

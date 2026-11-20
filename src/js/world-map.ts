@@ -3,6 +3,7 @@ import { bindPressedGroup } from './lib/pressed-group.js';
 import { isHexColor, COLOR_NAMES, mixColors } from './lib/color.js';
 import { WORLD, WORLD_VIEWBOX } from './lib/world-shapes.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One kind of count the map can show, such as People or Failed. color is a status color name or a hex code. */
 export interface WorldMapLayer {
@@ -86,7 +87,7 @@ export function createWorldMap(options: WorldMapOptions): WorldMapHandle {
     var listeners: Array<(code: string | null) => void> = [];
 
     var root = make('div', 'base-world-map');
-    var header = make('div', 'base-world-layers', { role: 'group', 'aria-label': 'Layers' });
+    var header = make('div', 'base-world-layers', { role: 'group', 'aria-label': baseText('Base.Layers') });
     layers.forEach(function (layer) {
         var button = make('button', 'raised base-button small base-world-layer', { type: 'button', 'data-value': layer.key, 'aria-pressed': active.indexOf(layer.key) !== -1 ? 'true' : 'false' });
         button.style.setProperty('--base-layer', layerColor(layer.color));
@@ -101,7 +102,7 @@ export function createWorldMap(options: WorldMapOptions): WorldMapHandle {
     var svg = document.createElementNS(SVG_NS, 'svg') as SVGSVGElement;
     svg.setAttribute('viewBox', WORLD_VIEWBOX);
     svg.setAttribute('role', 'group');
-    svg.setAttribute('aria-label', opts.label || 'World map');
+    svg.setAttribute('aria-label', opts.label || baseText('Base.WorldMap'));
     Object.keys(WORLD).forEach(function (code) {
         var path = document.createElementNS(SVG_NS, 'path') as SVGPathElement;
         path.setAttribute('d', WORLD[code].d);

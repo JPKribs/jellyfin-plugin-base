@@ -4,6 +4,7 @@ import { copyToClipboard } from './browser-helpers.js';
 import { createList } from './list.js';
 import type { ListHeight } from './list.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One line as the log viewer keeps it. level is debug, info, warn, or error. */
 export interface LogLine {
@@ -50,17 +51,17 @@ export interface LogViewerHandle extends ComponentHandle {
 var LEVELS: string[] = ['debug', 'info', 'warn', 'error'];
 
 /**
- * A scrolling mono output area with a toolbar. Lines are appended, colored by level, bounded to maxLines, and scrolled into view while Auto Scroll is on. Scrolling up turns Auto Scroll off.
+ * A scrolling mono output area with a toolbar. Lines are appended, colored by level, bounded to maxLines, and scrolled into view while Auto scroll is on. Scrolling up turns Auto scroll off.
  *
  * @param options {
  *   lines          : array of strings or { text, level, time } where level is debug, info, warn, or error [optional]
  *   maxLines       : most lines kept, where the oldest go first (default 500)
  *   autoScroll     : true follows new lines (default true)
  *   label          : aria-label of the output (default 'Log')
- *   autoScrollText : label of the toggle (default 'Auto Scroll')
+ *   autoScrollText : label of the toggle (default 'Auto scroll')
  *   clearText      : text of the clear button (default 'Clear')
- *   copyText       : text of the copy button (default 'Copy All')
- *   copiedText     : feedback after a copy (default 'Copied.')
+ *   copyText       : text of the copy button (default 'Copy all')
+ *   copiedText     : feedback after a copy (default 'Copied')
  *   failedText     : feedback when the copy failed (default 'Copy failed.')
  *   emptyText      : sentence shown while there are no lines (default 'No output yet.')
  *   toolbar        : false hides the toolbar (default true)
@@ -84,13 +85,13 @@ export function createLogViewer(options?: LogViewerOptions): LogViewerHandle {
     bar.hidden = options.toolbar === false;
     var toggle = makeCheck(null, { id: nextId('log') });
     toggle.checked = auto;
-    var toggleLabel = makeCheckRow(toggle, options.autoScrollText || 'Auto Scroll', 'base-checkbox base-log-toggle');
-    var clearButton = make('button', 'raised base-button small secondary', { type: 'button' }, options.clearText || 'Clear');
-    var copyButton = make('button', 'raised base-button small secondary', { type: 'button' }, options.copyText || 'Copy All');
+    var toggleLabel = makeCheckRow(toggle, options.autoScrollText || baseText('Base.AutoScroll'), 'base-checkbox base-log-toggle');
+    var clearButton = make('button', 'raised base-button small secondary', { type: 'button' }, options.clearText || baseText('Base.Clear'));
+    var copyButton = make('button', 'raised base-button small secondary', { type: 'button' }, options.copyText || baseText('Base.CopyAll'));
     bar.appendChild(toggleLabel);
     bar.appendChild(clearButton);
     bar.appendChild(copyButton);
-    var output = make('div', 'base-log-output', { role: 'log', 'aria-live': 'off', 'aria-label': options.label || 'Log', tabindex: '0' });
+    var output = make('div', 'base-log-output', { role: 'log', 'aria-live': 'off', 'aria-label': options.label || baseText('Base.Log'), tabindex: '0' });
     root.appendChild(bar);
     root.appendChild(output);
     var list = createList<LogLine>({
@@ -98,7 +99,7 @@ export function createLogViewer(options?: LogViewerOptions): LogViewerHandle {
         layout: 'plain',
         wrap: false,
         role: 'log',
-        emptyText: options.emptyText || 'No output yet.',
+        emptyText: options.emptyText || baseText('Base.NoOutput'),
         height: options.height === undefined ? 280 : options.height,
         maxHeight: options.maxHeight,
         minHeight: options.minHeight,
@@ -161,8 +162,8 @@ export function createLogViewer(options?: LogViewerOptions): LogViewerHandle {
     function copyAll(): Promise<boolean> {
         var text = lines.map(function (l) { return (l.time ? l.time + ' ' : '') + l.text; }).join('\n');
         return copyToClipboard(text).then(function (ok) {
-            var original = options!.copyText || 'Copy All';
-            copyButton.textContent = ok ? (options!.copiedText || 'Copied.') : (options!.failedText || 'Copy failed.');
+            var original = options!.copyText || baseText('Base.CopyAll');
+            copyButton.textContent = ok ? (options!.copiedText || baseText('Copied')) : (options!.failedText || baseText('Base.CopyFailed'));
             clearTimeout(timer as ReturnType<typeof setTimeout>);
             timer = setTimeout(function () { copyButton.textContent = original; }, 1500);
             return ok;

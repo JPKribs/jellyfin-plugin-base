@@ -8,7 +8,7 @@ export type * from './setup-checklist.js';
 export { generateGuid, errorText, debounce, downloadJson, pickJsonFile, plural, copyToClipboard } from './browser-helpers.js';
 // Exported on its own so a plugin script with no shared bag can import it directly.
 export { escapeHtml } from './browser-helpers.js';
-export { loadTranslations, createTranslations, applyTranslations, currentLanguage, formatText } from './translations.js';
+export { loadTranslations, createTranslations, applyTranslations, currentLanguage, formatText, titleCase, sentenceCase, currentTranslations } from './translations.js';
 export type * from './translations.js';
 export { SECRET_KEPT, SECRET_DOTS, bindSecretField, clearSecretField, readSecretField } from './secret-field.js';
 export { BADGE_STATES } from './badge.js';

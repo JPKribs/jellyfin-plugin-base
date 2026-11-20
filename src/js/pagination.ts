@@ -1,5 +1,6 @@
 import { make, listen, runAll, clear, fill, fillAll, applyFieldSize } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** Where the pager stands, with the skip and take to request that page. */
 export interface PaginationValue {
@@ -67,7 +68,7 @@ function pageWindow(page: number, count: number, size: number): Array<number | n
  *   windowSize   : most page numbers shown around the current page (default 5)
  *   previousText : text of the previous button (default 'Previous')
  *   nextText     : text of the next button (default 'Next')
- *   pageSizeLabel: label of the page size select (default 'Page Size')
+ *   pageSizeLabel: label of the page size select (default 'Page size')
  *   navLabel     : aria-label of the footer (default 'Pagination')
  *   pageLabel    : aria-label of a page number button, where {value} is the number (default 'Page {value}')
  *   totalText    : summary where {from}, {to}, and {total} are filled in (default '{from} to {to} of {total}')
@@ -84,11 +85,11 @@ export function createPagination(options?: PaginationOptions): PaginationHandle 
     var sizes = (options.pageSizes || [10, 25, 50, 100]).slice();
     var cleanups: Array<() => void> = [];
 
-    var root = make('nav', 'base-pager', { 'aria-label': options.navLabel || 'Pagination' });
+    var root = make('nav', 'base-pager', { 'aria-label': options.navLabel || baseText('Base.Pagination') });
     applyFieldSize(root, options.size);
     var summary = make('span', 'base-pager-total');
     var sizeWrap = make('label', 'base-pager-size');
-    sizeWrap.appendChild(make('span', '', null, options.pageSizeLabel || 'Page Size'));
+    sizeWrap.appendChild(make('span', '', null, options.pageSizeLabel || baseText('Base.PageSize')));
     var select = make('select', '');
     sizeWrap.appendChild(select);
     var buttons = make('div', 'base-pager-pages');
@@ -116,7 +117,7 @@ export function createPagination(options?: PaginationOptions): PaginationHandle 
         state.page = Math.min(Math.max(1, state.page), pageCount());
         var from = state.total ? (state.page - 1) * state.pageSize + 1 : 0;
         var to = Math.min(state.total, state.page * state.pageSize);
-        summary.textContent = state.total ? fillAll(options!.totalText || '{from} to {to} of {total}', { from: from, to: to, total: state.total }) : (options!.emptyText || 'No items.');
+        summary.textContent = state.total ? fillAll(options!.totalText || baseText('Base.RangeOfTotal'), { from: from, to: to, total: state.total }) : (options!.emptyText || baseText('Base.NoItems'));
         clear(select);
         if (sizes.indexOf(state.pageSize) === -1) sizes.push(state.pageSize);
         sizes.sort(function (a: number, b: number) { return a - b; }).forEach(function (n: number) {
@@ -127,12 +128,12 @@ export function createPagination(options?: PaginationOptions): PaginationHandle 
         select.value = String(state.pageSize);
         clear(buttons);
         var count = pageCount();
-        buttons.appendChild(pageButton('base-pager-prev', '', options!.previousText || 'Previous', state.page - 1, state.page <= 1, false, 'prev'));
+        buttons.appendChild(pageButton('base-pager-prev', '', options!.previousText || baseText('Previous'), state.page - 1, state.page <= 1, false, 'prev'));
         pageWindow(state.page, count, options!.windowSize || 5).forEach(function (n) {
             if (n === null) buttons.appendChild(make('span', 'base-pager-gap', { 'aria-hidden': 'true' }));
-            else buttons.appendChild(pageButton('base-pager-number', fill(options!.pageLabel || 'Page {value}', n), String(n), n, false, n === state.page, 'number'));
+            else buttons.appendChild(pageButton('base-pager-number', fill(options!.pageLabel || baseText('Base.PageValue'), n), String(n), n, false, n === state.page, 'number'));
         });
-        buttons.appendChild(pageButton('base-pager-next', '', options!.nextText || 'Next', state.page + 1, state.page >= count, false, 'next'));
+        buttons.appendChild(pageButton('base-pager-next', '', options!.nextText || baseText('Next'), state.page + 1, state.page >= count, false, 'next'));
     }
 
     // Gives focus back after a render replaced the button, to the same role, or the current page when that button is now disabled.

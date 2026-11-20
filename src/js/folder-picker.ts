@@ -6,6 +6,7 @@ import { bindPressedGroup } from './lib/pressed-group.js';
 import { createList } from './list.js';
 import type { ListHeight, ListHandle } from './list.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One entry in a folder, as Jellyfin's Environment routes return it. Type is 'Directory', 'File', 'NetworkComputer', or 'NetworkShare'. */
 export interface FolderEntry {
@@ -90,10 +91,10 @@ function apiParent(path: string): Promise<string | null> {
  *   description : sentence under the field [optional]
  *   pathLabel   : aria-label of the field without a label, and of the dialog's path field (default 'Path')
  *   browseText  : text of the browse button (default 'Browse')
- *   title       : dialog title (default 'Select a Folder')
+ *   title       : dialog title (default 'Select a folder')
  *   selectText  : text of the select button (default 'Select')
  *   cancelText  : text of the cancel button (default 'Cancel')
- *   upText      : text of the row that goes up a level (default 'Go Up')
+ *   upText      : text of the row that goes up a level (default 'Go up')
  *   loadingText : text a screen reader reads while a folder loads (default 'Loading')
  *   emptyText   : sentence shown for a folder with nothing to list (default 'This folder is empty.')
  *   errorText   : message under the list when a folder cannot be read (default 'Could not read this folder.')
@@ -111,7 +112,7 @@ export function createFolderPicker(options?: FolderPickerOptions): FolderPickerH
     options = options || {};
     var cleanups: Array<() => void> = [];
     var includeFiles = !!options.includeFiles;
-    var pathLabel = options.pathLabel || 'Path';
+    var pathLabel = options.pathLabel || baseText('LabelPath');
     var dialog: DialogHandle | null = null;
     var listHeight: ListHeight = options.height === undefined ? 'auto' : options.height;
     var listMax: number | string | null | undefined = options.maxHeight === undefined ? '50vh' : options.maxHeight;
@@ -130,7 +131,7 @@ export function createFolderPicker(options?: FolderPickerOptions): FolderPickerH
         input.setAttribute('aria-label', pathLabel);
     }
     var field = make('div', 'base-folder-picker-field');
-    var browseButton = make('button', 'raised base-button field base-folder-picker-browse', { type: 'button' }, options.browseText || 'Browse');
+    var browseButton = make('button', 'raised base-button field base-folder-picker-browse', { type: 'button' }, options.browseText || baseText('Browse'));
     field.appendChild(input);
     field.appendChild(browseButton);
     root.appendChild(field);
@@ -170,7 +171,7 @@ export function createFolderPicker(options?: FolderPickerOptions): FolderPickerH
         var request = 0;
         var body = make('div', 'base-folder-picker-browser');
         var pathInput = make('input', 'base-mono base-folder-picker-path', { type: 'text', 'aria-label': pathLabel, autocomplete: 'off', spellcheck: 'false' });
-        var rows = make('ul', 'base-folder-picker-list', { 'aria-label': options!.title || 'Select a Folder' });
+        var rows = make('ul', 'base-folder-picker-list', { 'aria-label': options!.title || baseText('Base.SelectFolder') });
         var message = createFieldMessage({ input: pathInput });
         var inner: Array<() => void> = [];
 
@@ -195,7 +196,7 @@ export function createFolderPicker(options?: FolderPickerOptions): FolderPickerH
 
         // The up row is the null item, and every other item is an entry.
         function renderEntry(entry: FolderEntry | null): HTMLElement {
-            if (!entry) return row('base-folder-picker-up', 'arrow_upward', options!.upText || 'Go Up', function () { goUp(); }).parentNode as HTMLElement;
+            if (!entry) return row('base-folder-picker-up', 'arrow_upward', options!.upText || baseText('Base.GoUp'), function () { goUp(); }).parentNode as HTMLElement;
             var isFile = entry.Type === 'File';
             var glyph = !current && entry.Type !== 'File' ? 'storage' : (has(ICONS, entry.Type) ? ICONS[entry.Type as string] : 'folder');
             var button = row(isFile ? 'base-folder-picker-file' : '', glyph, entry.Name || entry.Path, function () {
@@ -212,8 +213,8 @@ export function createFolderPicker(options?: FolderPickerOptions): FolderPickerH
             layout: 'plain',
             wrap: false,
             role: null,
-            emptyText: options!.emptyText || 'This folder is empty.',
-            loadingText: options!.loadingText || 'Loading',
+            emptyText: options!.emptyText || baseText('Base.FolderEmpty'),
+            loadingText: options!.loadingText || baseText('Base.Loading'),
             height: listHeight,
             maxHeight: listMax,
             render: renderEntry
@@ -266,7 +267,7 @@ export function createFolderPicker(options?: FolderPickerOptions): FolderPickerH
                 rows.removeAttribute('aria-busy');
                 draw([], false);
                 empty.hidden = true;
-                message.set('error', options!.errorText || 'Could not read this folder.');
+                message.set('error', options!.errorText || baseText('Base.CouldNotReadFolder'));
             });
         }
 
@@ -294,12 +295,12 @@ export function createFolderPicker(options?: FolderPickerOptions): FolderPickerH
         inner.push(listen(pathInput, 'input', reflectSelect));
 
         dialog = openDialog({
-            title: options!.title || 'Select a Folder',
+            title: options!.title || baseText('Base.SelectFolder'),
             body: body,
             className: 'base-folder-picker-dialog',
             buttons: [
-                { text: options!.cancelText || 'Cancel', className: 'base-button secondary', action: function (close, dismiss) { dismiss(); } },
-                { text: options!.selectText || 'Select', className: 'base-button primary base-folder-picker-select', action: function (close) { choose(close); } }
+                { text: options!.cancelText || baseText('ButtonCancel'), className: 'base-button secondary', action: function (close, dismiss) { dismiss(); } },
+                { text: options!.selectText || baseText('Select'), className: 'base-button primary base-folder-picker-select', action: function (close) { choose(close); } }
             ],
             onClose: function () {
                 runAll(inner);

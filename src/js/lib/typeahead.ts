@@ -3,6 +3,7 @@ import { bindComboAria } from './combo-aria.js';
 import { anchorPopover } from './popover.js';
 import { debounce } from '../browser-helpers.js';
 import { adornField } from '../field-adornments.js';
+import { baseText } from './base-text.js';
 
 /** A typeahead source. It answers a query with a list through answer, or calls fail, or throws. */
 export type TypeaheadSource<T> = (query: string, answer: (list: T[] | null | undefined) => void, fail: () => void) => void;
@@ -185,7 +186,7 @@ export function bindTypeahead<T>(input: HTMLInputElement, dropdown: HTMLElement,
         results = list.filter(function (item) { return item != null && (!opts.accept || opts.accept(item)); });
         if (opts.maxResults) results = results.slice(0, opts.maxResults);
         if (!results.length) {
-            say(query && !opts.quiet ? (opts.noResultsText || 'No matches.') : '');
+            say(query && !opts.quiet ? (opts.noResultsText || baseText('Base.NoMatches')) : '');
             return;
         }
         say('');
@@ -211,7 +212,7 @@ export function bindTypeahead<T>(input: HTMLInputElement, dropdown: HTMLElement,
     function failed(): void {
         clearResults();
         shut();
-        say(opts.errorText || 'Could not search.');
+        say(opts.errorText || baseText('Base.CouldNotSearch'));
     }
 
     function search(value: string): void {

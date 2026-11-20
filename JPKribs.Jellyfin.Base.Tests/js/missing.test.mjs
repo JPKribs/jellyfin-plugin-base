@@ -24,7 +24,7 @@ test('createSortableCardList writes the Drag to Reorder label and the arrows hol
     var listEl = host.appendChild(dom.el('div'));
     createSortableCardList(listEl, { items: [{ n: 'a' }, { n: 'b' }], render: function (item) { return { title: item.n }; } }).render();
     var first = listEl.children[0].innerHTML;
-    assert.match(first, /title="Drag to Reorder"/);
+    assert.match(first, /title="Drag to reorder"/);
     assert.match(first, /class="base-card-item-arrows base-row-arrows"/);
     var plain = host.appendChild(dom.el('div'));
     createSortableCardList(plain, { reorder: false, items: [{ n: 'a' }], render: function (item) { return { title: item.n }; } }).render();
@@ -268,7 +268,7 @@ test('copyWithFeedback writes Copied. on success and Copy failed. on failure, th
     label.textContent = 'Copy';
     dom.document.execCommand = function () { return true; };
     assert.equal(await shared.copyWithFeedback(btn, 'text'), true);
-    assert.equal(label.textContent, 'Copied.');
+    assert.equal(label.textContent, 'Copied');
     mock.timers.tick(1500);
     assert.equal(label.textContent, 'Copy');
     dom.document.execCommand = function () { return false; };

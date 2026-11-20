@@ -91,7 +91,13 @@ internal sealed class LocalStringFile
         return new TranslationDiagnostic("JPKT001", true, "The file " + problem + ".", path, line, column);
     }
 
-    private static (int Line, int Column) Position(ReadOnlySpan<byte> text, int at)
+    /// <summary>
+    /// Finds the line and column of a byte in a file.
+    /// </summary>
+    /// <param name="text">The file's content.</param>
+    /// <param name="at">The byte's offset.</param>
+    /// <returns>The line and column, each from 1.</returns>
+    internal static (int Line, int Column) Position(ReadOnlySpan<byte> text, int at)
     {
         var before = text[..Math.Min(at, text.Length)];
         var lastBreak = before.LastIndexOf((byte)'\n');

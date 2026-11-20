@@ -113,4 +113,60 @@ public class ActivitySummaryTests
         Assert.Throws<ArgumentNullException>(() => summary.Add(null!, "here"));
         Assert.Throws<ArgumentNullException>(() => summary.Add(outcome, null!));
     }
+
+    /// <summary>
+    /// An outcome built with keys is named and described in the language the summary is given, with the count in its name.
+    /// True: an administrator reads the activity log in the server's language.
+    /// False: every entry would read in English whatever the server's language.
+    /// </summary>
+    [Fact]
+    public void Flush_WritesAnOutcomeWithKeysInTheGivenLanguage()
+    {
+        var (logger, written) = Create();
+        var synced = new ActivityOutcome(
+            "Test.Synced",
+            "ItemsSyncedOne",
+            "ItemsSyncedMany",
+            (t, language) => BaseTranslations.Format("ItemsSyncedFrom", language, t.Total, ActivityText.CountedList(t.Sources)));
+        var language = "de";
+        using var summary = new ActivitySummary(logger, TimeSpan.FromHours(1), language: () => language);
+
+        summary.Add(synced, "source-a");
+        summary.Add(synced, "source-b");
+        summary.Flush();
+        summary.Add(synced, "source-a");
+        language = "fr";
+        summary.Flush();
+
+        var entries = written.ToArray();
+        Assert.Equal("2 Elemente synchronisiert", entries[0].Name);
+        Assert.Equal("2 aus source-a (1), source-b (1)", entries[0].ShortOverview);
+        Assert.Equal("1 item synced", entries[1].Name);
+        Assert.Equal("1 from source-a (1)", entries[1].ShortOverview);
+    }
+
+    /// <summary>
+    /// An outcome built with keys and no language is written in US English, and a name that is no key is its own text.
+    /// True: a plugin may pass text it translated itself, and an outcome never shows a raw key for want of a language.
+    /// False: the entry would show the key, or fail.
+    /// </summary>
+    [Fact]
+    public void Flush_WritesAnOutcomeWithKeysInEnglishByDefault()
+    {
+        var (logger, written) = Create();
+        var synced = new ActivityOutcome("Test.Synced", "ItemsSyncedOne", "{0} things done", (t, language) => language);
+        using var summary = new ActivitySummary(logger, TimeSpan.FromHours(1));
+
+        summary.Add(synced, "source-a");
+        summary.Flush();
+        summary.Add(synced, "source-a");
+        summary.Add(synced, "source-a");
+        summary.Flush();
+
+        var entries = written.ToArray();
+        Assert.Equal("1 item synced", entries[0].Name);
+        Assert.Equal("En-us", entries[0].ShortOverview);
+        Assert.Equal("2 things done", entries[1].Name);
+        Assert.Equal("en-us", synced.Overview(new ActivityTally(1, new Dictionary<string, int>(), new Dictionary<string, int>())));
+    }
 }

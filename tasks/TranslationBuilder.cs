@@ -33,8 +33,10 @@ internal static partial class TranslationBuilder
     /// <param name="declared">The Jellyfin strings the plugin declares.</param>
     /// <param name="allowedMatches">The plugin's keys whose English may match a Jellyfin string it does not declare.</param>
     /// <param name="snapshot">Jellyfin's strings.</param>
+    /// <param name="shared">Base's own strings, built into every plugin beside its own, or <c>null</c> for none.</param>
+    /// <param name="casing">The words a Case conversion keeps as written, added to the defaults, or <c>null</c> for the defaults alone.</param>
     /// <returns>The problems found, the strings by language, and every key with its English.</returns>
-    public static TranslationResult Build(IReadOnlyList<LocalStringFile> files, IReadOnlyList<DeclaredString> declared, IReadOnlyCollection<string> allowedMatches, JellyfinSnapshot snapshot)
+    public static TranslationResult Build(IReadOnlyList<LocalStringFile> files, IReadOnlyList<DeclaredString> declared, IReadOnlyCollection<string> allowedMatches, JellyfinSnapshot snapshot, SharedStrings? shared = null, IReadOnlyList<string>? casing = null)
     {
         ArgumentNullException.ThrowIfNull(files);
         ArgumentNullException.ThrowIfNull(declared);
@@ -44,7 +46,21 @@ internal static partial class TranslationBuilder
         var result = new TranslationResult();
         var local = ByLanguage(files, result.Diagnostics);
         var jellyfin = JellyfinEnglish(snapshot);
-        var chosen = Declare(declared, jellyfin, snapshot, result.Diagnostics);
+        var own = Declare(declared, jellyfin, snapshot, result.Diagnostics);
+
+        // Base's own declarations join the plugin's, so a key both declare is built in once, from the plugin's source.
+        // A plugin's declaration with no Case takes Base's, so Base's components read the same text in every plugin.
+        var chosen = new Dictionary<string, Chosen>(own, StringComparer.Ordinal);
+        if (shared is not null)
+        {
+            foreach (var (key, value) in Declare(shared.Declared, jellyfin, snapshot, result.Diagnostics))
+            {
+                if (!chosen.TryAdd(key, value) && chosen[key].Case is null && value.Case is not null)
+                {
+                    chosen[key] = own[key] = chosen[key] with { Case = value.Case };
+                }
+            }
+        }
 
         local.TryGetValue(JellyfinSnapshot.Fallback, out var english);
         if (english is null && local.Count > 0)
@@ -56,7 +72,7 @@ internal static partial class TranslationBuilder
         var englishKeys = english is null ? new Dictionary<string, LocalStringEntry>(StringComparer.Ordinal) : english.Strings;
         if (english is not null)
         {
-            CheckEnglish(english, jellyfin, chosen, allowedMatches, result.Diagnostics);
+            CheckEnglish(english, jellyfin, own, allowedMatches, false, result.Diagnostics);
         }
 
         // With no US English, JPKT010 says so once, rather than JPKT008 for every key of every language.
@@ -65,7 +81,8 @@ internal static partial class TranslationBuilder
             CheckTranslation(file, englishKeys, result.Diagnostics);
         }
 
-        Compose(local, chosen, snapshot, result);
+        var shown = shared is null ? new Dictionary<string, KeptFile>(StringComparer.Ordinal) : ByLanguage(shared.Files, result.Diagnostics);
+        Compose(local, shown, chosen, own, snapshot, casing, result);
         return result;
     }
 
@@ -120,9 +137,9 @@ internal static partial class TranslationBuilder
     }
 
     // The source each declared key is taken from: the one it names, else the web client, else the server.
-    private static Dictionary<string, (string Source, string Text)> Declare(IReadOnlyList<DeclaredString> declared, Dictionary<string, List<(string Source, string Text)>> jellyfin, JellyfinSnapshot snapshot, List<TranslationDiagnostic> diagnostics)
+    private static Dictionary<string, Chosen> Declare(IReadOnlyList<DeclaredString> declared, Dictionary<string, List<(string Source, string Text)>> jellyfin, JellyfinSnapshot snapshot, List<TranslationDiagnostic> diagnostics)
     {
-        var chosen = new Dictionary<string, (string Source, string Text)>(StringComparer.Ordinal);
+        var chosen = new Dictionary<string, Chosen>(StringComparer.Ordinal);
         foreach (var item in declared)
         {
             if (chosen.ContainsKey(item.Key))
@@ -137,6 +154,13 @@ internal static partial class TranslationBuilder
                 continue;
             }
 
+            var casing = string.IsNullOrEmpty(item.Case) ? null : item.Case.ToLowerInvariant();
+            if (casing is not null and not "title" and not "sentence")
+            {
+                diagnostics.Add(new TranslationDiagnostic("JPKT020", true, $"The JellyfinString \"{item.Key}\" has Case=\"{item.Case}\". Use title, sentence, or leave it out."));
+                continue;
+            }
+
             if (!jellyfin.TryGetValue(item.Key, out var found) || (source is not null && !found.Any(f => f.Source == source)))
             {
                 var near = jellyfin.Keys.Where(k => string.Equals(k, item.Key, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
@@ -146,7 +170,8 @@ internal static partial class TranslationBuilder
                 continue;
             }
 
-            chosen[item.Key] = source is null ? found[0] : found.First(f => f.Source == source);
+            var picked = source is null ? found[0] : found.First(f => f.Source == source);
+            chosen[item.Key] = new Chosen(picked.Source, picked.Text, casing);
         }
 
         return chosen;
@@ -154,7 +179,7 @@ internal static partial class TranslationBuilder
 
     // US English: no Jellyfin key, no text a declared string already says, no text said twice, and a warning for
     // text Jellyfin says under a key the plugin has not declared.
-    private static void CheckEnglish(KeptFile english, Dictionary<string, List<(string Source, string Text)>> jellyfin, Dictionary<string, (string Source, string Text)> chosen, IReadOnlyCollection<string> allowedMatches, List<TranslationDiagnostic> diagnostics)
+    private static void CheckEnglish(KeptFile english, Dictionary<string, List<(string Source, string Text)>> jellyfin, Dictionary<string, Chosen> chosen, IReadOnlyCollection<string> allowedMatches, bool isShared, List<TranslationDiagnostic> diagnostics)
     {
         var path = english.File.Path;
         var allowed = new HashSet<string>(allowedMatches, StringComparer.Ordinal);
@@ -180,6 +205,18 @@ internal static partial class TranslationBuilder
             if (entry.Text.Length == 0)
             {
                 diagnostics.Add(new TranslationDiagnostic("JPKT012", true, $"\"{entry.Key}\" has no text. US English is the text every language falls back to.", path, entry.Line, entry.Column));
+                continue;
+            }
+
+            if (entry.Key.StartsWith(SharedStrings.Prefix, StringComparison.Ordinal) != isShared)
+            {
+                if (isShared)
+                {
+                    diagnostics.Add(new TranslationDiagnostic("JPKT021", true, $"\"{entry.Key}\" does not start with {SharedStrings.Prefix}, which every key of Base's own strings does.", path, entry.Line, entry.Column));
+                    continue;
+                }
+
+                diagnostics.Add(new TranslationDiagnostic("JPKT021", true, $"\"{entry.Key}\" starts with {SharedStrings.Prefix}, which only Base's own strings use. Rename it.", path, entry.Line, entry.Column));
                 continue;
             }
 
@@ -224,6 +261,39 @@ internal static partial class TranslationBuilder
         }
     }
 
+    /// <summary>
+    /// Checks Base's own strings by the rules a plugin's strings follow, and that every key starts with
+    /// <see cref="SharedStrings.Prefix"/>.
+    /// </summary>
+    /// <param name="shared">Base's own strings.</param>
+    /// <param name="allowedMatches">Base's keys whose English may match a Jellyfin string it does not declare.</param>
+    /// <param name="snapshot">Jellyfin's strings.</param>
+    /// <returns>The problems found.</returns>
+    public static IReadOnlyList<TranslationDiagnostic> CheckShared(SharedStrings shared, IReadOnlyCollection<string> allowedMatches, JellyfinSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(shared);
+        ArgumentNullException.ThrowIfNull(allowedMatches);
+        ArgumentNullException.ThrowIfNull(snapshot);
+
+        var diagnostics = new List<TranslationDiagnostic>();
+        var files = ByLanguage(shared.Files, diagnostics);
+        var jellyfin = JellyfinEnglish(snapshot);
+        var declared = Declare(shared.Declared, jellyfin, snapshot, diagnostics);
+        if (!files.TryGetValue(JellyfinSnapshot.Fallback, out var english))
+        {
+            diagnostics.Add(new TranslationDiagnostic("JPKT010", true, $"Base's own strings have no {JellyfinSnapshot.Fallback}.json."));
+            return diagnostics;
+        }
+
+        CheckEnglish(english, jellyfin, declared, allowedMatches, true, diagnostics);
+        foreach (var file in files.Values.Where(f => !ReferenceEquals(f, english)))
+        {
+            CheckTranslation(file, english.Strings, diagnostics);
+        }
+
+        return diagnostics;
+    }
+
     // Another language: only keys US English has, with the same placeholders.
     private static void CheckTranslation(KeptFile file, Dictionary<string, LocalStringEntry> english, List<TranslationDiagnostic> diagnostics)
     {
@@ -242,11 +312,13 @@ internal static partial class TranslationBuilder
         }
     }
 
-    // Every language that has a string: the declared ones from their source, then the plugin's own. A language
-    // missing a string falls back at runtime, so nothing is copied from US English.
-    private static void Compose(Dictionary<string, KeptFile> local, Dictionary<string, (string Source, string Text)> chosen, JellyfinSnapshot snapshot, TranslationResult result)
+    // Every language that has a string: the declared ones from their source, in title or sentence case in English when
+    // the declaration says, then Base's own, then the plugin's own. A language missing a string falls back at runtime,
+    // so nothing is copied from US English.
+    private static void Compose(Dictionary<string, KeptFile> local, Dictionary<string, KeptFile> shared, Dictionary<string, Chosen> chosen, Dictionary<string, Chosen> own, JellyfinSnapshot snapshot, IReadOnlyList<string>? casing, TranslationResult result)
     {
         var languages = new SortedSet<string>(local.Keys, StringComparer.Ordinal);
+        languages.UnionWith(shared.Keys);
         foreach (var source in chosen.Values.Select(c => c.Source).Distinct(StringComparer.Ordinal))
         {
             languages.UnionWith(snapshot.Languages[source]);
@@ -259,7 +331,15 @@ internal static partial class TranslationBuilder
             {
                 if (snapshot.Strings(value.Source, language).TryGetValue(key, out var text) && text.Length > 0)
                 {
-                    strings[key] = text;
+                    strings[key] = Cased(text, value.Case, language, casing);
+                }
+            }
+
+            if (shared.TryGetValue(language, out var sharedFile))
+            {
+                foreach (var entry in sharedFile.Strings.Values.Where(e => e.Text.Length > 0))
+                {
+                    strings[entry.Key] = entry.Text;
                 }
             }
 
@@ -277,9 +357,9 @@ internal static partial class TranslationBuilder
             }
         }
 
-        foreach (var (key, value) in chosen)
+        foreach (var (key, value) in own)
         {
-            result.Keys[key] = value.Text;
+            result.Keys[key] = Cased(value.Text, chosen[key].Case, JellyfinSnapshot.Fallback, casing);
         }
 
         if (local.TryGetValue(JellyfinSnapshot.Fallback, out var english))
@@ -289,6 +369,17 @@ internal static partial class TranslationBuilder
                 result.Keys.TryAdd(entry.Key, entry.Text);
             }
         }
+    }
+
+    // A declared string's text in title or sentence case, in English only, keeping the casing list's words as written.
+    private static string Cased(string text, string? casing, string language, IReadOnlyList<string>? words)
+    {
+        if (casing is null || !TextCase.IsEnglish(language))
+        {
+            return text;
+        }
+
+        return casing == "title" ? text.ToTitleCase(words, language) : text.ToSentenceCase(words, language);
     }
 
     private static void Add(Dictionary<string, List<string>> index, string text, string key)
@@ -326,6 +417,8 @@ internal static partial class TranslationBuilder
     private static partial Regex Placeholder();
 
     private sealed record KeptFile(LocalStringFile File, Dictionary<string, LocalStringEntry> Strings);
+
+    private sealed record Chosen(string Source, string Text, string? Case);
 }
 
 /// <summary>
@@ -333,7 +426,20 @@ internal static partial class TranslationBuilder
 /// </summary>
 /// <param name="Key">The Jellyfin key, such as Favorites.</param>
 /// <param name="Source">The source to take it from, web or server, or <c>null</c> for the web client's, else the server's.</param>
-internal sealed record DeclaredString(string Key, string? Source = null);
+/// <param name="Case">title or sentence to convert its English text, or <c>null</c> to keep Jellyfin's.</param>
+internal sealed record DeclaredString(string Key, string? Source = null, string? Case = null);
+
+/// <summary>
+/// Base's own strings, built into every plugin: its local strings, whose keys start with <see cref="Prefix"/>, and the
+/// Jellyfin strings its components use.
+/// </summary>
+/// <param name="Files">Base's own translation files, one per language.</param>
+/// <param name="Declared">The Jellyfin strings Base declares.</param>
+internal sealed record SharedStrings(IReadOnlyList<LocalStringFile> Files, IReadOnlyList<DeclaredString> Declared)
+{
+    /// <summary>The start of every key of Base's own strings, which a plugin's key cannot use.</summary>
+    public const string Prefix = "Base.";
+}
 
 /// <summary>
 /// What <see cref="TranslationBuilder.Build"/> found and built.

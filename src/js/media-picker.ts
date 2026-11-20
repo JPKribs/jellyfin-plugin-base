@@ -8,6 +8,8 @@ import type { MediaCardHandle } from './media-card.js';
 import { createList } from './list.js';
 import type { ListHeight } from './list.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
+import type { BASE_TEXT } from './lib/base-text.js';
 
 /** A library item in a media picker, as the Items endpoint returns it. ImageTags, when given, tells whether a Primary image exists. */
 export interface MediaPickerItem {
@@ -53,10 +55,10 @@ export interface MediaPickerHandle extends ComponentHandle {
     destroy(): void;
 }
 
-var TYPE_LABELS: Record<string, string> = {
-    Movie: 'Movie', Series: 'Series', Season: 'Season', Episode: 'Episode', BoxSet: 'Collection', MusicAlbum: 'Album',
-    MusicArtist: 'Artist', Audio: 'Song', MusicVideo: 'Music Video', Video: 'Video', Playlist: 'Playlist', Person: 'Person',
-    Book: 'Book', TvChannel: 'Channel', Program: 'Program', Trailer: 'Trailer'
+var TYPE_LABELS: Record<string, keyof typeof BASE_TEXT> = {
+    Movie: 'Movie', Series: 'Series', Season: 'Season', Episode: 'Episode', BoxSet: 'LabelCollection', MusicAlbum: 'Album',
+    MusicArtist: 'Artist', Audio: 'Base.Song', MusicVideo: 'MusicVideo', Video: 'Video', Playlist: 'LabelPlaylist', Person: 'Person',
+    Book: 'Base.Book', TvChannel: 'Base.Channel', Program: 'Base.Program', Trailer: 'Trailer'
 };
 
 // Asks the Items endpoint through ApiClient, or answers with nothing when the page has no ApiClient.
@@ -117,8 +119,10 @@ export function createMediaPicker(options?: MediaPickerOptions): MediaPickerHand
     var itemTypes = opts.itemTypes && opts.itemTypes.length ? opts.itemTypes.slice() : ['Movie', 'Series'];
     var maxResults = opts.maxResults || 20;
     var minChars = opts.minChars === undefined ? 2 : opts.minChars;
-    var placeholder = opts.placeholder || 'Search the library';
-    var typeLabels: Record<string, string> = Object.assign({}, TYPE_LABELS, opts.typeLabels || {});
+    var placeholder = opts.placeholder || baseText('Base.SearchLibrary');
+    var typeLabels: Record<string, string> = {};
+    Object.keys(TYPE_LABELS).forEach(function (type) { typeLabels[type] = baseText(TYPE_LABELS[type]); });
+    Object.assign(typeLabels, opts.typeLabels || {});
 
     var selected: MediaPickerItem[] = [];
 
@@ -130,7 +134,7 @@ export function createMediaPicker(options?: MediaPickerOptions): MediaPickerHand
     var search = createSearchField({
         placeholder: placeholder,
         label: opts.label || placeholder,
-        clearLabel: opts.clearLabel || 'Clear',
+        clearLabel: opts.clearLabel || baseText('Base.Clear'),
         delay: 0,
         onInput: function (value) {
             // Typing reaches the typeahead through the input event, and a clear by the button or Escape fires none.
@@ -147,8 +151,8 @@ export function createMediaPicker(options?: MediaPickerOptions): MediaPickerHand
         maxResults: maxResults,
         minChars: Math.max(minChars, 1),
         delay: opts.delay === undefined ? 250 : opts.delay,
-        noResultsText: opts.noResultsText || 'No matches.',
-        errorText: opts.errorText || 'Could not search the library.',
+        noResultsText: opts.noResultsText || baseText('Base.NoMatches'),
+        errorText: opts.errorText || baseText('Base.CouldNotSearchLibrary'),
         accept: function (item) { return item.Id != null && !isPicked(item); },
         source: function (query, answer, fail) {
             var found = typeof opts.searchFn === 'function' ? opts.searchFn(query) : searchLibrary(query, itemTypes, maxResults);
@@ -181,14 +185,14 @@ export function createMediaPicker(options?: MediaPickerOptions): MediaPickerHand
     var picked = createList<MediaPickerItem>({
         element: make('div', 'base-media-picker-items'),
         layout: 'rows',
-        emptyText: opts.emptyText || 'No items selected.',
+        emptyText: opts.emptyText || baseText('Base.NoItemsSelected'),
         emptyOutside: true,
         height: opts.height,
         maxHeight: opts.maxHeight,
         minHeight: opts.minHeight,
         render: function (item) {
             var card = createMediaCard(Object.assign(cardOptions(item), {
-                actions: [{ label: fill(opts.removeText || 'Remove {value}', item.Name), icon: 'close', value: 'remove' }],
+                actions: [{ label: fill(opts.removeText || baseText('Base.RemoveValue'), item.Name), icon: 'close', value: 'remove' }],
                 onAction: function () { remove(key(item)); }
             }));
             card.element.classList.add('base-media-picker-item');

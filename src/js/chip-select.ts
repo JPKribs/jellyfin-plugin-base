@@ -3,6 +3,7 @@ import { renderChips, bindBackspaceRemove } from './lib/chips.js';
 import type { ThumbSource } from './lib/thumb.js';
 import { make, runAll, applyFieldSize, matchesText } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** A choice or a selection in a chip select. A plain value shows as its own label. */
 export type ChipSelectItem = string | number | { value: unknown; label?: string | null; image?: ThumbSource };
@@ -104,7 +105,7 @@ export function createChipSelect(options?: ChipSelectOptions): ChipSelectHandle 
         renderChips(tags, {
             labels: selected.map(function (s) { return s.label; }),
             thumbs: selected.some(function (s) { return !!s.image; }) ? selected.map(function (s) { return s.image; }) : undefined,
-            removeText: (opts.removeText || 'Remove') + ' {value}',
+            removeText: opts.removeText ? opts.removeText + ' {value}' : baseText('Base.RemoveValue'),
             pill: opts.pill,
             input: input,
             onRemove: removeAt

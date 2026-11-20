@@ -1,26 +1,28 @@
 # Translations
 
-How a plugin shows its text in the viewer's language. A plugin uses Jellyfin's own strings wherever Jellyfin has the words, and adds its own strings only for the rest. Base checks both when the plugin builds and builds them into the plugin, so a plugin stays one DLL.
+How a plugin shows its text in the viewer's language. A plugin uses Jellyfin's own strings wherever Jellyfin has the words, and adds its own strings only for the rest. Base checks both when the plugin builds and builds them into the plugin, with Base's own strings beside them, so a plugin stays one DLL.
 
 ## How It Works
 
-A plugin's text comes from two places.
+A plugin's text comes from three places.
 
 | Source | Where it lives | Who translates it |
 | :--- | :--- | :--- |
 | Jellyfin strings | The web client's and the server's translations, which the package carries | Jellyfin's translators, in every language Jellyfin has |
 | Local strings | The plugin's `Localization` folder, one file per language | The plugin |
+| Base's own strings | The package, for the text Base's components and helpers show | Jellyfin's translators for the Jellyfin strings Base uses, and Base for the rest, in US English |
 
-Each build of the plugin does four things.
+Each build of the plugin does five things.
 
-1. Reads the `JellyfinString` items in the project file, and the files in `Localization`.
+1. Reads the `JellyfinString` items in the project file, the files in `Localization`, and the casing list, `Localization/casing.json`.
 2. Checks them. A string said twice, or a key Jellyfin already has, fails the build with the file and line. See [Diagnostics](#diagnostics).
-3. Embeds one file per language, with the declared Jellyfin strings and the local strings together.
-4. Compiles the `TranslationKeys` class, with one constant per key, so a mistyped key fails to compile.
+3. Embeds one file per language, with the declared Jellyfin strings, Base's own strings, and the local strings together.
+4. Embeds the casing list, Base's defaults and the plugin's words together.
+5. Compiles the `TranslationKeys` class, with one constant per key, so a mistyped key fails to compile.
 
 At runtime, `BaseTranslations` reads the strings in C#, and `loadTranslations` reads them on a page. A string missing from a language falls back to the language's base, such as `pt` for `pt-br`, then to US English.
 
-Nothing happens in a plugin with no `Localization` files and no `JellyfinString` items.
+A plugin with no `Localization` files and no `JellyfinString` items still gets Base's own strings and the casing list, and has no `TranslationKeys` class.
 
 ## Use a Jellyfin String
 
@@ -41,6 +43,12 @@ The plugin gets the string in every language Jellyfin has it. A key both sources
 <JellyfinString Include="Favorites" Source="server" />
 ```
 
+Add `Case="sentence"` or `Case="title"` to write the string's English in that case, in US English and every other English file. Other languages keep Jellyfin's text. `TranslationKeys` shows the text the plugin ships. See [Casing](#casing).
+
+```xml
+<JellyfinString Include="HeaderContinueWatching" Case="sentence" />
+```
+
 ## Add a Local String
 
 Add the key and its US English to `Localization/en-us.json`, beside the project file.
@@ -52,9 +60,9 @@ Add the key and its US English to `Localization/en-us.json`, beside the project 
 }
 ```
 
-US English holds every local key. A local string follows three rules, and the build enforces each.
+US English holds every local key. A local string follows four rules, and the build enforces each.
 
-* Its key is not a Jellyfin key.
+* Its key is not a Jellyfin key, and does not start with `Base.`, which only [Base's own strings](#bases-own-strings) use.
 * Its English is not the English of a Jellyfin string the plugin declares. Use the declared string instead.
 * Its English is not the English of another local string. One string is said once, under one key.
 
@@ -82,6 +90,43 @@ Add a file named for the language code, such as `Localization/de.json` or `Local
 * A key a language leaves out, or leaves empty, falls back to the language's base and then to US English.
 * The Jellyfin strings come in every language Jellyfin has, with no file needed.
 
+## Base's Own Strings
+
+Every word Base's components and helpers show comes from translations, such as "Load more", "Cancel", and a refusal from the SSRF guard. Each plugin gets them with no setup.
+
+* Base uses a Jellyfin string wherever Jellyfin has the words, such as `ButtonCancel` for "Cancel", so they arrive in every language Jellyfin has. A plugin that declares the same key builds it in once, from the plugin's source, in the plugin's `Case`, else in Base's case.
+* Base's other words are its own strings, in US English and sentence case. Their keys start with `Base.`, such as `Base.LoadMore`, so they never meet a plugin's key. A plugin key that starts with `Base.` fails with `JPKT021`.
+* A component reads its text from the page's current translations when it is built. Load the translations before building components, and a component shows US English when none are loaded.
+* An option still replaces any default, such as `loadMoreText` or `cancelText`.
+* A `Base.` key has a string in every plugin, so `BaseTranslations.Get("Base.LoadMore", language)` and `t.tr('Base.LoadMore')` read it too.
+
+## Casing
+
+Base's text is in sentence case, as Jellyfin's is, such as "Allow media playback". `TextCase` in C# and `titleCase` and `sentenceCase` on a page convert text, by the same rules.
+
+* Only English changes. A language that is empty, `en`, or `en-*` is converted, and any other is returned as it is, since casing differs by language.
+* Title case capitalizes every word except a, an, and, as, at, but, by, for, from, in, into, nor, of, on, or, per, the, to, via, vs, and with, unless the word is first, last, or after a colon. Each part of a hyphenated word is capitalized.
+* Sentence case capitalizes the first letter of each sentence and writes the rest in lower case.
+* A word with a capital inside it, such as `TV` or `iPhone`, or with letters and digits, such as `H.264` or `mp3`, stays as written. A placeholder such as `{0}` is never changed.
+* The casing list holds words and phrases that are written back exactly as given, matched as whole words regardless of case, the longest first. Base's defaults are `Jellyfin`, `TV`, `ID`, `API`, `URL`, `HTTP`, `HTTPS`, `IP`, `DNS`, `HDR`, `SDR`, and `4K`.
+
+A plugin adds to the casing list with `Localization/casing.json`, a JSON array of distinct words or phrases.
+
+```json
+["EPG", "YouTube", "Apple Music"]
+```
+
+Every conversion uses Base's defaults and the plugin's list, with any words passed in the call added on top.
+
+```csharp
+var title = "open the epg guide".ToTitleCase(exceptions: new[] { "Guide" });
+```
+
+```js
+t.title('GuideHeading');
+sentenceCase('Open The EPG Guide');
+```
+
 ## Show the Strings on a Page
 
 Add an endpoint that answers with `BaseTranslations.Serve`. The strings are not secret, and a standalone page has no signed in user yet, so it allows anonymous requests.
@@ -93,7 +138,7 @@ public IActionResult Translations([FromQuery] string? language)
     => BaseTranslations.Serve(language, Request, Response);
 ```
 
-Load them on the page with `loadTranslations`. It asks for the viewer's language, their display setting in the web client or else the browser's, and loads each language once.
+`Serve` answers with `{ "language": "de", "strings": { ... }, "casing": [ ... ] }`, the strings with the casing list. Load them on the page with `loadTranslations`. It asks for the viewer's language, their display setting in the web client or else the browser's, and loads each language once. The handle it gives becomes the page's current translations, which every component reads its text from, so load them before building components.
 
 ```js
 import { loadTranslations } from './configurationpage?name=myplugin_jpkribs_shared.js';
@@ -121,13 +166,32 @@ var title = BaseTranslations.Get(TranslationKeys.MyRequests, language);
 var quota = BaseTranslations.Format(TranslationKeys.QuotaLeft, language, used, total);
 ```
 
-Text the server writes for everyone, such as an activity log entry, uses the server's display language.
+Text the server writes for everyone, such as an activity log entry, uses the server's display language. See [ActivitySummary](components/csharp/activity-log.md#activitysummary) for entries in that language.
 
 ```csharp
 var language = BaseTranslations.ServerLanguage(configurationManager);
 ```
 
 See [Translations](components/csharp/translations.md) in the C# components.
+
+## Server Messages in the Page's Language
+
+A message the plugin's API returns to a page, such as an error, follows the page's language.
+
+* The shared bag's `apiRequest` and `fetchObjectUrl` send the page's language in the `X-Jellyfin-Plugin-Language` header, from the page's current translations, else the viewer's.
+* `BaseTranslations.RequestLanguage(Request)` reads it. It takes the `language` query value, then the header, then `Accept-Language`, then US English.
+* `BaseTranslations.UseLanguage(language)` sets the language of Base's own text for the rest of the request, such as a refusal from the SSRF guard.
+
+```csharp
+[HttpPost("Test")]
+public async Task<IActionResult> Test([FromBody] TestRequest body)
+{
+    var language = BaseTranslations.RequestLanguage(Request);
+    using var scope = BaseTranslations.UseLanguage(language);
+    var result = await BaseHttp.SendAsync(_httpClientFactory, HttpMethod.Get, body.Url, HttpContext.RequestAborted);
+    return result.Ok ? Ok() : BadRequest(BaseTranslations.Format(TranslationKeys.TestFailed, language, result.Body));
+}
+```
 
 ## Settings
 
@@ -139,9 +203,10 @@ Each setting is an MSBuild property in the plugin's project file. Every one has 
 | `BaseGenerateTranslationKeys` | `true` | Compiles the `TranslationKeys` class |
 | `BaseTranslationKeysNamespace` | `JPKribs.Jellyfin.Base` | The namespace of `TranslationKeys` |
 | `BaseTranslationKeysClass` | `TranslationKeys` | The name of the class |
-| `BaseTranslations` | `true` | `false` turns the translations build off |
+| `BaseCasingFile` | `Localization\casing.json` when it exists | The plugin's casing list |
+| `BaseTranslations` | `true` | `false` turns the translations build off, Base's own strings included |
 
-Add `BaseLocalString` items to name the local files yourself, in place of the folder.
+Add `BaseLocalString` items to name the local files yourself, in place of the folder. A `casing.json` among them is read as the casing list, never as a language.
 
 ## Diagnostics
 
@@ -164,7 +229,12 @@ Every problem is reported against its file and line, as the compiler reports its
 | `JPKT013` | Warning | A `JellyfinTextMatch` is not needed | Remove it |
 | `JPKT014` | Error | Two keys make the same `TranslationKeys` name, such as `A.B` and `A_B` | Rename one |
 | `JPKT015` | Error | The package's Jellyfin strings are missing | Restore the package again |
-| `JPKT016` | Error | The build runs in an MSBuild that cannot run the task | Build with `dotnet build`, or Visual Studio 2026 or later |
+| `JPKT016` | Error | The build runs in an MSBuild that cannot run the task, and the plugin has strings of its own | Build with `dotnet build`, or Visual Studio 2026 or later |
+| `JPKT017` | Error | The casing list is not a JSON array of strings | Correct the JSON |
+| `JPKT018` | Error | An entry in the casing list is empty | Remove it |
+| `JPKT019` | Error | The casing list has a word twice, ignoring case | Keep one entry |
+| `JPKT020` | Error | A `JellyfinString` has a `Case` other than `title` or `sentence` | Use `title`, `sentence`, or leave it out |
+| `JPKT021` | Error | A local key starts with `Base.` | Rename it |
 
 ## Which Jellyfin Strings
 
@@ -176,3 +246,5 @@ The package carries the strings of one Jellyfin release, the one its version sta
 * `TranslationKeys` is internal to the plugin, and is written to `obj/`. Build once for the editor to see a new key.
 * Only the Jellyfin strings a plugin declares are built in, so the plugin carries a few kilobytes per language, not all of Jellyfin's.
 * A web client language that Jellyfin has not translated a declared string into falls back to US English for that string, as the web client does.
+* Base's own strings that are not Jellyfin strings are in US English in every language until Base translates them.
+* Where MSBuild cannot run the task, a plugin with no strings of its own builds without Base's strings, and Base's text shows in US English.

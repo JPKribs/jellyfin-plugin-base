@@ -34,8 +34,8 @@ test('the button has the menu roles and the list starts closed', function () {
 
 test('the default label names the button and the menu, and the label and icon can be replaced', function () {
     var ui = build();
-    assert.equal(ui.button.getAttribute('aria-label'), 'More Actions');
-    assert.equal(ui.button.title, 'More Actions');
+    assert.equal(ui.button.getAttribute('aria-label'), 'More actions');
+    assert.equal(ui.button.title, 'More actions');
     assert.equal(ui.button.querySelector('.material-icons').textContent, 'more_vert');
     var custom = build({ label: 'Row Actions', icon: 'settings' });
     assert.equal(custom.button.getAttribute('aria-label'), 'Row Actions');

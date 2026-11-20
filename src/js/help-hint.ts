@@ -1,6 +1,7 @@
 import { make, iconButton, nextId, listen, runAll } from './lib/dom.js';
 import { anchorPopover } from './lib/popover.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What createHelpHint takes. text is the plain text explanation the bubble shows. */
 export interface HelpHintOptions {
@@ -37,7 +38,7 @@ export function createHelpHint(options: HelpHintOptions): HelpHintHandle {
     var focused: boolean = false;
 
     var root = make('span', 'base-help');
-    var button = iconButton('base-row-btn base-help-button', options.icon || 'help_outline', options.label || 'Help');
+    var button = iconButton('base-row-btn base-help-button', options.icon || 'help_outline', options.label || baseText('Help'));
     var bubble = make('span', 'base-help-tip', { role: 'tooltip' }, options.text);
     bubble.id = nextId('help');
     bubble.hidden = true;

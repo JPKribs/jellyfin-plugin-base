@@ -2,6 +2,7 @@ import { make, fillAll } from './lib/dom.js';
 import { applyColor } from './lib/color.js';
 import { svgEl, shortNumber } from './lib/chart.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What createSparkline takes. values are drawn left to right as one small line with no axes. */
 export interface SparklineOptions {
@@ -50,7 +51,7 @@ export function createSparkline(options?: SparklineOptions): SparklineHandle {
     function draw(): void {
         root.innerHTML = '';
         var nums = values.filter(function (v): v is number { return typeof v === 'number' && isFinite(v); });
-        var label = opts.label || 'Trend';
+        var label = opts.label || baseText('Base.Trend');
         if (!nums.length) {
             root.setAttribute('aria-label', label);
             return;
@@ -76,7 +77,7 @@ export function createSparkline(options?: SparklineOptions): SparklineHandle {
         }
         svg.appendChild(svgEl('path', { d: d, class: 'base-sparkline-line' }));
         root.appendChild(svg);
-        var summary = fillAll(opts.summaryText || 'from {first} to {last}, low {low}, high {high}', { first: text(nums[0]), last: text(nums[nums.length - 1]), low: text(low), high: text(high) });
+        var summary = fillAll(opts.summaryText || baseText('Base.SparklineSummary'), { first: text(nums[0]), last: text(nums[nums.length - 1]), low: text(low), high: text(high) });
         root.setAttribute('aria-label', label + ', ' + summary);
     }
 

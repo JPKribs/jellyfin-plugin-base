@@ -61,6 +61,8 @@
     <None Include="dist/jpkribs_shared.js" Pack="true" PackagePath="assets/" />
     <None Include="dist/jpkribs_shared.d.ts" Pack="true" PackagePath="assets/" />
     <None Include="src/templates/*.html" Pack="true" PackagePath="templates/" />
+    <!-- Base's own strings, built into every plugin by the translations targets. -->
+    <None Include="strings/*.json" Pack="true" PackagePath="strings/" />
     <None Include="build/*.targets" Pack="true" PackagePath="build/" />
     <None Include="README.md" Pack="true" PackagePath="" />
     <None Include="LICENSE" Pack="true" PackagePath="" />

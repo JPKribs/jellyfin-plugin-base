@@ -3,6 +3,8 @@ import { applyColor } from './lib/color.js';
 import { createList } from './list.js';
 import type { ListHeight } from './list.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
+import type { BASE_TEXT } from './lib/base-text.js';
 
 /** One event on a timeline. status is a status color name, icon a Material icon name, and pre a block of mono text kept as written, such as a log or a stack trace. */
 export interface TimelineItem {
@@ -35,7 +37,7 @@ export interface TimelineHandle extends ComponentHandle {
 }
 
 var STATUS_ICONS: Record<string, string> = { green: 'check_circle', red: 'error', orange: 'schedule', purple: 'sync', blue: 'info', gray: 'remove_circle_outline', yellow: 'info', pink: 'info', teal: 'info' };
-var STATUS_LABELS: Record<string, string> = { green: 'Done', red: 'Failed', orange: 'Waiting', purple: 'Working', blue: 'Info', gray: 'Off', yellow: 'Note', pink: 'Note', teal: 'Note' };
+var STATUS_LABELS: Record<string, keyof typeof BASE_TEXT> = { green: 'Base.Done', red: 'LabelFailed', orange: 'Base.Waiting', purple: 'Base.Working', blue: 'ButtonInfo', gray: 'Off', yellow: 'Base.Note', pink: 'Base.Note', teal: 'Base.Note' };
 
 /**
  * A vertical list of events, each with a colored marker, a time, a title, and an optional body. A status also shows an icon in its marker and a hidden label, so the status never rests on color alone.
@@ -62,7 +64,7 @@ export function createTimeline(options?: TimelineOptions): TimelineHandle {
     function labelOf(status: string): string {
         var custom = options!.statusLabels;
         if (custom && has(custom, status) && custom[status]) return custom[status];
-        return has(STATUS_LABELS, status) ? STATUS_LABELS[status] : '';
+        return has(STATUS_LABELS, status) ? baseText(STATUS_LABELS[status]) : '';
     }
 
     function row(item: TimelineItem): HTMLElement {

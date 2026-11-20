@@ -258,3 +258,21 @@ test('the schedule picker checks its time through the core, with required and va
     picker.setValue({ time: '08:00', days: [1] });
     assert.equal(picker.isValid(), true);
 });
+
+test('a sentence left as shipped shows in the page\'s language, and one the page replaced in VALIDATION_MESSAGES stays', async function () {
+    var { VALIDATION_MESSAGES } = await import('../../src/js/lib/validate.js');
+    var { setCurrentTranslations } = await import('../../src/js/lib/base-text.js');
+    var { createTranslations } = await import('../../src/js/translations.js');
+    var shipped = VALIDATION_MESSAGES.number;
+    try {
+        setCurrentTranslations(createTranslations({ 'Base.ValidateRequired': 'Bitte ausfüllen.', 'Base.ValidateNumber': 'Zahl eingeben.' }, 'de'));
+        assert.equal(validateValue('', { required: true }), 'Bitte ausfüllen.');
+        VALIDATION_MESSAGES.number = 'Numbers only.';
+        assert.equal(validateValue('x', { type: 'number' }), 'Numbers only.');
+        setCurrentTranslations(null);
+        assert.equal(validateValue('', { required: true }), 'Fill this in.');
+    } finally {
+        VALIDATION_MESSAGES.number = shipped;
+        setCurrentTranslations(null);
+    }
+});

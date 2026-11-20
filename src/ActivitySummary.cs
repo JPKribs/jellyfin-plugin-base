@@ -6,15 +6,54 @@ using Microsoft.Extensions.Logging;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// One kind of summary entry, with its activity type, its outcome word, and how its overview reads from the counts.
-/// A plugin defines one per outcome, such as synced, skipped, and retrying.
+/// One kind of summary entry, with its activity type, how its name reads from the count, and how its overview reads
+/// from the counts. A plugin defines one per outcome, such as synced, skipped, and retrying.
 /// </summary>
+/// <remarks>
+/// An outcome built with keys, through the constructor that takes <c>nameOne</c> and <c>nameMany</c>, is written in the
+/// language <see cref="ActivitySummary"/> is given. One built with an outcome word and a noun is written in English only.
+/// </remarks>
 /// <param name="Type">The activity type, namespaced under the plugin, such as <c>MyPlugin.ItemsSynced</c>.</param>
-/// <param name="Outcome">What happened, in title case, as it ends the name. "Synced" gives "12 Items Synced".</param>
-/// <param name="Overview">The overview sentence, built from the counts.</param>
+/// <param name="Outcome">What happened, in English and title case, as it ends the name. "Synced" gives "12 Items Synced".</param>
+/// <param name="Overview">The overview sentence in English, built from the counts.</param>
 /// <param name="Severity">The entry's severity.</param>
-/// <param name="Noun">The singular noun in title case, "Item" by default.</param>
-public sealed record ActivityOutcome(string Type, string Outcome, Func<ActivityTally, string> Overview, LogLevel Severity = LogLevel.Information, string Noun = "Item");
+/// <param name="Noun">The singular noun in English and title case, "Item" by default.</param>
+public sealed record ActivityOutcome(string Type, string Outcome, Func<ActivityTally, string> Overview, LogLevel Severity = LogLevel.Information, string Noun = "Item")
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ActivityOutcome"/> class for an entry written in the server's
+    /// language. Each name is a key whose text holds a <c>{0}</c> for the count, such as "{0} items synced".
+    /// </summary>
+    /// <param name="type">The activity type, namespaced under the plugin, such as <c>MyPlugin.ItemsSynced</c>.</param>
+    /// <param name="nameOne">The key of the name for a count of 1, or the text itself.</param>
+    /// <param name="nameMany">The key of the name for any other count, or the text itself.</param>
+    /// <param name="overview">The overview sentence, built from the counts in the language it is given.</param>
+    /// <param name="severity">The entry's severity.</param>
+    public ActivityOutcome(string type, string nameOne, string nameMany, Func<ActivityTally, string, string> overview, LogLevel severity = LogLevel.Information)
+        : this(type, nameMany, ToEnglish(overview), severity)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(nameOne);
+        ArgumentException.ThrowIfNullOrEmpty(nameMany);
+        NameOne = nameOne;
+        NameMany = nameMany;
+        LanguageOverview = overview;
+    }
+
+    /// <summary>Gets the key of the name for a count of 1, or <c>null</c> for an English only outcome.</summary>
+    public string? NameOne { get; }
+
+    /// <summary>Gets the key of the name for any other count, or <c>null</c> for an English only outcome.</summary>
+    public string? NameMany { get; }
+
+    /// <summary>Gets the overview built in a language, or <c>null</c> for an English only outcome.</summary>
+    public Func<ActivityTally, string, string>? LanguageOverview { get; }
+
+    private static Func<ActivityTally, string> ToEnglish(Func<ActivityTally, string, string> overview)
+    {
+        ArgumentNullException.ThrowIfNull(overview);
+        return t => overview(t, BaseTranslations.FallbackLanguage);
+    }
+}
 
 /// <summary>What one summary counted: how many in all, how many from each source, and why, when told.</summary>
 /// <param name="Total">How many in all.</param>
@@ -23,7 +62,7 @@ public sealed record ActivityOutcome(string Type, string Outcome, Func<ActivityT
 public sealed record ActivityTally(int Total, IReadOnlyDictionary<string, int> Sources, IReadOnlyDictionary<string, int> Reasons);
 
 /// <summary>
-/// Sums events into one activity entry per outcome, so a busy run leaves a single "12 Items Synced" line rather than twelve.
+/// Sums events into one activity entry per outcome, so a busy run leaves a single "12 items synced" line rather than twelve.
 /// Register one per plugin as a singleton and dispose it.
 /// </summary>
 /// <remarks>
@@ -36,6 +75,7 @@ public sealed class ActivitySummary : IDisposable
     private readonly TimeSpan _quiet;
     private readonly TimeSpan _longest;
     private readonly Func<DateTime> _now;
+    private readonly Func<string?>? _language;
     private readonly object _lock = new();
     private readonly Dictionary<ActivityOutcome, Tally> _waiting = new();
     private Timer? _timer;
@@ -49,13 +89,18 @@ public sealed class ActivitySummary : IDisposable
     /// <param name="quiet">How long after the last event the summaries are written. 30 seconds by default.</param>
     /// <param name="longest">The longest events wait while more keep coming. 5 minutes by default.</param>
     /// <param name="now">The clock that times the quiet and longest spells, <see cref="DateTime.UtcNow"/> by default.</param>
-    public ActivitySummary(ActivityLogger logger, TimeSpan? quiet = null, TimeSpan? longest = null, Func<DateTime>? now = null)
+    /// <param name="language">
+    /// Gives the language an outcome built with keys is written in when a summary is written, such as
+    /// <c>() =&gt; BaseTranslations.ServerLanguage(config)</c>. US English by default.
+    /// </param>
+    public ActivitySummary(ActivityLogger logger, TimeSpan? quiet = null, TimeSpan? longest = null, Func<DateTime>? now = null, Func<string?>? language = null)
     {
         ArgumentNullException.ThrowIfNull(logger);
         _logger = logger;
         _quiet = quiet ?? TimeSpan.FromSeconds(30);
         _longest = longest ?? TimeSpan.FromMinutes(5);
         _now = now ?? (() => DateTime.UtcNow);
+        _language = language;
     }
 
     /// <summary>Counts one event toward its outcome's next summary.</summary>
@@ -122,10 +167,21 @@ public sealed class ActivitySummary : IDisposable
         foreach (var (outcome, tally) in taken)
         {
             var counted = new ActivityTally(tally.Total, tally.Sources, tally.Reasons);
+            if (outcome.NameOne is null || outcome.NameMany is null || outcome.LanguageOverview is null)
+            {
+                _logger.Log(
+                    ActivityText.SummaryName(tally.Total, outcome.Outcome, outcome.Noun),
+                    outcome.Type,
+                    ActivityText.Sentence(outcome.Overview(counted)),
+                    outcome.Severity);
+                continue;
+            }
+
+            var language = _language?.Invoke() ?? BaseTranslations.FallbackLanguage;
             _logger.Log(
-                ActivityText.SummaryName(tally.Total, outcome.Outcome, outcome.Noun),
+                BaseTranslations.Format(tally.Total == 1 ? outcome.NameOne : outcome.NameMany, language, tally.Total),
                 outcome.Type,
-                ActivityText.Sentence(outcome.Overview(counted)),
+                ActivityText.Sentence(outcome.LanguageOverview(counted, language)),
                 outcome.Severity);
         }
     }

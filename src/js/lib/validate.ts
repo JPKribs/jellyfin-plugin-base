@@ -5,6 +5,8 @@
 import { listen, runAll, fillAll, toText } from './dom.js';
 import { setFieldState, fieldMessageOf, placeMessage } from '../field-message.js';
 import type { FieldMessageHandle } from '../field-message.js';
+import { baseText } from './base-text.js';
+import type { BASE_TEXT } from './base-text.js';
 
 /** A field the core checks: an input, a select, or a text area. */
 export type ValidatedField = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
@@ -69,7 +71,7 @@ export interface ValidationHandle {
     destroy(): void;
 }
 
-/** The default sentences, in plain Base wording. */
+/** The default sentences, in plain Base wording. A sentence left as shipped shows in the page's language. */
 export var VALIDATION_MESSAGES: Required<ValidationMessages> = {
     required: 'Fill this in.',
     requiredNoun: 'Enter {noun}.',
@@ -95,6 +97,26 @@ export var VALIDATION_MESSAGES: Required<ValidationMessages> = {
     earliest: 'Enter {min} or later.',
     latest: 'Enter {max} or earlier.'
 };
+
+var SHIPPED: Required<ValidationMessages> = Object.assign({}, VALIDATION_MESSAGES);
+
+var MESSAGE_TEXT: Record<keyof ValidationMessages, keyof typeof BASE_TEXT> = {
+    required: 'Base.ValidateRequired', requiredNoun: 'Base.ValidateRequiredNoun', select: 'Base.ValidateSelect', check: 'Base.ValidateCheck',
+    number: 'Base.ValidateNumber', whole: 'Base.ValidateWhole', step: 'Base.ValidateStep', range: 'Base.ValidateRange',
+    rangeNoun: 'Base.ValidateRangeNoun', min: 'Base.ValidateMin', minNoun: 'Base.ValidateMinNoun', max: 'Base.ValidateMax',
+    maxNoun: 'Base.ValidateMaxNoun', minLength: 'Base.ValidateMinLength', maxLength: 'Base.ValidateMaxLength', pattern: 'Base.ValidatePattern',
+    url: 'Base.ValidateUrl', email: 'Base.ValidateEmail', time: 'Base.ValidateTime', date: 'Base.ValidateDate', between: 'Base.ValidateBetween',
+    earliest: 'Base.ValidateEarliest', latest: 'Base.ValidateLatest'
+};
+
+// The sentences in use: each as shipped in the page's language, or as the page replaced it in VALIDATION_MESSAGES.
+function currentMessages(): Required<ValidationMessages> {
+    var m = {} as Required<ValidationMessages>;
+    (Object.keys(MESSAGE_TEXT) as Array<keyof ValidationMessages>).forEach(function (k) {
+        m[k] = VALIDATION_MESSAGES[k] === SHIPPED[k] ? baseText(MESSAGE_TEXT[k]) : VALIDATION_MESSAGES[k];
+    });
+    return m;
+}
 
 var SKIPPED_TYPES = ['hidden', 'button', 'submit', 'reset', 'image', 'file', 'search'];
 var TYPED = ['number', 'url', 'email', 'time', 'date'];
@@ -192,7 +214,7 @@ function nounOf(input: Element | null, noun: string | boolean | undefined): stri
  */
 export function validateValue(value: string, rules: ValidationRules, options?: ValidationOptions | null, input?: Element | null): string {
     options = options || {};
-    var m: Required<ValidationMessages> = Object.assign({}, VALIDATION_MESSAGES, options.messages || {});
+    var m: Required<ValidationMessages> = Object.assign(currentMessages(), options.messages || {});
     var noun = nounOf(input || null, options.noun);
     var named = noun ? withArticle(noun) : '';
     var text = toText(value);

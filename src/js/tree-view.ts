@@ -7,6 +7,7 @@ import { setCollapsed } from './collapsible-section.js';
 import { createList, fillRowParts } from './list.js';
 import type { ListHeight, ListItemHandle } from './list.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One node of the tree. children are known children, and hasChildren marks a node whose children loadChildren fetches when it opens. image is a thumbnail address. */
 export interface TreeNode {
@@ -189,7 +190,7 @@ export function createTreeView(options?: TreeViewOptions): TreeViewHandle {
             var glyph = icon('expand_more');
             glyph.classList.add('base-collapsible-icon');
             toggle.appendChild(glyph);
-            var name = fill(r.expanded ? (opts.collapseLabel || 'Collapse {value}') : (opts.expandLabel || 'Expand {value}'), n.label);
+            var name = fill(r.expanded ? (opts.collapseLabel || baseText('Base.CollapseValue')) : (opts.expandLabel || baseText('Base.ExpandValue')), n.label);
             toggle.setAttribute('aria-label', name);
             toggle.title = name;
             setCollapsed(toggle, null, !r.expanded);
@@ -199,7 +200,7 @@ export function createTreeView(options?: TreeViewOptions): TreeViewHandle {
             el.appendChild(make('span', 'base-tree-spacer', { 'aria-hidden': 'true' }));
         }
         if (opts.selectable) {
-            var box = makeCheck('base-tree-check', { tabindex: '-1', 'aria-label': fill(opts.selectLabel || 'Select {value}', n.label) });
+            var box = makeCheck('base-tree-check', { tabindex: '-1', 'aria-label': fill(opts.selectLabel || baseText('Base.SelectValue'), n.label) });
             box.checked = r.state === 'on';
             box.indeterminate = r.state === 'mixed';
             el.appendChild(box);
@@ -217,7 +218,7 @@ export function createTreeView(options?: TreeViewOptions): TreeViewHandle {
         var text = make('span', 'base-tree-text');
         fillRowParts(text, { primary: toText(n.label), secondary: n.secondary || null });
         el.appendChild(text);
-        if (r.loading) el.appendChild(make('span', 'base-tree-loading', { role: 'status' }, opts.loadingText || 'Loading'));
+        if (r.loading) el.appendChild(make('span', 'base-tree-loading', { role: 'status' }, opts.loadingText || baseText('Base.Loading')));
         return { element: el, destroy: function () { thumbs.forEach(function (t) { t.destroy(); }); } };
     }
 
@@ -226,8 +227,8 @@ export function createTreeView(options?: TreeViewOptions): TreeViewHandle {
         role: 'tree',
         wrap: false,
         key: 'id',
-        label: opts.label || 'Tree',
-        emptyText: opts.emptyText || 'Nothing to show.',
+        label: opts.label || baseText('Base.Tree'),
+        emptyText: opts.emptyText || baseText('Base.NothingToShow'),
         height: opts.height,
         maxHeight: opts.maxHeight,
         minHeight: opts.minHeight,

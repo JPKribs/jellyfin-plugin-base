@@ -1,6 +1,7 @@
 import { make, clear, fillAll, formatBytes, nextId } from './lib/dom.js';
 import { applyColor } from './lib/color.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One part of a segmented usage meter, such as the space movies take. color is a status color name or a hex code. */
 export interface UsageMeterPart {
@@ -74,7 +75,7 @@ export function createUsageMeter(options?: UsageMeterOptions): UsageMeterHandle 
     head.appendChild(textEl);
     var bar = make('div', 'base-progress base-usage-meter-bar', { role: 'meter', 'aria-valuemin': '0' });
     if (opts.label) bar.setAttribute('aria-labelledby', labelId);
-    else bar.setAttribute('aria-label', 'Usage');
+    else bar.setAttribute('aria-label', baseText('Base.Usage'));
     var legend = make('div', 'base-usage-meter-legend');
     root.appendChild(head);
     root.appendChild(bar);

@@ -65,7 +65,7 @@ test('Browse with an empty field opens the dialog at the top level with the defa
     var ui = build();
     ui.browse.click();
     assert.ok(dialog());
-    assert.equal(dialog().querySelector('.base-modal-title').textContent, 'Select a Folder');
+    assert.equal(dialog().querySelector('.base-modal-title').textContent, 'Select a folder');
     assert.ok(button('Cancel'));
     assert.equal(selectButton().textContent, 'Select');
     var loading = dialog().querySelector('.base-folder-picker-list .base-list-loading');
@@ -89,11 +89,11 @@ test('opening a folder lists its subfolders below an up row, hides files, and mo
     entry('/').click();
     assert.equal(pathField().value, '/');
     await flush();
-    assert.deepEqual(names(), ['Go Up', 'media']);
+    assert.deepEqual(names(), ['Go up', 'media']);
     assert.equal(dom.document.activeElement, dialog().querySelector('.base-folder-picker-up'));
     entry('media').click();
     await flush();
-    assert.deepEqual(names(), ['Go Up', 'movies', 'nas']);
+    assert.deepEqual(names(), ['Go up', 'movies', 'nas']);
     assert.equal(entry('movies').querySelector('.material-icons').textContent, 'folder');
     assert.equal(entry('nas').querySelector('.material-icons').textContent, 'computer');
     assert.equal(pathField().value, '/media');
@@ -159,7 +159,7 @@ test('a folder that cannot be read shows the error under the list and keeps the 
     assert.equal(message.classList.contains('error'), true);
     assert.equal(pathField().getAttribute('aria-invalid'), 'true');
     assert.equal(dialog().querySelector('.base-folder-picker-empty').hidden, true);
-    assert.deepEqual(names(), ['Go Up']);
+    assert.deepEqual(names(), ['Go up']);
     dialog().querySelector('.base-folder-picker-up').click();
     await flush();
     await flush();
@@ -183,7 +183,7 @@ test('Enter in the path field opens the typed path and keeps focus there', async
     var e = dom.document.key('Enter');
     assert.equal(e.defaultPrevented, true);
     await flush();
-    assert.deepEqual(names(), ['Go Up', 'movies', 'nas']);
+    assert.deepEqual(names(), ['Go up', 'movies', 'nas']);
     assert.equal(dom.document.activeElement, pathField());
 });
 
@@ -236,7 +236,7 @@ test('includeFiles lists files, and picking one fills the path for Select', asyn
     ui.browse.click();
     await flush();
     assert.deepEqual(ui.calls[0], ['/', true]);
-    assert.deepEqual(names(), ['Go Up', 'media', 'notes.txt']);
+    assert.deepEqual(names(), ['Go up', 'media', 'notes.txt']);
     var file = entry('notes.txt');
     assert.equal(file.querySelector('.material-icons').textContent, 'insert_drive_file');
     assert.equal(file.getAttribute('aria-pressed'), 'false');
@@ -276,7 +276,7 @@ test('a late answer for a folder the user already left is ignored', async functi
     await flush();
     pending['']([{ Name: 'late', Path: '/late', Type: 'Directory' }]);
     await flush();
-    assert.deepEqual(names(), ['Go Up', 'b']);
+    assert.deepEqual(names(), ['Go up', 'b']);
 });
 
 test('every dialog label can be replaced', async function () {

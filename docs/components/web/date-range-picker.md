@@ -1,6 +1,6 @@
 # Date Range Picker
 
-Two date boxes, from and to, each with the date field's calendar icon inside, under a row of preset pills: Today, Last 7 Days, Last 30 Days, and Custom. The pills are [Pill Group](pill-group.md) pills on the pressed group core, the boxes come from the [Field Adornments](field-adornments.md), and the range checks through the validation core.
+Two date boxes, from and to, each with the date field's calendar icon inside, under a row of preset pills: Today, Last 7 days, Last 30 days, and Custom. The pills are [Pill Group](pill-group.md) pills on the pressed group core, the boxes come from the [Field Adornments](field-adornments.md), and the range checks through the validation core.
 
 ## Decision
 
@@ -60,12 +60,12 @@ Moves a day by a number of days, such as '2026-03-01' back one to '2026-02-28'.
 
 <code>function createDateRangePicker(options?: DateRangePickerOptions): DateRangePickerHandle</code>
 
-Two date boxes, from and to, each with the date field's calendar icon inside, under a row of preset pills on the pressed group: Today, Last 7 Days, Last 30 Days, and Custom by default. A preset fills both dates, a second click on it clears them, and typing dates presses the matching preset, or Custom. An end before the start is an error through the validation core.
+Two date boxes, from and to, each with the date field's calendar icon inside, under a row of preset pills on the pressed group: Today, Last 7 days, Last 30 days, and Custom by default. A preset fills both dates, a second click on it clears them, and typing dates presses the matching preset, or Custom. An end before the start is an error through the validation core.
 
 | Option | Type | What it does |
 | :--- | :--- | :--- |
 | `value` | <code>Partial&lt;DateRangeValue&gt; &#124; null</code> | { from, to } as 'YYYY-MM-DD' [optional] |
-| `presets` | <code>DateRangePreset[] &#124; null</code> | array of { value, label, days }, where days counts back from today and no days is Custom, or [] for none (default Today, Last 7 Days, Last 30 Days, and Custom) |
+| `presets` | <code>DateRangePreset[] &#124; null</code> | array of { value, label, days }, where days counts back from today and no days is Custom, or [] for none (default Today, Last 7 days, Last 30 days, and Custom) |
 | `today` | <code>string</code> | the day presets count back from, as 'YYYY-MM-DD' (default the local date) |
 | `min` | <code>string</code> | the earliest day allowed [optional] |
 | `max` | <code>string</code> | the latest day allowed [optional] |

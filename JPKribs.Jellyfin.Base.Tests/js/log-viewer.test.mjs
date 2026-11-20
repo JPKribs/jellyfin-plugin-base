@@ -104,12 +104,12 @@ test('Copy All copies the lines with their times and shows the feedback, then th
     try {
         var v = build({ lines: [{ text: 'one', time: '1' }, 'two'] });
         var copy = v.element.querySelectorAll('button')[1];
-        assert.equal(copy.textContent, 'Copy All');
+        assert.equal(copy.textContent, 'Copy all');
         assert.equal(await v.copyAll(), true);
         assert.deepEqual(copied, ['1 one\ntwo']);
-        assert.equal(copy.textContent, 'Copied.');
+        assert.equal(copy.textContent, 'Copied');
         mock.timers.tick(1500);
-        assert.equal(copy.textContent, 'Copy All');
+        assert.equal(copy.textContent, 'Copy all');
     } finally {
         mock.timers.reset();
     }
@@ -120,7 +120,7 @@ test('every toolbar label can be replaced and the toolbar can be hidden', functi
     assert.equal(v.element.querySelector('.base-log-toggle span').textContent, 'Follow');
     assert.deepEqual(all(v.element, 'button').map(function (b) { return b.textContent; }), ['Wipe', 'Copy Text']);
     var defaults = build();
-    assert.equal(defaults.element.querySelector('.base-log-toggle span').textContent, 'Auto Scroll');
+    assert.equal(defaults.element.querySelector('.base-log-toggle span').textContent, 'Auto scroll');
     assert.equal(defaults.element.querySelectorAll('button')[0].textContent, 'Clear');
     assert.equal(build({ toolbar: false }).element.querySelector('.base-log-toolbar').hidden, true);
 });

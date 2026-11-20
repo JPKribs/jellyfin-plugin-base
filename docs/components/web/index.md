@@ -250,7 +250,7 @@ The CSS is written to survive the desktop app's Qt WebEngine and older TV webvie
 | [Usage Meter](usage-meter.md) | Used out of a total, with warning colors and parts |
 | [Relative Time](relative-time.md) | A live "3 minutes ago" or a countdown |
 | [Avatar Stack](avatar-stack.md) | Overlapping avatars with a +N count |
-| [QR Code](qr-code.md) | A link as a QR code, with Copy Image and Download |
+| [QR Code](qr-code.md) | A link as a QR code, with "Copy image" and "Download" |
 | [Audio Player](audio-player.md) | Play, seek, and time, one player at a time |
 | [Preview Frame](preview-frame.md) | An image rendered on demand, with backgrounds and zoom |
 | [Definition List](definition-list.md) | Read only label and value pairs, in rows or columns |

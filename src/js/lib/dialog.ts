@@ -3,6 +3,7 @@
 
 import type { DialogOptions, DialogButton } from '../dialog.js';
 import { listen, runAll, iconButton, icon } from './dom.js';
+import { baseText } from './base-text.js';
 
 var FOCUSABLE: string = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -283,7 +284,7 @@ export function createModalShell(opts: ModalShellOptions): ModalShell {
 
     var closeButton: HTMLButtonElement | null = null;
     if (opts.closeButton !== false && opts.dismissable !== false) {
-        closeButton = iconButton('base-row-btn base-dialog-close', 'close', 'Close');
+        closeButton = iconButton('base-row-btn base-dialog-close', 'close', baseText('ButtonClose'));
         content.appendChild(closeButton);
     }
 

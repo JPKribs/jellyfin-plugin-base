@@ -1,6 +1,7 @@
 import { make, clear, listen, runAll, viewport, idOf } from './lib/dom.js';
 import { balanceRows } from './lib/balance.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /**
  * How tall a list is. `auto` grows with its items so the page scrolls. A number of pixels or a CSS length is a
@@ -118,7 +119,7 @@ export function createList<T = any>(options: ListOptions<T>): ListHandle<T> {
     var observer: IntersectionObserver | null = null;
     var sentinel = make('div', 'base-list-sentinel', { 'aria-hidden': 'true' });
     var showEmpty = options.emptyText !== null;
-    var empty = make('div', 'base-list-empty', null, options.emptyText || 'Nothing to show.');
+    var empty = make('div', 'base-list-empty', null, options.emptyText || baseText('Base.NothingToShow'));
     var itemsOnly = /^(UL|OL)$/.test(String(root.tagName).toUpperCase());
     // A ul or ol may hold only items, so its empty text lives outside it, where the caller puts emptyElement.
     var outside = options.emptyOutside === true || itemsOnly;
@@ -127,7 +128,7 @@ export function createList<T = any>(options: ListOptions<T>): ListHandle<T> {
     var role = options.role === undefined ? 'list' : options.role;
     var wrap = options.wrap !== false;
     // A ul or ol may hold only items, so its loading line is an item of its own.
-    var busy = make(itemsOnly ? 'li' : 'div', 'base-list-loading', { role: 'status' }, options.loadingText || 'Loading');
+    var busy = make(itemsOnly ? 'li' : 'div', 'base-list-loading', { role: 'status' }, options.loadingText || baseText('Base.Loading'));
     var height: ListHeight = options.height === undefined ? 'auto' : options.height;
     var maxHeight = options.maxHeight;
     var layout: ListLayout = LAYOUTS.indexOf(options.layout as ListLayout) === -1 ? 'rows' : options.layout as ListLayout;

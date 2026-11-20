@@ -243,3 +243,29 @@ test('every BADGE_STATES name and color has a rule in badge.css', function () {
         assert.ok(css.indexOf('.base-badge.' + color + ',') >= 0 || css.indexOf('.base-badge.' + color + ' {') >= 0, color);
     });
 });
+
+test('apiRequest and fetchObjectUrl send the page\'s language, from its current translations, else the viewer\'s', async function () {
+    var { createTranslations } = await import('../../src/js/index.js');
+    var { setCurrentTranslations } = await import('../../src/js/lib/base-text.js');
+    var sent = [];
+    globalThis.ApiClient = {
+        getUrl: function (u) { return '/' + u; },
+        fetch: function (o) { sent.push(o); return Promise.resolve({ ok: true, blob: function () { return Promise.resolve(new Blob(['x'])); } }); }
+    };
+    globalThis.localStorage = { getItem: function () { return null; } };
+    Object.defineProperty(globalThis, 'navigator', { value: { language: 'fr-FR', languages: ['fr-FR'] }, configurable: true, writable: true });
+    try {
+        setCurrentTranslations(null);
+        await shared.apiRequest('Items', 'GET');
+        assert.equal(sent[0].headers['X-Jellyfin-Plugin-Language'], 'fr-fr');
+        setCurrentTranslations(createTranslations({ A: 'a' }, 'pt-br'));
+        await shared.apiRequest('Items', 'POST', { a: 1 });
+        assert.equal(sent[1].headers['X-Jellyfin-Plugin-Language'], 'pt-br');
+        globalThis.URL.createObjectURL = function () { return 'blob:x'; };
+        await shared.fetchObjectUrl('Image');
+        assert.equal(sent[2].headers['X-Jellyfin-Plugin-Language'], 'pt-br');
+    } finally {
+        setCurrentTranslations(null);
+        delete globalThis.ApiClient;
+    }
+});

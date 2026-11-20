@@ -2,6 +2,7 @@ import { createModalShell, dialogButtonRow } from './lib/dialog.js';
 import type { ModalShell } from './lib/dialog.js';
 import { nextId } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One footer button. icon is a Material icon name drawn before the text, action gets close, dismiss, and the clicked button, and without it a click closes with value. */
 export interface DialogButton {
@@ -85,7 +86,7 @@ export function openDialog(opts?: DialogOptions): DialogHandle {
     content.appendChild(bodyEl);
     if (!opts.title) {
         var name: string = opts.ariaLabel || String(bodyEl.textContent || '').replace(/\s+/g, ' ').trim();
-        content.setAttribute('aria-label', (name.slice(0, 80) || 'Dialog'));
+        content.setAttribute('aria-label', (name.slice(0, 80) || baseText('Base.Dialog')));
     }
 
     var row: HTMLDivElement | null = dialogButtonRow(opts.buttons, shell.close, shell.dismiss);

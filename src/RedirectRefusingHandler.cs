@@ -20,7 +20,7 @@ public sealed class RedirectRefusingHandler : DelegatingHandler
     /// <summary>The advice the refusal ends with when the caller gives none.</summary>
     public const string DefaultAdvice = "Set the address to the one it redirects to.";
 
-    private readonly string _advice;
+    private readonly string? _advice;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RedirectRefusingHandler"/> class.
@@ -28,7 +28,7 @@ public sealed class RedirectRefusingHandler : DelegatingHandler
     /// <param name="advice">The sentence the refusal ends with, telling the reader what to do. <see cref="DefaultAdvice"/> when <c>null</c>.</param>
     public RedirectRefusingHandler(string? advice = null)
     {
-        _advice = string.IsNullOrWhiteSpace(advice) ? DefaultAdvice : advice.Trim();
+        _advice = string.IsNullOrWhiteSpace(advice) ? null : advice.Trim();
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ public sealed class RedirectRefusingHandler : DelegatingHandler
     public RedirectRefusingHandler(HttpMessageHandler innerHandler, string? advice = null)
         : base(innerHandler)
     {
-        _advice = string.IsNullOrWhiteSpace(advice) ? DefaultAdvice : advice.Trim();
+        _advice = string.IsNullOrWhiteSpace(advice) ? null : advice.Trim();
     }
 
     /// <inheritdoc />
@@ -56,10 +56,15 @@ public sealed class RedirectRefusingHandler : DelegatingHandler
         var location = response.Headers.Location;
         var target = location.IsAbsoluteUri || request.RequestUri is null ? location : new Uri(request.RequestUri, location);
         var targetText = target.IsAbsoluteUri ? target.GetLeftPart(UriPartial.Path) : target.OriginalString;
-        var from = request.RequestUri?.GetLeftPart(UriPartial.Authority) ?? "the server";
+        var from = request.RequestUri?.GetLeftPart(UriPartial.Authority) ?? BaseTranslations.Text("Base.TheServer", "the server");
         response.Dispose();
         throw new HttpRequestException(
-            "The server at " + from + " redirected to " + targetText + ", and redirects are not followed. " + _advice,
+            BaseTranslations.Text(
+                "Base.RedirectRefused",
+                "The server at {0} redirected to {1}, and redirects are not followed. {2}",
+                from,
+                targetText,
+                _advice ?? BaseTranslations.Text("Base.RedirectAdvice", DefaultAdvice)),
             null,
             (HttpStatusCode)status);
     }

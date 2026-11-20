@@ -4,6 +4,8 @@ import { createStepper } from './stepper.js';
 import type { StepperHandle, StepperStep, StepperStepState } from './stepper.js';
 import { make, fillAll, runAll, listen, clear } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
+import type { BASE_TEXT } from './lib/base-text.js';
 
 /** Where a setup step stands. done is finished, attention needs a fix, todo is not started, and optional can be skipped. */
 export type SetupStepState = 'done' | 'attention' | 'todo' | 'optional';
@@ -39,7 +41,7 @@ export interface SetupChecklistHandle extends ComponentHandle {
 }
 
 var STATES: SetupStepState[] = ['done', 'attention', 'todo', 'optional'];
-var LABELS: Record<SetupStepState, string> = { done: 'Done', attention: 'Needs Attention', todo: 'To Do', optional: 'Optional' };
+var LABELS: Record<SetupStepState, keyof typeof BASE_TEXT> = { done: 'Base.Done', attention: 'Base.NeedsAttention', todo: 'Base.ToDo', optional: 'Base.Optional' };
 var COLORS: Record<SetupStepState, string> = { done: 'green', attention: 'orange', todo: 'gray', optional: 'blue' };
 var SEGMENT: Record<SetupStepState, StepperStepState> = { done: 'completed', attention: 'attention', todo: 'upcoming', optional: 'optional' };
 
@@ -70,7 +72,7 @@ export function firstOpenStep(states: unknown[]): number {
  *
  * @param options {
  *   steps         : array of { key, title, state, content, action: { text, className, onClick(key) } } where state is 'done', 'attention', 'todo', or 'optional' (default 'todo') [optional]
- *   stateLabels   : the badge word for each state (default Done, Needs Attention, To Do, and Optional) [optional]
+ *   stateLabels   : the badge word for each state (default Done, Needs attention, To do, and Optional) [optional]
  *   summaryText   : the summary, where {done} and {total} are counts (default '{done} of {total} done')
  *   navLabel      : aria-label of the summary bar (default 'Setup progress')
  *   autoAdvance   : true closes a step that turns done and opens the next one that is not (default true)
@@ -80,7 +82,7 @@ export function firstOpenStep(states: unknown[]): number {
  */
 export function createSetupChecklist(options?: SetupChecklistOptions): SetupChecklistHandle {
     options = options || {};
-    var labels: Record<SetupStepState, string> = { done: LABELS.done, attention: LABELS.attention, todo: LABELS.todo, optional: LABELS.optional };
+    var labels: Record<SetupStepState, string> = { done: baseText(LABELS.done), attention: baseText(LABELS.attention), todo: baseText(LABELS.todo), optional: baseText(LABELS.optional) };
     var custom = options.stateLabels || {};
     STATES.forEach(function (s: SetupStepState): void { if (custom[s]) labels[s] = custom[s]!; });
     var steps: SetupStep[] = [];
@@ -93,7 +95,7 @@ export function createSetupChecklist(options?: SetupChecklistOptions): SetupChec
     var bar: StepperHandle = createStepper({
         layout: 'segments',
         clickable: 'all',
-        navLabel: options.navLabel || 'Setup progress',
+        navLabel: options.navLabel || baseText('Base.SetupProgress'),
         completedText: labels.done,
         attentionText: labels.attention,
         currentText: labels.todo,
@@ -120,7 +122,7 @@ export function createSetupChecklist(options?: SetupChecklistOptions): SetupChec
     function drawSummary(): void {
         var done = 0;
         steps.forEach(function (step: SetupStep): void { if (step.state === 'done') done++; });
-        count.textContent = fillAll(options!.summaryText || '{done} of {total} done', { done: done, total: steps.length });
+        count.textContent = fillAll(options!.summaryText || baseText('Base.DoneOfTotal'), { done: done, total: steps.length });
         var at = firstOpenStep(steps.map(function (step: SetupStep) { return step.state; }));
         bar.setItems(steps.map(function (step: SetupStep, index: number): StepperStep {
             // The next step to work on shows as current, unless it needs attention, which says more.

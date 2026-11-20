@@ -1,6 +1,6 @@
 # Log Viewer
 
-A scrolling mono output area with a toolbar. Lines are appended, colored by level, bounded to `maxLines`, and scrolled into view while Auto Scroll is on.
+A scrolling mono output area with a toolbar. Lines are appended, colored by level, bounded to `maxLines`, and scrolled into view while Auto scroll is on.
 
 ## Decision
 
@@ -28,9 +28,9 @@ Parts: `base-log-empty`, `base-log-time`, `base-log-toggle`, `base-log-toolbar`.
 * `lines` sets the first lines. `append` takes one line or an array. A line is a string or `{ text, level, time }`, where `level` is `debug`, `info`, `warn`, or `error`.
 * `maxLines` is 500 by default, and the oldest lines go first.
 * The output is a [List](list.md), so `height`, `maxHeight`, `minHeight`, and `setHeight` work as they do there. `height` is 280 by default, and `'fill'` lets a log take the rest of the page.
-* Scrolling up turns Auto Scroll off. `autoScroll` sets the first state.
-* The toolbar has the "Auto Scroll" toggle and the "Clear" and "Copy All" buttons. `toolbar: false` hides it. `autoScrollText`, `clearText`, `copyText`, `copiedText` ("Copied."), and `failedText` ("Copy failed.") replace the labels, and `onClear` runs after Clear. `emptyText` is "No output yet." by default, and shows in the output as the List's empty sentence.
-* The output is `role="log"` with `aria-live="off"`, so a stream does not flood a screen reader. `label` ("Log") names it, and it takes focus for keyboard scrolling. Copy All uses `copyToClipboard`.
+* Scrolling up turns Auto scroll off. `autoScroll` sets the first state.
+* The toolbar has the "Auto scroll" toggle and the "Clear" and "Copy all" buttons. `toolbar: false` hides it. `autoScrollText`, `clearText`, `copyText`, `copiedText` ("Copied"), and `failedText` ("Copy failed.") replace the labels, and `onClear` runs after Clear. `emptyText` is "No output yet." by default, and shows in the output as the List's empty sentence.
+* The output is `role="log"` with `aria-live="off"`, so a stream does not flood a screen reader. `label` ("Log") names it, and it takes focus for keyboard scrolling. Copy all uses `copyToClipboard`.
 
 ## Reference
 
@@ -42,7 +42,7 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 
 <code>function createLogViewer(options?: LogViewerOptions): LogViewerHandle</code>
 
-A scrolling mono output area with a toolbar. Lines are appended, colored by level, bounded to maxLines, and scrolled into view while Auto Scroll is on. Scrolling up turns Auto Scroll off.
+A scrolling mono output area with a toolbar. Lines are appended, colored by level, bounded to maxLines, and scrolled into view while Auto scroll is on. Scrolling up turns Auto scroll off.
 
 | Option | Type | What it does |
 | :--- | :--- | :--- |
@@ -50,10 +50,10 @@ A scrolling mono output area with a toolbar. Lines are appended, colored by leve
 | `maxLines` | <code>number</code> | most lines kept, where the oldest go first (default 500) |
 | `autoScroll` | <code>boolean</code> | true follows new lines (default true) |
 | `label` | <code>string</code> | aria-label of the output (default 'Log') |
-| `autoScrollText` | <code>string</code> | label of the toggle (default 'Auto Scroll') |
+| `autoScrollText` | <code>string</code> | label of the toggle (default 'Auto scroll') |
 | `clearText` | <code>string</code> | text of the clear button (default 'Clear') |
-| `copyText` | <code>string</code> | text of the copy button (default 'Copy All') |
-| `copiedText` | <code>string</code> | feedback after a copy (default 'Copied.') |
+| `copyText` | <code>string</code> | text of the copy button (default 'Copy all') |
+| `copiedText` | <code>string</code> | feedback after a copy (default 'Copied') |
 | `failedText` | <code>string</code> | feedback when the copy failed (default 'Copy failed.') |
 | `emptyText` | <code>string</code> | sentence shown while there are no lines (default 'No output yet.') |
 | `toolbar` | <code>boolean</code> | false hides the toolbar (default true) |

@@ -5,6 +5,7 @@ import { bindValidation } from './lib/validate.js';
 import { createList, fillRowParts } from './list.js';
 import type { ListHeight } from './list.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What createStringList takes. validate returns an error sentence for a value, or an empty value when it is valid. */
 export interface StringListOptions {
@@ -49,13 +50,13 @@ export interface StringListHandle extends ComponentHandle {
  * @param options {
  *   values        : array of strings [optional]
  *   placeholder   : a valid example for the input [optional]
- *   inputLabel    : aria-label of the input (default 'New Item')
+ *   inputLabel    : aria-label of the input (default 'New item')
  *   addText       : text of the add button (default 'Add')
  *   removeLabel   : aria-label of a remove button, where {value} is the row's text (default 'Remove {value}')
  *   moveUpLabel   : aria-label of an up button (default 'Move {value} up')
  *   moveDownLabel : aria-label of a down button (default 'Move {value} down')
- *   moveUpTitle   : tooltip of an up button (default 'Move Up')
- *   moveDownTitle : tooltip of a down button (default 'Move Down')
+ *   moveUpTitle   : tooltip of an up button (default 'Move up')
+ *   moveDownTitle : tooltip of a down button (default 'Move down')
  *   emptyText     : sentence shown while the list is empty [optional]
  *   duplicateText : message for a repeated value (default 'Already in the list.')
  *   limitText     : message when maxItems is reached (default 'The list is full.')
@@ -82,9 +83,9 @@ export function createStringList(options?: StringListOptions): StringListHandle 
     applyFieldSize(root, options.size);
     var list = make('ul', 'base-string-items');
     var add = make('div', 'base-string-add');
-    var input = make('input', '', { type: 'text', 'aria-label': options.inputLabel || 'New Item', autocomplete: 'off' });
+    var input = make('input', '', { type: 'text', 'aria-label': options.inputLabel || baseText('Base.NewItem'), autocomplete: 'off' });
     if (options.placeholder) input.setAttribute('placeholder', options.placeholder);
-    var addButton = make('button', 'raised base-button field', { type: 'button' }, options.addText || 'Add');
+    var addButton = make('button', 'raised base-button field', { type: 'button' }, options.addText || baseText('Add'));
     var message = createFieldMessage({ input: input });
     add.appendChild(input);
     add.appendChild(addButton);
@@ -116,7 +117,7 @@ export function createStringList(options?: StringListOptions): StringListHandle 
                 onMove: move
             }).forEach(function (btn) { row.appendChild(btn); });
         }
-        var remove = iconButton('base-row-btn base-string-remove', 'close', fill(options!.removeLabel || 'Remove {value}', value));
+        var remove = iconButton('base-row-btn base-string-remove', 'close', fill(options!.removeLabel || baseText('Base.RemoveValue'), value));
         remove.addEventListener('click', function () {
             values.splice(index, 1);
             validation.clear();
@@ -172,8 +173,8 @@ export function createStringList(options?: StringListOptions): StringListHandle 
     // Why a value cannot be added, or '' when it can.
     function problemOf(value: string): string {
         if (!value) return '';
-        if (options!.maxItems && values.length >= options!.maxItems) return options!.limitText || 'The list is full.';
-        if (!options!.duplicates && values.indexOf(value) !== -1) return options!.duplicateText || 'Already in the list.';
+        if (options!.maxItems && values.length >= options!.maxItems) return options!.limitText || baseText('Base.ListFull');
+        if (!options!.duplicates && values.indexOf(value) !== -1) return options!.duplicateText || baseText('Base.AlreadyInList');
         return options!.validate ? options!.validate(value) || '' : '';
     }
 

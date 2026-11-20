@@ -1,5 +1,6 @@
 import { make } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What createSkeleton takes. lines applies to type lines, and size to a block or a circle. */
 export interface SkeletonOptions {
@@ -33,7 +34,7 @@ export function createSkeleton(options?: SkeletonOptions): SkeletonHandle {
     var type = options.type === 'block' || options.type === 'circle' ? options.type : 'lines';
     var size = options.size === 'small' || options.size === 'large' ? options.size : 'medium';
     var root = make('div', 'base-skeleton', { role: 'status', 'aria-busy': 'true' });
-    var label: string = options.label || 'Loading';
+    var label: string = options.label || baseText('Base.Loading');
     // The label is a live region of its own that stays in the page, so a change to it is announced.
     var text = make('span', 'base-sr-only', { 'aria-live': 'polite' }, label);
     root.appendChild(text);

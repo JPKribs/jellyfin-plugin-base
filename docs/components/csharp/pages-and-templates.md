@@ -51,7 +51,7 @@ return Content(html, "text/html");
 * `Render` returns a complete HTML document. The heading, message, title, button text, and button address are HTML-encoded.
 * `content` is raw HTML placed below the message and is not encoded, so pass only markup the plugin owns.
 * The template styles three classes for `content`: `base-status-error` for a red error line, which hides while empty, `base-btn base-btn-secondary` for a quieter link button, and `base-btn-stack` to stack link buttons full width.
-* The button shows only when both its text and its address are non-empty. The defaults are "Back to Jellyfin" and `../web/`.
+* The button shows only when both its text and its address are non-empty. The defaults are "Back to Jellyfin" and `../web/`. The default text and the spinner's label are Base's own strings, in the language of `BaseTranslations.UseLanguage`, else US English.
 * The page links `favicon.ico` relatively and loads the logo from `../web/favicons/touchicon.png`. Expose a sibling `favicon.ico` route backed by `PublicPage.Favicon` to give the tab the server's icon.
 
 ## PublicPage

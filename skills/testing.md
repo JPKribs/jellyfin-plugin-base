@@ -57,7 +57,7 @@ There is no Docker pool, no integration suite, and no matrix. Base has no runnin
 | `JPKribs.Jellyfin.Base.Tests/types/` | The typings test and its `tsconfig.json`. |
 | `JPKribs.Jellyfin.Base.Tests/gallery/index.html` | The gallery page. |
 | `JPKribs.Jellyfin.Base.Tests/gallery/ui-audit.js` | The layout audit that runs in the gallery page. See [The Layout Audit](#the-layout-audit). |
-| `JPKribs.Jellyfin.Base.Tests/Fixtures/` | Copies of `jpkribs_shared.css` and `jpkribs_shared.js` that a test embeds under another root namespace. |
+| `JPKribs.Jellyfin.Base.Tests/Fixtures/` | Copies of `jpkribs_shared.css` and `jpkribs_shared.js` that a test embeds under another root namespace, the translations the C# tests embed, and `casing-cases.json`, the casing cases both the C# and the JS tests run. |
 
 The test project compiles `src/*.cs` directly, under the same strict analyzer settings as a plugin (`Directory.Build.props`), with `0 Warning(s)` as the bar. Its own `.editorconfig` relaxes a few rules for the test files only, never for `src/*.cs`. It embeds `src/templates/*.html`, and embeds `src/css/*.css` under a `.Css.` resource name. It compiles the shipped source exactly as a plugin does, so a test sees what a plugin sees.
 
@@ -76,6 +76,7 @@ dotnet test JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Re
 ### Naming and Comments
 
 * Put a new helper's tests in `<Subject>Tests.cs`. A file that groups related helpers keeps the tests that already live there.
+* A rule that C# and a page share, such as casing, keeps its cases in one fixture both suites read, so the two can never give different results. Add a case to `Fixtures/casing-cases.json`, never to one suite alone.
 * Name each method `Method_Scenario_Expectation`, such as `EscapeJsString_NeutralisesQuotesAndScriptBreakout`.
 * Give the class a one sentence summary of what its subject must guarantee.
 * A class that touches shared static state, such as `ActivityLogger.Current`, joins the `ActivityLogger.Current` collection so the tests do not run in parallel.

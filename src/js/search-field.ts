@@ -1,6 +1,7 @@
 import { make, icon, iconButton, listen, runAll, claimEscape, applyFieldSize } from './lib/dom.js';
 import { debounce } from './browser-helpers.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What createSearchField takes. onInput runs after typing stops for delay milliseconds, and onSearch on Enter. */
 export interface SearchFieldOptions {
@@ -46,10 +47,10 @@ export function createSearchField(options?: SearchFieldOptions): SearchFieldHand
     var root = make('div', 'base-search');
     applyFieldSize(root, options.size);
     var glyph = icon('search');
-    var input = make('input', '', { type: 'search', 'aria-label': options.label || 'Search', autocomplete: 'off' });
+    var input = make('input', '', { type: 'search', 'aria-label': options.label || baseText('Search'), autocomplete: 'off' });
     if (options.placeholder) input.setAttribute('placeholder', options.placeholder);
     input.value = options.value || '';
-    var clearButton = iconButton('base-row-btn base-search-clear', 'close', options.clearLabel || 'Clear');
+    var clearButton = iconButton('base-row-btn base-search-clear', 'close', options.clearLabel || baseText('Base.Clear'));
     root.appendChild(input);
     root.appendChild(glyph);
     root.appendChild(clearButton);

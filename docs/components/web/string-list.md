@@ -34,7 +34,7 @@ Parts: `base-string-text`.
 * `add(value)` returns true when the value was added and shows the error otherwise.
 * `validate(value)` returns an error sentence, or an empty value when valid. `maxItems` caps the rows, and `duplicates: true` allows a repeated value.
 * `trim` (default true) trims each value. `reorder: true` adds up and down buttons.
-* The defaults are "New Item" (`inputLabel`), "Add" (`addText`), "Remove {value}", "Move {value} up", "Move {value} down", the tooltips "Move Up" and "Move Down" (`moveUpTitle`, `moveDownTitle`), "Already in the list." (`duplicateText`), and "The list is full." (`limitText`). `emptyText` is a sentence shown while the list is empty. It is the List's empty sentence, `base-list-empty outside`, under the rows, and nothing shows without it.
+* The defaults are "New item" (`inputLabel`), "Add" (`addText`), "Remove {value}", "Move {value} up", "Move {value} down", the tooltips "Move up" and "Move down" (`moveUpTitle`, `moveDownTitle`), "Already in the list." (`duplicateText`), and "The list is full." (`limitText`). `emptyText` is a sentence shown while the list is empty. It is the List's empty sentence, `base-list-empty outside`, under the rows, and nothing shows without it.
 * Enter adds the value and Escape clears the input. A refusal shows an inline message under the input through the [validation core](field-message.md#validation), with `aria-invalid` and `aria-describedby`, and it updates as the reader types.
 * Remove returns focus to the input, and a move keeps focus on the pressed button.
 * `base-string-items` is hidden while empty.
@@ -57,13 +57,13 @@ An editor for a list of strings. The user types a value and presses Add or Enter
 | :--- | :--- | :--- |
 | `values` | <code>unknown[]</code> | array of strings [optional] |
 | `placeholder` | <code>string</code> | a valid example for the input [optional] |
-| `inputLabel` | <code>string</code> | aria-label of the input (default 'New Item') |
+| `inputLabel` | <code>string</code> | aria-label of the input (default 'New item') |
 | `addText` | <code>string</code> | text of the add button (default 'Add') |
 | `removeLabel` | <code>string</code> | aria-label of a remove button, where {value} is the row's text (default 'Remove {value}') |
 | `moveUpLabel` | <code>string</code> | aria-label of an up button (default 'Move {value} up') |
 | `moveDownLabel` | <code>string</code> | aria-label of a down button (default 'Move {value} down') |
-| `moveUpTitle` | <code>string</code> | tooltip of an up button (default 'Move Up') |
-| `moveDownTitle` | <code>string</code> | tooltip of a down button (default 'Move Down') |
+| `moveUpTitle` | <code>string</code> | tooltip of an up button (default 'Move up') |
+| `moveDownTitle` | <code>string</code> | tooltip of a down button (default 'Move down') |
 | `emptyText` | <code>string</code> | sentence shown while the list is empty [optional] |
 | `duplicateText` | <code>string</code> | message for a repeated value (default 'Already in the list.') |
 | `limitText` | <code>string</code> | message when maxItems is reached (default 'The list is full.') |

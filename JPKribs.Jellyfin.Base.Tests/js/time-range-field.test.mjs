@@ -59,7 +59,7 @@ test('a typed time snaps to the step and reports the change', function () {
 test('an end at or before the start is an error unless allowOvernight, and 00:00 ends the day', function () {
     var ui = build({ value: { start: '10:00', end: '09:00' } });
     assert.equal(ui.field.isValid(), false);
-    assert.equal(message(ui.field), 'End must be after the start.');
+    assert.equal(message(ui.field), 'The end must be after the start.');
     assert.equal(ui.field.end.getAttribute('aria-invalid'), 'true');
     assert.equal(ui.field.start.getAttribute('aria-invalid'), 'true');
     setTime(ui.field.end, '00:00');

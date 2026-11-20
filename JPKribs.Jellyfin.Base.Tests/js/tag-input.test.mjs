@@ -27,7 +27,7 @@ test('it draws a pill per value, built on the base-tag-pill style with a remove 
     assert.equal(chips(ui).length, 1);
     assert.ok(chips(ui)[0].classList.contains('base-tag-pill'));
     assert.equal(chips(ui)[0].querySelector('.base-tag-remove').getAttribute('aria-label'), 'Remove news');
-    assert.equal(ui.tags.input.getAttribute('aria-label'), 'New Tag');
+    assert.equal(ui.tags.input.getAttribute('aria-label'), 'New tag');
 });
 
 test('Enter adds the typed tag and clears the input, and onChange gets the values', function () {

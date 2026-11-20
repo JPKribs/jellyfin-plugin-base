@@ -1,5 +1,6 @@
 import { make } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What createSpinner takes. label is the text a screen reader reads. */
 export interface SpinnerOptions {
@@ -27,7 +28,7 @@ export function createSpinner(options?: SpinnerOptions): SpinnerHandle {
     options = options || {};
     var size = options.size === 'small' || options.size === 'large' ? options.size : 'medium';
     var root = make('span', 'base-loading base-loading-' + size, { role: 'status' });
-    var text = make('span', 'base-sr-only', null, options.label || 'Loading');
+    var text = make('span', 'base-sr-only', null, options.label || baseText('Base.Loading'));
     root.appendChild(make('span', 'base-loading-ring', { 'aria-hidden': 'true' }));
     root.appendChild(text);
     return {

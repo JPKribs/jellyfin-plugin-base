@@ -27,7 +27,7 @@ Classes: `base-tag-input`, `base-tag-input-box`, `base-tag-input-field`. The han
 * Enter and the keys in `separators` (comma by default) add the tag. Backspace on an empty input removes the last tag. A refused piece of a pasted list stays in the input.
 * `addOnBlur` (default true) adds the typed text when the input loses focus.
 * `duplicates: true` allows the same tag twice. `maxTags` caps the tags. `validate(tag)` returns an error sentence, or an empty value when valid. The typed text checks through the [validation core](field-message.md#validation).
-* The defaults are "New Tag" (`inputLabel`), "Remove {value}", "Already added." (`duplicateText`), and "No more tags can be added." (`limitText`).
+* The defaults are "New tag" (`inputLabel`), "Remove {value}", "Already added." (`duplicateText`), and "No more tags can be added." (`limitText`).
 * The box has the field look, with a search icon at its trailing end, and clicking it focuses the input.
 * A removed tag passes focus to the next remove button, or to the input.
 * `size` is `small`, `medium` (default), or `large`, and sizes its fields on the [size scale](design-tokens.md). `setSize(size)` changes it later.
@@ -48,7 +48,7 @@ A free form tag field. The user types a tag and presses Enter or comma to add it
 | :--- | :--- | :--- |
 | `values` | <code>unknown[]</code> | array of strings [optional] |
 | `placeholder` | <code>string</code> | a valid example tag [optional] |
-| `inputLabel` | <code>string</code> | aria-label of the input (default 'New Tag') |
+| `inputLabel` | <code>string</code> | aria-label of the input (default 'New tag') |
 | `removeLabel` | <code>string</code> | title and aria-label of a remove button, where {value} is the tag (default 'Remove {value}') |
 | `duplicateText` | <code>string</code> | message for a repeated tag (default 'Already added.') |
 | `limitText` | <code>string</code> | message when maxTags is reached (default 'No more tags can be added.') |

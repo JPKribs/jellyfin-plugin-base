@@ -1,6 +1,6 @@
 # Compare Table
 
-A table of properties by columns of values, such as source, local, and after sync. A row whose values differ wears the accent wash, and each value that differs from the first column is bold. A Show Only Changes toggle hides the rows that match. Section rows group the rows under a heading, and note rows add a line of detail. It is a [Data Table](data-table.md) with no sort, search, or selection.
+A table of properties by columns of values, such as source, local, and after sync. A row whose values differ wears the accent wash, and each value that differs from the first column is bold. A Show only changes toggle hides the rows that match. Section rows group the rows under a heading, and note rows add a line of detail. It is a [Data Table](data-table.md) with no sort, search, or selection.
 
 ## Decision
 
@@ -42,12 +42,12 @@ Classes: `base-compare-table`, `base-compare-toggle`, `base-compare-value` with 
 ## States and Modifiers
 
 * A row is `{ key, label, values }`, where `values` holds a value per column key. A missing value shows "None" by `missingText`, dimmed.
-* `columns` is an array of `{ key, label, icon }`, Source, Local, and After Sync by default, keyed `source`, `local`, and `after`. `propertyHeader` heads the first column, "Property" by default.
+* `columns` is an array of `{ key, label, icon }`, Source, Local, and After sync by default, keyed `source`, `local`, and `after`. `propertyHeader` heads the first column, "Property" by default.
 * A changed row has `changed`. `getChanged()` gives the keys of the changed rows.
 * `{ section }` draws a small uppercase dimmed heading across every column, with `base-compare-section`, over the rows after it up to the next section. A section with no row shown under it hides.
 * `{ note }` draws a dimmed line across every column, with `base-compare-note`, that wraps rather than cut off. It shows only while the row before it shows, so with only changes shown a note hides with its unchanged row.
 * A section or note may carry a `key`, else it takes one from its place. Neither is ever changed, sorted, or counted by `getChanged()`.
-* The toggle sits in the table's toolbar, "Show Only Changes" by `changesText`. `onlyChanges: true` starts with it on, and `onChange(onlyChanges)` hears it. With it on and nothing changed, the table says "No changes." by `noChangesText`. With no rows it says "Nothing to compare." by `emptyText`.
+* The toggle sits in the table's toolbar, "Show only changes" by `changesText`. `onlyChanges: true` starts with it on, and `onChange(onlyChanges)` hears it. With it on and nothing changed, the table says "No changes." by `noChangesText`. With no rows it says "Nothing to compare." by `emptyText`.
 * `label` names the table, "Comparison" by default. `height` and `maxHeight` work as the Data Table's do.
 
 ## Reference
@@ -60,15 +60,15 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 
 <code>function createCompareTable(options?: CompareTableOptions): CompareTableHandle</code>
 
-A table of properties by columns of values, such as source, local, and after sync. A row whose values differ is changed: it wears the accent wash, and each value that differs from the first column is marked. A Show Only Changes toggle hides the rows that match. It is a Data Table with no sort, search, or selection. A section row heads the rows after it and a note row adds a line of detail, each across every column. With only changes shown, a section hides while no row under it shows, and a note shows only while the row before it shows.
+A table of properties by columns of values, such as source, local, and after sync. A row whose values differ is changed: it wears the accent wash, and each value that differs from the first column is marked. A Show only changes toggle hides the rows that match. It is a Data Table with no sort, search, or selection. A section row heads the rows after it and a note row adds a line of detail, each across every column. With only changes shown, a section hides while no row under it shows, and a note shows only while the row before it shows.
 
 | Option | Type | What it does |
 | :--- | :--- | :--- |
 | `rows` | <code>CompareTableEntry[] &#124; null</code> | array of { key, label, values: { columnKey: value } }, { section } for a heading over the rows after it, or { note } for a dimmed line across every column [optional] |
-| `columns` | <code>CompareTableColumn[] &#124; null</code> | array of { key, label, icon } (default Source, Local, and After Sync, keyed source, local, and after) |
+| `columns` | <code>CompareTableColumn[] &#124; null</code> | array of { key, label, icon } (default Source, Local, and After sync, keyed source, local, and after) |
 | `propertyHeader` | <code>string</code> | header of the property column (default 'Property') |
 | `onlyChanges` | <code>boolean</code> | true starts with only the changed rows shown (default false) |
-| `changesText` | <code>string</code> | label of the toggle (default 'Show Only Changes') |
+| `changesText` | <code>string</code> | label of the toggle (default 'Show only changes') |
 | `emptyText` | <code>string</code> | shown while there is no row (default 'Nothing to compare.') |
 | `noChangesText` | <code>string</code> | shown while only changes are shown and none changed (default 'No changes.') |
 | `missingText` | <code>string</code> | shown for a missing value (default 'None') |

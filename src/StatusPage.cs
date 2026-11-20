@@ -13,6 +13,8 @@ namespace JPKribs.Jellyfin.Base;
 /// </remarks>
 public static class StatusPage
 {
+    private const string BackToJellyfin = "Back to Jellyfin";
+
     /// <summary>
     /// Renders the status page HTML.
     /// </summary>
@@ -20,7 +22,7 @@ public static class StatusPage
     /// <param name="heading">The card heading.</param>
     /// <param name="message">The card body message.</param>
     /// <param name="title">The document title, or <c>null</c> to use the heading.</param>
-    /// <param name="buttonText">The action button text. It defaults to "Back to Jellyfin", and <c>null</c> or empty means no button.</param>
+    /// <param name="buttonText">The action button text. It defaults to "Back to Jellyfin" in the language of <see cref="BaseTranslations.CurrentLanguage"/>, and <c>null</c> or empty means no button.</param>
     /// <param name="buttonHref">The action button link. It defaults to "../web/", and <c>null</c> or empty means no button.</param>
     /// <param name="showSpinner">Whether to show a loading spinner. <c>false</c> by default.</param>
     /// <param name="content">
@@ -33,14 +35,19 @@ public static class StatusPage
         string heading,
         string message,
         string? title = null,
-        string? buttonText = "Back to Jellyfin",
+        string? buttonText = BackToJellyfin,
         string? buttonHref = "../web/",
         bool showSpinner = false,
         string? content = null)
     {
         var spinner = showSpinner
-            ? "<div class=\"base-spinner\" role=\"status\" aria-label=\"Loading\"></div>"
+            ? "<div class=\"base-spinner\" role=\"status\" aria-label=\"" + WebUtility.HtmlEncode(BaseTranslations.Text("Base.Loading", "Loading")) + "\"></div>"
             : string.Empty;
+
+        if (buttonText == BackToJellyfin)
+        {
+            buttonText = BaseTranslations.Text("Base.BackToJellyfin", BackToJellyfin);
+        }
 
         var button = string.IsNullOrEmpty(buttonText) || string.IsNullOrEmpty(buttonHref)
             ? string.Empty

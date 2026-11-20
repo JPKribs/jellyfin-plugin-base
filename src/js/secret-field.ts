@@ -1,5 +1,6 @@
 import { adornField } from './field-adornments.js';
 import type { SecretFieldOptions } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** Sentinel a config page posts back in a secret field to keep the stored value, so the real secret never travels to the browser. It mirrors SecretProtector.KeptSentinel, and the C# side reads the posted value through SecretProtector.ResolveIncoming. */
 export var SECRET_KEPT: string = '__JPK_SECRET_KEPT__';
@@ -53,7 +54,7 @@ export function bindSecretField(input: HTMLInputElement | null, hasStored: boole
     if (hasStored) {
         input.dataset.baseSecretStored = '1';
         input.placeholder = SECRET_DOTS;
-        input.title = opts.placeholder || 'Saved, leave blank to keep';
+        input.title = opts.placeholder || baseText('Base.SavedLeaveBlank');
         input.classList.add('base-secret-stored');
     } else {
         delete input.dataset.baseSecretStored;

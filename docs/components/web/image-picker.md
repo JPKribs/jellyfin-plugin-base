@@ -34,7 +34,7 @@ Parts: `base-image-picker-label`, `base-image-picker-image`, `base-image-picker-
 * `onChange(value)` runs with `{ name, type, size, dataUrl, base64 }` after a pick, and with `null` after Remove. `base64` is the data after the comma of `dataUrl`.
 * `getValue()` returns the picked file's data, the URL string while it shows a URL from `value` or `setValue`, or `null` while empty. `setValue(url)` does not call `onChange`.
 * `accept` is "image/*" by default. A file that does not match it, or is larger than `maxBytes`, is refused with a message under the field, and the old image stays.
-* The defaults are "Select Image" (`chooseText`), "Replace" (`replaceText`), "Remove" (`removeText`), "No image." (`emptyText`), "The image is larger than {value}." (`tooLargeText`, where `{value}` is the limit such as 2 MB), "This file is not an image." (`wrongTypeText`), and "Could not read this file." (`readErrorText`).
+* The defaults are "Select image" (`chooseText`), "Replace" (`replaceText`), "Remove" (`removeText`), "No image." (`emptyText`), "The image is larger than {value}." (`tooLargeText`, where `{value}` is the limit such as 2 MB), "This file is not an image." (`wrongTypeText`), and "Could not read this file." (`readErrorText`).
 * Remove moves focus to the choose button.
 * `crop: true` crops a picked image from its center to the frame's shape, and a number crops it to that width over height. `maxSize` scales the longer side down to that many pixels, never up. Either one draws the image on a canvas, keeps a PNG, JPEG, or WebP type and makes anything else a PNG, and adds `width` and `height` to the value.
 * `removable: false` never shows Remove, for an image that must always be set.
@@ -60,7 +60,7 @@ Picks an image file, shows it in a frame, and hands the caller the file data. It
 | `description` | <code>string</code> | sentence under the field [optional] |
 | `accept` | <code>string</code> | accept list of the file input (default 'image/*') |
 | `maxBytes` | <code>number</code> | most bytes the file may have [optional] |
-| `chooseText` | <code>string</code> | text of the choose button while empty (default 'Select Image') |
+| `chooseText` | <code>string</code> | text of the choose button while empty (default 'Select image') |
 | `replaceText` | <code>string</code> | text of the choose button while an image shows (default 'Replace') |
 | `removeText` | <code>string</code> | text of the remove button (default 'Remove') |
 | `emptyText` | <code>string</code> | text in the empty frame (default 'No image.') |

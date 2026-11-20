@@ -5,6 +5,7 @@ import { buildThumb } from './lib/thumb.js';
 import { fitBox } from './lib/canvas.js';
 import { applyColor } from './lib/color.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** A picked image file. dataUrl is the whole data URL, and base64 is only its data after the comma. */
 export interface ImagePickerValue {
@@ -82,7 +83,7 @@ export function initials(text: string | null | undefined): string {
  *   description  : sentence under the field [optional]
  *   accept       : accept list of the file input (default 'image/*')
  *   maxBytes     : most bytes the file may have [optional]
- *   chooseText   : text of the choose button while empty (default 'Select Image')
+ *   chooseText   : text of the choose button while empty (default 'Select image')
  *   replaceText  : text of the choose button while an image shows (default 'Replace')
  *   removeText   : text of the remove button (default 'Remove')
  *   emptyText    : text in the empty frame (default 'No image.')
@@ -122,7 +123,7 @@ export function createImagePicker(options?: ImagePickerOptions): ImagePickerHand
     var placeholder = thumb.placeholder;
     // The empty text names the state, so a screen reader reads it.
     placeholder.removeAttribute('aria-hidden');
-    placeholder.appendChild(make('span', 'base-image-picker-empty', null, options.emptyText || 'No image.'));
+    placeholder.appendChild(make('span', 'base-image-picker-empty', null, options.emptyText || baseText('Base.NoImage')));
     var fallback: ImagePickerFallback | null = null;
     var fallbackUrl = '';
     var fallbackEl: HTMLElement | null = null;
@@ -144,7 +145,7 @@ export function createImagePicker(options?: ImagePickerOptions): ImagePickerHand
     placeFallback(options.fallback);
     var actions = make('div', 'base-image-picker-actions');
     var choose = make('button', 'raised base-button small base-image-picker-choose', { type: 'button' });
-    var remove = make('button', 'raised base-button small secondary base-image-picker-remove', { type: 'button' }, options.removeText || 'Remove');
+    var remove = make('button', 'raised base-button small secondary base-image-picker-remove', { type: 'button' }, options.removeText || baseText('ButtonRemove'));
     var intake = bindFileInput({ trigger: choose, dropTarget: frame, accept: accept, onFiles: function (files: File[]) { take(files[0]); } });
     var input = intake.input;
     actions.appendChild(choose);
@@ -221,7 +222,7 @@ export function createImagePicker(options?: ImagePickerOptions): ImagePickerHand
         if (src !== (image.getAttribute('src') || '')) thumb.setSrc(src);
         image.setAttribute('alt', value && typeof value !== 'string' ? value.name : (options!.label || ''));
         remove.hidden = !url || options!.removable === false;
-        choose.textContent = url ? (options!.replaceText || 'Replace') : (options!.chooseText || 'Select Image');
+        choose.textContent = url ? (options!.replaceText || baseText('Base.Replace')) : (options!.chooseText || baseText('Base.SelectImage'));
     }
 
     function stopReading(): void {
@@ -238,8 +239,8 @@ export function createImagePicker(options?: ImagePickerOptions): ImagePickerHand
         var problem = checkFile(file, {
             accept: accept,
             maxBytes: options!.maxBytes,
-            typeText: options!.wrongTypeText || 'This file is not an image.',
-            sizeLimitText: options!.tooLargeText || 'The image is larger than {value}.',
+            typeText: options!.wrongTypeText || baseText('Base.NotAnImage'),
+            sizeLimitText: options!.tooLargeText || baseText('Base.ImageTooLarge'),
             sizeValue: 'limit'
         });
         if (problem) { message.set('error', problem); return; }
@@ -265,7 +266,7 @@ export function createImagePicker(options?: ImagePickerOptions): ImagePickerHand
         mine.onerror = function () {
             if (reader !== mine) return;
             reader = null;
-            message.set('error', options!.readErrorText || 'Could not read this file.');
+            message.set('error', options!.readErrorText || baseText('Base.CouldNotReadFile'));
         };
         mine.readAsDataURL(file);
     }

@@ -1,6 +1,7 @@
 import { applyFieldSize } from './lib/dom.js';
 import { idKey, loadUsers } from './lib/users.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** A user after normalizeUser reads it, as the selectors draw it. */
 export interface SelectorUser {
@@ -80,7 +81,7 @@ export function createUserSelector(options?: UserSelectorOptions): UserSelectorH
     container.appendChild(select);
 
     var includeEmpty = options.includeEmptyOption !== false;
-    var emptyLabel = options.emptyLabel || 'None';
+    var emptyLabel = options.emptyLabel || baseText('None');
     var showAdminBadge = options.showAdminBadge !== false;
     var pending = options.value || '';
 

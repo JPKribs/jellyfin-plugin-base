@@ -1,5 +1,6 @@
 import { make, icon, clear } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** How a step is drawn. A step's own state replaces the one its place before or after the current step gives it. */
 export type StepperStepState = 'completed' | 'current' | 'upcoming' | 'attention' | 'optional';
@@ -71,17 +72,17 @@ export function createStepper(options?: StepperOptions): StepperHandle {
     var current: number = 0;
 
     var segments: boolean = options.layout === 'segments';
-    var root = make('nav', 'base-stepper' + (segments ? ' segments' : ''), { 'aria-label': options.navLabel || 'Progress' });
+    var root = make('nav', 'base-stepper' + (segments ? ' segments' : ''), { 'aria-label': options.navLabel || baseText('Base.Progress') });
     var list = make('ol', 'base-stepper-list');
     root.appendChild(list);
 
     // The hidden text a screen reader hears for a step's state.
     function statusText(state: StepperStepState): string {
-        if (state === 'completed') return options!.completedText || 'Completed';
-        if (state === 'current') return options!.currentText || 'Current';
-        if (state === 'attention') return options!.attentionText || 'Needs attention';
-        if (state === 'optional') return options!.optionalText || 'Optional';
-        return options!.upcomingText || 'Not started';
+        if (state === 'completed') return options!.completedText || baseText('Base.Completed');
+        if (state === 'current') return options!.currentText || baseText('Base.Current');
+        if (state === 'attention') return options!.attentionText || baseText('Base.NeedsAttention');
+        if (state === 'optional') return options!.optionalText || baseText('Base.Optional');
+        return options!.upcomingText || baseText('Base.NotStarted');
     }
 
     function render(): void {

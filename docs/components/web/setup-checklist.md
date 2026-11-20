@@ -33,8 +33,8 @@ The handle is `{ element, getValue, setValue, getState, setState, setItems, open
 | State | Badge | Segment |
 | :--- | :--- | :--- |
 | `done` | Done, green | Green |
-| `attention` | Needs Attention, orange | Orange |
-| `todo` | To Do, gray | Faint, or the accent for the next step to do |
+| `attention` | Needs attention, orange | Orange |
+| `todo` | To do, gray | Faint, or the accent for the next step to do |
 | `optional` | Optional, blue | Faint |
 
 * A step is `{ key, title, state, content, action }`. `content` is HTML or a node, and `action` is `{ text, className, onClick(key) }`, a button under the content, primary unless `className` says otherwise.
@@ -63,7 +63,7 @@ A setup page as a checklist of numbered collapsible steps, each showing its stat
 | Option | Type | What it does |
 | :--- | :--- | :--- |
 | `steps` | <code>SetupStep[]</code> | array of { key, title, state, content, action: { text, className, onClick(key) } } where state is 'done', 'attention', 'todo', or 'optional' (default 'todo') [optional] |
-| `stateLabels` | <code>Partial&lt;Record&lt;SetupStepState, string&gt;&gt;</code> | the badge word for each state (default Done, Needs Attention, To Do, and Optional) [optional] |
+| `stateLabels` | <code>Partial&lt;Record&lt;SetupStepState, string&gt;&gt;</code> | the badge word for each state (default Done, Needs attention, To do, and Optional) [optional] |
 | `summaryText` | <code>string</code> | the summary, where {done} and {total} are counts (default '{done} of {total} done') |
 | `navLabel` | <code>string</code> | aria-label of the summary bar (default 'Setup progress') |
 | `autoAdvance` | <code>boolean</code> | true closes a step that turns done and opens the next one that is not (default true) |

@@ -38,7 +38,7 @@ Parts: `base-folder-picker-label`, `base-folder-picker-description`, `base-folde
 * Rows are buttons, so Enter and Space open a folder. Enter in the path field opens the typed path. Escape closes the dialog, and focus returns to Browse.
 * The dialog's rows are a [List](list.md), so `height` and `maxHeight` take what a List takes, and `setHeight(height, maxHeight)` changes them later. `maxHeight` is `'50vh'` by default, and `null` removes the cap.
 * The List's loading line shows in the list while a folder loads. A folder with nothing to list shows the List's empty sentence, `base-list-empty outside`, under the list. A folder that cannot be read shows the error under the list instead, and the up row stays.
-* The defaults are "Browse" (`browseText`), "Select a Folder" (`title`), "Select" (`selectText`), "Cancel" (`cancelText`), "Go Up" (`upText`), "Path" (`pathLabel`), "Loading" (`loadingText`), "This folder is empty." (`emptyText`), and "Could not read this folder." (`errorText`).
+* The defaults are "Browse" (`browseText`), "Select a folder" (`title`), "Select" (`selectText`), "Cancel" (`cancelText`), "Go up" (`upText`), "Path" (`pathLabel`), "Loading" (`loadingText`), "This folder is empty." (`emptyText`), and "Could not read this folder." (`errorText`).
 * `onChange(value)` runs on typing and on a Select that changes the path. `setValue` does not call it.
 * `size` is `small`, `medium` (default), or `large`, and sizes its fields on the [size scale](design-tokens.md). `setSize(size)` changes it later.
 
@@ -62,10 +62,10 @@ A text field for a server path with a Browse button. Browse opens a dialog that 
 | `description` | <code>string</code> | sentence under the field [optional] |
 | `pathLabel` | <code>string</code> | aria-label of the field without a label, and of the dialog's path field (default 'Path') |
 | `browseText` | <code>string</code> | text of the browse button (default 'Browse') |
-| `title` | <code>string</code> | dialog title (default 'Select a Folder') |
+| `title` | <code>string</code> | dialog title (default 'Select a folder') |
 | `selectText` | <code>string</code> | text of the select button (default 'Select') |
 | `cancelText` | <code>string</code> | text of the cancel button (default 'Cancel') |
-| `upText` | <code>string</code> | text of the row that goes up a level (default 'Go Up') |
+| `upText` | <code>string</code> | text of the row that goes up a level (default 'Go up') |
 | `loadingText` | <code>string</code> | text a screen reader reads while a folder loads (default 'Loading') |
 | `emptyText` | <code>string</code> | sentence shown for a folder with nothing to list (default 'This folder is empty.') |
 | `errorText` | <code>string</code> | message under the list when a folder cannot be read (default 'Could not read this folder.') |

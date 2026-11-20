@@ -38,7 +38,7 @@ It returns the `openDialog` handle plus `isDirty()` and `markClean()`.
 * `onDone(close)` returns `false`, or a promise of `false`, to stay open. Done is disabled while a returned promise is pending, and a rejection enables it again. A true or undefined result closes with `'done'`.
 * `actions` adds buttons to the pinned footer, such as Duplicate. Each is `{ text, icon, variant, onClick(handle, button) }`, where `icon` is a Material icon name before the text and `variant` is `'secondary'` (default), `'primary'`, or `'destructive'`. The footer reads Remove and any destructive action first, then the other actions, then Cancel, then Done, in the same button look and size, on one line that wraps on a phone. An action leaves the editor open, and `onClick` closes it through the handle when it should.
 * `onRemove(close)` closes the dialog itself. Remove shows only when this is set and `isNew` is false.
-* Dismissing with changes opens a destructive confirm titled "Unsaved Changes" that asks "Discard your changes?".
+* Dismissing with changes opens a destructive confirm titled "Unsaved changes" that asks "Discard your changes?".
 
 ## Gotchas
 

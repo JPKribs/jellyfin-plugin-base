@@ -1,5 +1,6 @@
 import { make, icon, listen, runAll, clear } from './lib/dom.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One place in a breadcrumb trail. An item with an href is a link, and one without is a button. */
 export interface BreadcrumbItem {
@@ -39,7 +40,7 @@ export function createBreadcrumbs(options?: BreadcrumbsOptions): BreadcrumbsHand
     var items: BreadcrumbItem[] = [];
     var cleanups: Array<() => void> = [];
 
-    var root = make('nav', 'base-breadcrumbs', { 'aria-label': options.navLabel || 'Breadcrumb' });
+    var root = make('nav', 'base-breadcrumbs', { 'aria-label': options.navLabel || baseText('Base.Breadcrumb') });
     var list = make('ol', 'base-breadcrumb-list');
     root.appendChild(list);
 

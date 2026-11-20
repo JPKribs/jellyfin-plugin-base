@@ -73,7 +73,7 @@ test('warn shows a warning row under the rules, and setWarning sets one', functi
 test('Add Rule adds a rule on the first field, and an empty value fails isValid', function () {
     var ui = build();
     var add = ui.b.element.querySelector('.base-repeater-add');
-    assert.equal(add.textContent, 'Add Rule');
+    assert.equal(add.textContent, 'Add rule');
     add.click();
     var row = rows(ui)[1];
     assert.equal(cell(row, 'field').querySelector('select').value, 'title');

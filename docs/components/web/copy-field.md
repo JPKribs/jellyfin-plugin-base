@@ -26,7 +26,7 @@ Classes: `base-copy-field`, `base-copy-field-text`, `base-copy-button`, `base-co
 * `wrap: true` adds `wrap` and shows the whole value as read-only text in `base-copy-field-text`, broken anywhere over as many lines as it needs, with the buttons level with its first line. Focus or Ctrl+A selects all of it, and `input` stays hidden, holding the value. A secret ignores it.
 * `inline: true` adds `inline`, for a field in a row or a table cell, with none of a form field's space below it.
 * The copy button is a `base-row-btn`. It takes `success` for the feedback, and shows a check and the feedback text. A hidden status region announces it.
-* The feedback is "Copied." or "Copy failed." for 1500 ms (`feedbackMs`). `copiedText` and `failedText` replace the text.
+* The feedback is "Copied" or "Copy failed." for 1500 ms (`feedbackMs`). `copiedText` and `failedText` replace the text.
 * The labels default to "Value", "Copy", "Show", and "Hide". `label`, `copyLabel`, `revealLabel`, and `hideLabel` replace them.
 * `copy()` returns a promise of whether the copy worked. `onCopy(value, ok)` runs after each copy.
 * The copy uses `copyToClipboard`, which is also exported on its own.
@@ -54,7 +54,7 @@ A read-only value with a copy button beside it that shows its result. A secret v
 | `mono` | <code>boolean</code> | true shows the value in the mono font (default true) |
 | `label` | <code>string</code> | aria-label of the value (default 'Value') |
 | `copyLabel` | <code>string</code> | title and aria-label of the copy button (default 'Copy') |
-| `copiedText` | <code>string</code> | feedback after a copy (default 'Copied.') |
+| `copiedText` | <code>string</code> | feedback after a copy (default 'Copied') |
 | `failedText` | <code>string</code> | feedback when the copy failed (default 'Copy failed.') |
 | `revealLabel` | <code>string</code> | title of the eye while masked (default 'Show') |
 | `hideLabel` | <code>string</code> | title of the eye while shown (default 'Hide') |

@@ -49,9 +49,9 @@ test('each step is a numbered collapsible section whose header badge names its s
     var badges = list.element.querySelectorAll('.base-collapsible-header .base-collapsible-badge');
     assert.equal(badges[0].textContent, 'Done');
     assert.ok(badges[0].classList.contains('green'));
-    assert.equal(badges[1].textContent, 'Needs Attention');
+    assert.equal(badges[1].textContent, 'Needs attention');
     assert.ok(badges[1].classList.contains('orange'));
-    assert.equal(badges[2].textContent, 'To Do');
+    assert.equal(badges[2].textContent, 'To do');
     assert.equal(badges[3].textContent, 'Optional');
 });
 
@@ -75,11 +75,11 @@ test('the summary counts the done steps and draws one segment per step in its st
     assert.equal(segs[1].querySelector('.base-stepper-control').getAttribute('aria-current'), 'step');
 });
 
-test('the next todo step shows as current in the summary, and its hidden text says To Do', function () {
+test('the next todo step shows as current in the summary, and its hidden text says To do', function () {
     var list = createSetupChecklist({ steps: [{ key: 'a', title: 'A', state: 'done' }, { key: 'b', title: 'B' }] });
     var seg = segments(list)[1];
     assert.ok(seg.classList.contains('current'));
-    assert.match(seg.textContent, /To Do/);
+    assert.match(seg.textContent, /To do/);
 });
 
 test('a segment is a button that opens its step and focuses its header', function () {

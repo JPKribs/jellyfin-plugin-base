@@ -3,6 +3,7 @@ import { bindValidation } from './lib/validate.js';
 import { createFieldMessage } from './field-message.js';
 import { adornField } from './field-adornments.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One unit choice. factor is how many base units one of this unit holds. */
 export interface NumberUnit {
@@ -84,10 +85,10 @@ export function createNumberUnitField(options: NumberUnitFieldOptions): NumberUn
 
     var root = make('div', 'base-number-unit');
     applyFieldSize(root, options.size);
-    var input = make('input', '', { type: 'number', 'aria-label': options.valueLabel || 'Value', step: String(options.step || 1) });
+    var input = make('input', '', { type: 'number', 'aria-label': options.valueLabel || baseText('LabelValue'), step: String(options.step || 1) });
     if (min !== undefined) input.setAttribute('min', String(min));
     if (max !== undefined) input.setAttribute('max', String(max));
-    var select = make('select', '', { 'aria-label': options.unitLabel || 'Unit' });
+    var select = make('select', '', { 'aria-label': options.unitLabel || baseText('Base.Unit') });
     units.forEach(function (u) { select.appendChild(make('option', '', { value: u.value }, u.label)); });
     var wrap = make('div', 'base-number-unit-row');
     wrap.appendChild(input);

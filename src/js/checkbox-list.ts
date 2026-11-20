@@ -7,6 +7,7 @@ import type { ThumbSource } from './lib/thumb.js';
 import { createSelection } from './lib/selection.js';
 import type { ListHeight } from './list.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What a checkbox list draws on one row. Only label is needed. avatar draws a person, with the person icon when it has no picture. */
 export interface CheckboxListRow {
@@ -146,11 +147,11 @@ export function createCheckboxList(options?: CheckboxListOptions): CheckboxListH
         matchKey: opts.matchKey,
         selectAll: !!opts.showSelectAll,
         selectAllText: opts.selectAllText,
-        search: opts.search !== false ? { keys: opts.searchKeys || ['name'], placeholder: opts.placeholder || 'Search', delay: 200 } : false,
+        search: opts.search !== false ? { keys: opts.searchKeys || ['name'], placeholder: opts.placeholder || baseText('Search'), delay: 200 } : false,
         layout: 'plain',
         listRole: null,
         wrap: false,
-        emptyText: opts.emptyMessage || 'No items available.',
+        emptyText: opts.emptyMessage || baseText('Base.NoItemsAvailable'),
         height: opts.height,
         maxHeight: opts.maxHeight === undefined ? 320 : opts.maxHeight,
         minHeight: opts.minHeight,

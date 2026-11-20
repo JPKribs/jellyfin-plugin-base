@@ -44,7 +44,7 @@ test('the day select lists every Jellyfin day choice with the default names', fu
     var ui = build();
     var day = selects(rows(ui)[0])[0];
     assert.deepEqual(all(day, 'option').map(function (o) { return o.value; }), ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Everyday', 'Weekday', 'Weekend']);
-    assert.deepEqual(texts(day).slice(7), ['Every Day', 'Weekdays', 'Weekends']);
+    assert.deepEqual(texts(day).slice(7), ['Every day', 'Weekdays', 'Weekends']);
 });
 
 test('dayLabels replaces some day names and keeps the rest', function () {
@@ -141,7 +141,7 @@ test('the remove label names the window and follows edits', function () {
     assert.equal(remove.getAttribute('aria-label'), 'Remove Monday ' + hour(1, 0) + ' to ' + hour(5, 30));
     assert.equal(remove.title, remove.getAttribute('aria-label'));
     pick(selects(rows(ui)[0])[0], 'Everyday');
-    assert.equal(remove.getAttribute('aria-label'), 'Remove Every Day ' + hour(1, 0) + ' to ' + hour(5, 30));
+    assert.equal(remove.getAttribute('aria-label'), 'Remove Every day ' + hour(1, 0) + ' to ' + hour(5, 30));
 });
 
 test('removeText and windowText replace the remove label', function () {
@@ -165,7 +165,7 @@ test('an empty list shows the empty sentence and hides the column labels', funct
 test('the default labels show, and each option replaces its label', function () {
     var ui = build();
     var el = ui.schedule.element;
-    assert.equal(el.querySelector('.base-access-schedule-add').textContent, 'Add Window');
+    assert.equal(el.querySelector('.base-access-schedule-add').textContent, 'Add window');
     assert.deepEqual(all(el, '.base-access-schedule-head span').map(function (s) { return s.textContent; }), ['Day', 'Start', 'End']);
     assert.deepEqual(selects(rows(ui)[0]).concat(times(rows(ui)[0])).map(function (s) { return s.getAttribute('aria-label'); }), ['Day', 'Start', 'End']);
     assert.equal(el.querySelector('.base-access-schedule-label').hidden, true);

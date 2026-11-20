@@ -3,6 +3,7 @@ import { createList, fillRowParts } from './list.js';
 import type { ListHeight, ListItemHandle } from './list.js';
 import { applyColor } from './lib/color.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** A tag on a record row. icon is a Material icon before its label, color tints it with a status color name or a hex code, and off shows it faded and struck through, such as a destination that is turned off. */
 export interface RecordListTag {
@@ -95,7 +96,7 @@ export function createRecordList(options?: RecordListOptions): RecordListHandle 
             holder.appendChild(handle ? handle.element : aside as Node);
             el.appendChild(holder);
         } else if (opts.onOpen) {
-            var chevron = iconButton('base-row-btn base-record-list-open', 'chevron_right', fill(opts.openLabel || 'Open {value}', item.title));
+            var chevron = iconButton('base-row-btn base-record-list-open', 'chevron_right', fill(opts.openLabel || baseText('Base.OpenValue'), item.title));
             chevron.setAttribute('data-base-open', '');
             chevron.tabIndex = -1;
             el.appendChild(chevron);
@@ -107,7 +108,7 @@ export function createRecordList(options?: RecordListOptions): RecordListHandle 
         layout: 'plain',
         label: opts.label,
         key: rowKey as any,
-        emptyText: opts.emptyText || 'Nothing to show.',
+        emptyText: opts.emptyText || baseText('Base.NothingToShow'),
         height: opts.height,
         maxHeight: opts.maxHeight,
         minHeight: opts.minHeight,

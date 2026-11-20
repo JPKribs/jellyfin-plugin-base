@@ -70,7 +70,7 @@ Two time boxes, a start and an end, each with the time field's clock icon inside
 | `required` | <code>boolean</code> | true requires both times (default false) |
 | `startLabel` | <code>string</code> | aria-label of the start box (default 'Start') |
 | `endLabel` | <code>string</code> | aria-label of the end box (default 'End') |
-| `endBeforeStartText` | <code>string</code> | message for an end at or before the start (default 'End must be after the start.') |
+| `endBeforeStartText` | <code>string</code> | message for an end at or before the start (default 'The end must be after the start.') |
 | `size` | <code>'small' &#124; 'medium' &#124; 'large'</code> | 'small', 'medium', or 'large' for its fields (default 'medium') |
 | `validate` | <code>(value: TimeRangeValue): string &#124; null &#124; undefined</code> | function({ start, end }) returning an error sentence, or an empty value when valid [optional] |
 | `onChange` | <code>(value: TimeRangeValue): void</code> | function({ start, end }) [optional] |

@@ -1,1 +1,1 @@
-{"Favorites":"Favoriten","MyRequests":"Meine Anfragen","QuotaLeft":"{0} von {1} übrig"}
+{"Favorites":"Favoriten","MyRequests":"Meine Anfragen","QuotaLeft":"{0} von {1} übrig","Base.SsrfLoopback":"Loopback-Adressen sind nicht erlaubt","Base.BackToJellyfin":"Zurück zu Jellyfin","ItemsSyncedOne":"{0} Element synchronisiert","ItemsSyncedMany":"{0} Elemente synchronisiert","ItemsSyncedFrom":"{0} aus {1}"}

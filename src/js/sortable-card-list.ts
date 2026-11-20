@@ -5,6 +5,9 @@ import { createList } from './list.js';
 import { moveButtons, refocusAfterMove } from './lib/row-editor.js';
 import type { RowLabel } from './lib/row-editor.js';
 import type { ListHandle, ListHeight } from './list.js';
+import { baseText } from './lib/base-text.js';
+import { fillAll } from './lib/dom.js';
+import type { BASE_TEXT } from './lib/base-text.js';
 
 /** What render returns for one card. dot picks the status dot, and a disabled card is dimmed. */
 export interface CardSpec {
@@ -51,12 +54,12 @@ export interface SortableCardListHandle<T = any> {
 type CardTargetEvent<E extends Event> = E & { target: HTMLElement };
 
 // The status dot color and default name for each card dot word. Any other word is a status color, a hex code, or gray.
-var DOTS: Record<string, string[]> = { ok: ['green', 'Active'], bad: ['red', 'Error'], checking: ['orange', 'Checking'], unknown: ['gray', 'Unknown'] };
+var DOTS: Record<string, [string, keyof typeof BASE_TEXT]> = { ok: ['green', 'Base.Active'], bad: ['red', 'HeaderError'], checking: ['orange', 'Base.Checking'], unknown: ['gray', 'Unknown'] };
 
 // Draws a card's dot as the status dot, named by dotTitle or the word's default.
 function dotHtml(dot: string, title: unknown): string {
     var known = Object.prototype.hasOwnProperty.call(DOTS, dot) ? DOTS[dot] : null;
-    return statusDotHtml(known ? known[0] : dot, title || (known ? known[1] : null));
+    return statusDotHtml(known ? known[0] : dot, title || (known ? baseText(known[1]) : null));
 }
 
 /**
@@ -73,8 +76,8 @@ function dotHtml(dot: string, title: unknown): string {
  *   reorder       : allow arrows and drag (default true)
  *   collapsible   : clicking the open head folds it and a chevron shows the state, where false keeps the open card open (default true)
  *   escapeHtml    : function(str) returning a safe string (default the built in escaper)
- *   moveUpTitle   : tooltip of an up arrow (default 'Move Up')
- *   moveDownTitle : tooltip of a down arrow (default 'Move Down')
+ *   moveUpTitle   : tooltip of an up arrow (default 'Move up')
+ *   moveDownTitle : tooltip of a down arrow (default 'Move down')
  *   moveUpLabel   : aria-label of an up arrow, where {value} is the card's title or "Item 2", or a function(name) returning it (default 'Move {value} up')
  *   moveDownLabel : aria-label of a down arrow, where {value} is the card's title or "Item 2", or a function(name) returning it (default 'Move {value} down')
  *   height        : height of the list, as createList takes it (default 'auto')
@@ -130,7 +133,7 @@ export function createSortableCardList<T = any>(listEl: HTMLElement, options: So
         var badges = (spec.badges || []).map(function (b) { return classBadgeHtml(b.label, b.cls || 'gray'); }).join('');
         card.innerHTML =
             '<div class="base-card-item-head"' + (reorder ? ' draggable="true"' : '') + ' role="button" tabindex="0" aria-expanded="' + (isSelected && !collapsed ? 'true' : 'false') + '">' +
-                (reorder ? '<span class="base-card-item-grip material-icons" title="Drag to Reorder">drag_indicator</span>' : '') +
+                (reorder ? '<span class="base-card-item-grip material-icons" title="' + escapeHtml(baseText('Base.DragToReorder')) + '">drag_indicator</span>' : '') +
                 '<span class="base-card-item-num">' + (index + 1) + '</span>' +
                 '<div class="base-card-item-main base-item-row-parts">' +
                     '<div class="base-card-item-title base-item-row-primary">' +
@@ -147,7 +150,7 @@ export function createSortableCardList<T = any>(listEl: HTMLElement, options: So
         if (arrows) {
             var title = spec.title === undefined || spec.title === null || spec.title === '' ? '' : String(spec.title);
             moveButtons({
-                index: index, count: items.length, name: title || 'Item ' + (index + 1),
+                index: index, count: items.length, name: title || fillAll(baseText('Base.ItemNumber'), { index: index + 1 }),
                 upTitle: options.moveUpTitle, downTitle: options.moveDownTitle,
                 upLabel: options.moveUpLabel, downLabel: options.moveDownLabel
             }).forEach(function (btn) { arrows!.appendChild(btn); });

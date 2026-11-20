@@ -17,8 +17,8 @@ test('moveButtons builds an up and a down row button with the default titles, la
     assert.ok(up.classList.contains('base-row-btn') && up.classList.contains('move'));
     assert.equal(up.getAttribute('data-move'), '-1');
     assert.equal(down.getAttribute('data-move'), '1');
-    assert.equal(up.title, 'Move Up');
-    assert.equal(down.title, 'Move Down');
+    assert.equal(up.title, 'Move up');
+    assert.equal(down.title, 'Move down');
     assert.equal(up.getAttribute('aria-label'), 'Move Verse up');
     assert.equal(down.getAttribute('aria-label'), 'Move Verse down');
     assert.equal(icon(up), 'keyboard_arrow_up');

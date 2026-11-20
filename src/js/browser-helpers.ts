@@ -1,3 +1,4 @@
+import { baseText } from './lib/base-text.js';
 /**
  * Returns a random RFC 4122 version 4 GUID for keying new config entities on the client.
  *
@@ -18,7 +19,7 @@ export function generateGuid(opts?: { compact?: boolean }): string {
  * @param fallback text when there is no reason (default "Could not save.")
  */
 export function errorText(err: any, fallback?: string): Promise<string> {
-    var otherwise = fallback || 'Could not save.';
+    var otherwise = fallback || baseText('Base.CouldNotSave');
     // Reads a plugin's own { Error } or the title and detail of ASP.NET problem details.
     var pick = function (body: any): string { return (body && (body.Error || body.error || body.detail || body.title || body.message)) || otherwise; };
     if (err && typeof err.json === 'function') {
@@ -80,9 +81,9 @@ export function pickJsonFile(): Promise<any> {
             if (!file) { resolve(null); return; }
             var reader = new FileReader();
             reader.onload = function () {
-                try { resolve(JSON.parse(reader.result as string)); } catch (e) { reject(new Error('The file is not valid JSON.')); }
+                try { resolve(JSON.parse(reader.result as string)); } catch (e) { reject(new Error(baseText('Base.FileNotJson'))); }
             };
-            reader.onerror = function () { reject(new Error('The file could not be read.')); };
+            reader.onerror = function () { reject(new Error(baseText('Base.FileNotRead'))); };
             reader.readAsText(file);
         });
         input.click();

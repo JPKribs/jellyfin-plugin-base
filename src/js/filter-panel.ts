@@ -4,6 +4,7 @@ import { anchorPopover } from './lib/popover.js';
 import { openDialog } from './dialog.js';
 import type { DialogHandle } from './dialog.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** One choice in a filter group. */
 export interface FilterPanelOption {
@@ -72,8 +73,8 @@ export function createFilterPanel(options?: FilterPanelOptions): FilterPanelHand
     options = options || {};
     var groups: FilterPanelGroup[] = (options.groups || []).slice();
     var applyOnChange: boolean = options.applyOnChange !== false;
-    var buttonText: string = options.buttonText || 'Filter';
-    var title: string = options.title || 'Filters';
+    var buttonText: string = options.buttonText || baseText('Filter');
+    var title: string = options.title || baseText('Filters');
     var cleanups: Array<() => void> = [];
     var mode: 'none' | 'popover' | 'dialog' = 'none';
     var dialog: DialogHandle | null = null;
@@ -93,8 +94,8 @@ export function createFilterPanel(options?: FilterPanelOptions): FilterPanelHand
     button.setAttribute('aria-controls', panel.id);
     var body = make('div', 'base-filter-groups');
     var actions = make('div', 'base-filter-actions');
-    var clearButton = make('button', 'raised base-button small secondary base-filter-clear', { type: 'button' }, options.clearText || 'Clear');
-    var doneButton = make('button', 'raised base-button small primary base-filter-done', { type: 'button' }, options.doneText || 'Done');
+    var clearButton = make('button', 'raised base-button small secondary base-filter-clear', { type: 'button' }, options.clearText || baseText('Base.Clear'));
+    var doneButton = make('button', 'raised base-button small primary base-filter-done', { type: 'button' }, options.doneText || baseText('Base.Done'));
     actions.appendChild(clearButton);
     actions.appendChild(doneButton);
     panel.appendChild(heading);
@@ -137,7 +138,7 @@ export function createFilterPanel(options?: FilterPanelOptions): FilterPanelHand
         badge.hidden = n === 0;
         button.classList.toggle('active', n > 0);
         if (n === 0) button.setAttribute('aria-label', buttonText);
-        else button.setAttribute('aria-label', buttonText + ', ' + fill(n === 1 ? (options!.countOneLabel || '{value} filter on') : (options!.countLabel || '{value} filters on'), n));
+        else button.setAttribute('aria-label', buttonText + ', ' + fill(n === 1 ? (options!.countOneLabel || baseText('Base.FiltersOnOne')) : (options!.countLabel || baseText('Base.FiltersOnMany')), n));
     }
 
     function inputs(): HTMLInputElement[] {
@@ -248,8 +249,8 @@ export function createFilterPanel(options?: FilterPanelOptions): FilterPanelHand
             className: 'base-filter-dialog',
             returnFocus: button,
             buttons: [
-                { text: options!.clearText || 'Clear', className: 'base-button secondary base-filter-clear', action: function (): void { clearAll(); } },
-                { text: options!.doneText || 'Done', className: 'base-button primary base-filter-done', action: function (): void { finish(true, true); } }
+                { text: options!.clearText || baseText('Base.Clear'), className: 'base-button secondary base-filter-clear', action: function (): void { clearAll(); } },
+                { text: options!.doneText || baseText('Base.Done'), className: 'base-button primary base-filter-done', action: function (): void { finish(true, true); } }
             ],
             onClose: function (): void {
                 // A dismiss by Escape, the backdrop, or the close button drops the pending changes.

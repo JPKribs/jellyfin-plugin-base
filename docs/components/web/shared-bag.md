@@ -39,6 +39,8 @@ The state is `pluginId` and `apiPrefix`.
 * `getConfig` calls `ApiClient.getPluginConfiguration(pluginId)`, and `saveConfig` calls `ApiClient.updatePluginConfiguration`.
 * `saveConfigWith(mutator, statusId, messages)` re-reads the freshest config, applies `mutator(config)` (in place or by returning a replacement), saves, and reports on the status element. The messages default to "Saved." and "Save failed.". It returns the save promise and rethrows a failure.
 * `apiRequest(endpoint, method, data)` calls `ApiClient.getUrl(apiPrefix + '/' + endpoint)` and `ApiClient.fetch` with JSON. An empty response resolves to `null`. Other errors reject with what `ApiClient` gave, which `errorText` reads.
+* `apiRequest` and `fetchObjectUrl` send the page's language in the `X-Jellyfin-Plugin-Language` header, from the page's [current translations](translations.md), else the viewer's, so `BaseTranslations.RequestLanguage` answers in it.
+* `formatRelativeTime` writes the time in the page's language, such as "3 days ago".
 * `createDebouncedSearch(endpoint, delay)` returns a `searchFn` for a [Combo Box](combo-box.md). It waits `delay` milliseconds (default 300), calls `apiRequest(endpoint + '?query=...')`, answers `[]` for a query under two characters or a failed call, and drops an answer that a newer query replaced.
 * `formatSize` gives "0 B", then B to TB. `formatDuration` gives clock time, such as "1:30" or "1:30:00", and an empty string for zero. `formatRelativeTime` gives "Just now", "N minutes ago", and so on. `formatDate(value, { seconds })` uses the viewer's locale. `toDateInput` gives the local `yyyy-mm-dd` string for a date input. `getFileName` gives the last path segment, with either slash.
 

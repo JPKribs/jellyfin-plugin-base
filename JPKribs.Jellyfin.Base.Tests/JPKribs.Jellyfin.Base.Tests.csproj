@@ -7,6 +7,9 @@
     <IsTestProject>true</IsTestProject>
     <!-- CA1515: the test SDK builds this assembly as an executable, so its public test types look unused. Plugins are libraries and never see it. -->
     <NoWarn>$(NoWarn);CA1515</NoWarn>
+    <!-- CS0436: the translations task compiles src/TextCase.cs too, so this assembly sees it twice and uses its own.
+         A plugin never references the task. -->
+    <NoWarn>$(NoWarn);CS0436</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

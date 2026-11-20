@@ -1,4 +1,4 @@
-import { make, toText } from './lib/dom.js';
+import { make, toText, has } from './lib/dom.js';
 import { buildControl, toChoice } from './lib/field-control.js';
 import type { FieldChoice, FieldControl, FieldSpec } from './lib/field-control.js';
 import { buildRepeater } from './repeater.js';
@@ -6,6 +6,8 @@ import type { RepeaterRow } from './repeater.js';
 import { createPillGroup } from './pill-group.js';
 import { createFieldMessage } from './field-message.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
+import type { BASE_TEXT } from './lib/base-text.js';
 
 /** A field a rule can test. type picks the value control: a text box, a select of options, a number box, or chips. operators replaces the type's own list. */
 export interface RuleBuilderField {
@@ -62,6 +64,12 @@ export interface RuleBuilderHandle extends ComponentHandle {
 }
 
 /** The operators each field type offers when the field names none. */
+var OPERATOR_TEXT: Record<string, keyof typeof BASE_TEXT> = {
+    'is': 'Base.OpIs', 'is not': 'Base.OpIsNot', 'contains': 'Base.OpContains', 'starts with': 'Base.OpStartsWith', 'equals': 'Base.OpEquals',
+    'does not equal': 'Base.OpNotEquals', 'is more than': 'Base.OpMoreThan', 'is less than': 'Base.OpLessThan', 'has any of': 'Base.OpHasAny',
+    'has all of': 'Base.OpHasAll', 'has none of': 'Base.OpHasNone'
+};
+
 export var RULE_OPERATORS: Record<string, Array<{ value: string; label: string }>> = {
     text: [{ value: 'is', label: 'is' }, { value: 'not', label: 'is not' }, { value: 'contains', label: 'contains' }, { value: 'starts', label: 'starts with' }],
     number: [{ value: 'eq', label: 'equals' }, { value: 'ne', label: 'does not equal' }, { value: 'gt', label: 'is more than' }, { value: 'lt', label: 'is less than' }],
@@ -87,10 +95,10 @@ interface ValueSlot {
  * @param options {
  *   fields        : array of { key, label, type ('text', 'select', 'number', or 'chips'), options, operators, placeholder } [required]
  *   value         : { match ('all' or 'any'), rules: [{ field, operator, value }] } [optional]
- *   allText, anyText : the two match choices (default 'Match All' and 'Match Any')
+ *   allText, anyText : the two match choices (default 'Match all' and 'Match any')
  *   matchLabel    : aria-label of the match choice (default 'Match')
  *   fieldLabel, operatorLabel, valueLabel : the column labels (default 'Field', 'Operator', and 'Value')
- *   addText       : text of the add button (default 'Add Rule')
+ *   addText       : text of the add button (default 'Add rule')
  *   removeText    : aria-label of a remove button, where {value} is the rule's name (default 'Remove {value}')
  *   rowName       : prefix of a rule's name (default 'Rule')
  *   maxRows, minRows, limitText, emptyText : the Repeater's row limits and sentences [optional]
@@ -108,9 +116,9 @@ export function createRuleBuilder(options: RuleBuilderOptions): RuleBuilderHandl
     var ready = false;
 
     var root = make('div', 'base-rule-builder');
-    var pills = make('div', 'base-pill-group base-rule-match', { role: 'group', 'aria-label': opts.matchLabel || 'Match' });
-    pills.appendChild(make('button', 'base-pill small', { type: 'button', 'data-value': 'all', 'aria-pressed': match === 'all' ? 'true' : 'false' }, opts.allText || 'Match All'));
-    pills.appendChild(make('button', 'base-pill small', { type: 'button', 'data-value': 'any', 'aria-pressed': match === 'any' ? 'true' : 'false' }, opts.anyText || 'Match Any'));
+    var pills = make('div', 'base-pill-group base-rule-match', { role: 'group', 'aria-label': opts.matchLabel || baseText('Base.Match') });
+    pills.appendChild(make('button', 'base-pill small', { type: 'button', 'data-value': 'all', 'aria-pressed': match === 'all' ? 'true' : 'false' }, opts.allText || baseText('Base.MatchAll')));
+    pills.appendChild(make('button', 'base-pill small', { type: 'button', 'data-value': 'any', 'aria-pressed': match === 'any' ? 'true' : 'false' }, opts.anyText || baseText('Base.MatchAny')));
     var choice = createPillGroup(pills, { onChange: function (v) { match = v === 'any' ? 'any' : 'all'; changed(); } });
     root.appendChild(pills);
 
@@ -131,7 +139,7 @@ export function createRuleBuilder(options: RuleBuilderOptions): RuleBuilderHandl
         var keep = slot.control ? slot.control.getValue() : slot.pending;
         if (slot.control && slot.kind === kind && kind !== 'select') return false;
         if (slot.control) { slot.control.destroy(); slot.holder.removeChild(slot.control.element); }
-        var field: FieldSpec = { key: 'value', label: opts.valueLabel || 'Value', type: kind === 'chips' ? 'tags' : kind, options: spec.options, placeholder: spec.placeholder };
+        var field: FieldSpec = { key: 'value', label: opts.valueLabel || baseText('LabelValue'), type: kind === 'chips' ? 'tags' : kind, options: spec.options, placeholder: spec.placeholder };
         var start = slot.kind === kind || !slot.control ? keep : undefined;
         if (kind === 'select' && spec.options && spec.options.length && !spec.options.some(function (o) { return toChoice(o).value === toText(start); })) start = toChoice(spec.options[0]).value;
         slot.control = buildControl(field, start, slot.change);
@@ -142,10 +150,10 @@ export function createRuleBuilder(options: RuleBuilderOptions): RuleBuilderHandl
 
     var built = buildRepeater({
         fields: [
-            { key: 'field', label: opts.fieldLabel || 'Field', type: 'select', options: fields.map(function (f) { return { value: f.key, label: f.label }; }) },
-            { key: 'operator', label: opts.operatorLabel || 'Operator', type: 'select', options: [] },
+            { key: 'field', label: opts.fieldLabel || baseText('Base.Field'), type: 'select', options: fields.map(function (f) { return { value: f.key, label: f.label }; }) },
+            { key: 'operator', label: opts.operatorLabel || baseText('Base.Operator'), type: 'select', options: [] },
             {
-                key: 'value', label: opts.valueLabel || 'Value', type: 'custom', required: true,
+                key: 'value', label: opts.valueLabel || baseText('LabelValue'), type: 'custom', required: true,
                 render: function (value, change) {
                     var slot: ValueSlot = { holder: make('div', 'base-rule-value'), control: null, kind: '', pending: value, change: change };
                     slots.push({ element: slot.holder, slot: slot });
@@ -162,9 +170,9 @@ export function createRuleBuilder(options: RuleBuilderOptions): RuleBuilderHandl
                 }
             }
         ],
-        addText: opts.addText || 'Add Rule',
+        addText: opts.addText || baseText('Base.AddRule'),
         removeText: opts.removeText,
-        rowName: opts.rowName || 'Rule',
+        rowName: opts.rowName || baseText('Base.Rule'),
         maxRows: opts.maxRows,
         minRows: opts.minRows,
         limitText: opts.limitText,
@@ -180,7 +188,9 @@ export function createRuleBuilder(options: RuleBuilderOptions): RuleBuilderHandl
             if (!fieldCell || !operatorCell) return;
             var spec = specOf(fieldCell.control.getValue());
             if (key === null && fieldCell.control.getValue() !== spec.key) fieldCell.control.setValue(spec.key);
-            var ops = spec.operators || RULE_OPERATORS[spec.type || 'text'] || RULE_OPERATORS.text;
+            var ops = spec.operators || (RULE_OPERATORS[spec.type || 'text'] || RULE_OPERATORS.text).map(function (o) {
+                return { value: o.value, label: has(OPERATOR_TEXT, o.label) ? baseText(OPERATOR_TEXT[o.label]) : o.label };
+            });
             operatorCell.control.setOptions(ops);
             var slot = slotOf(row);
             var cell = row.group.cell('value');

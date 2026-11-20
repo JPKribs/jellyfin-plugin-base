@@ -4,6 +4,7 @@ import { createList, fillRowParts } from './list.js';
 import { sizeText } from './lib/file.js';
 import { bindFileInput, checkFile } from './lib/file-intake.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What createFilePicker takes. Files that do not match accept or maxSize are refused with a message. */
 export interface FilePickerOptions {
@@ -53,7 +54,7 @@ export function createFilePicker(options?: FilePickerOptions): FilePickerHandle 
     var zone = make('div', 'base-file-zone base-icon-text', { role: 'button', tabindex: '0' });
     zone.id = nextId('file');
     zone.appendChild(icon('upload_file'));
-    var zoneText = make('span', 'base-file-text', null, options.dropText || 'Drop files here or click to select.');
+    var zoneText = make('span', 'base-file-text', null, options.dropText || baseText('Base.DropFiles'));
     zone.appendChild(zoneText);
     zone.setAttribute('aria-label', zoneText.textContent);
     var intake = bindFileInput({ trigger: zone, dropTarget: zone, accept: options.accept, multiple: options.multiple, onFiles: take });
@@ -73,7 +74,7 @@ export function createFilePicker(options?: FilePickerOptions): FilePickerHandle 
         text.children[0].classList.add('base-file-name');
         if (text.children[1]) text.children[1].classList.add('base-file-size');
         row.appendChild(text);
-        var remove = iconButton('base-row-btn base-file-remove', 'close', fill(options!.removeLabel || 'Remove {value}', file.name));
+        var remove = iconButton('base-row-btn base-file-remove', 'close', fill(options!.removeLabel || baseText('Base.RemoveValue'), file.name));
         remove.addEventListener('click', function () {
             files.splice(index, 1);
             message.clear();
@@ -108,15 +109,15 @@ export function createFilePicker(options?: FilePickerOptions): FilePickerHandle 
         var picked: File[] = incoming;
         var problems: string[] = [];
         if (!options!.multiple && picked.length > 1) {
-            problems.push(options!.singleText || 'Select one file.');
+            problems.push(options!.singleText || baseText('Base.SelectOneFile'));
             picked = picked.slice(0, 1);
         }
         var good = picked.filter(function (file) {
             var problem = checkFile(file, {
                 accept: options!.accept,
                 maxBytes: options!.maxSize,
-                typeText: options!.typeText || '{value} is not an accepted type.',
-                sizeLimitText: options!.sizeLimitText || '{value} is larger than the size limit.'
+                typeText: options!.typeText || baseText('Base.NotAcceptedType'),
+                sizeLimitText: options!.sizeLimitText || baseText('Base.LargerThanLimit')
             });
             if (problem) problems.push(problem);
             return !problem;

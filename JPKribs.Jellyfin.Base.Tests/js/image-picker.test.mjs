@@ -56,7 +56,7 @@ test('an empty picker shows the placeholder, the default texts, and a square fra
     assert.equal(ui.q('.base-image-picker-placeholder').hidden, false);
     assert.equal(ui.q('.base-image-picker-placeholder .material-icons').textContent, 'image');
     assert.equal(ui.q('.base-image-picker-empty').textContent, 'No image.');
-    assert.equal(ui.choose.textContent, 'Select Image');
+    assert.equal(ui.choose.textContent, 'Select image');
     assert.equal(ui.remove.textContent, 'Remove');
     assert.equal(ui.remove.hidden, true);
     assert.equal(ui.picker.input.getAttribute('accept'), 'image/*');
@@ -187,7 +187,7 @@ test('Remove empties the frame, calls onChange with null, and moves focus to the
     assert.equal(ui.image.hidden, true);
     assert.equal(ui.image.hasAttribute('src'), false);
     assert.equal(ui.remove.hidden, true);
-    assert.equal(ui.choose.textContent, 'Select Image');
+    assert.equal(ui.choose.textContent, 'Select image');
     assert.equal(dom.document.activeElement, ui.choose);
 });
 

@@ -1,6 +1,8 @@
 import { make, icon, listen, runAll, toText, applyFieldSize, clockText } from './lib/dom.js';
 import { createSliderField } from './slider-field.js';
+import { formatText } from './translations.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What createAudioPlayer takes. src is the address of the audio. */
 export interface AudioPlayerOptions {
@@ -59,11 +61,11 @@ export function createAudioPlayer(options?: AudioPlayerOptions): AudioPlayerHand
     var src = '';
     var seeking = false;
 
-    var root = make('div', 'base-audio-player', { role: 'group', 'aria-label': opts.label || opts.title || 'Audio' });
+    var root = make('div', 'base-audio-player', { role: 'group', 'aria-label': opts.label || opts.title || baseText('Audio') });
     applyFieldSize(root, opts.size);
     var audio = make('audio', 'base-audio-player-audio', { preload: 'metadata' });
-    var playLabel = opts.playText || 'Play';
-    var pauseLabel = opts.pauseText || 'Pause';
+    var playLabel = opts.playText || baseText('Play');
+    var pauseLabel = opts.pauseText || baseText('ButtonPause');
     var button = make('button', 'raised base-button secondary field base-audio-player-toggle', { type: 'button', title: playLabel, 'aria-label': playLabel });
     var glyph = icon('play_arrow');
     button.appendChild(glyph);
@@ -72,7 +74,7 @@ export function createAudioPlayer(options?: AudioPlayerOptions): AudioPlayerHand
     titleEl.hidden = !opts.title;
     if (opts.title) titleEl.setAttribute('title', opts.title);
     var line = make('div', 'base-audio-player-line');
-    var slider = createSliderField({ min: 0, max: 1000, step: 1, value: 0, showValue: false, label: opts.seekText || 'Seek' });
+    var slider = createSliderField({ min: 0, max: 1000, step: 1, value: 0, showValue: false, label: opts.seekText || baseText('Base.Seek') });
     var time = make('span', 'base-audio-player-time', null, '0:00 / 0:00');
     var failed = false;
     line.appendChild(slider.element);
@@ -92,7 +94,7 @@ export function createAudioPlayer(options?: AudioPlayerOptions): AudioPlayerHand
         var text = clockText(t) + ' / ' + clockText(d);
         time.textContent = text;
         if (!seeking) slider.setValue(d ? t / d * 1000 : 0);
-        slider.input.setAttribute('aria-valuetext', clockText(t) + ' of ' + clockText(d));
+        slider.input.setAttribute('aria-valuetext', formatText(baseText('Base.ClockOfTotal'), clockText(t), clockText(d)));
         var on = !audio.paused && !audio.ended;
         glyph.textContent = on ? 'pause' : 'play_arrow';
         button.setAttribute('title', on ? pauseLabel : playLabel);
@@ -141,7 +143,7 @@ export function createAudioPlayer(options?: AudioPlayerOptions): AudioPlayerHand
     function setFailed(on: boolean): void {
         failed = on;
         root.classList.toggle('failed', on);
-        var text = on ? opts.errorText || 'Could not load the audio.' : opts.title || '';
+        var text = on ? opts.errorText || baseText('Base.CouldNotLoadAudio') : opts.title || '';
         titleEl.textContent = text;
         titleEl.hidden = !text;
         if (text) titleEl.setAttribute('title', text);
@@ -150,7 +152,7 @@ export function createAudioPlayer(options?: AudioPlayerOptions): AudioPlayerHand
         else titleEl.removeAttribute('role');
         if (on) {
             glyph.textContent = 'close';
-            var reset = opts.resetText || 'Reset';
+            var reset = opts.resetText || baseText('Reset');
             button.setAttribute('title', reset);
             button.setAttribute('aria-label', reset);
             button.disabled = false;

@@ -36,10 +36,10 @@ Classes: `base-rule-builder`, `base-rule-match`, `base-rule-rows`, `base-rule-va
 * The value is `{ match, rules }`, where `match` is `'all'` or `'any'` and each rule is `{ field, operator, value }`. A chips value is a list of text.
 * A field is `{ key, label, type, options, operators, placeholder }`. `type` is `text` (default), `select`, `number`, or `chips`. `operators` replaces the type's own list, given in `RULE_OPERATORS`.
 * Changing a rule's field swaps its operators and its value control, and keeps the value while the type stays the same.
-* The match choice is a [Pill Group](pill-group.md), "Match All" and "Match Any" by `allText` and `anyText`.
+* The match choice is a [Pill Group](pill-group.md), "Match all" and "Match any" by `allText` and `anyText`.
 * `warn(value)` returns a warning sentence after each change, shown under the rules as a warning [Field Message](field-message.md). `setWarning(text)` shows one from code, and an empty value clears it.
 * A rule's value is required. `isValid()` checks every rule and moves focus to the first invalid one.
-* The rows, their limits, and their labels come from the Repeater. `addText` is "Add Rule", `rowName` is "Rule", and the column labels are "Field", "Operator", and "Value".
+* The rows, their limits, and their labels come from the Repeater. `addText` is "Add rule", `rowName` is "Rule", and the column labels are "Field", "Operator", and "Value".
 
 ## Reference
 
@@ -50,8 +50,6 @@ Generated from the code by `scripts/build-docs.mjs`. Edit the code, not this sec
 ### `RULE_OPERATORS`
 
 <code>var RULE_OPERATORS: Record&lt;string, Array&lt;{ value: string; label: string; }&gt;&gt;</code>
-
-The operators each field type offers when the field names none.
 
 ### `createRuleBuilder`
 
@@ -69,7 +67,7 @@ Rows of field, operator, and value, with a choice of matching all rules or any o
 | `fieldLabel` | <code>string</code> |  |
 | `operatorLabel` | <code>string</code> |  |
 | `valueLabel` | <code>string</code> |  |
-| `addText` | <code>string</code> | text of the add button (default 'Add Rule') |
+| `addText` | <code>string</code> | text of the add button (default 'Add rule') |
 | `removeText` | <code>string</code> | aria-label of a remove button, where {value} is the rule's name (default 'Remove {value}') |
 | `rowName` | <code>string</code> | prefix of a rule's name (default 'Rule') |
 | `maxRows` | <code>number</code> |  |

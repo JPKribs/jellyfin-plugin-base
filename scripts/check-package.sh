@@ -16,6 +16,9 @@ for ENTRY in \
   assets/jpkribs_shared.d.ts \
   templates/status.html \
   src/BaseTranslations.cs \
+  src/TextCase.cs \
+  strings/en-us.json \
+  strings/jellyfin.json \
   jellyfin/source.json \
   jellyfin/LICENSE \
   jellyfin/web/en-us.json \

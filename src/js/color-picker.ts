@@ -5,6 +5,7 @@ import { adornField } from './field-adornments.js';
 import { createFieldMessage } from './field-message.js';
 import { bindValidation } from './lib/validate.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** What createColorPicker takes. alpha turns on the opacity box and an #rrggbbaa value, opacityOnly shows only the opacity box, and format 'argb' reads and writes #aarrggbb. */
 export interface ColorPickerOptions {
@@ -68,10 +69,10 @@ export function createColorPicker(options?: ColorPickerOptions): ColorPickerHand
     var swatch = make('span', 'base-color-swatch');
     var fill = make('span', 'base-color-swatch-fill');
     // The browser's own picker sits invisible over the swatch, so a click on the swatch opens it.
-    var native = make('input', 'base-color-native', { type: 'color', title: options.pickLabel || 'Pick a color', 'aria-label': options.pickLabel || 'Pick a color' });
+    var native = make('input', 'base-color-native', { type: 'color', title: options.pickLabel || baseText('Base.PickColor'), 'aria-label': options.pickLabel || baseText('Base.PickColor') });
     swatch.appendChild(fill);
     swatch.appendChild(native);
-    var input = make('input', 'base-mono base-color-text', { type: 'text', 'aria-label': options.label || 'Color', autocomplete: 'off', spellcheck: 'false' });
+    var input = make('input', 'base-mono base-color-text', { type: 'text', 'aria-label': options.label || baseText('Base.Color'), autocomplete: 'off', spellcheck: 'false' });
     input.id = nextId('color');
     box.appendChild(swatch);
     // The # is part of the box, so only the digits are typed.
@@ -85,7 +86,7 @@ export function createColorPicker(options?: ColorPickerOptions): ColorPickerHand
     var opacity: HTMLInputElement | null = null;
     if (alpha) {
         var opacityBox = make('div', 'base-color-alpha');
-        opacity = make('input', 'base-color-alpha-input', { type: 'number', min: '0', max: '100', step: '1', 'aria-label': options.opacityLabel || 'Opacity' });
+        opacity = make('input', 'base-color-alpha-input', { type: 'number', min: '0', max: '100', step: '1', 'aria-label': options.opacityLabel || baseText('Base.Opacity') });
         opacityBox.appendChild(opacity);
         opacityBox.appendChild(make('span', 'base-color-alpha-unit', { 'aria-hidden': 'true' }, '%'));
         row.appendChild(opacityBox);
@@ -151,7 +152,7 @@ export function createColorPicker(options?: ColorPickerOptions): ColorPickerHand
     var hexCheck = bindValidation(input, {
         message: message,
         validate: function () {
-            if (!parseColor(textColor())) return options!.invalidText || 'Enter a color such as #3498db.';
+            if (!parseColor(textColor())) return options!.invalidText || baseText('Base.EnterColor');
             return options!.validate ? options!.validate(value()) : '';
         }
     });

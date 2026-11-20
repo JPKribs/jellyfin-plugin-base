@@ -3,6 +3,7 @@ import { adornField } from './field-adornments.js';
 import { createFieldMessage } from './field-message.js';
 import { bindValidation, validateValue } from './lib/validate.js';
 import type { ComponentHandle } from './types.js';
+import { baseText } from './lib/base-text.js';
 
 /** A start and an end time, each as 'HH:MM', or '' while empty. */
 export interface TimeRangeValue {
@@ -94,7 +95,7 @@ export function snapTime(time: string, step: number): string {
  *   required           : true requires both times (default false)
  *   startLabel         : aria-label of the start box (default 'Start')
  *   endLabel           : aria-label of the end box (default 'End')
- *   endBeforeStartText : message for an end at or before the start (default 'End must be after the start.')
+ *   endBeforeStartText : message for an end at or before the start (default 'The end must be after the start.')
  *   size               : 'small', 'medium', or 'large' for its fields (default 'medium')
  *   validate           : function({ start, end }) returning an error sentence, or an empty value when valid [optional]
  *   onChange           : function({ start, end }) [optional]
@@ -110,8 +111,8 @@ export function createTimeRangeField(options?: TimeRangeFieldOptions): TimeRange
     var root = make('div', 'base-time-range');
     applyFieldSize(root, opts.size);
     var row = make('div', 'base-time-range-row');
-    var start = make('input', 'base-time-range-start', { type: 'time', step: String(step * 60), 'aria-label': opts.startLabel || 'Start' });
-    var end = make('input', 'base-time-range-end', { type: 'time', step: String(step * 60), 'aria-label': opts.endLabel || 'End' });
+    var start = make('input', 'base-time-range-start', { type: 'time', step: String(step * 60), 'aria-label': opts.startLabel || baseText('Base.Start') });
+    var end = make('input', 'base-time-range-end', { type: 'time', step: String(step * 60), 'aria-label': opts.endLabel || baseText('Base.End') });
     row.appendChild(start);
     row.appendChild(end);
     root.appendChild(row);
@@ -130,7 +131,7 @@ export function createTimeRangeField(options?: TimeRangeFieldOptions): TimeRange
         if (bad) return bad;
         var from = toHours(v.start);
         var to = toHours(v.end, true);
-        if (!opts.allowOvernight && from !== null && to !== null && to <= from) return opts.endBeforeStartText || 'End must be after the start.';
+        if (!opts.allowOvernight && from !== null && to !== null && to <= from) return opts.endBeforeStartText || baseText('Base.EndAfterStart');
         return opts.validate ? toText(opts.validate(v)) : '';
     }
 

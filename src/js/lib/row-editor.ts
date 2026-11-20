@@ -5,6 +5,7 @@ import { iconButton, listen, runAll, fill, focusAfterRemove } from './dom.js';
 import { createFieldMessage } from '../field-message.js';
 import { createList } from '../list.js';
 import type { ListHeight } from '../list.js';
+import { baseText } from './base-text.js';
 
 /** A row's button label, as a template that holds {value} or as a function of the row's name. */
 export type RowLabel = string | ((name: string) => string);
@@ -45,9 +46,9 @@ export function rowLabel(label: RowLabel | null | undefined, fallback: string, n
 export function moveButtons(options: MoveButtonsOptions): HTMLButtonElement[] {
     return [-1, 1].map(function (delta) {
         var up = delta < 0;
-        var label = rowLabel(up ? options.upLabel : options.downLabel, up ? 'Move {value} up' : 'Move {value} down', options.name);
+        var label = rowLabel(up ? options.upLabel : options.downLabel, baseText(up ? 'Base.MoveUpValue' : 'Base.MoveDownValue'), options.name);
         var btn = iconButton('base-row-btn move' + (options.className ? ' ' + options.className + (up ? '-up' : '-down') : ''), up ? 'keyboard_arrow_up' : 'keyboard_arrow_down', label);
-        btn.title = up ? (options.upTitle || 'Move Up') : (options.downTitle || 'Move Down');
+        btn.title = up ? (options.upTitle || baseText('Base.MoveUp')) : (options.downTitle || baseText('Base.MoveDown'));
         btn.setAttribute('data-move', String(delta));
         btn.disabled = up ? options.index <= 0 : options.index >= options.count - 1;
         if (options.onMove) btn.addEventListener('click', function () { options.onMove!(options.index, options.index + delta); });
@@ -160,7 +161,7 @@ export function createRowSet<D, R extends RowSetRow>(options: RowSetOptions<D, R
         var least = options.minRows || 0;
         rows.forEach(function (r) { if (least) r.remove.disabled = rows.length <= least; if (r.label) r.label(); });
         addButton.disabled = full();
-        if (full()) limit.set('info', options.limitText || 'No more rows can be added.');
+        if (full()) limit.set('info', options.limitText || baseText('Base.RowsFull'));
         else limit.clear();
         if (options.onCount) options.onCount(rows.length);
     }
