@@ -50,6 +50,20 @@ if (r.Status == 0 && r.Body.StartsWith(SsrfGuard.RefusalPrefix, StringComparison
 }
 ```
 
+`SendBytesAsync` sends a binary body, such as an encrypted web push, with the same checks and result. A content header passed in `headers`, such as `Content-Encoding`, goes on the body.
+
+```csharp
+HttpResult r = await BaseHttp.SendBytesAsync(
+    _httpClientFactory,
+    HttpMethod.Post,
+    endpoint,
+    body,
+    "application/octet-stream",
+    cancellationToken,
+    headers: new[] { new KeyValuePair<string, string>("Content-Encoding", "aes128gcm") },
+    guard: SsrfGuard.PublicOnly).ConfigureAwait(false);
+```
+
 **Gotchas**
 
 * Status 0 covers four cases, a failed request, a timeout, an oversize body, and a refused target. `IsRefused` and `IsOversize` recognize the last two, and the body text tells the rest apart.

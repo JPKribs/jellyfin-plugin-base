@@ -1,0 +1,151 @@
+/* What one notification destination gets, drawn as its place shows it, from BaseNotifier's preview */
+/* Example: <div class="base-notify-preview"><div class="base-notify-preview-webhook">…</div></div> */
+.base-notify-preview { min-width: 0; overflow-wrap: anywhere; }
+
+/* A webhook's request line, its method, address, and content type, joined to the Code Block of its body below */
+/* Example: <div class="base-notify-preview-line"><span class="base-notify-preview-method">POST</span><span class="base-notify-preview-address">Saved address</span><span class="base-notify-preview-type">application/json</span></div> */
+.base-notify-preview-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--base-gap-narrow);
+    padding: var(--base-pad-small) var(--base-pad-medium);
+    font-family: var(--base-mono);
+    font-size: var(--base-font-small);
+    background: var(--base-wash);
+    border: 1px solid var(--base-border);
+    border-bottom: 0;
+    border-radius: var(--base-radius-small) var(--base-radius-small) 0 0;
+}
+.base-notify-preview-method { font-weight: 600; color: var(--base-green-fg); }
+.base-notify-preview-address,
+.base-notify-preview-type { opacity: 0.7; }
+.base-notify-preview-type { margin-left: auto; }
+.base-notify-preview-line + .base-notify-preview-body { border-top-left-radius: 0; border-top-right-radius: 0; }
+
+/* A Jellyfin message as the web client's toast, at the bottom left of a strip of the page, with a note under it */
+/* Example: <div class="base-notify-preview-jellyfin"><div class="base-notify-preview-screen"><div class="base-notify-preview-toast base-float">Dune is available.</div></div></div> */
+.base-notify-preview-screen {
+    display: flex;
+    padding: var(--base-pad-large);
+    background: var(--base-wash);
+    border: 1px solid var(--base-border);
+    border-radius: var(--base-radius-small);
+}
+.base-notify-preview-toast {
+    min-width: calc(var(--base-size-large) * 6);
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: var(--base-pad-medium) var(--base-pad-large);
+    white-space: pre-wrap;
+}
+.base-notify-preview-jellyfin .fieldDescription { margin-top: var(--base-gap-narrow); }
+
+/* A web push as a browser notification on the floating surface: the icon, then the title, text, site, and image */
+/* Example: <div class="base-notify-preview-push base-float"><div class="base-notify-preview-push-text"><div class="base-notify-preview-push-title">Approved</div></div></div> */
+.base-notify-preview-push {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--base-gap-narrow);
+    max-width: calc(var(--base-size-large) * 10);
+    padding: var(--base-pad-medium);
+    box-sizing: border-box;
+}
+.base-notify-preview-push-icon { width: var(--base-size-large); height: var(--base-size-large); border-radius: var(--base-radius-small); object-fit: cover; flex: none; }
+.base-notify-preview-push-text { flex: 1; min-width: 0; }
+.base-notify-preview-push-title { font-weight: 600; }
+.base-notify-preview-push-body { white-space: pre-line; }
+.base-notify-preview-push-site { font-size: var(--base-font-small); opacity: 0.7; }
+.base-notify-preview-push-image { display: block; max-width: 100%; margin-top: var(--base-gap-narrow); border-radius: var(--base-radius-small); }
+
+/* A Discord post in Discord's dark theme, in any Jellyfin theme: the avatar beside the name, app tag, time, text, and embeds */
+/* Example: <div class="base-notify-preview-discord"><div class="base-notify-preview-discord-avatar">J</div><div class="base-notify-preview-discord-content">…</div></div> */
+.base-notify-preview-discord {
+    display: flex;
+    gap: var(--base-gap-wide);
+    padding: var(--base-pad-medium) var(--base-pad-large);
+    background: var(--base-discord-bg);
+    color: var(--base-discord-text);
+    border-radius: var(--base-radius-large);
+    font-size: var(--base-font-large);
+    line-height: var(--base-line-large);
+}
+.base-notify-preview-discord-avatar {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: var(--base-size-large);
+    height: var(--base-size-large);
+    overflow: hidden;
+    border-radius: var(--base-radius-round);
+    background: var(--base-discord-brand);
+    color: var(--base-on-accent);
+    font-weight: 600;
+}
+.base-notify-preview-discord-avatar img,
+.base-notify-preview-discord-author img,
+.base-notify-preview-discord-footer img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--base-radius-round); }
+.base-notify-preview-discord-content { flex: 1; min-width: 0; }
+.base-notify-preview-discord-header { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--base-gap-narrow); }
+.base-notify-preview-discord-name { color: var(--base-discord-strong); font-weight: 600; }
+.base-notify-preview-discord-tag {
+    padding: 0 var(--base-pad-small);
+    border-radius: var(--base-radius-small);
+    background: var(--base-discord-brand);
+    color: var(--base-on-accent);
+    font-size: var(--base-font-small);
+    line-height: var(--base-line-small);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.base-notify-preview-discord-time { color: var(--base-discord-muted); font-size: var(--base-font-small); }
+.base-notify-preview-discord-text,
+.base-notify-preview-discord-description,
+.base-notify-preview-discord-field-value { white-space: pre-line; }
+.base-notify-preview-discord-link,
+.base-notify-preview-discord-title.linked { color: var(--base-discord-link); }
+.base-notify-preview-discord-code {
+    padding: 0 calc(var(--base-pad-small) / 4);
+    border: 1px solid var(--base-discord-edge);
+    border-radius: var(--base-radius-small);
+    background: var(--base-discord-embed);
+    font-family: var(--base-mono);
+    font-size: var(--base-font-small);
+}
+
+/* One embed with a bar of its color, from the post as a custom color, beside its parts and an optional thumbnail */
+/* Example: <article class="base-notify-preview-discord-embed custom" style="--base-custom: #f44336"><div class="base-notify-preview-discord-grid">…</div></article> */
+.base-notify-preview-discord-embed {
+    max-width: calc(var(--base-size-large) * 13);
+    margin-top: var(--base-gap-narrow);
+    box-sizing: border-box;
+    border-left: calc(var(--base-gap-narrow) / 2) solid var(--base-discord-edge);
+    border-radius: var(--base-radius-small);
+    background: var(--base-discord-embed);
+}
+.base-notify-preview-discord-embed.custom { border-left-color: var(--base-custom-fg); }
+.base-notify-preview-discord-grid { display: flex; gap: var(--base-gap-wide); padding: var(--base-pad-small) var(--base-pad-large) var(--base-pad-large) var(--base-pad-medium); }
+.base-notify-preview-discord-main { display: flex; flex: 1; flex-direction: column; gap: var(--base-gap-narrow); min-width: 0; font-size: var(--base-font-medium); line-height: var(--base-line-medium); }
+.base-notify-preview-discord-author { display: flex; align-items: center; gap: var(--base-gap-narrow); color: var(--base-discord-strong); font-weight: 600; }
+.base-notify-preview-discord-author img { width: var(--base-size-small); height: var(--base-size-small); }
+.base-notify-preview-discord-title { color: var(--base-discord-strong); font-size: var(--base-font-large); line-height: var(--base-line-large); font-weight: 600; }
+.base-notify-preview-discord-fields { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--base-gap-narrow); }
+.base-notify-preview-discord-field { grid-column: span 12; min-width: 0; }
+.base-notify-preview-discord-field[data-span="6"] { grid-column: span 6; }
+.base-notify-preview-discord-field[data-span="4"] { grid-column: span 4; }
+.base-notify-preview-discord-field-name { color: var(--base-discord-strong); font-weight: 600; }
+.base-notify-preview-discord-image { display: block; max-width: 100%; border-radius: var(--base-radius-small); }
+.base-notify-preview-discord-thumbnail {
+    flex: none;
+    max-width: calc(var(--base-size-large) * 2);
+    max-height: calc(var(--base-size-large) * 2);
+    border-radius: var(--base-radius-small);
+    object-fit: contain;
+}
+.base-notify-preview-discord-footer { display: flex; align-items: center; gap: var(--base-gap-narrow); font-size: var(--base-font-small); line-height: var(--base-line-small); }
+.base-notify-preview-discord-footer img { width: var(--base-icon-large); height: var(--base-icon-large); }
+.base-notify-preview-discord-dot { margin: 0 calc(var(--base-gap-narrow) / 4); }
+@media (max-width: 600px) {
+    .base-notify-preview-discord { gap: var(--base-gap-narrow); padding-left: var(--base-pad-small); padding-right: var(--base-pad-small); }
+}

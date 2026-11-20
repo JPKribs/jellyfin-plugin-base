@@ -43,6 +43,7 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 | `BackoffPolicy` | A stateless exponential pause for a repeatedly failing record. | [HTTP and Resilience](http-and-resilience.md#backoffpolicy) |
 | `BackoffState` | The failure count and pause deadline a caller stores per record. | [HTTP and Resilience](http-and-resilience.md#backoffstate) |
 | `BaseHttp` | Outbound HTTP that returns a status and body and does not throw. | [HTTP and Resilience](http-and-resilience.md#basehttp) |
+| `BaseNotifier` | Sends one message to Discord, a webhook, Jellyfin, and web push, and previews each. | [Notifications](notifications.md#basenotifier) |
 | `BaseRetryHandler` | A handler that retries a read for a gateway error or a slow answer. | [HTTP and Resilience](http-and-resilience.md#baseretryhandler) |
 | `BaseRetryOptions` | The attempts, waits, and timeout of a retry handler. | [HTTP and Resilience](http-and-resilience.md#baseretryoptions) |
 | `BaseTranslations` | The plugin's strings in a language, with fallback, formatting, the endpoint answer, and the language of a request. | [Translations](translations.md#basetranslations) |
@@ -57,8 +58,19 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 | `HashUtilities` | Short SHA-256 fingerprints and the full SHA-256 hex of a string. | [Text and Formatting](text-and-formatting.md#hashutilities) |
 | `HttpResult` | The status and body that `BaseHttp` returns. | [HTTP and Resilience](http-and-resilience.md#httpresult) |
 | `HttpRetry` | Names the statuses worth asking again and reads Retry-After. | [HTTP and Resilience](http-and-resilience.md#httpretry) |
+| `INotifyHeldStore` | The plugin's store for Jellyfin messages that wait for a device. | [Notifications](notifications.md#inotifyheldstore) |
 | `ItemTitles` | Names a library item as Jellyfin does. | [Text and Formatting](text-and-formatting.md#itemtitles) |
+| `IWebPushStore` | The plugin's store for the VAPID keys and web push subscriptions. | [Notifications](notifications.md#iwebpushstore) |
 | `JsonFileStore` | A thread-safe atomic JSON file for one value. | [Data and Storage](data-and-storage.md#jsonfilestore) |
+| `NotifyChannel` | The kind of place a destination is. | [Notifications](notifications.md#notifychannel) |
+| `NotifyDestination` | One place messages go, with its secrets encrypted at rest. | [Notifications](notifications.md#notifydestination) |
+| `NotifyField` | One name and value a message carries. | [Notifications](notifications.md#notifyfield) |
+| `NotifyHeldMessage` | A Jellyfin message held until a device is online. | [Notifications](notifications.md#notifyheldmessage) |
+| `NotifyHeldWatcher` | Shows held messages once a device comes online. | [Notifications](notifications.md#notifyheldwatcher) |
+| `NotifyMessage` | One update, written once for every channel. | [Notifications](notifications.md#notifymessage) |
+| `NotifyPreview` | What a destination would get, without sending. | [Notifications](notifications.md#notifypreview) |
+| `NotifyResult` | What sending to one destination did. | [Notifications](notifications.md#notifyresult) |
+| `NotifyTemplate` | Placeholders, custom bodies, headers, and escaping for notifications. | [Notifications](notifications.md#notifytemplate) |
 | `PagedQuery` | The skip, take, search, and filter a list endpoint receives. | [Data and Storage](data-and-storage.md#pagedquery) |
 | `PagedResult` | One page of results with the count and page metadata. | [Data and Storage](data-and-storage.md#pagedresult) |
 | `PagedResultExtensions` | `ToPagedResult` for an already filtered collection. | [Data and Storage](data-and-storage.md#pagedresultextensions) |
@@ -73,7 +85,7 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 | `SchemaAction` | What opening a database did or what the caller must do next. | [Data and Storage](data-and-storage.md#schemaaction) |
 | `SecretCompare` | Constant time secret comparison and random tokens. | [Security and Secrets](security-and-secrets.md#secretcompare) |
 | `SecretProtector` | Encrypts plugin secrets at rest with Data Protection. | [Security and Secrets](security-and-secrets.md#secretprotector) |
-| `ServiceCollectionExtensions` | DI registration for the activity logger and the secret protector. | [Plugin and Tasks](plugin-and-tasks.md#servicecollectionextensions) |
+| `ServiceCollectionExtensions` | DI registration for the activity logger, the secret protector, and the notifier. | [Plugin and Tasks](plugin-and-tasks.md#servicecollectionextensions) |
 | `SpeedBucket` | A bytes per second rate that several streams share. | [Streams and Throttling](streams-and-throttling.md#speedbucket) |
 | `SsrfGuard` | Refuses private, loopback, link local, and other unsafe targets. | [HTTP and Resilience](http-and-resilience.md#ssrfguard) |
 | `StableSecretProtection` | Builds the provider and protector with launch-independent keys. | [Security and Secrets](security-and-secrets.md#stablesecretprotection) |
@@ -88,6 +100,10 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 | `ThrottledReadStream` | A read through stream held to the rate of a `SpeedBucket`. | [Streams and Throttling](streams-and-throttling.md#throttledreadstream) |
 | `UrlUtilities` | Reads text as an absolute http or https URL. | [Security and Secrets](security-and-secrets.md#urlutilities) |
 | `UtcTime` | Formats and parses stored times as UTC. | [Text and Formatting](text-and-formatting.md#utctime) |
+| `WebPushEncryption` | Encrypts a web push as RFC 8291 sets out. | [Notifications](notifications.md#webpushencryption) |
+| `WebPushKeys` | The VAPID key pair that signs every web push. | [Notifications](notifications.md#webpushkeys) |
+| `WebPushSubscription` | One browser signed up for a user's web push. | [Notifications](notifications.md#webpushsubscription) |
+| `WebPushWorker` | The service worker script that shows a web push. | [Notifications](notifications.md#webpushworker) |
 
 ## Pages
 
@@ -103,6 +119,7 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 | [Pages and Templates](pages-and-templates.md) | Standalone status pages, templates, and favicons. |
 | [Activity Log](activity-log.md) | Single and summed entries in Jellyfin's activity log. |
 | [Translations](translations.md) | The plugin's strings in each language, for C# text and for its pages. |
+| [Notifications](notifications.md) | Discord, webhooks, Jellyfin messages, and web push from one message. |
 
 ## Wiring Checklist
 
@@ -114,3 +131,4 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 6. Own the dispose of any `ActivitySummary` you create, so waiting events are written on shutdown.
 7. For standalone pages, serve `StatusPage.Render` output with `PublicPage.ApplyHardeningHeaders` and a sibling `favicon.ico` route.
 8. For translations, add `Localization/en-us.json` and the `JellyfinString` items, and an endpoint that returns `BaseTranslations.Serve`. See [Translations](../../Translations.md).
+9. For notifications, call `AddBaseNotifier()` and register the plugin's stores. See [Notifications](../../Notifications.md).

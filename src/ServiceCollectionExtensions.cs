@@ -41,4 +41,18 @@ public static class ServiceCollectionExtensions
             return StableSecretProtection.CreateProtector(sp.GetService<IApplicationPaths>(), pluginName, logger);
         });
     }
+
+    /// <summary>
+    /// Registers <see cref="BaseNotifier"/> as a singleton, and <see cref="NotifyHeldWatcher"/> as a hosted service that shows held
+    /// Jellyfin messages once a device comes online. Register the plugin's <see cref="INotifyHeldStore"/>, <see cref="IWebPushStore"/>,
+    /// and <see cref="SecretProtector"/> too, for the parts that use them.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The same service collection.</returns>
+    public static IServiceCollection AddBaseNotifier(this IServiceCollection services)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        services.AddSingleton<BaseNotifier>();
+        return services.AddHostedService<NotifyHeldWatcher>();
+    }
 }

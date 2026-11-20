@@ -109,6 +109,7 @@ The CSS is written to survive the desktop app's Qt WebEngine and older TV webvie
 | [Shared Bag](shared-bag.md) | The per view helper object |
 | [Browser Helpers](browser-helpers.md) | Escaping, plurals, debounce, GUIDs, and JSON files |
 | [Translations](translations.md) | The plugin's strings in the viewer's language, and marked markup translated |
+| [Web Push](web-push.md) | Notifications on this device, from asking to subscribing |
 | [Utility Classes](utility-classes.md) | Hidden, mono, ok and bad text, and screen reader text |
 
 ### Layout and Sections
@@ -253,6 +254,7 @@ The CSS is written to survive the desktop app's Qt WebEngine and older TV webvie
 | [QR Code](qr-code.md) | A link as a QR code, with "Copy image" and "Download" |
 | [Audio Player](audio-player.md) | Play, seek, and time, one player at a time |
 | [Preview Frame](preview-frame.md) | An image rendered on demand, with backgrounds and zoom |
+| [Notify Preview](notify-preview.md) | A notification as Discord, a webhook, Jellyfin, or a browser shows it |
 | [Definition List](definition-list.md) | Read only label and value pairs, in rows or columns |
 | [Log Viewer](log-viewer.md) | Scrolling mono output with a toolbar |
 | [Stat Card](stat-card.md) | A count or text status card with details and a trend |

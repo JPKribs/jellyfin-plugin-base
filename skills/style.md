@@ -171,6 +171,7 @@ Color carries meaning in Base, so it is never decoration. Every color a reader s
 | `--base-custom`, `--base-custom-on` | A hex color, set on the element by the color core, with the text color that reads on it |
 | `--base-shadow-float`, `--base-shadow-dialog` | The two shadows, black at an alpha |
 | `--base-mono` | Not a color, but kept with them: the font for code, ids, paths, hex codes, and raw errors |
+| `--base-discord-*` | Discord's dark theme, for the Notify Preview's Discord post only, so it looks as Discord shows it in any theme |
 
 ### The Named Colors
 

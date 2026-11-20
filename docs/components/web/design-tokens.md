@@ -43,6 +43,21 @@ Fixed colors, the same in light and dark themes.
 
 The `-bg` token is a 20 percent tint and the `-fg` token is the solid color. The `custom` class makes the same pair, `--base-custom-bg` and `--base-custom-fg`, from a hex code in `--base-custom`, which `applyColor` sets. Yellow, pink, and teal are extra tints for badges, cards, avatars, and timeline markers. They carry no status meaning.
 
+## Discord Colors
+
+Discord's dark theme, for the [Notify Preview](notify-preview.md)'s Discord post only, so it looks as Discord shows it in any Jellyfin theme. No other component reads them.
+
+| Token | Use |
+| :--- | :--- |
+| `--base-discord-bg` | The message background |
+| `--base-discord-embed` | An embed's background |
+| `--base-discord-edge` | An embed's bar with no color, and a code border |
+| `--base-discord-text` | The text |
+| `--base-discord-strong` | Names, titles, and field names |
+| `--base-discord-muted` | The time |
+| `--base-discord-link` | A link and a linked title |
+| `--base-discord-brand` | The avatar with no picture and the app tag |
+
 ## Status Color Meanings
 
 A color means the same thing in every component and every plugin. Use "orange" for the warning color in class names, never "amber" or "warning". The callout class `base-warn` is the one exception, since it names a notice and not a color.

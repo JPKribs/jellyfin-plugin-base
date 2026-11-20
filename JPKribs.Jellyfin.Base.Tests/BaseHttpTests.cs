@@ -313,4 +313,36 @@ public class BaseHttpTests
             Assert.False(result.IsTransient);
         }
     }
+
+    /// <summary>
+    /// A binary body goes out as given, with its content type, and a content header passed in the headers lands on the body.
+    /// True: an encrypted web push reaches its push service intact, with Content-Encoding set.
+    /// False: the body would be re-encoded as text, or the content header dropped, and the browser could not decrypt it.
+    /// </summary>
+    [Fact]
+    public async Task SendBytesAsync_SendsTheBytesWithTheirContentHeaders()
+    {
+        byte[]? received = null;
+        var handler = new StubHandler(async (request, ct) =>
+        {
+            received = await request.Content!.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
+            return new HttpResponseMessage(HttpStatusCode.Created) { Content = new StringContent("ok") };
+        });
+        var body = new byte[] { 0, 1, 2, 255 };
+
+        var result = await BaseHttp.SendBytesAsync(
+            Factory(handler),
+            HttpMethod.Post,
+            Url,
+            body,
+            "application/octet-stream",
+            CancellationToken.None,
+            new[] { new KeyValuePair<string, string>("Content-Encoding", "aes128gcm"), new KeyValuePair<string, string>("TTL", "60") });
+
+        Assert.Equal(201, result.Status);
+        Assert.Equal(body, received);
+        Assert.Equal("application/octet-stream", handler.LastRequest!.Content!.Headers.ContentType!.MediaType);
+        Assert.Equal("aes128gcm", Assert.Single(handler.LastRequest.Content.Headers.ContentEncoding));
+        Assert.Equal("60", Assert.Single(handler.LastRequest.Headers.GetValues("TTL")));
+    }
 }

@@ -76,6 +76,16 @@
     --base-yellow-bg: rgba(224, 200, 78, 0.2); --base-yellow-fg: #e0c84e;
     --base-pink-bg: rgba(232, 93, 154, 0.2);   --base-pink-fg: #e85d9a;
     --base-teal-bg: rgba(38, 166, 154, 0.2);   --base-teal-fg: #26a69a;
+
+    /* Discord's dark theme, for the Notify Preview's Discord post only, so it looks as Discord shows it in any Jellyfin theme. */
+    --base-discord-bg: #313338;
+    --base-discord-embed: #2b2d31;
+    --base-discord-edge: #1e1f22;
+    --base-discord-text: #dbdee1;
+    --base-discord-strong: #f2f3f5;
+    --base-discord-muted: #949ba4;
+    --base-discord-link: #00a8fc;
+    --base-discord-brand: #5865f2;
 }
 /* A custom color from a hex code, which applyColor sets as --base-custom with --base-custom-on for text on its fill */
 /* Example: <span class="base-badge custom" style="--base-custom: #e91e63; --base-custom-on: #fff">VIP</span> */

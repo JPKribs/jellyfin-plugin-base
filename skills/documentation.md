@@ -32,6 +32,7 @@ Each fact has one home. Link to it from everywhere else.
 | The members and signatures of a C# type | The XML docs in `src/*.cs` |
 | How a release works and how a plugin raises Base | `docs/Releasing.md` |
 | How a plugin uses Jellyfin strings and adds its own, and every translations diagnostic | `docs/Translations.md` |
+| How a plugin sends notifications and sets up web push | `docs/Notifications.md` |
 | The rules for naming and documenting a component | `skills/style.md` and `skills/code.md` |
 | How to work in the repository | `starthere.md` and `skills/` |
 | What a component is for, in the code | The comment above it, in the format [code.md](code.md#comments) gives |
@@ -192,7 +193,7 @@ The site is MkDocs with the Material theme, built from `docs/` by `mkdocs.yml` a
 Keep the nav in this order.
 
 1. **Overview** (`index.md`). What Base is, how a plugin consumes it, and where to start.
-2. **Getting Started**. **Using Base**, `Usage.md`, then **Translations**, `Translations.md`.
+2. **Getting Started**. **Using Base**, `Usage.md`, then **Translations**, `Translations.md`, then **Notifications**, `Notifications.md`.
 3. **Components**. **Web**, with `components/web/index.md`, **Design Tokens**, and one page per component in groups by purpose, then **C#**, with `components/csharp/index.md` and its pages by purpose.
 4. **Development**. `Releasing.md`.
 

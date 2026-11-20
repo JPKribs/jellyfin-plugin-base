@@ -150,7 +150,7 @@ await ConcurrentTaskRunner.RunAsync(
 
 ## ServiceCollectionExtensions
 
-`ServiceCollectionExtensions` registers the two helpers a plugin's `IPluginServiceRegistrator` would otherwise wire by hand. `AddActivityLogger` adds the `ActivityLogger` singleton, and `AddPluginSecretProtector` adds a `SecretProtector` built by `StableSecretProtection.CreateProtector` under the plugin name.
+`ServiceCollectionExtensions` registers the helpers a plugin's `IPluginServiceRegistrator` would otherwise wire by hand. `AddActivityLogger` adds the `ActivityLogger` singleton, `AddPluginSecretProtector` adds a `SecretProtector` built by `StableSecretProtection.CreateProtector` under the plugin name, and `AddBaseNotifier` adds the `BaseNotifier` singleton and the `NotifyHeldWatcher` hosted service. See [Notifications](../../Notifications.md#set-up).
 
 ```csharp
 public class PluginServiceRegistrator : IPluginServiceRegistrator
@@ -170,6 +170,6 @@ Inject `SecretProtector` and `ActivityLogger` into services by constructor. Code
 
 **Gotchas**
 
-* Both methods use `AddSingleton`, not `TryAdd`. Calling one twice registers two descriptors, and the last one wins on resolve.
+* Every method uses `AddSingleton`, not `TryAdd`. Calling one twice registers two descriptors, and the last one wins on resolve.
 * `AddPluginSecretProtector` shares its key ring with a protector the plugin class builds under the same name. Without `IApplicationPaths` in the container, the protector stores plaintext.
 * `ActivityLogger.Current` is set only after DI first resolves the logger.

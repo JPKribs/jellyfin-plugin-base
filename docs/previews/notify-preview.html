@@ -1,0 +1,26 @@
+<!-- title: Notify Preview -->
+<div id="mount" style="display: grid; gap: 16px;"></div>
+<script type="module">
+const base = await window.__baseReady;
+const mount = document.getElementById('mount');
+const discord = {
+    username: 'Jellyfin',
+    embeds: [{
+        title: 'Approved: Dune (2021)',
+        url: 'https://jellyfin.example.com/web/',
+        description: 'Dune \\(2021\\) was approved by **admin**.',
+        color: 0x00A4DC,
+        fields: [{ name: 'Requester', value: 'viewer', inline: true }, { name: 'Seasons', value: 'All', inline: true }, { name: 'Notes', value: 'For movie night', inline: false }],
+        timestamp: new Date().toISOString()
+    }],
+    allowed_mentions: { parse: [] }
+};
+const previews = [
+    { Channel: 'Discord', Method: 'POST', ContentType: 'application/json', Body: JSON.stringify(discord), Discord: discord },
+    { Channel: 'Webhook', Method: 'POST', ContentType: 'application/json', Body: JSON.stringify({ title: 'Approved: Dune (2021)', message: 'Dune (2021) was approved.', link: 'https://jellyfin.example.com/web/' }) },
+    { Channel: 'Jellyfin', Header: 'Approved: Dune (2021)', Text: 'Dune (2021) was approved.' },
+    { Channel: 'WebPush', Method: 'POST', ContentType: 'application/json', Body: JSON.stringify({ title: 'Approved: Dune (2021)', body: 'Dune (2021) was approved.', url: 'https://jellyfin.example.com/web/' }) },
+    { Channel: 'Discord', Error: 'Discord needs a JSON body.' }
+];
+previews.forEach((p) => mount.appendChild(base.createNotifyPreview({ preview: p, site: 'jellyfin.example.com' }).element));
+</script>

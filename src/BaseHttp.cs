@@ -59,7 +59,7 @@ public static class BaseHttp
     /// Every refusal has status zero, so <see cref="HttpResult.IsRefused"/> and <see cref="HttpResult.IsOversize"/> tell it from a failure that may pass by itself.
     /// </remarks>
     /// <exception cref="OperationCanceledException">The caller's <paramref name="cancellationToken"/> was cancelled.</exception>
-    public static async Task<HttpResult> SendAsync(
+    public static Task<HttpResult> SendAsync(
         IHttpClientFactory httpClientFactory,
         HttpMethod method,
         string url,
@@ -71,6 +71,74 @@ public static class BaseHttp
         string? password = null,
         long maxResponseBytes = DefaultMaxResponseBytes,
         SsrfGuard? guard = null)
+        => SendCoreAsync(
+            httpClientFactory,
+            method,
+            url,
+            headers,
+            body is null ? null : () => new StringContent(body, Encoding.UTF8, contentType),
+            login,
+            password,
+            maxResponseBytes,
+            guard,
+            cancellationToken);
+
+    /// <summary>
+    /// Sends an HTTP request with a binary body and returns the status and body, as <see cref="SendAsync"/> does.
+    /// </summary>
+    /// <param name="httpClientFactory">The HTTP client factory.</param>
+    /// <param name="method">The HTTP method.</param>
+    /// <param name="url">The absolute request URL.</param>
+    /// <param name="body">The request body.</param>
+    /// <param name="contentType">The body content type.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="headers">Optional request headers. A content header, such as <c>Content-Encoding</c>, goes on the body.</param>
+    /// <param name="maxResponseBytes">The largest response body read, <see cref="DefaultMaxResponseBytes"/> by default.</param>
+    /// <param name="guard">Which <see cref="SsrfGuard"/> applies, as <see cref="SendAsync"/> describes.</param>
+    /// <returns>The HTTP result, with status zero when the request did not complete.</returns>
+    /// <exception cref="OperationCanceledException">The caller's <paramref name="cancellationToken"/> was cancelled.</exception>
+    public static Task<HttpResult> SendBytesAsync(
+        IHttpClientFactory httpClientFactory,
+        HttpMethod method,
+        string url,
+        byte[] body,
+        string contentType,
+        CancellationToken cancellationToken,
+        IEnumerable<KeyValuePair<string, string>>? headers = null,
+        long maxResponseBytes = DefaultMaxResponseBytes,
+        SsrfGuard? guard = null)
+    {
+        ArgumentNullException.ThrowIfNull(body);
+        ArgumentException.ThrowIfNullOrEmpty(contentType);
+        return SendCoreAsync(
+            httpClientFactory,
+            method,
+            url,
+            headers,
+            () =>
+            {
+                var content = new ByteArrayContent(body);
+                content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
+                return content;
+            },
+            null,
+            null,
+            maxResponseBytes,
+            guard,
+            cancellationToken);
+    }
+
+    private static async Task<HttpResult> SendCoreAsync(
+        IHttpClientFactory httpClientFactory,
+        HttpMethod method,
+        string url,
+        IEnumerable<KeyValuePair<string, string>>? headers,
+        Func<HttpContent>? body,
+        string? login,
+        string? password,
+        long maxResponseBytes,
+        SsrfGuard? guard,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(httpClientFactory);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxResponseBytes);
@@ -108,7 +176,7 @@ public static class BaseHttp
                     }
                 }
 
-                using var request = BuildRequest(currentMethod, currentUrl, headers, currentBody, contentType, login, password);
+                using var request = BuildRequest(currentMethod, currentUrl, headers, currentBody, login, password);
                 using var response = await sender.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false);
 
                 if (strict && IsRedirect(response.StatusCode) && response.Headers.Location is { } location)
@@ -168,8 +236,7 @@ public static class BaseHttp
         HttpMethod method,
         string url,
         IEnumerable<KeyValuePair<string, string>>? headers,
-        string? body,
-        string contentType,
+        Func<HttpContent>? body,
         string? login,
         string? password)
     {
@@ -177,7 +244,7 @@ public static class BaseHttp
 
         if (body is not null)
         {
-            request.Content = new StringContent(body, Encoding.UTF8, contentType);
+            request.Content = body();
         }
 
         if (login is not null && password is not null)

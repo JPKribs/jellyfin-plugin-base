@@ -1,0 +1,13 @@
+<!-- title: Web Push -->
+<div id="out"></div>
+<script type="module">
+const base = await window.__baseReady;
+const list = base.createDefinitionList({ items: [] });
+document.getElementById('out').appendChild(list.element);
+const states = ['insecure', 'install', 'unsupported', 'denied', 'off', 'on'];
+base.webPushState().then((r) => {
+    list.setItems([{ label: 'This page', value: r.state + ', ' + r.message }]
+        .concat({ label: 'This device', value: base.webPushLabel() || 'Unknown' })
+        .concat(states.map((s) => ({ label: s, value: base.webPushText(s) }))));
+});
+</script>

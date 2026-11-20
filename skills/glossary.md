@@ -285,6 +285,23 @@ The agreed name for every concept in Base. Components, default labels, docs, and
 | Schema version | The version a helper stamps into a SQLite file | `DatabaseSchema` | Migration number |
 | Minimum reader | The oldest version that can still read the file | `DatabaseSchema` | Compat version |
 
+## Notifications
+
+| Term | Meaning | In Code | Not |
+| :--- | :--- | :--- | :--- |
+| Notifier | The helper that sends a message to each destination in its own format, and previews it | `BaseNotifier` | Sender, dispatcher |
+| Message | One update, written once for every channel, with placeholders filled for each | `NotifyMessage` | Notification object, payload |
+| Update | What happened that a plugin tells people about, in docs and default text | `{updateTitle}`, `{updateMessage}` | Event, alert |
+| Destination | One place messages go, kept in the plugin's configuration | `NotifyDestination` | Target, sink, connection |
+| Channel | The kind of place a destination is, Discord, webhook, Jellyfin, or web push | `NotifyChannel` | Provider, transport |
+| Recipient | A Jellyfin user the Jellyfin and web push channels reach | `NotifyMessage.Recipients` | Target user, subscriber |
+| Held message | A Jellyfin message kept until one of its recipient's devices is online | `NotifyHeldMessage`, `INotifyHeldStore` | Queued message, pending message |
+| Notify preview | What a destination would get, built by the code that sends it, and drawn on a page | `NotifyPreview`, `createNotifyPreview` | Mockup, sample |
+| Web push | A browser notification sent through the browser's push service, by RFC 8030, 8291, and 8292 | `WebPushEncryption`, `subscribeWebPush` | Push notification, browser alert |
+| VAPID keys | The server's key pair that signs every web push | `WebPushKeys` | Push keys, server keys |
+| Subscription | One browser signed up for a user's web push | `WebPushSubscription`, `IWebPushStore` | Registration, device token |
+| Worker script | The service worker script that shows a web push | `WebPushWorker` | Push handler |
+
 ## Delivery
 
 | Term | Meaning | In Code | Not |

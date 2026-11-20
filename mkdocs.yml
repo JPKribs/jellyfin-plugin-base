@@ -59,6 +59,7 @@ nav:
   - Getting Started:
       - Using Base: Usage.md
       - Translations: Translations.md
+      - Notifications: Notifications.md
   - Components:
       - Web:
           - Overview: components/web/index.md
@@ -72,6 +73,7 @@ nav:
               - Shared Bag: components/web/shared-bag.md
               - Browser Helpers: components/web/browser-helpers.md
               - Translations: components/web/translations.md
+              - Web Push: components/web/web-push.md
               - Utility Classes: components/web/utility-classes.md
           - Layout and Sections:
               - Section Title: components/web/section-title.md
@@ -184,6 +186,7 @@ nav:
               - QR Code: components/web/qr-code.md
               - Audio Player: components/web/audio-player.md
               - Preview Frame: components/web/preview-frame.md
+              - Notify Preview: components/web/notify-preview.md
               - Definition List: components/web/definition-list.md
               - Log Viewer: components/web/log-viewer.md
               - Stat Card: components/web/stat-card.md
@@ -208,5 +211,6 @@ nav:
           - Pages and Templates: components/csharp/pages-and-templates.md
           - Activity Log: components/csharp/activity-log.md
           - Translations: components/csharp/translations.md
+          - Notifications: components/csharp/notifications.md
   - Development:
       - Releasing: Releasing.md

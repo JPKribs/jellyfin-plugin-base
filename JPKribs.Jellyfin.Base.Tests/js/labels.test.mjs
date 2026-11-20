@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { installFakeDom, all } from './fake-dom.mjs';
 
 var dom = installFakeDom();
-var { openEditorDialog, promptDialog, createCheckboxList, createUserMultiSelector, createSearchField, createPagination, createTranslations, createStringList } = await import('../../src/js/index.js');
+var { openEditorDialog, promptDialog, createCheckboxList, createUserMultiSelector, createSearchField, createPagination, createTranslations, createStringList, createNotifyPreview } = await import('../../src/js/index.js');
 var { setCurrentTranslations } = await import('../../src/js/lib/base-text.js');
 
 beforeEach(function () {
@@ -154,4 +154,13 @@ test('fillLabel cases a label for its place and keeps the other placeholders', f
     assert.equal(fillLabel('No label here', 'value', 'X'), 'No label here');
     assert.equal(labelText(null), '');
     assert.equal(labelText('TV Shows', true), 'TV shows');
+});
+
+test('createNotifyPreview names the stored address "Saved address" and the Discord name "Jellyfin" by default, and takes addressText and username', function () {
+    var hook = { Channel: 'Webhook', ContentType: 'application/json', Body: '{}' };
+    assert.equal(createNotifyPreview({ preview: hook }).element.querySelector('.base-notify-preview-address').textContent, 'Saved address');
+    assert.equal(createNotifyPreview({ preview: hook, addressText: 'Home Assistant' }).element.querySelector('.base-notify-preview-address').textContent, 'Home Assistant');
+    var post = { Channel: 'Discord', Body: '{"embeds":[]}' };
+    assert.match(createNotifyPreview({ preview: post }).element.children[0].innerHTML, /discord-name">Jellyfin</);
+    assert.match(createNotifyPreview({ preview: post, username: 'Media bot' }).element.children[0].innerHTML, /discord-name">Media bot</);
 });

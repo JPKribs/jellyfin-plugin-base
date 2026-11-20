@@ -205,6 +205,22 @@ var pageStrings: B.TranslationsHandle | null = B.currentTranslations();
 // @ts-expect-error The exceptions are a list of words.
 B.titleCase('allow', { exceptions: 'TV' });
 
+// Notification previews and web push.
+var notice: B.NotifyPreviewHandle = B.createNotifyPreview({ preview: { Channel: 'Discord', Body: '{}', Discord: { embeds: [] } }, username: 'Jellyfin', now: new Date() });
+notice.setPreview({ channel: 2, header: 'Approved', text: 'Dune was approved.' });
+notice.setPreview(null);
+// @ts-expect-error The channel is a channel name or number.
+B.createNotifyPreview({ preview: { Channel: 'Email' } });
+declare var registration: ServiceWorkerRegistration;
+var pushed: Promise<B.WebPushResult> = B.subscribeWebPush({ registration: registration, publicKey: 'key', save: function (s: B.WebPushSubscriptionJson) { return Promise.resolve(s.endpoint); } });
+B.unsubscribeWebPush({ registration: Promise.resolve(registration), remove: function () { return Promise.resolve(); } });
+B.webPushState(registration).then(function (r: B.WebPushResult) { var state: B.WebPushState = r.state; return state; });
+var pushText: string = B.webPushText('insecure') + B.webPushLabel('ua');
+// @ts-expect-error Subscribing needs the registration.
+B.subscribeWebPush({ publicKey: 'key' });
+// @ts-expect-error A state is one of the six names.
+B.webPushText('maybe');
+
 var thumbColumn: B.TableColumn<Row> = { key: 'name', label: 'Name', image: function () { return function () { return Promise.resolve(new Blob()); }; } };
 
-export { page, table, result, secret, label, kept, states, safe, casing, pageStrings };
+export { page, table, result, secret, label, kept, states, safe, casing, pageStrings, pushed, pushText };
