@@ -31,6 +31,7 @@ Each fact has one home. Link to it from everywhere else.
 | A live example of a web component | `docs/previews/` |
 | The members and signatures of a C# type | The XML docs in `src/*.cs` |
 | How a release works and how a plugin raises Base | `docs/Releasing.md` |
+| How a plugin uses Jellyfin strings and adds its own, and every translations diagnostic | `docs/Translations.md` |
 | The rules for naming and documenting a component | `skills/style.md` and `skills/code.md` |
 | How to work in the repository | `starthere.md` and `skills/` |
 | What a component is for, in the code | The comment above it, in the format [code.md](code.md#comments) gives |
@@ -191,7 +192,7 @@ The site is MkDocs with the Material theme, built from `docs/` by `mkdocs.yml` a
 Keep the nav in this order.
 
 1. **Overview** (`index.md`). What Base is, how a plugin consumes it, and where to start.
-2. **Getting Started**. **Using Base**, `Usage.md`.
+2. **Getting Started**. **Using Base**, `Usage.md`, then **Translations**, `Translations.md`.
 3. **Components**. **Web**, with `components/web/index.md`, **Design Tokens**, and one page per component in groups by purpose, then **C#**, with `components/csharp/index.md` and its pages by purpose.
 4. **Development**. `Releasing.md`.
 
@@ -246,9 +247,10 @@ It follows the shape of the plugin READMEs.
 1. The icon at the top left, then one paragraph on what Base is and that its source and assets compile into each plugin.
 2. **Documentation.** One sentence on what the site covers and a link to it.
 3. **Package.** The `PackageReference` line.
-4. **License.** One line that links `LICENSE`, the Zero-Clause BSD license, and says what it allows.
+4. **License.** One line that links `LICENSE`, the GNU General Public License v3.0, and says what it means for a plugin.
+5. **Acknowledgements.** Where the Jellyfin strings come from, who wrote them, and the license they keep.
 
-Use `##` for README headings, so the README has exactly these three, **Documentation**, **Package**, and **License**. Keep the README under 30 lines. Never list a component, a usage snippet, or release steps there. Usage lives in `docs/Usage.md` and releasing in `docs/Releasing.md`.
+Use `##` for README headings, so the README has exactly these four, **Documentation**, **Package**, **License**, and **Acknowledgements**. Keep the README under 30 lines. Never list a component, a usage snippet, or release steps there. Usage lives in `docs/Usage.md` and releasing in `docs/Releasing.md`.
 
 ## Building the Docs
 

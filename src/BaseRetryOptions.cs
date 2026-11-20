@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
-/// The settings of a <see cref="JpkRetryHandler"/>.
+/// The settings of a <see cref="BaseRetryHandler"/>.
 /// Every value has a default, and the clock and the delay can be replaced so a test never waits.
 /// </summary>
-public sealed class JpkRetryOptions
+public sealed class BaseRetryOptions
 {
     /// <summary>Gets the most times one request is sent. 3 by default, which is two retries.</summary>
     public int MaxAttempts { get; init; } = 3;

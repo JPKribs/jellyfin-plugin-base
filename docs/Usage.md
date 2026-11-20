@@ -5,10 +5,10 @@ How a plugin adds Base, registers its shared pages, loads the shared CSS and Jav
 ## Add the Package
 
 ```xml
-<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.10.28" />
+<PackageReference Include="JPKribs.Jellyfin.Base" Version="12.4.0" />
 ```
 
-Use the latest version from nuget.org. The package has no runtime assembly, and the plugin stays one DLL. Building the plugin does four things.
+Use the latest version from nuget.org. A version starts with the Jellyfin version it targets, so `12.4.0` is for Jellyfin 12.4. The package has no runtime assembly, and the plugin stays one DLL. Building the plugin does five things.
 
 | Piece | What happens |
 | :--- | :--- |
@@ -16,6 +16,7 @@ Use the latest version from nuget.org. The package has no runtime assembly, and 
 | `jpkribs_shared.css` and `jpkribs_shared.js` | Embedded as `<RootNamespace>.Configuration.jpkribs_shared.css` and `.js` |
 | `templates/*.html` | Embedded as `<RootNamespace>.Templates.<name>.html`, for `TemplateLoader` and `StatusPage` |
 | `jpkribs_shared.d.ts` | Copied to the plugin's `obj/` folder for the editor, and never embedded |
+| `Localization/*.json` and `JellyfinString` items | Checked against Jellyfin's strings, then embedded as one file per language, with the `TranslationKeys` class. See [Translations](Translations.md) |
 
 The web components are written in TypeScript. The package carries them as one bundled, minified ES module and the typings built from the same source. See [C# Components](components/csharp/index.md#what-the-package-is) for the full package contents.
 
@@ -112,4 +113,5 @@ A page that does not use `createConfigPage` calls `setTabs('myplugin', 1, tabs)`
 
 * Find a page component under [Web Components](components/web/index.md), and read how the lists, tables, editors, and dialogs build on each other in [How Components Build on Each Other](components/web/index.md#how-components-build-on-each-other).
 * Pick a helper from [C# Components](components/csharp/index.md).
+* Show the plugin in the viewer's language with [Translations](Translations.md).
 * Raise Base in a plugin as [Releasing](Releasing.md#raise-base-in-a-plugin) describes.

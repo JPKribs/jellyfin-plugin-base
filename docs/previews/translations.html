@@ -1,0 +1,33 @@
+<!-- title: Translations -->
+<div style="display: flex; flex-direction: column; gap: 10px;">
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+        <button type="button" class="raised base-button secondary small" data-language="en-us"><span>English</span></button>
+        <button type="button" class="raised base-button secondary small" data-language="de"><span>Deutsch</span></button>
+        <button type="button" class="raised base-button secondary small" data-language="fr"><span>Français</span></button>
+    </div>
+    <h3 data-str="MyRequests">My Requests</h3>
+    <input is="emby-input" type="text" data-str-placeholder="Search" placeholder="Search">
+    <span id="quota" class="base-mono"></span>
+</div>
+<script type="module">
+const base = await window.__baseReady;
+const strings = {
+    'en-us': { MyRequests: 'My Requests', Search: 'Search', QuotaLeft: '{0} of {1} left' },
+    'de': { MyRequests: 'Meine Anfragen', Search: 'Suche', QuotaLeft: '{0} von {1} übrig' },
+    'fr': { MyRequests: 'Mes demandes', Search: 'Rechercher', QuotaLeft: '{0} sur {1} restants' }
+};
+// The preview answers in place of a plugin's BaseTranslations.Serve endpoint.
+const realFetch = window.fetch;
+window.fetch = (url, init) => {
+    const match = /\/Preview\/Translations\?language=([\w-]+)/.exec(String(url));
+    if (!match) return realFetch(url, init);
+    return Promise.resolve(new Response(JSON.stringify(strings[match[1]] || strings['en-us']), { headers: { 'Content-Type': 'application/json' } }));
+};
+const show = async (language) => {
+    const t = await base.loadTranslations('/Preview/Translations', { language });
+    t.apply(document.body);
+    document.getElementById('quota').textContent = t.format('QuotaLeft', 3, 5);
+};
+document.querySelectorAll('[data-language]').forEach((b) => b.addEventListener('click', () => show(b.dataset.language)));
+show('en-us');
+</script>

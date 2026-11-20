@@ -4,16 +4,43 @@ How to release Base, from the checks to the version every plugin then picks up. 
 
 ## Versions
 
-A version is a date, `YYYY.M.D`, with no leading zeros, such as `2026.10.28`.
+A version is `<jellyfin>.<X>`, such as `12.4.0`. `<jellyfin>` is the Jellyfin version Base targets, the `jellyfin` value in `jellyfin.json`, and `X` counts the releases for it.
 
-* The date is the calendar date in `America/Denver`, not UTC.
-* A second release on the same day is `YYYY.M.D.1`, then `.2`, and so on.
+* The first release for a Jellyfin version is `.0`, then `.1`, `.2`, and so on. The workflow takes the next `X` after the highest one on nuget.org or in the tags.
+* Moving `jellyfin.json` to a new Jellyfin version, such as `12.5`, starts `X` over at `12.5.0`. See [Move to Another Jellyfin Release](#move-to-another-jellyfin-release).
 * The version is never written into the repository. The csproj default, `0.0.0-local`, only marks a pack made outside the workflow.
-* The release tag is the version with a `v` in front, such as `v2026.10.28`.
+* The release tag is the version with a `v` in front, such as `v12.4.0`.
 
-The package carries the Zero-Clause BSD license. The csproj sets `<PackageLicenseExpression>0BSD</PackageLicenseExpression>` and packs `LICENSE` beside `README.md`.
+The package carries the GNU General Public License v3.0. The csproj sets `<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>` and packs `LICENSE` beside `README.md`. Jellyfin's strings ship in `jellyfin/` with Jellyfin's own `LICENSE`, the GPL v2.0 or later.
 
-A date carries no meaning about the change. Compatibility is judged by [code.md](code.md#compatibility) before the release, not by the number.
+`X` carries no meaning about the change. Compatibility is judged by [code.md](code.md#compatibility) before the release, not by the number.
+
+The packages released before this scheme are dated, such as `2026.11.21`. NuGet orders them above `12.4.0`, so each one is unlisted on nuget.org, which keeps it out of search and out of a floating version, and each plugin's `renovate.json` holds Base below `1000`.
+
+## Move to Another Jellyfin Release
+
+`jellyfin.json` names the Jellyfin version and the tags the strings come from.
+
+```json
+{ "jellyfin": "12.4", "strings": { "web": "v12.4", "server": "v12.4" } }
+```
+
+`scripts/bump-jellyfin.mjs` changes it. It checks that each tag exists, writes the file, fetches the strings, and lists the US English keys that were added, removed, or reworded. A removed key fails the build of a plugin that declares it.
+
+* New strings from a Jellyfin patch release, with the same version:
+
+    ```bash
+    npm run strings:bump -- v12.4.1
+    ```
+
+* One source only, with `--web v12.4.1` or `--server v12.4.1`.
+* A new Jellyfin version, which also moves the test project's `Jellyfin.Controller` and `Jellyfin.Model` to `<version>.0`, and makes the next release `<version>.0`:
+
+    ```bash
+    npm run strings:bump -- --jellyfin 12.5
+    ```
+
+Run the checks and tests after a bump, and build a plugin against a local pack.
 
 ## Before the Release
 
@@ -47,7 +74,7 @@ A date carries no meaning about the change. Compatibility is judged by [code.md]
     scripts/pack.sh
     ```
 
-    It runs `scripts/bundle.sh`, which needs Node, installs the pinned dev tools from `package-lock.json`, type checks, and bundles. It then packs `nupkg/JPKribs.Jellyfin.Base.<version>.nupkg`. Pass a version to override, such as `scripts/pack.sh 2026.11.14.1`.
+    It runs `scripts/bundle.sh`, which needs Node and git, installs the pinned dev tools from `package-lock.json`, type checks, bundles, and fetches Jellyfin's strings when `dist/jellyfin/` does not match `jellyfin.json`. It then packs `nupkg/JPKribs.Jellyfin.Base.<version>.nupkg`, where the version is the next release's with a dev suffix, such as `12.4.1-dev.20261120153000`, so it never takes the real release's place in the NuGet cache. Pass a version to override, such as `scripts/pack.sh 12.4.1-dev.1`.
 
 4. **Consumer build.** Build at least one plugin that uses the changed components against the local pack, per [testing.md](testing.md#consumer-build). Build one with strict analyzers.
 5. **Docs.** The README and the [component pages](documentation.md#the-component-pages) describe this release, and `mkdocs build --strict` passes.
@@ -57,17 +84,18 @@ A date carries no meaning about the change. Compatibility is judged by [code.md]
 ## Start the Release
 
 1. Open the repository's **Actions** tab, select **Release**, and choose **Run workflow** on `main`.
-2. Leave the version blank to release today's date. Type a version only to override it, such as to re-release a specific date.
+2. Leave the version blank to release the next `X`. Type a version only to override it, such as to finish a version an earlier run tagged.
 
 The `.github/workflows/release.yaml` run does the whole release. Its job has an `if:` guard that runs it only on `refs/heads/main`, so a dispatch from any other branch publishes nothing. It runs in the `release` concurrency group with `cancel-in-progress: false`, so a second run waits for the first instead of racing it. It runs these steps in this order.
 
 | Step | What it does |
 | :--- | :--- |
-| Resolve version | Takes the date, or the override, and adds `.1`, `.2` until neither nuget.org nor a tag has it. A requested version that exists is refused. A tag on this commit with no package behind it is resumed. |
-| Bundle | Runs `scripts/bundle.sh`, which installs the pinned dev tools, type checks, and bundles. |
+| Resolve version | Reads the Jellyfin version from `jellyfin.json` and takes the next `X` after the highest one on nuget.org or in the tags, or the override, which must be `<jellyfin>.N`. A requested version that exists is refused. A tag on this commit with no package behind it is resumed. |
+| Bundle | Runs `scripts/bundle.sh`, which installs the pinned dev tools, type checks, bundles, and fetches Jellyfin's strings at the tags in `jellyfin.json`. |
 | Check | Runs `scripts/check-bundle.mjs`, `scripts/check-types.sh`, and `scripts/build-docs.mjs --check`. |
 | Test | Runs the JavaScript tests, then `dotnet test` on the test project in Release. |
-| Pack | Runs `dotnet pack` with `-p:Version=<version>`. |
+| Pack | Runs `dotnet pack` with `-p:Version=<version>`. The pack builds the translations task and packs it under `tasks/`, with Jellyfin's strings under `jellyfin/`. |
+| Check package | Runs `scripts/check-package.sh` on the package, so a file the targets load cannot be missing or misplaced. |
 | Tag and release | Pushes `v<version>`, then creates the GitHub release with the package attached and generated notes. Each is skipped when an earlier run made it. |
 | Log in to nuget.org | Uses Trusted Publishing, so no key is stored. The publishing policy on nuget.org names this repository and `release.yaml`. |
 | Push to nuget.org | Pushes the package with `--skip-duplicate`. |
@@ -89,7 +117,7 @@ The tag and release come before the push because a nuget.org version can never b
 A plugin raises the `JPKribs.Jellyfin.Base` version in its project file.
 
 ```xml
-<PackageReference Include="JPKribs.Jellyfin.Base" Version="2026.10.28" />
+<PackageReference Include="JPKribs.Jellyfin.Base" Version="12.4.0" />
 ```
 
 After the raise, each plugin:
@@ -107,7 +135,8 @@ Never commit a plugin against an unreleased pack.
 
 ## Checklist
 
-* [ ] The version is a date, and the workflow resolved it.
+* [ ] The version is `<jellyfin>.<X>` for the Jellyfin version in `jellyfin.json`, and the workflow resolved it.
+* [ ] `jellyfin.json` names the Jellyfin release the strings should come from.
 * [ ] Nothing public was removed or renamed without approval.
 * [ ] `npm run bundle`, the golden copy, typings, and docs checks, the JS tests, and `dotnet test` pass.
 * [ ] A plugin built against the local pack with no warning.

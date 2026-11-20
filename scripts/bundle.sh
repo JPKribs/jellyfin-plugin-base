@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Bundles the per-component sources in src/ into the two assets that ship in the package.
+# Bundles the per-component sources in src/ into the two assets that ship in the package, and fetches the Jellyfin
+# strings pinned in jellyfin.json into dist/jellyfin/ when the snapshot there does not match the pin.
 #
 # Adding a component: drop a descriptively named file in src/css or src/js. No ordering to manage:
 #   * CSS custom properties resolve regardless of declaration order, and each component targets its
@@ -37,4 +38,7 @@ rm -f dist/_bundle.css
 # Typings for the bundle, which ship in the package beside it for editors. They are never embedded in a plugin.
 node scripts/build-types.mjs
 
-echo "Bundled -> dist/jpkribs_shared.css, dist/jpkribs_shared.js, dist/jpkribs_shared.d.ts"
+# The web client's and the server's strings, which the translations build checks a plugin's own strings against.
+node scripts/fetch-jellyfin-strings.mjs
+
+echo "Bundled -> dist/jpkribs_shared.css, dist/jpkribs_shared.js, dist/jpkribs_shared.d.ts, dist/jellyfin/"

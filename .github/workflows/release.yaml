@@ -2,23 +2,24 @@ name: '🚀 Release'
 
 # One run does the whole release: test, bundle, pack, tag, GitHub release, NuGet push.
 #
-# The version is a date, computed here and never written into the repository. Today's date is
-# YYYY.M.D. A second release on the same day becomes YYYY.M.D.1, then .2, and so on. Before anything
-# is pushed the version is checked against both nuget.org and the repository's tags, so a version that
-# already exists is refused instead of silently skipped.
+# The version is <jellyfin>.<X>, computed here and never written into the repository. <jellyfin> is the
+# Jellyfin version in jellyfin.json, such as 12.4, and X counts the releases for it: the first is 12.4.0,
+# then 12.4.1, and so on. Moving jellyfin.json to a new Jellyfin version starts X over at 0. Before
+# anything is pushed the version is checked against both nuget.org and the repository's tags, so a
+# version that already exists is refused instead of silently skipped.
 #
 # The tag and GitHub release are made before the push to nuget.org, since a nuget.org version can never
 # be deleted. If a run fails after tagging, re-running it on the same commit picks the tagged version back
 # up: the existing tag and release are kept and only the missing push is done.
 #
-# Start it from the Actions tab. Leave the version blank to release today's date, or type one to
-# override, for example to re-release a specific date.
+# Start it from the Actions tab. Leave the version blank to release the next X, or type one to override,
+# for example to re-release a version an earlier run tagged.
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release. Blank means today''s date in America/Denver (YYYY.M.D, then .1, .2 for a second release that day).'
+        description: 'Version to release. Blank means the next one for the Jellyfin version in jellyfin.json (12.4.0, then 12.4.1, and so on).'
         required: false
         default: ''
 
@@ -26,11 +27,6 @@ permissions:
   contents: write
   # Trusted Publishing: the run proves its identity to nuget.org with a GitHub token instead of a stored key.
   id-token: write
-
-# The date in the version is the calendar date where the releases are made, not UTC, so a release made in
-# the evening is not stamped with tomorrow.
-env:
-  RELEASE_TIMEZONE: America/Denver
 
 concurrency:
   group: release
@@ -73,9 +69,15 @@ jobs:
           tagged() { git rev-parse -q --verify "refs/tags/v$1" >/dev/null; }
           # A tag on this very commit with no package behind it is a release an earlier run started.
           resumable() { tagged "$1" && ! published "$1" && [ "$(git rev-list -n 1 "v$1")" = "${HEAD_SHA}" ]; }
+          JELLYFIN=$(jq -r '.jellyfin' jellyfin.json)
+          if ! [[ "${JELLYFIN}" =~ ^[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::jellyfin.json needs \"jellyfin\" as major.minor, such as 12.4."
+            exit 1
+          fi
+          PATTERN="^${JELLYFIN//./\\.}\\.([0-9]+)$"
           if [ -n "${REQUESTED}" ]; then
-            if ! [[ "${REQUESTED}" =~ ^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}(\.[0-9]+)?$ ]]; then
-              echo "::error::Version must look like YYYY.M.D or YYYY.M.D.N."
+            if ! [[ "${REQUESTED}" =~ ${PATTERN} ]]; then
+              echo "::error::Version must be ${JELLYFIN}.N, for the Jellyfin version in jellyfin.json."
               exit 1
             fi
             VERSION="${REQUESTED}"
@@ -84,13 +86,23 @@ jobs:
               exit 1
             fi
           else
-            TODAY=$(TZ="${RELEASE_TIMEZONE}" date +%Y.%-m.%-d)
-            VERSION="${TODAY}"
-            N=0
-            while ! resumable "${VERSION}" && { published "${VERSION}" || tagged "${VERSION}"; }; do
-              N=$((N + 1))
-              VERSION="${TODAY}.${N}"
+            # A tag on this commit that an earlier run made is finished first.
+            VERSION=""
+            for TAG in $(git tag --points-at HEAD --list "v${JELLYFIN}.*"); do
+              if [[ "${TAG#v}" =~ ${PATTERN} ]] && resumable "${TAG#v}"; then
+                VERSION="${TAG#v}"
+              fi
             done
+            if [ -z "${VERSION}" ]; then
+              # The next X after the highest one published or tagged, or 0 for the first release.
+              HIGHEST=-1
+              for V in ${PUBLISHED} $(git tag --list "v${JELLYFIN}.*" | sed 's/^v//'); do
+                if [[ "${V}" =~ ${PATTERN} ]] && [ "${BASH_REMATCH[1]}" -gt "${HIGHEST}" ]; then
+                  HIGHEST="${BASH_REMATCH[1]}"
+                fi
+              done
+              VERSION="${JELLYFIN}.$((HIGHEST + 1))"
+            fi
           fi
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "Releasing ${VERSION}"
@@ -119,6 +131,11 @@ jobs:
         run: |
           dotnet pack JPKribs.Jellyfin.Base.csproj -c Release -o nupkg -p:Version="${VERSION}"
           ls -l nupkg
+
+      - name: Check package
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: bash scripts/check-package.sh "nupkg/JPKribs.Jellyfin.Base.${VERSION}.nupkg"
 
       # Tag and release first: both can be redone, a nuget.org push cannot. Each is skipped when an earlier
       # run already made it.

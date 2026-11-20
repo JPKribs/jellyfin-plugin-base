@@ -14,7 +14,7 @@ The agreed name for every concept in Base. Components, default labels, docs, and
 | :--- | :--- | :--- | :--- |
 | Base | This repository and its package | `JPKribs.Jellyfin.Base` | Shared library, common, core |
 | Package | The NuGet package that ships Base | `JPKribs.Jellyfin.Base.csproj` | Library, DLL |
-| License | The Zero-Clause BSD license the package ships under | `LICENSE`, `0BSD` | MIT, open source terms |
+| License | The GNU General Public License v3.0 the package ships under, as the plugins do | `LICENSE`, `GPL-3.0-only` | MIT, open source terms |
 | Consumer | A plugin that references the package | | Client, host, dependent |
 | Component | One reusable piece, a CSS file, a TypeScript module, a template, or a C# helper | | Widget, control, module |
 | Core | Shared code in `src/js/lib/` that a family of components is built on, with no CSS file of its own. Most cores are internal. `index.ts` makes the color core, the validation core, and the world shapes public | `src/js/lib/*.ts` | Engine, base class, mixin |
@@ -33,11 +33,24 @@ The agreed name for every concept in Base. Components, default labels, docs, and
 | Reference | The part of a web component page that `scripts/build-docs.mjs` writes from the code | `reference:start`, `reference:end` | API table, member list |
 | Fixture | A fixed input file that a test reads | `JPKribs.Jellyfin.Base.Tests/Fixtures/` | Sample, mock file |
 
+## Translations
+
+| Term | Meaning | In Code | Not |
+| :--- | :--- | :--- | :--- |
+| Translations | The strings a plugin shows, in every language, built in from its own strings and the Jellyfin strings it declares | `BaseTranslations`, `loadTranslations` | Localization, i18n, resources |
+| Jellyfin string | A string from the web client or the server, which a plugin uses by declaring its key | `<JellyfinString Include="Favorites" />` | Web string, core string, built in string |
+| Local string | A plugin's own string, in its `Localization` folder, for what Jellyfin has no string for | `Localization/en-us.json` | Custom string, override |
+| Key | The name a string is looked up by | `TranslationKeys.MyRequests` | ID, token, label |
+| Language | A language code, lower case with a hyphen, such as `pt-br` | `NormalizeLanguage`, `currentLanguage` | Locale, culture |
+| Fallback language | US English, which holds every key and fills any string a language lacks | `en-us`, `FallbackLanguage` | Default language, base language |
+| Snapshot | The copy of Jellyfin's strings the package carries, fetched at the tags in `jellyfin.json` | `dist/jellyfin/`, `jellyfin/` in the package | Cache, mirror |
+| Text match | A local string whose US English is the same as a Jellyfin string's | `JPKT005`, `JPKT006`, `JellyfinTextMatch` | Duplicate, collision |
+
 ## Naming
 
 | Term | Meaning | In Code | Not |
 | :--- | :--- | :--- | :--- |
-| Prefix | The `base-` that starts every class and variable Base ships | `base-`, `--base-` | Namespace, scope |
+| Prefix | The `base-` that starts every class and variable Base ships, and the `Base` that starts a C# type, MSBuild property, item, or target whose plain name could match a plugin's | `base-`, `--base-`, `BaseHttp`, `BaseTranslations` | Namespace, scope, `Jpk` |
 | Modifier | A state class on a component, such as `.active` or `.collapsed` | | Variant, flag |
 | Part | A piece inside a component, named `base-name-part` | `base-card-count` | Child, element |
 | Jellyfin selector | A selector that styles Jellyfin's own markup and stays unprefixed | `sectionTitle`, `emby-*` | Override, hack |
@@ -271,6 +284,7 @@ The agreed name for every concept in Base. Components, default labels, docs, and
 
 | Term | Meaning | In Code | Not |
 | :--- | :--- | :--- | :--- |
-| Release | One dated version of the package | `vYYYY.M.D` tag | Build, drop |
-| Dated version | A version of the form `YYYY.M.D`, then `YYYY.M.D.N` for a later release that day | | Semver, build number |
+| Release | One version of the package | `v12.4.0` tag | Build, drop |
+| Version | `<jellyfin>.<X>`, the Jellyfin version Base targets and a count of the releases for it from 0 | `12.4.0`, `jellyfin.json` | Dated version, semver, build number |
+| Jellyfin version | The major and minor Jellyfin release Base targets, and the first two parts of every version | `"jellyfin": "12.4"` in `jellyfin.json` | ABI, server version |
 | Local pack | A package made on a machine for testing, with the `scripts/pack.sh` version | `nupkg/` | Snapshot, nightly |

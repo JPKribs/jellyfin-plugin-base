@@ -1,10 +1,13 @@
 <Project>
 
+  <Import Project="$(MSBuildThisFileDirectory)JPKribs.Jellyfin.Base.Translations.targets" />
+
   <!--
     Injected into every consuming plugin at build time:
       * the shared C# helpers are compiled into the plugin assembly, and
       * the shared CSS/JS are embedded with the plugin's own namespace, so Jellyfin serves them
-        via configurationpage?name=jpkribs_shared.{css,js} with no extra runtime assembly.
+        via configurationpage?name=jpkribs_shared.{css,js} with no extra runtime assembly, and
+      * the plugin's translations are checked and built in, by JPKribs.Jellyfin.Base.Translations.targets.
     $(RootNamespace) is the consuming plugin's namespace (such as Jellyfin.Plugin.Example).
   -->
   <ItemGroup>
@@ -33,7 +36,7 @@
     Copies the typings of the shared JS to obj/jpkribs_shared.d.ts, so a plugin's jsconfig.json can include them
     for editor checks. Nothing here reaches the plugin assembly.
   -->
-  <Target Name="JpkCopyTypings" BeforeTargets="BeforeBuild" Condition="Exists('$(MSBuildThisFileDirectory)..\assets\jpkribs_shared.d.ts')">
+  <Target Name="BaseCopyTypings" BeforeTargets="BeforeBuild" Condition="Exists('$(MSBuildThisFileDirectory)..\assets\jpkribs_shared.d.ts')">
     <Copy SourceFiles="$(MSBuildThisFileDirectory)..\assets\jpkribs_shared.d.ts" DestinationFolder="$(BaseIntermediateOutputPath)" SkipUnchangedFiles="true" />
   </Target>
 

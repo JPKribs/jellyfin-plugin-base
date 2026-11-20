@@ -12,8 +12,8 @@ using Xunit;
 
 namespace JPKribs.Jellyfin.Base.Tests;
 
-/// <summary>Verifies that <see cref="JpkHttp"/> reports a status and body without throwing on a network fault, and caps what it reads.</summary>
-public class JpkHttpTests
+/// <summary>Verifies that <see cref="BaseHttp"/> reports a status and body without throwing on a network fault, and caps what it reads.</summary>
+public class BaseHttpTests
 {
     // An address literal, so the default check never asks DNS. It is public, so the guard accepts it.
     private const string Url = "http://203.0.113.10/";
@@ -108,7 +108,7 @@ public class JpkHttpTests
         using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(
-            () => JpkHttp.SendAsync(Factory(handler), HttpMethod.Get, Url, cts.Token));
+            () => BaseHttp.SendAsync(Factory(handler), HttpMethod.Get, Url, cts.Token));
     }
 
     /// <summary>
@@ -124,12 +124,12 @@ public class JpkHttpTests
             await Task.Delay(Timeout.Infinite, ct).ConfigureAwait(false);
             return new HttpResponseMessage(HttpStatusCode.OK);
         });
-        var result = await JpkHttp.SendAsync(Factory(slowHeaders, TimeSpan.FromMilliseconds(100)), HttpMethod.Get, Url, CancellationToken.None);
+        var result = await BaseHttp.SendAsync(Factory(slowHeaders, TimeSpan.FromMilliseconds(100)), HttpMethod.Get, Url, CancellationToken.None);
         Assert.Equal(0, result.Status);
         Assert.Equal("request timed out", result.Body);
 
         var stalledBody = new StubHandler((_, _) => Respond(new StreamContent(new StallingStream())));
-        result = await JpkHttp.SendAsync(Factory(stalledBody, TimeSpan.FromMilliseconds(200)), HttpMethod.Get, Url, CancellationToken.None);
+        result = await BaseHttp.SendAsync(Factory(stalledBody, TimeSpan.FromMilliseconds(200)), HttpMethod.Get, Url, CancellationToken.None);
         Assert.Equal(0, result.Status);
         Assert.Equal("request timed out", result.Body);
     }
@@ -143,23 +143,23 @@ public class JpkHttpTests
     public async Task SendAsync_CapsTheResponseBody()
     {
         var withLength = new StubHandler((_, _) => Respond(new StringContent(new string('a', 100))));
-        var result = await JpkHttp.SendAsync(Factory(withLength), HttpMethod.Get, Url, CancellationToken.None, maxResponseBytes: 10);
+        var result = await BaseHttp.SendAsync(Factory(withLength), HttpMethod.Get, Url, CancellationToken.None, maxResponseBytes: 10);
         Assert.Equal(0, result.Status);
         Assert.Contains("exceeds 10 bytes", result.Body, StringComparison.Ordinal);
 
         // Without a Content-Length the stream is cut off while buffering.
         var chunked = new StubHandler((_, _) => Respond(new StreamContent(new NonSeekableStream(new byte[100]))));
-        result = await JpkHttp.SendAsync(Factory(chunked), HttpMethod.Get, Url, CancellationToken.None, maxResponseBytes: 10);
+        result = await BaseHttp.SendAsync(Factory(chunked), HttpMethod.Get, Url, CancellationToken.None, maxResponseBytes: 10);
         Assert.Equal(0, result.Status);
 
         var small = new StubHandler((_, _) => Respond(new StringContent("good 1.2.3.4")));
-        result = await JpkHttp.SendAsync(Factory(small), HttpMethod.Get, Url, CancellationToken.None);
+        result = await BaseHttp.SendAsync(Factory(small), HttpMethod.Get, Url, CancellationToken.None);
         Assert.Equal(200, result.Status);
         Assert.Equal("good 1.2.3.4", result.Body);
-        Assert.Equal(4L * 1024 * 1024, JpkHttp.DefaultMaxResponseBytes);
+        Assert.Equal(4L * 1024 * 1024, BaseHttp.DefaultMaxResponseBytes);
 
         // A cap past what a buffer can hold is the same as no cap.
-        result = await JpkHttp.SendAsync(Factory(small), HttpMethod.Get, Url, CancellationToken.None, maxResponseBytes: long.MaxValue);
+        result = await BaseHttp.SendAsync(Factory(small), HttpMethod.Get, Url, CancellationToken.None, maxResponseBytes: long.MaxValue);
         Assert.Equal(200, result.Status);
     }
 
@@ -182,7 +182,7 @@ public class JpkHttpTests
     public async Task SendAsync_BasicAuthIsUtf8()
     {
         var handler = new StubHandler((_, _) => Respond(new StringContent("ok")));
-        await JpkHttp.SendAsync(Factory(handler), HttpMethod.Get, Url, CancellationToken.None, login: "jörg", password: "pässwörd€");
+        await BaseHttp.SendAsync(Factory(handler), HttpMethod.Get, Url, CancellationToken.None, login: "jörg", password: "pässwörd€");
 
         var auth = handler.LastRequest!.Headers.Authorization!;
         Assert.Equal("Basic", auth.Scheme);
@@ -212,7 +212,7 @@ public class JpkHttpTests
             return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("ok") };
         });
 
-        var result = await JpkHttp.SendAsync(
+        var result = await BaseHttp.SendAsync(
             Factory(handler),
             HttpMethod.Post,
             Url,
@@ -238,13 +238,13 @@ public class JpkHttpTests
     public async Task SendAsync_ReturnsErrorStatusesAndReportsNetworkFaults()
     {
         var notFound = new StubHandler((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound) { Content = new StringContent("nope") }));
-        var result = await JpkHttp.SendAsync(Factory(notFound), HttpMethod.Get, Url, CancellationToken.None);
+        var result = await BaseHttp.SendAsync(Factory(notFound), HttpMethod.Get, Url, CancellationToken.None);
         Assert.Equal(404, result.Status);
         Assert.Equal("nope", result.Body);
         Assert.False(result.Ok);
 
         var faulted = new StubHandler((_, _) => throw new HttpRequestException("boom"));
-        result = await JpkHttp.SendAsync(Factory(faulted), HttpMethod.Get, Url, CancellationToken.None);
+        result = await BaseHttp.SendAsync(Factory(faulted), HttpMethod.Get, Url, CancellationToken.None);
         Assert.Equal(0, result.Status);
         Assert.Equal("boom", result.Body);
     }
@@ -257,8 +257,8 @@ public class JpkHttpTests
     [Fact]
     public async Task SendAsync_RejectsBadArguments()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => JpkHttp.SendAsync(null!, HttpMethod.Get, Url, CancellationToken.None));
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => JpkHttp.SendAsync(Factory(new StubHandler((_, _) => Respond(new StringContent("x")))), HttpMethod.Get, Url, CancellationToken.None, maxResponseBytes: 0));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => BaseHttp.SendAsync(null!, HttpMethod.Get, Url, CancellationToken.None));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => BaseHttp.SendAsync(Factory(new StubHandler((_, _) => Respond(new StringContent("x")))), HttpMethod.Get, Url, CancellationToken.None, maxResponseBytes: 0));
     }
 
     /// <summary>
@@ -274,7 +274,7 @@ public class JpkHttpTests
     [InlineData("   ", "")]
     public void FirstToken_ReturnsLeadingToken(string body, string expected)
     {
-        Assert.Equal(expected, JpkHttp.FirstToken(body));
+        Assert.Equal(expected, BaseHttp.FirstToken(body));
     }
 
     /// <summary>
@@ -288,7 +288,7 @@ public class JpkHttpTests
     [InlineData("no newline", "no newline")]
     public void FirstLine_ReturnsFirstLineTrimmed(string body, string expected)
     {
-        Assert.Equal(expected, JpkHttp.FirstLine(body));
+        Assert.Equal(expected, BaseHttp.FirstLine(body));
     }
 
     /// <summary>
@@ -302,9 +302,9 @@ public class JpkHttpTests
         var handler = new StubHandler((_, _) => throw new InvalidOperationException("must not send"));
         var broken = new SsrfGuard(false, (_, _) => throw new ArgumentException("bad host"));
 
-        var resolver = await JpkHttp.SendAsync(Factory(handler), HttpMethod.Get, "http://odd.test/", CancellationToken.None, guard: broken);
-        var userInfo = await JpkHttp.SendAsync(Factory(handler), HttpMethod.Get, "http://user@203.0.113.10/", CancellationToken.None);
-        var reserved = await JpkHttp.SendAsync(Factory(handler), HttpMethod.Get, "http://240.0.0.1/", CancellationToken.None);
+        var resolver = await BaseHttp.SendAsync(Factory(handler), HttpMethod.Get, "http://odd.test/", CancellationToken.None, guard: broken);
+        var userInfo = await BaseHttp.SendAsync(Factory(handler), HttpMethod.Get, "http://user@203.0.113.10/", CancellationToken.None);
+        var reserved = await BaseHttp.SendAsync(Factory(handler), HttpMethod.Get, "http://240.0.0.1/", CancellationToken.None);
 
         foreach (var result in new[] { resolver, userInfo, reserved })
         {

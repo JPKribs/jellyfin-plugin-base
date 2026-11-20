@@ -87,7 +87,7 @@ dotnet test JPKribs.Jellyfin.Base.Tests/JPKribs.Jellyfin.Base.Tests.csproj -c Re
 * Use `[Theory]` with `[InlineData]` for one rule over several inputs.
 * Test the edges. Null, empty, the largest value, a cancelled token, a timeout, and a faulting dependency.
 * Do not sleep to wait. Pass in a delay or a clock when you can, such as the `FakeTimeProvider` in the tests, and keep any unavoidable wait short.
-* A test never reaches the network. Use a stub `HttpMessageHandler`, as `JpkHttpTests` does. The one exception is a socket on the loopback address that the test opens itself, as `SsrfGuardTests` does.
+* A test never reaches the network. Use a stub `HttpMessageHandler`, as `BaseHttpTests` does. The one exception is a socket on the loopback address that the test opens itself, as `SsrfGuardTests` does.
 * A test that writes files uses a unique folder under `Path.GetTempPath()` and deletes it in `Dispose`.
 * `DatabaseSchema` tests run against a real SQLite file through `Microsoft.Data.Sqlite`.
 * A test for a security helper covers the hostile input, such as a quote that closes a string, a folder that shares a prefix, or a control character in a log value.
@@ -242,10 +242,10 @@ It scans each framed preview too. Run it at 1280px, 768px, and 375px wide. A `Re
 Unit tests cannot show that a plugin still builds. Before a public change is done, build a plugin against a local pack.
 
 ```bash
-scripts/pack.sh 2026.11.14.1
+scripts/pack.sh
 ```
 
-Then restore the plugin with the local source and that version.
+It prints the version it packed, such as `12.4.1-dev.20261120153000`. Set the plugin's reference to that version, then restore it with the local source.
 
 ```bash
 dotnet build -p:RestoreAdditionalProjectSources=<base>/nupkg

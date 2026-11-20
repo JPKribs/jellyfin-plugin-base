@@ -1,0 +1,7 @@
+{
+  "jellyfin": "12.4",
+  "strings": {
+    "web": "v12.4",
+    "server": "v12.4"
+  }
+}

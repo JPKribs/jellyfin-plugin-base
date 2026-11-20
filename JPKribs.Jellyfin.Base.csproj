@@ -2,20 +2,21 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <!-- This package ships source, the bundled assets, and build/JPKribs.Jellyfin.Base.targets. It has no runtime assembly. -->
+    <!-- This package ships source, the bundled assets, Jellyfin's strings, the build targets, and the build task in
+         tasks/. It has no runtime assembly. -->
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <NoWarn>NU5100;NU5128</NoWarn>
 
     <PackageId>JPKribs.Jellyfin.Base</PackageId>
-    <!-- Releases are dated by the Release workflow, which passes -p:Version=YYYY.M.D. This default only
-         marks a pack made outside that workflow; scripts/pack.sh dates a local pack the same way. -->
+    <!-- The Release workflow passes -p:Version=<jellyfin>.<X>, such as 12.4.0. This default only marks a pack made
+         outside that workflow. scripts/pack.sh versions a local pack as the next release with a dev suffix. -->
     <Version Condition="'$(Version)' == ''">0.0.0-local</Version>
     <Authors>JPKribs</Authors>
     <Description>Shared configuration-UI assets (CSS/JS) and C# helpers for JPKribs Jellyfin plugins. Authored as per-component sources, bundled at build time, and compiled into the consuming plugin so plugins stay a single DLL.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <!-- Zero-Clause BSD: anyone may use, change, embed, and redistribute it for any purpose, with no conditions. -->
-    <PackageLicenseExpression>0BSD</PackageLicenseExpression>
+    <!-- GNU GPL version 3, as the plugins are. Jellyfin's strings under jellyfin/ keep their GPL license file. -->
+    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
     <PackageTags>jellyfin;plugin</PackageTags>
   </PropertyGroup>
 
@@ -24,8 +25,34 @@
   <Target Name="EnsureBundledAssets" BeforeTargets="Build;Pack">
     <Exec Condition="'$(OS)' != 'Windows_NT'"
           Command="bash &quot;$(MSBuildProjectDirectory)/scripts/bundle.sh&quot;" />
-    <Error Condition="!Exists('$(MSBuildProjectDirectory)/dist/jpkribs_shared.css') Or !Exists('$(MSBuildProjectDirectory)/dist/jpkribs_shared.js')"
-           Text="Bundled assets are missing. Run scripts/bundle.sh before building or packing." />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)/dist/jpkribs_shared.css') Or !Exists('$(MSBuildProjectDirectory)/dist/jpkribs_shared.js') Or !Exists('$(MSBuildProjectDirectory)/dist/jellyfin/source.json')"
+           Text="Bundled assets or Jellyfin's strings are missing. Run scripts/bundle.sh before building or packing." />
+  </Target>
+
+  <!-- The build task is built with the package and packed under tasks/, where the translations targets load it. -->
+  <ItemGroup>
+    <ProjectReference Include="tasks/JPKribs.Jellyfin.Base.Tasks.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);BasePackTasks;BasePackJellyfinStrings</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+
+  <Target Name="BasePackTasks">
+    <MSBuild Projects="tasks/JPKribs.Jellyfin.Base.Tasks.csproj" Targets="Build" Properties="Configuration=$(Configuration)">
+      <Output TaskParameter="TargetOutputs" ItemName="_BaseTasksOutput" />
+    </MSBuild>
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="@(_BaseTasksOutput)" PackagePath="tasks/net10.0/" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Jellyfin's strings are fetched by scripts/bundle.sh, so they are listed once the bundle has run. -->
+  <Target Name="BasePackJellyfinStrings">
+    <ItemGroup>
+      <_BaseJellyfinString Include="dist/jellyfin/**/*" />
+      <TfmSpecificPackageFile Include="@(_BaseJellyfinString)" PackagePath="jellyfin/" />
+    </ItemGroup>
   </Target>
 
   <ItemGroup>
@@ -34,7 +61,7 @@
     <None Include="dist/jpkribs_shared.js" Pack="true" PackagePath="assets/" />
     <None Include="dist/jpkribs_shared.d.ts" Pack="true" PackagePath="assets/" />
     <None Include="src/templates/*.html" Pack="true" PackagePath="templates/" />
-    <None Include="build/JPKribs.Jellyfin.Base.targets" Pack="true" PackagePath="build/" />
+    <None Include="build/*.targets" Pack="true" PackagePath="build/" />
     <None Include="README.md" Pack="true" PackagePath="" />
     <None Include="LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>

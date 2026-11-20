@@ -11,9 +11,9 @@ using Xunit;
 namespace JPKribs.Jellyfin.Base.Tests;
 
 /// <summary>
-/// Verifies that <see cref="JpkRetryHandler"/> retries only reads that failed for a reason worth trying again, and that a wrong retry cannot hide an outage or repeat a write.
+/// Verifies that <see cref="BaseRetryHandler"/> retries only reads that failed for a reason worth trying again, and that a wrong retry cannot hide an outage or repeat a write.
 /// </summary>
-public class JpkRetryHandlerTests
+public class BaseRetryHandlerTests
 {
     private static readonly Uri Url = new("https://source.example/Items");
 
@@ -57,7 +57,7 @@ public class JpkRetryHandlerTests
     {
         var waits = new List<TimeSpan>();
         var time = new FakeTimeProvider();
-        var options = new JpkRetryOptions
+        var options = new BaseRetryOptions
         {
             MaxAttempts = maxAttempts,
             AttemptTimeout = attemptTimeout ?? TimeSpan.FromSeconds(30),
@@ -69,7 +69,7 @@ public class JpkRetryHandlerTests
                 return Task.CompletedTask;
             }
         };
-        return (new HttpClient(new JpkRetryHandler(options) { InnerHandler = inner }), waits, time);
+        return (new HttpClient(new BaseRetryHandler(options) { InnerHandler = inner }), waits, time);
     }
 
     /// <summary>
@@ -290,7 +290,7 @@ public class JpkRetryHandlerTests
         var (client, _, _) = Build(inner);
 
         using var request = new HttpRequestMessage(HttpMethod.Get, Url);
-        request.Options.Set(JpkRetryHandler.NoRetry, true);
+        request.Options.Set(BaseRetryHandler.NoRetry, true);
         using var response = await client.SendAsync(request);
 
         Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
@@ -425,8 +425,8 @@ public class JpkRetryHandlerTests
     {
         var time = new FakeTimeProvider();
         var inner = new ScriptedHandler(Answer(HttpStatusCode.ServiceUnavailable), Answer(HttpStatusCode.OK));
-        var options = new JpkRetryOptions { TimeProvider = time, Random = () => 0 };
-        using var client = new HttpClient(new JpkRetryHandler(options) { InnerHandler = inner });
+        var options = new BaseRetryOptions { TimeProvider = time, Random = () => 0 };
+        using var client = new HttpClient(new BaseRetryHandler(options) { InnerHandler = inner });
 
         var call = client.GetAsync(Url);
         for (var spins = 0; time.ActiveTimers == 0 && spins < 1_000_000; spins++)
@@ -450,10 +450,10 @@ public class JpkRetryHandlerTests
     [Fact]
     public void Constructor_WithBadOptions_Throws()
     {
-        Assert.Throws<ArgumentNullException>(() => new JpkRetryHandler(null!));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new JpkRetryHandler(new JpkRetryOptions { MaxAttempts = 0 }));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new JpkRetryHandler(new JpkRetryOptions { JitterFraction = -0.1 }));
-        Assert.Throws<ArgumentException>(() => new JpkRetryHandler(new JpkRetryOptions { Backoff = Array.Empty<TimeSpan>() }));
+        Assert.Throws<ArgumentNullException>(() => new BaseRetryHandler(null!));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new BaseRetryHandler(new BaseRetryOptions { MaxAttempts = 0 }));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new BaseRetryHandler(new BaseRetryOptions { JitterFraction = -0.1 }));
+        Assert.Throws<ArgumentException>(() => new BaseRetryHandler(new BaseRetryOptions { Backoff = Array.Empty<TimeSpan>() }));
     }
 
     /// <summary>
@@ -464,7 +464,7 @@ public class JpkRetryHandlerTests
     [Fact]
     public void Options_HaveTheDocumentedDefaults()
     {
-        var options = new JpkRetryOptions();
+        var options = new BaseRetryOptions();
 
         Assert.Equal(3, options.MaxAttempts);
         Assert.Equal(new[] { TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(3) }, options.Backoff);
@@ -517,14 +517,14 @@ public class JpkRetryHandlerTests
     [Fact]
     public void Constructor_RejectsBadOptions()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => new JpkRetryHandler(new JpkRetryOptions { AttemptTimeout = TimeSpan.Zero }));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new JpkRetryHandler(new JpkRetryOptions { AttemptTimeout = TimeSpan.FromSeconds(-1) }));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new JpkRetryHandler(new JpkRetryOptions { MaxRetryAfter = TimeSpan.Zero }));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new JpkRetryHandler(new JpkRetryOptions { Backoff = new[] { TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(-1) } }));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new JpkRetryHandler(new JpkRetryOptions { JitterFraction = double.NaN }));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new JpkRetryHandler(new JpkRetryOptions { JitterFraction = double.PositiveInfinity }));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new JpkRetryHandler(new JpkRetryOptions { JitterFraction = -0.1 }));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new JpkRetryHandler(new JpkRetryOptions { JitterFraction = 1.5 }));
-        _ = new JpkRetryHandler(new JpkRetryOptions { JitterFraction = 0, Backoff = new[] { TimeSpan.Zero } });
+        Assert.Throws<ArgumentOutOfRangeException>(() => new BaseRetryHandler(new BaseRetryOptions { AttemptTimeout = TimeSpan.Zero }));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new BaseRetryHandler(new BaseRetryOptions { AttemptTimeout = TimeSpan.FromSeconds(-1) }));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new BaseRetryHandler(new BaseRetryOptions { MaxRetryAfter = TimeSpan.Zero }));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new BaseRetryHandler(new BaseRetryOptions { Backoff = new[] { TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(-1) } }));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new BaseRetryHandler(new BaseRetryOptions { JitterFraction = double.NaN }));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new BaseRetryHandler(new BaseRetryOptions { JitterFraction = double.PositiveInfinity }));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new BaseRetryHandler(new BaseRetryOptions { JitterFraction = -0.1 }));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new BaseRetryHandler(new BaseRetryOptions { JitterFraction = 1.5 }));
+        _ = new BaseRetryHandler(new BaseRetryOptions { JitterFraction = 0, Backoff = new[] { TimeSpan.Zero } });
     }
 }

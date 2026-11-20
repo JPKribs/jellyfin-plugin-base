@@ -7,20 +7,20 @@ Four types handle failure over time, and they differ by where the state lives.
 | Type | Where its state lives | Use it for |
 | :--- | :--- | :--- |
 | `RetryPolicy` | None, one call | Retrying a thrown transient exception right away |
-| `JpkRetryHandler` | None, one request | Retrying a read at the `HttpClient` handler level |
+| `BaseRetryHandler` | None, one request | Retrying a read at the `HttpClient` handler level |
 | `CircuitBreaker` | In memory, per named service | Pausing every call to a service that keeps failing |
 | `BackoffPolicy` | Persisted by the caller, per entity | Pausing one record across restarts |
 
 A plugin often wants a pair of them, for example a `CircuitBreaker` per server and a `BackoffPolicy` per record.
 
-## JpkHttp
+## BaseHttp
 
 Outbound HTTP over Jellyfin's default named client. It returns a status and a body and does not throw for a network failure or a timeout. Failure is status 0.
 
 Use it for calls to other services where a failed call is data, not an exception. Do not use it to stream large bodies, since the body is read into memory and capped at 4 MiB by default.
 
 ```csharp
-HttpResult r = await JpkHttp.SendAsync(
+HttpResult r = await BaseHttp.SendAsync(
     _httpClientFactory,
     HttpMethod.Post,
     target.Url + "/api/v3/command",
@@ -37,7 +37,7 @@ if (!r.Ok)
 Every request is checked for server side request forgery by default. Pass `guard: SsrfGuard.PublicOnly` for an address the plugin did not choose, such as one a user typed.
 
 ```csharp
-HttpResult r = await JpkHttp.SendAsync(
+HttpResult r = await BaseHttp.SendAsync(
     _httpClientFactory,
     HttpMethod.Get,
     userSuppliedUrl,
@@ -60,13 +60,13 @@ if (r.Status == 0 && r.Body.StartsWith(SsrfGuard.RefusalPrefix, StringComparison
 * Basic auth is added only when both `login` and `password` are given.
 * The default is a pre-flight check only. It validates the URL and every address its name resolves to before sending, with `SsrfGuard.PrivateNetworkAllowed`, so it never blocks a loopback or LAN target. It does not re-check redirects, since the client follows them itself, and it does not check the address the socket connects to, so a DNS answer that changes after the check is not caught. Only an explicit guard such as `SsrfGuard.PublicOnly` or `SsrfGuard.PrivateNetworkAllowed` protects against a redirect to an unsafe address and against DNS rebinding.
 * A scheme other than http and https, a URL with a user name or password, and a target in an unspecified, link local, multicast, broadcast, or reserved range are refused with status 0 and a body that starts with `SsrfGuard.RefusalPrefix`.
-* An explicit guard sends through a client the guard owns, which ignores the system proxy. It follows a redirect only to the same host and port, never from https to http, and at most `JpkHttp.MaxGuardedRedirects` times, which is 5. An http to https upgrade on the same host to the default https port is allowed. Any other redirect returns status 0.
+* An explicit guard sends through a client the guard owns, which ignores the system proxy. It follows a redirect only to the same host and port, never from https to http, and at most `BaseHttp.MaxGuardedRedirects` times, which is 5. An http to https upgrade on the same host to the default https port is allowed. Any other redirect returns status 0.
 * `SsrfGuard.Disabled` skips every check. Use it only for a call that must reach an address the default refuses.
 * `FirstToken` and `FirstLine` are small body parsers for replies such as a dynamic DNS answer.
 
 ## HttpResult
 
-The value `JpkHttp.SendAsync` returns. `Status` is 0 when the request never completed, and `Body` then holds a short reason. `Ok` is true for any 2xx status.
+The value `BaseHttp.SendAsync` returns. `Status` is 0 when the request never completed, and `Body` then holds a short reason. `Ok` is true for any 2xx status.
 
 ```csharp
 if (result.IsTransient)
@@ -81,7 +81,7 @@ if (result.IsTransient)
 
 ## SsrfGuard
 
-Refuses private, loopback, link local, and other unsafe targets for outbound HTTP, at validation and again at connect time. `JpkHttp.SendAsync` applies it, and a plugin can also call it for its own client.
+Refuses private, loopback, link local, and other unsafe targets for outbound HTTP, at validation and again at connect time. `BaseHttp.SendAsync` applies it, and a plugin can also call it for its own client.
 
 Use `PublicOnly` when the target must never be on a private network. Use `PrivateNetworkAllowed` when a LAN target is fine but the cloud metadata address is not.
 
@@ -108,7 +108,7 @@ Retries an async operation for transient exceptions, with exponential backoff an
 
 Use it around a call that can fail briefly. Permanent errors are rethrown at once and not logged by the policy.
 
-`JpkHttp` never throws, so throw inside the operation when a status should be retried. An `HttpRequestException` subclass that carries the status code does that.
+`BaseHttp` never throws, so throw inside the operation when a status should be retried. An `HttpRequestException` subclass that carries the status code does that.
 
 ```csharp
 private sealed class TransientHttpException : HttpRequestException
@@ -125,7 +125,7 @@ private sealed class TransientHttpException : HttpRequestException
 var result = await RetryPolicy.ExecuteWithRetryAsync(
     async ct =>
     {
-        var r = await JpkHttp.SendAsync(_httpClientFactory, HttpMethod.Post, url, ct, body: json).ConfigureAwait(false);
+        var r = await BaseHttp.SendAsync(_httpClientFactory, HttpMethod.Post, url, ct, body: json).ConfigureAwait(false);
         return r.Status == 0 || r.Status >= 500 || r.Status == 429 ? throw new TransientHttpException(r) : r;
     },
     maxRetries: 2,
@@ -160,17 +160,17 @@ if (HttpRetry.IsGatewayTransient(response.StatusCode))
 * `IsTransient` is 408, 429, and 500 to 599. `IsGatewayTransient` is 408, 429, 502, 503, and 504.
 * `RetryAfter` reads the seconds form and the date form. It returns null for a missing header, a zero wait, or a date in the past, and never more than the cap.
 
-## JpkRetryHandler
+## BaseRetryHandler
 
-A `DelegatingHandler` that retries a read that failed for a reason worth trying again, which is a gateway status, a dropped connection, or no answer within the attempt timeout. `JpkRetryOptions` holds every setting.
+A `DelegatingHandler` that retries a read that failed for a reason worth trying again, which is a gateway status, a dropped connection, or no answer within the attempt timeout. `BaseRetryOptions` holds every setting.
 
 Use it under an `HttpClient` that reads from another server. Do not use it for writes, since only a GET or HEAD without a body is retried.
 
 ```csharp
-var client = new HttpClient(new JpkRetryHandler(new JpkRetryOptions { MaxAttempts = 3 }) { InnerHandler = new SocketsHttpHandler() });
+var client = new HttpClient(new BaseRetryHandler(new BaseRetryOptions { MaxAttempts = 3 }) { InnerHandler = new SocketsHttpHandler() });
 
 using var request = new HttpRequestMessage(HttpMethod.Get, url);
-request.Options.Set(JpkRetryHandler.NoRetry, true);
+request.Options.Set(BaseRetryHandler.NoRetry, true);
 ```
 
 **Gotchas**
@@ -180,8 +180,8 @@ request.Options.Set(JpkRetryHandler.NoRetry, true);
 * When every attempt times out the call throws a `TaskCanceledException`. A cancellation from the caller is never retried.
 * A guard refusal, a TLS failure, and a bad request URI are thrown at once. A TLS failure is an `AuthenticationException` among the inner exceptions. A dropped connection is retried.
 * The `HttpClient`'s own `Timeout` covers every attempt together, so it must be longer than the attempts times `AttemptTimeout`. Otherwise the client cancels first and the timeout is never retried.
-* `JpkRetryHandler.NoRetry` turns the retry off for one request, for a caller that does its own failover.
-* `JpkRetryOptions` takes a `TimeProvider`, a delay function, and a random source, so a test never sleeps.
+* `BaseRetryHandler.NoRetry` turns the retry off for one request, for a caller that does its own failover.
+* `BaseRetryOptions` takes a `TimeProvider`, a delay function, and a random source, so a test never sleeps.
 
 ## RedirectRefusingHandler
 
@@ -201,12 +201,12 @@ var client = new HttpClient(handler);
 * The message ends with the caller's advice sentence, or `DefaultAdvice` when none is given.
 * The request is sent once. Nothing goes to the redirect's target.
 
-## JpkRetryOptions
+## BaseRetryOptions
 
-The settings of a `JpkRetryHandler`, namely the attempts, the waits, the per attempt timeout, and the clock. A new instance holds the defaults, so set only what differs.
+The settings of a `BaseRetryHandler`, namely the attempts, the waits, the per attempt timeout, and the clock. A new instance holds the defaults, so set only what differs.
 
 ```csharp
-var options = new JpkRetryOptions { MaxAttempts = 5 };
+var options = new BaseRetryOptions { MaxAttempts = 5 };
 ```
 
 **Gotchas**

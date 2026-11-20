@@ -108,6 +108,7 @@ The CSS is written to survive the desktop app's Qt WebEngine and older TV webvie
 | [Task Progress Button](task-progress-button.md) | Shows a Jellyfin scheduled task running inside a button |
 | [Shared Bag](shared-bag.md) | The per view helper object |
 | [Browser Helpers](browser-helpers.md) | Escaping, plurals, debounce, GUIDs, and JSON files |
+| [Translations](translations.md) | The plugin's strings in the viewer's language, and marked markup translated |
 | [Utility Classes](utility-classes.md) | Hidden, mono, ok and bad text, and screen reader text |
 
 ### Layout and Sections

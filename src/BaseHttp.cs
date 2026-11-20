@@ -19,7 +19,7 @@ namespace JPKribs.Jellyfin.Base;
 /// It refuses unsafe URLs by default, as <see cref="SsrfGuard"/> describes.
 /// Cancelling the caller's token still throws, so a shutdown is never mistaken for a timeout.
 /// </remarks>
-public static class JpkHttp
+public static class BaseHttp
 {
     /// <summary>The default cap on a response body read by <see cref="SendAsync"/>: 4 MiB.</summary>
     public const long DefaultMaxResponseBytes = 4L * 1024 * 1024;

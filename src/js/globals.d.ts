@@ -16,6 +16,7 @@ interface JellyfinFetchOptions {
 // The dashboard's API client for the signed in server.
 declare var ApiClient: {
     getUrl(path: string, params?: Record<string, unknown>): string;
+    getCurrentUserId?(): string;
     fetch(options: JellyfinFetchOptions): Promise<any>;
     getJSON(url: string): Promise<any>;
     getUsers(query?: Record<string, unknown>): Promise<any[]>;

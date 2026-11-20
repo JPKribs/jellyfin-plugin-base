@@ -536,7 +536,7 @@ public class SsrfGuardTests
     {
         using var server = new LoopbackServer(_ => (200, null, "open"));
 
-        var result = await JpkHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "x", CancellationToken.None);
+        var result = await BaseHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "x", CancellationToken.None);
 
         Assert.Equal(200, result.Status);
         Assert.Equal("unguarded", result.Body);
@@ -558,7 +558,7 @@ public class SsrfGuardTests
     [InlineData("http://2130706433/")]
     public async Task SendAsync_WithGuard_BlockedTarget_ReturnsStatusZeroWithReason(string url)
     {
-        var result = await JpkHttp.SendAsync(new StubFactory(), HttpMethod.Get, url, CancellationToken.None, guard: SsrfGuard.PublicOnly);
+        var result = await BaseHttp.SendAsync(new StubFactory(), HttpMethod.Get, url, CancellationToken.None, guard: SsrfGuard.PublicOnly);
 
         Assert.Equal(0, result.Status);
         Assert.False(result.Ok);
@@ -575,7 +575,7 @@ public class SsrfGuardTests
     {
         using var server = new LoopbackServer(_ => (200, null, "inside"));
 
-        var result = await JpkHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "x", CancellationToken.None, guard: SsrfGuard.PrivateNetworkAllowed);
+        var result = await BaseHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "x", CancellationToken.None, guard: SsrfGuard.PrivateNetworkAllowed);
 
         Assert.Equal(200, result.Status);
         Assert.Equal("inside", result.Body);
@@ -589,7 +589,7 @@ public class SsrfGuardTests
     [Fact]
     public async Task SendAsync_WithGuard_PrivateAllowed_StillBlocksMetadataAddress()
     {
-        var result = await JpkHttp.SendAsync(new StubFactory(), HttpMethod.Get, "http://169.254.169.254/", CancellationToken.None, guard: SsrfGuard.PrivateNetworkAllowed);
+        var result = await BaseHttp.SendAsync(new StubFactory(), HttpMethod.Get, "http://169.254.169.254/", CancellationToken.None, guard: SsrfGuard.PrivateNetworkAllowed);
 
         Assert.Equal(0, result.Status);
         Assert.StartsWith(SsrfGuard.RefusalPrefix, result.Body, StringComparison.Ordinal);
@@ -606,7 +606,7 @@ public class SsrfGuardTests
         using var server = new LoopbackServer(_ => (302, "x", string.Empty));
         server.Location = r => "http://localhost:" + server.Port + "/steal";
 
-        var result = await JpkHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "start", CancellationToken.None, guard: SsrfGuard.PrivateNetworkAllowed);
+        var result = await BaseHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "start", CancellationToken.None, guard: SsrfGuard.PrivateNetworkAllowed);
 
         Assert.Equal(0, result.Status);
         Assert.StartsWith(SsrfGuard.RefusalPrefix, result.Body, StringComparison.Ordinal);
@@ -624,7 +624,7 @@ public class SsrfGuardTests
     {
         using var server = new LoopbackServer(_ => (302, "http://169.254.169.254/latest/meta-data/", string.Empty));
 
-        var result = await JpkHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "start", CancellationToken.None, guard: SsrfGuard.PrivateNetworkAllowed);
+        var result = await BaseHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "start", CancellationToken.None, guard: SsrfGuard.PrivateNetworkAllowed);
 
         Assert.Equal(0, result.Status);
         Assert.StartsWith(SsrfGuard.RefusalPrefix, result.Body, StringComparison.Ordinal);
@@ -641,7 +641,7 @@ public class SsrfGuardTests
     {
         using var server = new LoopbackServer(r => r.Path == "/start" ? (302, "/final", string.Empty) : (200, null, "arrived"));
 
-        var result = await JpkHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "start", CancellationToken.None, guard: SsrfGuard.PrivateNetworkAllowed);
+        var result = await BaseHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "start", CancellationToken.None, guard: SsrfGuard.PrivateNetworkAllowed);
 
         Assert.Equal(200, result.Status);
         Assert.Equal("arrived", result.Body);
@@ -658,7 +658,7 @@ public class SsrfGuardTests
     {
         using var server = new LoopbackServer(r => r.Path == "/start" ? (307, "/final", string.Empty) : (200, null, r.Method + ":" + r.Body));
 
-        var result = await JpkHttp.SendAsync(new StubFactory(), HttpMethod.Post, server.Url + "start", CancellationToken.None, body: "payload", guard: SsrfGuard.PrivateNetworkAllowed);
+        var result = await BaseHttp.SendAsync(new StubFactory(), HttpMethod.Post, server.Url + "start", CancellationToken.None, body: "payload", guard: SsrfGuard.PrivateNetworkAllowed);
 
         Assert.Equal(200, result.Status);
         Assert.Equal("POST:payload", result.Body);
@@ -674,7 +674,7 @@ public class SsrfGuardTests
     {
         using var server = new LoopbackServer(r => r.Path == "/start" ? (302, "/final", string.Empty) : (200, null, r.Method + ":" + r.Body));
 
-        var result = await JpkHttp.SendAsync(new StubFactory(), HttpMethod.Post, server.Url + "start", CancellationToken.None, body: "payload", guard: SsrfGuard.PrivateNetworkAllowed);
+        var result = await BaseHttp.SendAsync(new StubFactory(), HttpMethod.Post, server.Url + "start", CancellationToken.None, body: "payload", guard: SsrfGuard.PrivateNetworkAllowed);
 
         Assert.Equal(200, result.Status);
         Assert.Equal("GET:", result.Body);
@@ -690,11 +690,11 @@ public class SsrfGuardTests
     {
         using var server = new LoopbackServer(_ => (302, "/again", string.Empty));
 
-        var result = await JpkHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "start", CancellationToken.None, guard: SsrfGuard.PrivateNetworkAllowed);
+        var result = await BaseHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "start", CancellationToken.None, guard: SsrfGuard.PrivateNetworkAllowed);
 
         Assert.Equal(0, result.Status);
         Assert.Contains("too many redirects", result.Body, StringComparison.Ordinal);
-        Assert.Equal(JpkHttp.MaxGuardedRedirects + 1, server.Requests);
+        Assert.Equal(BaseHttp.MaxGuardedRedirects + 1, server.Requests);
     }
 
     /// <summary>
@@ -707,7 +707,7 @@ public class SsrfGuardTests
     {
         using var server = new LoopbackServer(_ => (200, null, new string('x', 5000)));
 
-        var result = await JpkHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "x", CancellationToken.None, maxResponseBytes: 1000, guard: SsrfGuard.PrivateNetworkAllowed);
+        var result = await BaseHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "x", CancellationToken.None, maxResponseBytes: 1000, guard: SsrfGuard.PrivateNetworkAllowed);
 
         Assert.Equal(0, result.Status);
         Assert.Contains("exceeds 1000 bytes", result.Body, StringComparison.Ordinal);
@@ -726,7 +726,7 @@ public class SsrfGuardTests
         await cts.CancelAsync();
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(
-            () => JpkHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "x", cts.Token, guard: SsrfGuard.PrivateNetworkAllowed));
+            () => BaseHttp.SendAsync(new StubFactory(), HttpMethod.Get, server.Url + "x", cts.Token, guard: SsrfGuard.PrivateNetworkAllowed));
     }
 
     /// <summary>
@@ -750,7 +750,7 @@ public class SsrfGuardTests
     {
         var factory = new CountingFactory();
 
-        var result = await JpkHttp.SendAsync(factory, HttpMethod.Get, url, CancellationToken.None);
+        var result = await BaseHttp.SendAsync(factory, HttpMethod.Get, url, CancellationToken.None);
 
         Assert.Equal(0, result.Status);
         Assert.StartsWith(SsrfGuard.RefusalPrefix, result.Body, StringComparison.Ordinal);
@@ -776,7 +776,7 @@ public class SsrfGuardTests
     {
         var factory = new CountingFactory();
 
-        var result = await JpkHttp.SendAsync(factory, HttpMethod.Get, url, CancellationToken.None);
+        var result = await BaseHttp.SendAsync(factory, HttpMethod.Get, url, CancellationToken.None);
 
         Assert.Equal(200, result.Status);
         Assert.Equal("supplied", result.Body);
@@ -793,7 +793,7 @@ public class SsrfGuardTests
     {
         var factory = new CountingFactory();
 
-        var result = await JpkHttp.SendAsync(factory, HttpMethod.Get, "http://localhost/", CancellationToken.None);
+        var result = await BaseHttp.SendAsync(factory, HttpMethod.Get, "http://localhost/", CancellationToken.None);
 
         Assert.Equal(200, result.Status);
         Assert.Equal(1, factory.Sent);
@@ -809,7 +809,7 @@ public class SsrfGuardTests
     {
         var factory = new CountingFactory(HttpStatusCode.Found);
 
-        var result = await JpkHttp.SendAsync(factory, HttpMethod.Get, "http://10.0.0.1/", CancellationToken.None);
+        var result = await BaseHttp.SendAsync(factory, HttpMethod.Get, "http://10.0.0.1/", CancellationToken.None);
 
         Assert.Equal(302, result.Status);
         Assert.Equal(1, factory.Sent);
@@ -829,7 +829,7 @@ public class SsrfGuardTests
     {
         var factory = new CountingFactory();
 
-        var result = await JpkHttp.SendAsync(factory, HttpMethod.Get, url, CancellationToken.None, guard: SsrfGuard.PublicOnly);
+        var result = await BaseHttp.SendAsync(factory, HttpMethod.Get, url, CancellationToken.None, guard: SsrfGuard.PublicOnly);
 
         Assert.Equal(0, result.Status);
         Assert.StartsWith(SsrfGuard.RefusalPrefix, result.Body, StringComparison.Ordinal);
@@ -853,7 +853,7 @@ public class SsrfGuardTests
     {
         var factory = new CountingFactory();
 
-        var result = await JpkHttp.SendAsync(factory, HttpMethod.Get, url, CancellationToken.None, guard: SsrfGuard.Disabled);
+        var result = await BaseHttp.SendAsync(factory, HttpMethod.Get, url, CancellationToken.None, guard: SsrfGuard.Disabled);
 
         Assert.Equal(200, result.Status);
         Assert.Equal("supplied", result.Body);

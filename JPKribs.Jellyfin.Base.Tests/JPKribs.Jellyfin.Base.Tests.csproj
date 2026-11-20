@@ -43,6 +43,20 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <!-- Translations as the build embeds them in a plugin, for BaseTranslations. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Fixtures\Translations\*.json">
+      <LogicalName>JPKribs.Translations.%(Filename).json</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- The translations task, whose checks the tests run directly, and whose build the integration tests load. -->
+  <ItemGroup>
+    <ProjectReference Include="..\tasks\JPKribs.Jellyfin.Base.Tasks.csproj" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="18.6.3" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.6.3" />
+  </ItemGroup>
+
   <!-- Embed the per-component CSS sources so the collision test can compare class names. -->
   <ItemGroup>
     <EmbeddedResource Include="..\src\css\*.css">

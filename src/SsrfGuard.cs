@@ -10,11 +10,11 @@ namespace JPKribs.Jellyfin.Base;
 
 /// <summary>
 /// Guards outbound HTTP against server side request forgery by classifying addresses, validating a URL, and checking every address again at connect time.
-/// <see cref="JpkHttp.SendAsync"/> validates every request with <see cref="PrivateNetworkAllowed"/> by default, and passing a guard of its own is the strict mode.
+/// <see cref="BaseHttp.SendAsync"/> validates every request with <see cref="PrivateNetworkAllowed"/> by default, and passing a guard of its own is the strict mode.
 /// </summary>
 /// <remarks>
 /// The connect time check stops a DNS rebind from slipping past the validation, and the guard also decides whether a redirect may be followed.
-/// A plugin that calls an address it did not choose passes <see cref="PublicOnly"/> to <see cref="JpkHttp.SendAsync"/>, or builds its own client from <see cref="CreateHandler"/>.
+/// A plugin that calls an address it did not choose passes <see cref="PublicOnly"/> to <see cref="BaseHttp.SendAsync"/>, or builds its own client from <see cref="CreateHandler"/>.
 /// <see cref="Disabled"/> is the opt out.
 /// </remarks>
 public sealed class SsrfGuard
@@ -55,7 +55,7 @@ public sealed class SsrfGuard
     public static SsrfGuard PrivateNetworkAllowed { get; } = new(true);
 
     /// <summary>
-    /// Gets a marker that turns every check off when it is passed to <see cref="JpkHttp.SendAsync"/>. Use it only for a call
+    /// Gets a marker that turns every check off when it is passed to <see cref="BaseHttp.SendAsync"/>. Use it only for a call
     /// that must reach an address the default check would refuse. Called directly, it classifies like <see cref="PrivateNetworkAllowed"/>.
     /// </summary>
     public static SsrfGuard Disabled { get; } = new(true);

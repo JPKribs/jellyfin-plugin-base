@@ -12,15 +12,15 @@ namespace JPKribs.Jellyfin.Base;
 /// </summary>
 /// <remarks>
 /// A response with a status in <see cref="HttpRetry.IsGatewayTransient"/> is asked for again, and the last attempt returns whatever the server answered.
-/// A Retry-After from the server sets the wait, up to <see cref="JpkRetryOptions.MaxRetryAfter"/>, and otherwise the options' backoff applies.
+/// A Retry-After from the server sets the wait, up to <see cref="BaseRetryOptions.MaxRetryAfter"/>, and otherwise the options' backoff applies.
 /// A request that sets <see cref="NoRetry"/> is sent once, for a caller that does its own failover.
 /// When every attempt times out the call throws a <see cref="TaskCanceledException"/>, and a cancellation from the caller is never retried.
 /// A failure with no status is retried only when it looks like a network fault. A refusal by <see cref="SsrfGuard"/> (its message starts with <see cref="SsrfGuard.RefusalPrefix"/>)
 /// and a TLS failure (an <see cref="System.Security.Authentication.AuthenticationException"/> anywhere in the inner exceptions) are permanent and are thrown at once, and so is a bad request URI.
-/// The <see cref="HttpClient"/>'s own <see cref="HttpClient.Timeout"/> covers every attempt together, so it must be longer than <see cref="JpkRetryOptions.MaxAttempts"/> times <see cref="JpkRetryOptions.AttemptTimeout"/>,
+/// The <see cref="HttpClient"/>'s own <see cref="HttpClient.Timeout"/> covers every attempt together, so it must be longer than <see cref="BaseRetryOptions.MaxAttempts"/> times <see cref="BaseRetryOptions.AttemptTimeout"/>,
 /// or the client cancels first and a timeout is never retried.
 /// </remarks>
-public sealed class JpkRetryHandler : DelegatingHandler
+public sealed class BaseRetryHandler : DelegatingHandler
 {
     /// <summary>
     /// The request option that turns the retry off for one request.
@@ -38,18 +38,18 @@ public sealed class JpkRetryHandler : DelegatingHandler
     private readonly Func<double> _random;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="JpkRetryHandler"/> class with the default options.
+    /// Initializes a new instance of the <see cref="BaseRetryHandler"/> class with the default options.
     /// </summary>
-    public JpkRetryHandler()
-        : this(new JpkRetryOptions())
+    public BaseRetryHandler()
+        : this(new BaseRetryOptions())
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="JpkRetryHandler"/> class.
+    /// Initializes a new instance of the <see cref="BaseRetryHandler"/> class.
     /// </summary>
     /// <param name="options">The attempts, the waits, and the clock.</param>
-    public JpkRetryHandler(JpkRetryOptions options)
+    public BaseRetryHandler(BaseRetryOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentOutOfRangeException.ThrowIfLessThan(options.MaxAttempts, 1);

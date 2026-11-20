@@ -9,7 +9,7 @@ namespace JPKribs.Jellyfin.Base;
 /// </summary>
 /// <remarks>
 /// There are two sets because they answer different questions.
-/// <see cref="IsTransient"/> covers every status that may pass by itself, and <see cref="IsGatewayTransient"/> covers the ones a proxy or an overloaded server sends and is the set <see cref="JpkRetryHandler"/> retries.
+/// <see cref="IsTransient"/> covers every status that may pass by itself, and <see cref="IsGatewayTransient"/> covers the ones a proxy or an overloaded server sends and is the set <see cref="BaseRetryHandler"/> retries.
 /// </remarks>
 public static class HttpRetry
 {

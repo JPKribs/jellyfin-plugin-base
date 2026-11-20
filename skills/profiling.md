@@ -11,7 +11,7 @@ Profile only when there is a reason. Never profile to look for something to impr
 Start when one of these is true.
 
 * A plugin author or a test reports that a helper is slow, uses too much memory, or starves playback.
-* A change adds or alters a loop, a copy, a parse, or a lock in a helper that plugins call for every item, such as `ConcurrentTaskRunner`, `ActivitySummary`, `JsonFileStore`, `JpkHttp`, `StreamUtilities`, `FileNameSanitizer`, `SecretProtector`, or `DatabaseSchema`.
+* A change adds or alters a loop, a copy, a parse, or a lock in a helper that plugins call for every item, such as `ConcurrentTaskRunner`, `ActivitySummary`, `JsonFileStore`, `BaseHttp`, `StreamUtilities`, `FileNameSanitizer`, `SecretProtector`, or `DatabaseSchema`.
 * A number in a timing test grew from one release to the next.
 
 Without one of these, do not profile. Code that has no symptom and no change is not a problem.
@@ -229,8 +229,8 @@ Try these in order. Each is cheaper and safer than the next.
 
 ### HTTP
 
-* `JpkHttp` uses the client Jellyfin supplies. Never build a new `HttpClient` per call.
-* Keep the response cap, the timeout, and the no throw contract of `JpkHttp`. Never loosen one for speed.
+* `BaseHttp` uses the client Jellyfin supplies. Never build a new `HttpClient` per call.
+* Keep the response cap, the timeout, and the no throw contract of `BaseHttp`. Never loosen one for speed.
 
 ### Logging
 

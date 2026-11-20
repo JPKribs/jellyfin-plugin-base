@@ -1,13 +1,15 @@
 {
   "name": "jpkribs-jellyfin-base-web",
   "private": true,
-  "license": "0BSD",
+  "license": "GPL-3.0-only",
   "type": "module",
   "description": "Dev tools that type check and bundle the web components. Nothing here ships at runtime.",
   "scripts": {
     "bundle": "bash scripts/bundle.sh",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "check-bundle": "node scripts/check-bundle.mjs",
+    "strings": "node scripts/fetch-jellyfin-strings.mjs",
+    "strings:bump": "node scripts/bump-jellyfin.mjs",
     "test": "node --import ./JPKribs.Jellyfin.Base.Tests/js/register.mjs --test JPKribs.Jellyfin.Base.Tests/js/*.test.mjs"
   },
   "devDependencies": {

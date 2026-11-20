@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The build task that checks a plugin's translations and builds them in. It runs in MSBuild while the plugin
+       builds, ships in the package under tasks/, and never reaches the plugin assembly. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>JPKribs.Jellyfin.Base.Tasks</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- MSBuild provides these assemblies when it loads the task, so only their reference is compiled against. -->
+    <PackageReference Include="Microsoft.Build.Framework" Version="18.6.3" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.6.3" PrivateAssets="all" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="JPKribs.Jellyfin.Base.Tests" />
+  </ItemGroup>
+
+</Project>

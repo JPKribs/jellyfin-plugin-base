@@ -14,7 +14,10 @@ The package has no runtime assembly. It holds these files, and its targets file 
 | `assets/jpkribs_shared.css` and `assets/jpkribs_shared.js` | The bundled web components | Embeds them as `<RootNamespace>.Configuration.jpkribs_shared.css` and `.js` |
 | `assets/jpkribs_shared.d.ts` | The typings of the JavaScript | Copies them to the plugin's `obj/` folder for the editor and never embeds them |
 | `templates/*.html` | The HTML templates, such as `status.html` | Embeds each as `<RootNamespace>.Templates.<name>.html` |
-| `build/JPKribs.Jellyfin.Base.targets` | The build wiring | Runs in every build of the plugin |
+| `build/JPKribs.Jellyfin.Base.targets` and `build/JPKribs.Jellyfin.Base.Translations.targets` | The build wiring | Runs in every build of the plugin |
+| `tasks/net10.0/JPKribs.Jellyfin.Base.Tasks.dll` | The translations task | Runs inside MSBuild to check and build the translations, and never reaches the plugin |
+| `jellyfin/` | Jellyfin's strings, one file per language for the web client and the server, with their source and license | Takes the declared Jellyfin strings from it, and checks the local strings against it |
+| `LICENSE` | The GNU General Public License v3.0 | Nothing |
 | `README.md` | The package readme | Nothing |
 
 Add one reference and nothing else ships. See [Using Base](../../Usage.md) for the steps.
@@ -23,7 +26,7 @@ Add one reference and nothing else ships. See [Using Base](../../Usage.md) for t
 * The package declares no dependencies of its own. The plugin must reference `Jellyfin.Controller` and `Jellyfin.Model`, which bring the `MediaBrowser.*`, ASP.NET Core, and Data Protection types the sources compile against. Without them the build fails in the Base sources.
 * The sources are compiled with the plugin's own analyzer settings, so a warning in a source file fails the plugin's build.
 * `ActivityLogger.Current`, `PluginBase.Instance`, the `TemplateLoader` cache, and the `StableSecretProtection` provider cache are static state inside the plugin's own copy of the code. Two plugins never share them.
-* The package version is a date, such as `2026.11.13.3`.
+* The package version is the Jellyfin version Base targets, then a release count, such as `12.4.0`. See [Releasing](../../Releasing.md#versions).
 
 In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jellyfin scheduled task, and "entry" means one row of Jellyfin's activity log. The page and anchor for each type are listed below. For the web half of Base, see [Web Components](../web/index.md).
 
@@ -39,6 +42,10 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 | `AtomicFile` | Replaces a file through a temp file so a reader never sees half of it. | [Files and Paths](files-and-paths.md#atomicfile) |
 | `BackoffPolicy` | A stateless exponential pause for a repeatedly failing record. | [HTTP and Resilience](http-and-resilience.md#backoffpolicy) |
 | `BackoffState` | The failure count and pause deadline a caller stores per record. | [HTTP and Resilience](http-and-resilience.md#backoffstate) |
+| `BaseHttp` | Outbound HTTP that returns a status and body and does not throw. | [HTTP and Resilience](http-and-resilience.md#basehttp) |
+| `BaseRetryHandler` | A handler that retries a read for a gateway error or a slow answer. | [HTTP and Resilience](http-and-resilience.md#baseretryhandler) |
+| `BaseRetryOptions` | The attempts, waits, and timeout of a retry handler. | [HTTP and Resilience](http-and-resilience.md#baseretryoptions) |
+| `BaseTranslations` | The plugin's strings in a language, with fallback, formatting, and the endpoint answer. | [Translations](translations.md#basetranslations) |
 | `ByteSize` | Binary byte counts as `long` constants. | [Streams and Throttling](streams-and-throttling.md#bytesize) |
 | `CappedReadStream` | A read through stream that throws past a limit. | [Streams and Throttling](streams-and-throttling.md#cappedreadstream) |
 | `CircuitBreaker` | Stops calls to a named service after repeated failures, for a cooldown. | [HTTP and Resilience](http-and-resilience.md#circuitbreaker) |
@@ -48,12 +55,9 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 | `FileNameSanitizer` | Makes a string a safe cross-platform file name. | [Files and Paths](files-and-paths.md#filenamesanitizer) |
 | `FormatUtilities` | Formats byte counts and makes text safe for a log. | [Text and Formatting](text-and-formatting.md#formatutilities) |
 | `HashUtilities` | Short SHA-256 fingerprints and the full SHA-256 hex of a string. | [Text and Formatting](text-and-formatting.md#hashutilities) |
-| `HttpResult` | The status and body that `JpkHttp` returns. | [HTTP and Resilience](http-and-resilience.md#httpresult) |
+| `HttpResult` | The status and body that `BaseHttp` returns. | [HTTP and Resilience](http-and-resilience.md#httpresult) |
 | `HttpRetry` | Names the statuses worth asking again and reads Retry-After. | [HTTP and Resilience](http-and-resilience.md#httpretry) |
 | `ItemTitles` | Names a library item as Jellyfin does. | [Text and Formatting](text-and-formatting.md#itemtitles) |
-| `JpkHttp` | Outbound HTTP that returns a status and body and does not throw. | [HTTP and Resilience](http-and-resilience.md#jpkhttp) |
-| `JpkRetryHandler` | A handler that retries a read for a gateway error or a slow answer. | [HTTP and Resilience](http-and-resilience.md#jpkretryhandler) |
-| `JpkRetryOptions` | The attempts, waits, and timeout of a retry handler. | [HTTP and Resilience](http-and-resilience.md#jpkretryoptions) |
 | `JsonFileStore` | A thread-safe atomic JSON file for one value. | [Data and Storage](data-and-storage.md#jsonfilestore) |
 | `PagedQuery` | The skip, take, search, and filter a list endpoint receives. | [Data and Storage](data-and-storage.md#pagedquery) |
 | `PagedResult` | One page of results with the count and page metadata. | [Data and Storage](data-and-storage.md#pagedresult) |
@@ -97,6 +101,7 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 | [Data and Storage](data-and-storage.md) | SQLite versioning, JSON state files, and paged results. |
 | [Pages and Templates](pages-and-templates.md) | Standalone status pages, templates, and favicons. |
 | [Activity Log](activity-log.md) | Single and summed entries in Jellyfin's activity log. |
+| [Translations](translations.md) | The plugin's strings in each language, for C# text and for its pages. |
 
 ## Wiring Checklist
 
@@ -107,3 +112,4 @@ In these pages, "plugin" means the consuming Jellyfin plugin, "task" means a Jel
 5. Derive tasks from `PluginScheduledTask`.
 6. Own the dispose of any `ActivitySummary` you create, so waiting events are written on shutdown.
 7. For standalone pages, serve `StatusPage.Render` output with `PublicPage.ApplyHardeningHeaders` and a sibling `favicon.ico` route.
+8. For translations, add `Localization/en-us.json` and the `JellyfinString` items, and an endpoint that returns `BaseTranslations.Serve`. See [Translations](../../Translations.md).

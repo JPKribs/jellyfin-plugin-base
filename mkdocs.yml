@@ -58,6 +58,7 @@ nav:
   - Overview: index.md
   - Getting Started:
       - Using Base: Usage.md
+      - Translations: Translations.md
   - Components:
       - Web:
           - Overview: components/web/index.md
@@ -70,6 +71,7 @@ nav:
               - Task Progress Button: components/web/task-progress-button.md
               - Shared Bag: components/web/shared-bag.md
               - Browser Helpers: components/web/browser-helpers.md
+              - Translations: components/web/translations.md
               - Utility Classes: components/web/utility-classes.md
           - Layout and Sections:
               - Section Title: components/web/section-title.md
@@ -205,5 +207,6 @@ nav:
           - Data and Storage: components/csharp/data-and-storage.md
           - Pages and Templates: components/csharp/pages-and-templates.md
           - Activity Log: components/csharp/activity-log.md
+          - Translations: components/csharp/translations.md
   - Development:
       - Releasing: Releasing.md

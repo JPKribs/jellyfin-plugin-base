@@ -12,7 +12,7 @@ Base holds what two plugins could share unchanged.
 * The sources are strict TypeScript. There is no `.js` source, and `tsconfig.json` includes only `src/js/**/*.ts`, so a `.js` file there is never type checked or bundled.
 * Every value a component takes from the CSS scales comes from `src/css/design-tokens.css`: sizes, fonts, pads, icons, lines, fields, gaps, chevrons, radii, shadows, layers, and colors.
 * Never add a file to a folder with a numeric prefix. Ordering never matters.
-* Never add a runtime dependency. The package has no assembly, so everything compiles into the plugin and can use only what a Jellyfin plugin already references.
+* Never add a runtime dependency. The package has no runtime assembly, so everything compiles into the plugin and can use only what a Jellyfin plugin already references. The translations task in `tasks/` runs only inside MSBuild while a plugin builds, and never reaches the plugin.
 
 ## The Component Model
 
@@ -92,7 +92,7 @@ Every plugin compiles Base in, so each change is seen by every one of them. A pl
 * **Add, do not change.** A new optional parameter, option, or overload is safe. Giving it a default that keeps the old behavior is what makes it safe.
 * **Never remove or rename** a public type, member, JS export, `createShared` bag member, class, token, or template placeholder without asking first. See [stop and ask](../starthere.md#stop-and-ask).
 * **A behavior change is an API change.** A changed return value, a new exception, a different default, or a different default label reaches every plugin.
-* **A name that exists in Base must never exist in a plugin.** Base compiles into the plugin's assembly, so a plugin copy with the same name is ambiguous. A new public name should be unlikely to match a plugin's own type.
+* **A name that exists in Base must never exist in a plugin.** Base compiles into the plugin's assembly, so a plugin copy with the same name is ambiguous. A new public name should be unlikely to match a plugin's own type. When a plain name could match one, start it with `Base`, as `BaseHttp` and `BaseTranslations` do. The same goes for an MSBuild property, item, or target in `build/`, such as `BaseLocalizationDirectory`. Base uses no `Jpk` prefix.
 * **Keep the signatures of C# members binary and source compatible** where you can, since a plugin compiles against the source and a recompile is the only fix.
 * **A class is a contract.** Do not rename a `base-` class, change what a modifier means, or change a token's value for a different look. A plugin page depends on them.
 * **Older engines count.** CSS must still pass [the fallback tests](testing.md#css-tests), and JS stays in the style the existing files use.
@@ -189,7 +189,7 @@ The code is compiled into each plugin, and every plugin sets `Nullable`, `TreatW
 * End the name of an async method in `Async`, take a `CancellationToken`, and use `ConfigureAwait(false)` on every await. Name a fire and forget method without `Async`, since the analyzers flag it as blocking otherwise. `ActivityLogger.Log` and `LogAndWaitAsync` show the pair.
 * Guard public arguments with `ArgumentNullException.ThrowIfNull` or `ArgumentException.ThrowIfNullOrEmpty`.
 * Catch a specific exception, or filter with `when`. Let `OperationCanceledException` pass when the token was cancelled.
-* Never throw from a helper whose contract is not to throw, such as `JpkHttp.SendAsync` on a network fault and `ActivityLogger.Log`.
+* Never throw from a helper whose contract is not to throw, such as `BaseHttp.SendAsync` on a network fault and `ActivityLogger.Log`.
 * Log through `ILogger` with static message templates. Pass untrusted text through `FormatUtilities.SanitizeForLog`.
 
 ## TypeScript Conventions
@@ -223,7 +223,7 @@ Several helpers guard security for every plugin. A change to one is a [stop and 
 * `FileNameSanitizer` replaces the same set of characters on every OS.
 * `PublicPage.ApplyHardeningHeaders` sets `no-referrer`, `no-store`, and `noindex`. A standalone page calls it.
 * `StringUtilities.EscapeJsString` and `escapeHtml` neutralize breakout from a script block and from markup.
-* `JpkHttp` returns a status and body, never throws on a network fault, and reads no more than `maxResponseBytes`. `JpkHttp` checks every URL by default with `SsrfGuard.PrivateNetworkAllowed` and then sends through Jellyfin's client, so proxies still work. A plugin that calls an address it did not choose passes `SsrfGuard.PublicOnly` for the strict mode, and `SsrfGuard.Disabled` is the opt out. `SsrfGuard` refuses unsafe schemes, user info, and loopback, private, link local (including the cloud metadata address), multicast, unspecified, and broadcast addresses. It classifies every address a name resolves to, checks again when the socket connects so a DNS rebind cannot slip past, and refuses a redirect to another host. Keep every range it refuses, and add a test with each change.
+* `BaseHttp` returns a status and body, never throws on a network fault, and reads no more than `maxResponseBytes`. `BaseHttp` checks every URL by default with `SsrfGuard.PrivateNetworkAllowed` and then sends through Jellyfin's client, so proxies still work. A plugin that calls an address it did not choose passes `SsrfGuard.PublicOnly` for the strict mode, and `SsrfGuard.Disabled` is the opt out. `SsrfGuard` refuses unsafe schemes, user info, and loopback, private, link local (including the cloud metadata address), multicast, unspecified, and broadcast addresses. It classifies every address a name resolves to, checks again when the socket connects so a DNS rebind cannot slip past, and refuses a redirect to another host. Keep every range it refuses, and add a test with each change.
 * `FormatUtilities.SanitizeForLog` strips control characters so caller text cannot forge a log line. Use it on any value from a request or a file.
 * A client that sends a key or password to an address the user typed builds its handler as `new RedirectRefusingHandler(new SsrfGuard(allowPrivate, requireHttpsForPublic: true).CreateHandler(), advice)`. Plain http then reaches only loopback and private addresses, and a redirect fails with the address to use instead of carrying the key to another host.
 * A download copies through `StreamUtilities.CopyWithIdleTimeoutAsync`, with `CopyThrottledAsync` inside it when a speed limit applies, so a server that stops sending fails the copy instead of hanging it. Wrap the body in `CappedReadStream` and the file in `ProgressReportingStream` when the size is known.
