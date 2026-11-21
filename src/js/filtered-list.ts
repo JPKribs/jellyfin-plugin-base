@@ -1,4 +1,4 @@
-import { make, icon, clear, listen, runAll, fillAll, idOf, toText } from './lib/dom.js';
+import { make, icon, iconButton, clear, listen, runAll, fillAll, idOf, toText } from './lib/dom.js';
 import { makeCheck, makeCheckRow } from './lib/check.js';
 import { createDataView, fieldOf } from './lib/data-view.js';
 import type { DataFilter, DataSort, DataState, DataQuery, DataResult } from './lib/data-view.js';
@@ -99,6 +99,8 @@ export interface FilteredListOptions<T = any> {
     containChecks?: boolean;
     bulkActions?: FilteredListBulkAction<T>[];
     actions?: FilteredListToolbarAction<T>[];
+    onReload?(): unknown;
+    reloadText?: string;
     layout?: ListLayout;
     height?: ListHeight;
     maxHeight?: number | string | null;
@@ -124,6 +126,7 @@ export interface FilteredListHandle<T = any> extends ComponentHandle {
     toolbar: HTMLElement;
     selectBar: HTMLElement | null;
     bulkBar: HTMLElement | null;
+    reloadButton: HTMLButtonElement | null;
     toggleSort(key: string): void;
     setItems(items: T[] | null | undefined): void;
     setSearch(text: string): void;
@@ -196,6 +199,8 @@ function actionButton(spec: { id: string; label: string; icon?: string; variant?
  *   containChecks: true keeps a checkbox's change event inside the list, for a selection that is not a setting (default false)
  *   bulkActions : array of { id, label, icon, variant, onClick(items) } on the bar of selected items, disabled while none is selected [optional]
  *   actions     : array of { id, label, icon, variant, onClick(state), visible(state) } beside the search [optional]
+ *   onReload    : function() run by a reload icon button at the end of the selection bar, whose icon turns until the promise it returns settles. It needs multiple selection [optional]
+ *   reloadText  : the reload button's title and aria-label (default 'Reload')
  *   layout, height, maxHeight, minHeight, minColumn : the List's own layout and height, so it grows, holds a fixed height and scrolls inside, caps, or fills to the bottom of the window (default rows and 'auto')
  *   label       : aria-label of the list [optional]
  *   listRole, wrap : passed to the List, for a variation such as a table whose rows are table rows [optional]
@@ -210,7 +215,7 @@ function actionButton(spec: { id: string; label: string; icon?: string; variant?
  *   onSearch    : function(text) called when the reader types a search, before it runs, which returns false to run it another way [optional]
  *   onChange    : function(state) after the items shown change [optional]
  * }
- * @returns { element, list, toolbar, selectBar, bulkBar, toggleSort, setItems, setSearch, setFilter, setFilterOptions, setSort, setCounts, setHeight, getSelected, getSelectedItems, setSelected, clearSelection, redraw, getState, query, more, setLoadOnScroll, reload, destroy }.
+ * @returns { element, list, toolbar, selectBar, bulkBar, reloadButton, toggleSort, setItems, setSearch, setFilter, setFilterOptions, setSort, setCounts, setHeight, getSelected, getSelectedItems, setSelected, clearSelection, redraw, getState, query, more, setLoadOnScroll, reload, destroy }.
  * list is the List it is built on, so a variation can frame it, such as a table that adds a header, and toolbar the row a variation adds its own controls to.
  * setFilterOptions swaps a filter's choices and keeps a picked value that still exists. setSelected does not call onSelectionChange.
  * query changes the search, filters, and sort at once, and query and more settle to { answer, error, stale }. setLoadOnScroll pauses or resumes loading at the end of the list.
@@ -401,6 +406,7 @@ export function createFilteredList<T = any>(options: FilteredListOptions<T>): Fi
     var countEl: HTMLElement | null = null;
     var bulkBar: HTMLElement | null = null;
     var bulkButtons: HTMLButtonElement[] = [];
+    var reloadButton: HTMLButtonElement | null = null;
     var counting = bulk.length > 0 || !!opts.selectedText;
     if (multiple && (opts.selectAll !== false || counting)) {
         selectBar = make('div', 'base-filtered-selectbar' + (counting ? ' actions' : ''));
@@ -421,7 +427,23 @@ export function createFilteredList<T = any>(options: FilteredListOptions<T>): Fi
             bulkBar!.appendChild(btn);
         });
         selectBar.appendChild(bulkBar);
+        if (opts.onReload) {
+            reloadButton = iconButton('base-row-btn base-filtered-reload', 'refresh', opts.reloadText || baseText('Base.Reload'));
+            cleanups.push(listen(reloadButton, 'click', runReload));
+            selectBar.appendChild(reloadButton);
+        }
         root.appendChild(selectBar);
+    }
+
+    // Runs onReload with the reload icon turning, until the promise it returns settles, failed or not.
+    function runReload(): void {
+        var btn = reloadButton!;
+        btn.classList.add('spinning');
+        btn.disabled = true;
+        function stop(): void { btn.classList.remove('spinning'); btn.disabled = false; }
+        var result: unknown;
+        try { result = opts.onReload!(); } catch (err) { stop(); throw err; }
+        Promise.resolve(result).then(stop, stop);
     }
 
     var selection = createSelection({
@@ -694,6 +716,7 @@ export function createFilteredList<T = any>(options: FilteredListOptions<T>): Fi
         toolbar: toolbar,
         selectBar: selectBar,
         bulkBar: bulkBar,
+        reloadButton: reloadButton,
         toggleSort: function (key) { view.toggleSort(key); },
         setItems: function (items) { all = (items || []).slice(); view.setItems(all); },
         setSearch: function (text) { if (search) search.setValue(text); view.setSearch(text); },

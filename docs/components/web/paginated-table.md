@@ -1,6 +1,6 @@
 # Paginated Table
 
-A searchable, filterable table of rows that reads a paged endpoint. It offers infinite scroll or Load more buttons, optional row selection with bulk actions, status badges, thumbnails, and clickable rows. It is a [Filtered List](filtered-list.md) whose items are rows from a server fetch: the search, the multiple selection with its select all and count, opening a row, paging, and the live refresh that keeps unchanged rows all come from it, and the table adds its filter select, status cells, the reload button, and the footer.
+A searchable, filterable table of rows that reads a paged endpoint. It offers infinite scroll or Load more buttons, optional row selection with bulk actions, status badges, thumbnails, and clickable rows. It is a [Filtered List](filtered-list.md) whose items are rows from a server fetch: the search, the multiple selection with its select all and count, the reload button, opening a row, paging, and the live refresh that keeps unchanged rows all come from it, and the table adds its filter select, status cells, and the footer.
 
 ## Decision
 

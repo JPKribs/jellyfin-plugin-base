@@ -94,6 +94,10 @@
 .base-filtered-selectall { flex: 0 0 auto; user-select: none; }
 .base-filtered-selected { opacity: 0.7; font-variant-numeric: tabular-nums; }
 .base-filtered-bulk { display: flex; flex-wrap: wrap; gap: var(--base-gap-narrow); }
+/* The reload row button at the end of the selection bar, whose icon turns while onReload runs */
+/* Example: <button class="base-row-btn base-filtered-reload spinning" title="Reload"><span class="material-icons" aria-hidden="true">refresh</span></button> */
+.base-filtered-selectbar > .base-filtered-reload { margin-left: auto; }
+.base-filtered-reload.spinning .material-icons { animation: base-spin 0.8s linear infinite; }
 
 /* An item that a checkbox leads, when the item's render did not place the checkbox itself. The checkbox sits on the row's center line, where a media card centers its artwork too */
 /* Example: <div class="base-filtered-checked"><input type="checkbox" class="base-check-row-input base-filtered-check"><span class="base-filtered-checked-text">Alien</span></div> */

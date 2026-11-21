@@ -1,5 +1,5 @@
 import { classNames } from './lib/class-names.js';
-import { make, iconButton, listen, runAll, toText, idOf, clear } from './lib/dom.js';
+import { make, listen, runAll, toText, idOf, clear } from './lib/dom.js';
 import { formatText } from './translations.js';
 import { createFilteredList } from './filtered-list.js';
 import { buildThumb, SHAPE_ICONS } from './lib/thumb.js';
@@ -304,6 +304,16 @@ export function createPaginatedTable<T = any>(view: ParentNode, shared: Shared, 
             if (!destroyed) publicAPI.setSearch(value).catch(function () { return null; });
             return false;
         },
+        // The reload button reloads from the first page, then calls onReload. A null result means a newer load
+        // replaced this one, so onReload is not told of it, and a failed load still ends the reload.
+        onReload: selecting ? function () {
+            return publicAPI.reload().then(function (result) {
+                if (result !== null && actions.onReload) actions.onReload();
+            }, function () {
+                if (actions.onReload) actions.onReload();
+            });
+        } : undefined,
+        reloadText: baseText('Base.Reload'),
         onChange: function (state) {
             current = state.items;
             if (container) container.classList.toggle('base-table-loading', state.loading && state.query.page === 1);
@@ -358,7 +368,6 @@ export function createPaginatedTable<T = any>(view: ParentNode, shared: Shared, 
         return names.indexOf(name) === -1 ? null : name;
     }
 
-    var reloadBtn: HTMLButtonElement | null = null;
     var bar = base.selectBar;
     if (bar) {
         bar.classList.add('base-table-selection-header');
@@ -368,10 +377,11 @@ export function createPaginatedTable<T = any>(view: ParentNode, shared: Shared, 
         mark('.base-filtered-selectall .base-check-label', 'base-table-select-all-text');
         mark('.base-filtered-selected', 'base-table-selected-count');
         mark('.base-filtered-bulk', 'base-table-bulk-actions');
-        bar.appendChild(make('span', 'base-table-header-spacer'));
-        reloadBtn = iconButton('base-row-btn base-table-reload-btn', 'refresh', baseText('Base.Reload'));
-        bar.appendChild(reloadBtn);
-        listen(reloadBtn, 'click', handleReload);
+        var reloadBtn = base.reloadButton;
+        if (reloadBtn) {
+            reloadBtn.classList.add('base-table-reload-btn');
+            bar.insertBefore(make('span', 'base-table-header-spacer'), reloadBtn);
+        }
     }
     wrapper.appendChild(footer);
     if (loadMoreBtn) listen(loadMoreBtn, 'click', function () { loadMore(); });
@@ -409,23 +419,6 @@ export function createPaginatedTable<T = any>(view: ParentNode, shared: Shared, 
             base.more().then(step);
         }
         base.more().then(step);
-    }
-
-    // Reloads from the first page with the icon turning, then calls onReload.
-    function handleReload(): void {
-        var btn = reloadBtn!;
-        btn.classList.add('spinning');
-        btn.disabled = true;
-        function stop(): void { btn.classList.remove('spinning'); btn.disabled = false; }
-        publicAPI.reload().then(function (result) {
-            stop();
-            // A null result means a newer load replaced this one, so onReload is not told of it.
-            if (result !== null && actions.onReload) actions.onReload();
-        }, function () {
-            // A failed load still ends the reload, and is swallowed here so it does not surface as unhandled.
-            stop();
-            if (actions.onReload) actions.onReload();
-        });
     }
 
     var publicAPI: TableHandle<T> = {

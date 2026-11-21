@@ -436,3 +436,23 @@ test('setFilterOptions draws the select of a filter that started with no choices
     assert.equal(select.getAttribute('aria-label'), 'Requester');
     assert.equal(select.options.length, 2);
 });
+
+test('the reload button ends the selection header, reloads from the first page, and then calls onReload', async function () {
+    var reloaded = 0;
+    var t = makeTable({ selection: { enabled: true }, actions: { onReload: function () { reloaded++; } } }, answerWith(['a', 'b']));
+    await t.table.load();
+    box(t, 1).checked = true;
+    box(t, 1).dispatch('change', { bubbles: true });
+    var btn = t.container.querySelector('.base-table-reload-btn');
+    assert.ok(btn.classList.contains('base-row-btn'));
+    var kids = btn.parentNode.children;
+    assert.equal(kids[kids.length - 1], btn);
+    assert.ok(kids[kids.length - 2].classList.contains('base-table-header-spacer'));
+    btn.click();
+    assert.ok(btn.classList.contains('spinning'));
+    await tick();
+    await tick();
+    assert.equal(reloaded, 1);
+    assert.equal(btn.classList.contains('spinning'), false);
+    assert.deepEqual(t.table.getSelectedIds(), []);
+});

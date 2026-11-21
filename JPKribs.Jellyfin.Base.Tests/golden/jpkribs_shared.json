@@ -195,7 +195,7 @@
     "field-message": 2273,
     "file-picker": 2605,
     "filter-panel": 6079,
-    "filtered-list": 17405,
+    "filtered-list": 17917,
     "flow-diagram": 11384,
     "folder-picker": 7323,
     "help-hint": 1503,
@@ -245,7 +245,7 @@
     "number-unit-field": 3160,
     "ordered-list": 1948,
     "overflow-menu": 2581,
-    "paginated-table": 10725,
+    "paginated-table": 10569,
     "pagination": 3931,
     "pie-chart": 6337,
     "pill-group": 421,
@@ -291,5 +291,5 @@
     "web-push": 707,
     "world-map": 6198
   },
-  "bytes": 504815
+  "bytes": 505171
 }

@@ -37,7 +37,7 @@ view.querySelector('#queueHost').appendChild(queue.element);
 
 For server data, pass `fetch(query)` instead of `items`, and `setCounts(name, { value: count })` for the counts on its filters.
 
-The handle is `{ element, list, toolbar, selectBar, bulkBar, toggleSort, setItems, setSearch, setFilter, setFilterOptions, setSort, setCounts, setHeight, getSelected, getSelectedItems, setSelected, clearSelection, redraw, getState, query, more, setLoadOnScroll, reload, destroy }`. `list` is the List underneath, and `toolbar` the row a variation adds its own controls to.
+The handle is `{ element, list, toolbar, selectBar, bulkBar, reloadButton, toggleSort, setItems, setSearch, setFilter, setFilterOptions, setSort, setCounts, setHeight, getSelected, getSelectedItems, setSelected, clearSelection, redraw, getState, query, more, setLoadOnScroll, reload, destroy }`. `list` is the List underneath, and `toolbar` the row a variation adds its own controls to.
 
 A sync queue with selection, actions, and a live refresh:
 
@@ -79,6 +79,7 @@ setInterval(function () { load().then(function (rows) { queue.setItems(rows); })
 * `setItems`, and a server reload, keep the scroll position, the selection, and focus, and draw again only the items whose `rowKey` is new or whose content changed, so a poll every few seconds does not jump.
 * `limit` caps the items shown, and while more match the summary shows `limitText`, even with `summary: false`.
 * `actions` are field height buttons beside the search, each shown only while its `visible(state)` says so.
+* `onReload()` draws a reload [Row Button](row-button.md) at the end of the bar with the select all, so it needs `selectable: 'multiple'`. Its icon turns until the promise `onReload` returns settles, failed or not. `reloadText` replaces its title, "Reload".
 * The empty sentence is "Nothing matches." unless `emptyText` replaces it.
 * With `fetch`, `immediate: false` waits for the first `query` or `reload`, and `loadOnScroll: false` stops the end of the list from loading the next page.
 * `onSearch(text)` runs before a typed search and returns `false` to run it another way. `onChange(state)` runs after the items shown change.
@@ -113,6 +114,7 @@ The List with a search, filters, a sort, a summary line, selection, and actions.
 | `toolbar` | <code>HTMLElement</code> |
 | `selectBar` | <code>HTMLElement &#124; null</code> |
 | `bulkBar` | <code>HTMLElement &#124; null</code> |
+| `reloadButton` | <code>HTMLButtonElement &#124; null</code> |
 | `toggleSort` | <code>(key: string): void</code> |
 | `setItems` | <code>(items: T[] &#124; null &#124; undefined): void</code> |
 | `setSearch` | <code>(text: string): void</code> |

@@ -45,6 +45,7 @@ const list = base.createFilteredList({
         { id: 'ignore', label: 'Ignore', icon: 'block', onClick: (items) => { setState(items.map((i) => i.id), 'Ignored'); list.clearSelection(); } },
         { id: 'queue', label: 'Queue', icon: 'playlist_add', variant: 'primary', onClick: (items) => { setState(items.map((i) => i.id), 'Queued'); list.clearSelection(); } }
     ],
+    onReload: () => new Promise((done) => setTimeout(() => { list.setItems(all); done(); }, 800)),
     actions: [{ id: 'retry', label: 'Retry Errors', icon: 'refresh', onClick: () => setState(all.filter((i) => i.state === 'Errored').map((i) => i.id), 'Queued'), visible: () => all.some((i) => i.state === 'Errored') }],
     limit: 200,
     limitText: 'Showing the latest {shown} of {total}. Filter by state or server to see more.',

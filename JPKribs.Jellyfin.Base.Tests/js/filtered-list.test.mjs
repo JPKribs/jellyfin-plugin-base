@@ -70,3 +70,29 @@ test('a select filter and a sort select narrow and order the items', function ()
     sort.dispatchEvent(new Event('change'));
     assert.deepEqual(names(list), ['Dune', 'Brazil', 'Cosmos', 'Alien']);
 });
+
+test('onReload draws a reload button at the end of the selection bar that turns until its promise settles', async function () {
+    var calls = 0;
+    var pending;
+    var list = make({ selectable: 'multiple', onReload: function () { calls++; pending = Promise.withResolvers(); return pending.promise; } });
+    var btn = list.reloadButton;
+    assert.equal(btn, list.selectBar.children[list.selectBar.children.length - 1]);
+    assert.ok(btn.classList.contains('base-row-btn'));
+    assert.equal(btn.getAttribute('title'), 'Reload');
+    assert.equal(btn.getAttribute('aria-label'), 'Reload');
+    btn.click();
+    assert.equal(calls, 1);
+    assert.ok(btn.classList.contains('spinning'));
+    assert.equal(btn.disabled, true);
+    pending.reject(new Error('offline'));
+    await new Promise(function (r) { setTimeout(r, 0); });
+    assert.equal(btn.classList.contains('spinning'), false);
+    assert.equal(btn.disabled, false);
+});
+
+test('reloadText names the reload button, and a list without onReload or multiple selection has none', function () {
+    var named = make({ selectable: 'multiple', onReload: function () {}, reloadText: 'Refresh' });
+    assert.equal(named.reloadButton.getAttribute('title'), 'Refresh');
+    assert.equal(make({ selectable: 'multiple' }).reloadButton, null);
+    assert.equal(make({ onReload: function () {} }).reloadButton, null);
+});
