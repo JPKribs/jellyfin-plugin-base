@@ -1,13 +1,22 @@
 // qr.ts
-// A small QR encoder for the QR code component: byte mode, error correction level M, versions 1 to 10, which hold up to 213 bytes, enough for a URL. None of it is exported from the bundle.
+// A small QR encoder for the QR code component: byte mode, error correction level M, versions 1 to 15, which hold up to 412 bytes, enough for a URL or a short config file. None of it is exported from the bundle.
 
-// Data codewords and error correction codewords per block at level M, and the block counts, for versions 1 to 10.
-var EC_PER_BLOCK: number[] = [10, 16, 26, 18, 24, 16, 18, 22, 22, 26];
-var BLOCKS: number[][] = [[1, 16], [1, 28], [1, 44], [2, 32], [2, 43], [4, 27], [4, 31], [2, 38, 2, 39], [3, 36, 2, 37], [4, 43, 1, 44]];
-var ALIGN: number[][] = [[], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34], [6, 22, 38], [6, 24, 42], [6, 26, 46], [6, 28, 50]];
+// Data codewords and error correction codewords per block at level M, and the block counts, for versions 1 to 15.
+var EC_PER_BLOCK: number[] = [10, 16, 26, 18, 24, 16, 18, 22, 22, 26, 30, 22, 22, 24, 24];
+var BLOCKS: number[][] = [
+    [1, 16], [1, 28], [1, 44], [2, 32], [2, 43], [4, 27], [4, 31], [2, 38, 2, 39], [3, 36, 2, 37], [4, 43, 1, 44],
+    [1, 50, 4, 51], [6, 36, 2, 37], [8, 37, 1, 38], [4, 40, 5, 41], [5, 41, 5, 42]
+];
+var ALIGN: number[][] = [
+    [], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34], [6, 22, 38], [6, 24, 42], [6, 26, 46], [6, 28, 50],
+    [6, 30, 54], [6, 32, 58], [6, 34, 62], [6, 26, 46, 66], [6, 26, 48, 70]
+];
 
-/** The most bytes a QR code holds at level M in version 10. */
-export var QR_MAX_BYTES: number = 213;
+/** The highest version the encoder draws. */
+var MAX_VERSION: number = BLOCKS.length;
+
+/** The most bytes a QR code holds at level M in version 15. */
+export var QR_MAX_BYTES: number = 412;
 
 // The data codewords a version holds.
 function dataCapacity(version: number): number {
@@ -48,6 +57,27 @@ function rsRemainder(data: number[], divisor: number[]): number[] {
         divisor.forEach(function (coef, i) { result[i] ^= gfMul(coef, factor); });
     });
     return result;
+}
+
+/**
+ * Lists the centers of the alignment patterns of a code, as [row, column], leaving out the three that would sit on a finder.
+ * Internal to the QR code, which draws each one solid so a dense code still scans.
+ *
+ * @param size the code's width in modules
+ * @returns the centers, none below version 2
+ */
+export function alignmentCenters(size: number): number[][] {
+    var align = ALIGN[(size - 17) / 4 - 1] || [];
+    var last = align[align.length - 1];
+    var out: number[][] = [];
+    align.forEach(function (ar) {
+        align.forEach(function (ac) {
+            // An alignment pattern never sits on a finder.
+            if ((ar === 6 && ac === 6) || (ar === 6 && ac === last) || (ar === last && ac === 6)) return;
+            out.push([ar, ac]);
+        });
+    });
+    return out;
 }
 
 /**
@@ -160,16 +190,16 @@ function penalty(m: boolean[][]): number {
 }
 
 /**
- * Encodes text as a QR code at error correction level M, in the smallest version from 1 to 10 that holds it.
+ * Encodes text as a QR code at error correction level M, in the smallest version from 1 to 15 that holds it.
  * Internal to the QR code.
  *
  * @param text the text, such as a URL
- * @returns the grid of modules, true for dark, or null when the text is longer than version 10 holds
+ * @returns the grid of modules, true for dark, or null when the text is longer than version 15 holds
  */
 export function encodeQr(text: string): boolean[][] | null {
     var bytes = utf8Bytes(text);
     var version = 0;
-    for (var v = 1; v <= 10; v++) {
+    for (var v = 1; v <= MAX_VERSION; v++) {
         if (4 + (v < 10 ? 8 : 16) + bytes.length * 8 <= dataCapacity(v) * 8) { version = v; break; }
     }
     if (!version) return null;
@@ -203,13 +233,8 @@ export function encodeQr(text: string): boolean[][] | null {
         set(6, t, t % 2 === 0);
         set(t, 6, t % 2 === 0);
     }
-    var align = ALIGN[version - 1];
-    align.forEach(function (ar) {
-        align.forEach(function (ac) {
-            // An alignment pattern never sits on a finder.
-            if ((ar === 6 && ac === 6) || (ar === 6 && ac === align[align.length - 1]) || (ar === align[align.length - 1] && ac === 6)) return;
-            for (var dr = -2; dr <= 2; dr++) for (var dc = -2; dc <= 2; dc++) set(ar + dr, ac + dc, Math.max(Math.abs(dr), Math.abs(dc)) !== 1);
-        });
+    alignmentCenters(size).forEach(function (center) {
+        for (var dr = -2; dr <= 2; dr++) for (var dc = -2; dc <= 2; dc++) set(center[0] + dr, center[1] + dc, Math.max(Math.abs(dr), Math.abs(dc)) !== 1);
     });
     // The format bits are reserved now and drawn with the chosen mask.
     function drawFormat(mask: number): void {

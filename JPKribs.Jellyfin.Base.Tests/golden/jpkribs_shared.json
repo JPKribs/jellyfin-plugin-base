@@ -225,7 +225,7 @@
     "lib/popover": 2124,
     "lib/pressed-group": 1272,
     "lib/push": 3578,
-    "lib/qr": 5555,
+    "lib/qr": 5849,
     "lib/row-editor": 3274,
     "lib/selection": 1929,
     "lib/text-case": 3309,
@@ -254,7 +254,7 @@
     "preview-frame": 3796,
     "progress-ring": 1488,
     "prompt-dialog": 2461,
-    "qr-code": 5991,
+    "qr-code": 6307,
     "record-list": 2748,
     "relative-time": 3001,
     "repeater": 6106,
@@ -291,5 +291,5 @@
     "web-push": 707,
     "world-map": 6198
   },
-  "bytes": 505171
+  "bytes": 505781
 }

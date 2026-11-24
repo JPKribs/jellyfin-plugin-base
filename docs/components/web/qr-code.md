@@ -1,12 +1,12 @@
 # QR Code
 
-A QR code of a short text, such as a URL, drawn as SVG on the surface in a rounded style: a round dot in the text color for each dark module, and the three corner eyes as rounded squares in the accent color. "Copy image" and "Download" give it as a PNG, and the text sits under it as a [Copy Field](copy-field.md).
+A QR code of a short text, such as a URL or a short config file, drawn as SVG on the surface in a rounded style: a round dot in the text color for each dark module, each small alignment square drawn solid in the text color, and the three corner eyes as rounded squares in the accent color. "Copy image" and "Download" give it as a PNG, and the text sits under it as a [Copy Field](copy-field.md).
 
 ## Decision
 
 | When | Use |
 | :--- | :--- |
-| Handing a link to a phone, such as an invite or a pairing address | QR Code. |
+| Handing a link or a short config to a phone, such as an invite, a pairing address, or a VPN profile | QR Code. |
 | A secret | Not the QR Code. Anyone who sees the screen can scan it. |
 
 ## Usage
@@ -22,7 +22,7 @@ The handle is `{ element, getValue, setValue, toBlob, destroy }`. `toBlob()` res
 
 ## States and Modifiers
 
-* The encoder is part of Base, so it needs no library. It uses byte mode at error correction level M, versions 1 to 10, which hold up to 213 bytes.
+* The encoder is part of Base, so it needs no library. It uses byte mode at error correction level M, versions 1 to 15, which hold up to 412 bytes, enough for a URL or a short config file.
 * A longer text shows "This text is too long for a QR code." under the frame, which `tooLongText` replaces, and hides the code.
 * Copy Image copies a PNG to the clipboard where the browser allows it, and its label shows "Copied" or "Copy failed." for `feedbackMs`, 1500 milliseconds by default. `copyImageText`, `downloadText`, `copiedText`, and `copyFailedText` replace the labels. Download saves `fileName` ("qr-code.png").
 * On a wide line the code sits on the left, with Copy Image and Download as two equal buttons over the Copy Field filling the space beside it, level with the code's bottom edge. When the component is narrower than 480px, it stacks: the code the full width, then the buttons and the text under it.

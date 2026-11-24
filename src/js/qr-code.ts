@@ -1,7 +1,7 @@
 import { make, icon, iconButton, listen, runAll, toText, nextId, fill } from './lib/dom.js';
 import { openDialog } from './dialog.js';
 import type { DialogHandle } from './dialog.js';
-import { encodeQr } from './lib/qr.js';
+import { encodeQr, alignmentCenters } from './lib/qr.js';
 import { svgEl } from './lib/chart.js';
 import { canvasBlob, copyImage } from './lib/canvas.js';
 import { downloadBlob } from './lib/file.js';
@@ -52,20 +52,29 @@ function roundRect(x: number, y: number, w: number, h: number, r: number): strin
 }
 
 /**
- * The code drawn in the rounded style: a round dot per dark module, and each of the three finder eyes as a rounded ring
- * around a rounded square. The paths are in modules with the quiet zone around them, and the eyes fill even-odd so the
- * ring's hole stays open. The page's SVG and the PNG draw the same paths.
+ * The code drawn in the rounded style: a round dot per dark module, each alignment pattern as a solid ring around a
+ * square, and each of the three finder eyes as a rounded ring around a rounded square. A dense code would not scan with
+ * its alignment patterns as dots. The paths are in modules with the quiet zone around them, and both fill even-odd so
+ * each ring's hole stays open. The page's SVG and the PNG draw the same paths.
  */
 function qrPaths(grid: boolean[][]): { dots: string; eyes: string } {
     var size = grid.length;
     var corners = [[0, 0], [0, size - 7], [size - 7, 0]];
+    var aligns = alignmentCenters(size);
     function inEye(r: number, c: number): boolean {
         return corners.some(function (k) { return r >= k[0] && r < k[0] + 7 && c >= k[1] && c < k[1] + 7; });
     }
-    var dots: string[] = [];
+    function inAlign(r: number, c: number): boolean {
+        return aligns.some(function (k) { return Math.abs(r - k[0]) <= 2 && Math.abs(c - k[1]) <= 2; });
+    }
+    var dots: string[] = aligns.map(function (k) {
+        var x = k[1] - 2 + QUIET;
+        var y = k[0] - 2 + QUIET;
+        return roundRect(x, y, 5, 5, 0.6) + roundRect(x + 1, y + 1, 3, 3, 0.3) + roundRect(x + 2, y + 2, 1, 1, 0.2);
+    });
     grid.forEach(function (row, r) {
         row.forEach(function (dark, c) {
-            if (!dark || inEye(r, c)) return;
+            if (!dark || inEye(r, c) || inAlign(r, c)) return;
             var x = c + QUIET + 0.5 - DOT;
             var y = r + QUIET + 0.5;
             dots.push('M' + x + ' ' + y + 'a' + DOT + ' ' + DOT + ' 0 1 0 ' + (2 * DOT) + ' 0a' + DOT + ' ' + DOT + ' 0 1 0 ' + (-2 * DOT) + ' 0z');
@@ -83,8 +92,8 @@ function qrPaths(grid: boolean[][]): { dots: string; eyes: string } {
  * With layout 'inline' it draws only the text as a wrapped Copy Field that shows all of it, with a QR button beside Copy that opens the full code,
  * with its Copy image and Download, in a dialog. A text too long to encode disables that button and shows the message.
  *
- * A QR code of a short text, such as a URL, drawn as SVG in the text color on the surface in a rounded style: round dots, and rounded finder eyes in the accent color, with Copy image and Download buttons for a PNG and the text under it as a Copy Field.
- * It encodes in byte mode at error correction level M, up to 213 bytes, and shows a message under the frame for a longer text.
+ * A QR code of a short text, such as a URL, drawn as SVG in the text color on the surface in a rounded style: round dots, solid alignment patterns, and rounded finder eyes in the accent color, with Copy image and Download buttons for a PNG and the text under it as a Copy Field.
+ * It encodes in byte mode at error correction level M, up to 412 bytes, and shows a message under the frame for a longer text.
  *
  * @param options {
  *   value          : the text the code holds, such as a URL [optional]
@@ -178,7 +187,7 @@ export function createQrCode(options?: QrCodeOptions): QrCodeHandle {
         var paths = qrPaths(grid);
         var svg = svgEl('svg', { viewBox: '0 0 ' + n + ' ' + n, 'aria-hidden': 'true', focusable: 'false' });
         svg.appendChild(svgEl('rect', { width: n, height: n, class: 'base-qr-code-bg' }));
-        svg.appendChild(svgEl('path', { d: paths.dots, class: 'base-qr-code-modules' }));
+        svg.appendChild(svgEl('path', { d: paths.dots, class: 'base-qr-code-modules', 'fill-rule': 'evenodd' }));
         svg.appendChild(svgEl('path', { d: paths.eyes, class: 'base-qr-code-eyes', 'fill-rule': 'evenodd' }));
         frame.appendChild(svg);
     }
@@ -200,7 +209,7 @@ export function createQrCode(options?: QrCodeOptions): QrCodeHandle {
         var eyeColor = eyeEl ? window.getComputedStyle(eyeEl).fill : '';
         ctx.scale(PNG_SCALE, PNG_SCALE);
         ctx.fillStyle = style.color || 'CanvasText';
-        ctx.fill(new Path2D(paths.dots));
+        ctx.fill(new Path2D(paths.dots), 'evenodd');
         // The eyes take the color they show on the page, the accent unless a page restyles them.
         ctx.fillStyle = eyeColor && eyeColor !== 'none' ? eyeColor : ctx.fillStyle;
         ctx.fill(new Path2D(paths.eyes), 'evenodd');

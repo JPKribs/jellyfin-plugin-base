@@ -7,7 +7,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 var dom = installFakeDom();
-var { encodeQr, utf8Bytes, QR_MAX_BYTES } = await import('../../src/js/lib/qr.js');
+var { encodeQr, utf8Bytes, alignmentCenters, QR_MAX_BYTES } = await import('../../src/js/lib/qr.js');
 var { createQrCode } = await import('../../src/js/qr-code.js');
 
 beforeEach(function () {
@@ -28,12 +28,51 @@ test('utf8Bytes encodes text as UTF-8', function () {
     assert.deepEqual(utf8Bytes('✓'), [0xe2, 0x9c, 0x93]);
 });
 
-test('it picks the smallest version that holds the text, up to version 10', function () {
+test('it picks the smallest version that holds the text, up to version 15', function () {
     assert.equal(encodeQr('HELLO').length, 21);
     assert.equal(encodeQr('x'.repeat(14)).length, 21);
     assert.equal(encodeQr('x'.repeat(15)).length, 25);
-    assert.equal(encodeQr('x'.repeat(QR_MAX_BYTES)).length, 57);
+    // The last byte count of each version from 10 up, and one more, which takes the next version.
+    [[213, 10], [251, 11], [287, 12], [331, 13], [362, 14], [412, 15]].forEach(function (pair) {
+        assert.equal(encodeQr('x'.repeat(pair[0])).length, pair[1] * 4 + 17, pair[0] + ' bytes fit version ' + pair[1]);
+        if (pair[1] < 15) assert.equal(encodeQr('x'.repeat(pair[0] + 1)).length, pair[1] * 4 + 21, (pair[0] + 1) + ' bytes take the next version');
+    });
+    assert.equal(QR_MAX_BYTES, 412);
     assert.equal(encodeQr('x'.repeat(QR_MAX_BYTES + 1)), null);
+});
+
+test('each alignment pattern is drawn solid, not as dots', function () {
+    var qr = createQrCode({ value: 'x'.repeat(QR_MAX_BYTES) });
+    var dots = qr.element.querySelector('.base-qr-code-modules').getAttribute('d');
+    var rings = (dots.match(/M[^a]*h3\.8/g) || []).length;
+    assert.equal(rings, alignmentCenters(77).length, 'one 5 module ring per alignment pattern');
+});
+
+test('alignment patterns sit at the standard centers, off the finders', function () {
+    assert.deepEqual(alignmentCenters(21), []);
+    assert.deepEqual(alignmentCenters(25), [[18, 18]]);
+    assert.equal(alignmentCenters(45).length, 6);
+    assert.equal(alignmentCenters(73).length, 13);
+    assert.deepEqual(alignmentCenters(77).slice(0, 3), [[6, 26], [6, 48], [26, 6]]);
+    var m = encodeQr('x'.repeat(QR_MAX_BYTES));
+    alignmentCenters(m.length).forEach(function (k) {
+        assert.equal(m[k[0]][k[1]], true, 'the center is dark');
+        assert.equal(m[k[0] - 1][k[1]], false, 'the inner ring is light');
+        assert.equal(m[k[0] - 2][k[1] - 2], true, 'the outer ring is dark');
+    });
+});
+
+test('a code of version 7 or more carries its version bits in both corners', function () {
+    var m = encodeQr('x'.repeat(QR_MAX_BYTES));
+    var n = m.length;
+    var a = 0;
+    var b = 0;
+    for (var x = 0; x < 18; x++) {
+        if (m[n - 11 + x % 3][Math.floor(x / 3)]) a |= 1 << x;
+        if (m[Math.floor(x / 3)][n - 11 + x % 3]) b |= 1 << x;
+    }
+    assert.equal(a, b);
+    assert.equal(a >> 12, 15, 'the version is 15');
 });
 
 test('the finders, the timing lines, and the dark module sit where a scanner looks', function () {
@@ -70,6 +109,7 @@ test('the component draws the code, its name, and the text as a copy field', fun
     var dots = frame.querySelector('.base-qr-code-modules').getAttribute('d');
     assert.ok(dots.length > 100);
     assert.ok(!/h1v1h-1z/.test(dots), 'the data modules are round dots, not squares');
+    assert.equal(frame.querySelector('.base-qr-code-modules').getAttribute('fill-rule'), 'evenodd', 'an alignment ring keeps its hole');
     var eyes = frame.querySelector('.base-qr-code-eyes');
     assert.equal(eyes.getAttribute('fill-rule'), 'evenodd');
     assert.equal((eyes.getAttribute('d').match(/M/g) || []).length, 9, 'three eyes, each a ring of two rounded squares around a rounded center');
@@ -78,7 +118,7 @@ test('the component draws the code, its name, and the text as a copy field', fun
 });
 
 test('a text too long shows a message and hides the code and its buttons', function () {
-    var qr = createQrCode({ value: 'x'.repeat(300) });
+    var qr = createQrCode({ value: 'x'.repeat(QR_MAX_BYTES + 1) });
     assert.equal(qr.element.querySelector('.base-qr-code-frame').hidden, true);
     assert.equal(qr.element.querySelector('.base-qr-code-actions').hidden, true);
     assert.match(qr.element.querySelector('.base-field-message').textContent, /too long for a QR code/);
@@ -125,7 +165,7 @@ test('inline shows the whole of an 84 character link, with nothing in its CSS th
 });
 
 test('inline with a text too long disables the QR button and shows the message', function () {
-    var qr = createQrCode({ value: 'x'.repeat(300), layout: 'inline' });
+    var qr = createQrCode({ value: 'x'.repeat(QR_MAX_BYTES + 1), layout: 'inline' });
     assert.equal(qr.element.querySelector('.base-qr-code-open').disabled, true);
     assert.equal(qr.open(), null);
     assert.match(qr.element.querySelector('.base-field-message').textContent, /too long for a QR code/);
